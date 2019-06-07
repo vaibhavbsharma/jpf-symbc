@@ -11,3 +11,6 @@ trace
 *.orig
 *~
 *.DS_Store
+.idea/*
+logs/
+out/

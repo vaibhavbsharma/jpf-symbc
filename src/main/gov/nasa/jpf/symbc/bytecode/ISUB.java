@@ -58,7 +58,11 @@ public class ISUB extends gov.nasa.jpf.jvm.bytecode.ISUB {
 		else {
 			int v1 = sf.pop();
 			int v2 = sf.pop();
-			sf.push(v2-v1, false); // for symbolic expressions, the concrete value does not matter
+			// Java Ranger change: this change is required to get NanoXML to not crash because it ends up being used in
+			// the JPF model of charAt in JPF_java_lang_String (using executeNative). This should not matter because
+			// we're setting up the parameter to charAt to be a symbolic expression but somehow JPF_java_lang_String's
+			// charAt still ends up being used. TODO figure out why this happens and configure NanoXML correctly
+			sf.push(0, false); // for symbolic expressions, the concrete value does not matter
 		
 			IntegerExpression result = null;
 			if(sym_v2!=null) {

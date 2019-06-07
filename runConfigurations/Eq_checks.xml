@@ -1,0 +1,32 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Eq-checks" type="CompoundRunConfigurationType" factoryName="Compound Run Configuration">
+    <toRun type="JarApplication" name="ArrayTest1" />
+    <toRun type="JarApplication" name="ArrayTest2" />
+    <toRun type="JarApplication" name="ArrayTest3" />
+    <toRun type="JarApplication" name="ArrayTest4" />
+    <toRun type="JarApplication" name="ArrayTest5" />
+    <toRun type="JarApplication" name="ArrayTest6" />
+    <toRun type="JarApplication" name="ArrayTest7" />
+    <toRun type="JarApplication" name="CGTest" />
+    <toRun type="JarApplication" name="EarlyReturnsTest1" />
+    <toRun type="JarApplication" name="EqSPFCasesTest1" />
+    <toRun type="JarApplication" name="EqSPFCasesTest2" />
+    <toRun type="JarApplication" name="FieldTest1" />
+    <toRun type="JarApplication" name="FieldTest2" />
+    <toRun type="JarApplication" name="FieldTest3" />
+    <toRun type="JarApplication" name="FieldTest4" />
+    <toRun type="JarApplication" name="FieldTest5" />
+    <toRun type="JarApplication" name="FieldTest6" />
+    <toRun type="JarApplication" name="HigherOrder1" />
+    <toRun type="JarApplication" name="HigherOrder2" />
+    <toRun type="JarApplication" name="HigherOrder3" />
+    <toRun type="JarApplication" name="Simple1" />
+    <toRun type="JarApplication" name="TestAndIte" />
+    <toRun type="JarApplication" name="TestComplexCondition1" />
+    <toRun type="JarApplication" name="TestLocalOutputs" />
+    <toRun type="JarApplication" name="TestLocalOutputs1" />
+    <toRun type="JarApplication" name="TestNestedIfBranch" />
+    <toRun type="JarApplication" name="TestOrIte" />
+    <method v="2" />
+  </configuration>
+</component>

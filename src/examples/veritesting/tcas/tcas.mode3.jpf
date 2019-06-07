@@ -1,0 +1,24 @@
+target=tcas
+classpath=${jpf-symbc}/build/tcas,${jpf-symbc}/build/examples/
+sourcepath=${jpf-symbc}/src/tcas
+symbolic.method = tcas.sym1(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym2(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym3(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym4(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym5(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym6(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym7(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym8(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym9(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym10(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+#symbolic.method = tcas.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+#symbolic.method = tcas.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+#symbolic.minint=-100
+#symbolic.maxint=100
+vm.storage.class=nil
+
+#coverage.include=tcas
+
+veritestingMode = 3
+performanceMode = true
+
+#listener = .symbc.VeritestingListener
+#,gov.nasa.jpf.listener.CoverageAnalyzer
+#listener = .symbc.SymbolicListener
+#listener = .listener.ChoiceTracker
+#symbolic.dp=z3bitvector
+
+symbolic.dp=z3bitvectorinc
+listener = .symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+symbolic.optimizechoices=false

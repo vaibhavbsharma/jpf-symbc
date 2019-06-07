@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="RunApacheCLI" type="Application" factoryName="Application">
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+    <option name="MAIN_CLASS_NAME" value="CLI" />
+    <option name="VM_PARAMETERS" value="-cp $PROJECT_DIR$/build/apachecli" />
+    <option name="PROGRAM_PARAMETERS" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/build/apachecli" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="ENABLE_SWING_INSPECTOR" value="false" />
+    <option name="ENV_VARIABLES" />
+    <option name="PASS_PARENT_ENVS" value="true" />
+    <module name="VeritestingTransformations" />
+    <envs />
+    <method>
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/build.xml" target="build" />
+    </method>
+  </configuration>
+</component>

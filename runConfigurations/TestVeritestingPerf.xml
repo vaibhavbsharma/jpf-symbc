@@ -1,0 +1,33 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TestVeritestingPerf" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+    <output_file path="$PROJECT_DIR$/logs/TestVeritestingPerf.log" is_save="true" />
+    <extension name="coverage" enabled="false" merge="false" runner="idea">
+      <pattern>
+        <option name="PATTERN" value="gov.nasa.jpf.symbc.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <module name="VeritestingTransformations" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="ALTERNATIVE_JRE_PATH" value="1.8.0_144" />
+    <option name="PACKAGE_NAME" value="gov.nasa.jpf.symbc" />
+    <option name="MAIN_CLASS_NAME" value="gov.nasa.jpf.symbc.TestVeritestingPerf" />
+    <option name="METHOD_NAME" value="mainTest" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="VM_PARAMETERS" value="-Djava.library.path=&quot;$PROJECT_DIR$/lib/&quot; -Xmx1024m -ea " />
+    <option name="PARAMETERS" value="" />
+    <option name="WORKING_DIRECTORY" value="lib" />
+    <option name="ENV_VARIABLES" />
+    <option name="PASS_PARENT_ENVS" value="true" />
+    <option name="TEST_SEARCH_SCOPE">
+      <value defaultName="singleModule" />
+    </option>
+    <envs>
+      <env name="TARGET_CLASSPATH_WALA" value="../../jpf-core-veritesting/build/jpf.jar:../../jpf-core-veritesting/build/RunJPF.jar:../build/jpf-symbc.jar:../build/tests" />
+    </envs>
+    <patterns />
+    <method>
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_TestVeritestingPerf-last-10-logs" />
+    </method>
+  </configuration>
+</component>

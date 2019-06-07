@@ -47,8 +47,14 @@ import com.microsoft.z3.*;
 
 import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
+import gov.nasa.jpf.symbc.veritesting.RangerDiscovery.DiscoverContract;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.StatisticManager;
 
 public class ProblemZ3BitVector extends ProblemGeneral {
+    /*SH: used to collect all function declarations (query variables) while constructing the solver and the context. */
+    private HashSet<String> z3FunDecSet = new HashSet();
 
     // This class acts as a safeguard to prevent
     // issues when referencing ProblemZ3 in case the z3 libs are
@@ -85,8 +91,8 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         }
     }
 
-    private Solver solver;
-    private Context ctx;
+    private static Solver solver;
+    private static Context ctx;
 
     // Do we use the floating point theory or linear arithmetic over reals
     private boolean useFpForReals;
@@ -162,19 +168,59 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         }
     }
 
+    public String printSMTLibv2String(){
+    	return solver.toString();
+    }
+    
     @Override
     public Boolean solve() {
         try {
-            boolean result = false;
-            if (SymbolicInstructionFactory.debugMode == true) {
-                System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-                System.out.println(solver.toString());
-                long z3time = 0;
+        	boolean result = false;
+        	if(SymbolicInstructionFactory.debugMode == true){
+        	    /****** SH: logging to files *******************/
+                String folderName;
+                if(StatisticManager.veritestingRunning)
+                    folderName = "../SolverQueriesVeritesting";
+                else
+                    folderName = "../SolverQueriesSPF";
+                File dir = new File(folderName);
+                boolean success;
+
+                if(!dir.exists())
+                    success = dir.mkdir();
+                else{
+                    if(StatisticManager.inializeQueriesFile){
+                        SpfUtil.emptyFolder(dir);
+                        StatisticManager.inializeQueriesFile = false;
+                    }
+                    success = true;
+                }
+
+                if(success){
+                    String fileName = folderName + "/" + StatisticManager.instructionToExec+"$" + StatisticManager.solverQueriesUnique + ".txt";
+                    ++StatisticManager.solverQueriesUnique;
+                    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                            new FileOutputStream(fileName), "utf-8"))) {
+
+                        DiscoverContract.z3QuerySet.add(new Pair(solver.toString(), z3FunDecSet));
+
+                        writer.write(DiscoverContract.toSMT(solver.toString(), z3FunDecSet));
+                    }
+                }
+                else
+                    System.out.println("Encountered a problem while creating Solver Queries directory.");
+
+
+                /*********** SH: end logging *******************/
+
+
+        	    System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        		System.out.println(solver.toString());
+        		long z3time = 0;
                 long t1 = System.nanoTime();
                 result = solver.check() == Status.SATISFIABLE ? true : false;
-                z3time += System.nanoTime() - t1;
-                System.out
-                        .println("\nSolving time of z3 bitvector is " + TimeUnit.NANOSECONDS.toMillis(z3time) + " ms");
+                z3time += System.nanoTime()-t1;
+                System.out.println("\nSolving time of z3 bitvector is " + TimeUnit.NANOSECONDS.toMillis(z3time) + " ms");
                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");
         	}
         	else{
@@ -209,6 +255,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
             BitVecExpr bv = ctx.mkBVConst(name, this.bitVectorLength);
             solver.add(ctx.mkBVSGE(bv, ctx.mkBV(min, this.bitVectorLength)));
             solver.add(ctx.mkBVSLE(bv, ctx.mkBV(max, this.bitVectorLength)));
+            z3FunDecSet.add(name);
             return bv;
         } catch (Exception e) {
             e.printStackTrace();

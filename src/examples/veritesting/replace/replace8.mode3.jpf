@@ -1,0 +1,21 @@
+target=replace11
+classpath=${jpf-symbc}/build/replace
+sourcepath=${jpf-symbc}/src/replace
+symbolic.method = replace11.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#con#con#con)
+symbolic.minint=-100
+symbolic.maxint=100
+vm.storage.class=nil
+
+#listener = .symbc.SymbolicListener
+#listener = .symbc.VeritestingListener
+#symbolic.dp=z3bitvector
+#listener = .listener.ChoiceTracker
+
+#symbolic.debug=on
+veritestingMode=3
+performanceMode = true
+interestingClassNames = replace11
+
+symbolic.dp=z3bitvectorinc
+listener = .symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+symbolic.optimizechoices=false

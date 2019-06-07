@@ -1,0 +1,24 @@
+target=CLI
+classpath = ${jpf-symbc}/build/apachecli
+sourcepath = ${jpf-symbc}/src/apachecli
+#symbolic.method = CLI.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
+symbolic.method = CLI.mainProcess(sym#sym#sym#con#con#con#con#con#con)
+symbolic.minint=-100
+symbolic.maxint=100
+vm.storage.class=nil
+#symbolic.debug=on
+veritestingMode = 3
+performanceMode = true
+interestingClassNames = Util,UnrecognizedOptionException,TypeHandler,PosixParser,Parser,ParseException,OptionValidator,Options,OptionsGroup,OptionBuilder,MissingOptionException,MissingArgumentException,HelpFormatter,GnuParser,CommandLineParser,CommandLine,CLI,BasicParser,AlreadySelectedException,Option
+#symbolic.dp=z3bitvector
+#listener = .symbc.VeritestingListener
+#listener = .listener.ChoiceTracker
+#symbolic.strings = true
+#symbolic.string_dp = z3
+#exclusionsFile=${jpf-symbc}/src/apachecli/MyJava60RegressionExclusions.txt
+
+symbolic.dp=z3bitvectorinc
+listener = .symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+symbolic.optimizechoices=false
+
+symbolic.lazy = true
