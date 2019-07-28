@@ -1,4 +1,4 @@
-
+package veritesting.apachecli;
 
 /**
  * Base for Exceptions thrown during parsing of a command-line.

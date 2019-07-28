@@ -1,4 +1,4 @@
-
+package veritesting.apachecli;
 
 import java.io.Serializable;
 import java.util.Collection;
