@@ -135,7 +135,7 @@ public class Option implements Cloneable, Serializable
      * 
      * @return the 'unique' Option identifier
      */
-    char getKey()
+    public char getKey()
     {
         return opt;
     }

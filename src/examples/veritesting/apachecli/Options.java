@@ -216,7 +216,7 @@ public class Options implements Serializable
      *
      * @return the List of Options
      */
-    List helpOptions(){
+    public List helpOptions(){
     	List result = new ArrayList();
     	for(int i=0; i<shortOptsIndex;){
     		result.add(shortOptsValue[i]);
