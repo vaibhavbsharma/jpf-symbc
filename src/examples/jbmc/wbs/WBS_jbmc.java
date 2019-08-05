@@ -274,7 +274,7 @@ public class WBS_jbmc {
 	}
 	
 	public static void main(String[] args) {
-		int maxSteps = Integer.parseInt(System.getenv("MAX_STEPS"));
+		int maxSteps = 10; //Integer.parseInt(System.getenv("MAX_STEPS"));
 		WBS_jbmc wbsJbmc = new WBS_jbmc();
 		while (maxSteps-- > 0) {
 			wbsJbmc.update(CProver.nondetInt(), CProver.nondetBoolean(), CProver.nondetBoolean());

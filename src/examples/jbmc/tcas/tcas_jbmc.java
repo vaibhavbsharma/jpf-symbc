@@ -342,7 +342,7 @@ public class tcas_jbmc {
 	}
 
 	public static void main(String[] argvStr) {
-		int maxSteps = Integer.parseInt(System.getenv("MAX_STEPS"));
+		int maxSteps = 10; //Integer.parseInt(System.getenv("MAX_STEPS"));
 		while (maxSteps-- > 0) {
 			mainProcess(CProver.nondetInt(), CProver.nondetInt(), CProver.nondetInt(),
 					CProver.nondetInt(), CProver.nondetInt(), CProver.nondetInt(),
