@@ -68,8 +68,8 @@ public class CLI_jbmc {
         string[3][0] = CProver.nondetChar();
         string[4][0] = CProver.nondetChar();
         string[5][0] = CProver.nondetChar();
-        string[6][0] = CProver.nondetChar();
-        string[7][0] = CProver.nondetChar();
+        string[6][0] = g;
+        string[7][0] = h;
         execute(options, string, CProver.nondetBoolean());
     }
 
