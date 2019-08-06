@@ -1,7 +1,7 @@
-target=printTokens2
+target=veritesting.printtokens2_3.printTokens2
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = printTokens2.mainProcess(sym#sym#con#con#con#con#con#con)
+symbolic.method = veritesting.printtokens2_3.printTokens2.mainProcess(sym#sym#con#con#con#con#con#con)
 symbolic.minint=-100
 symbolic.maxint=100
 vm.storage.class=nil
