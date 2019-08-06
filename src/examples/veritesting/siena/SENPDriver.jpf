@@ -1,9 +1,9 @@
-target=SENPDriver
+target=veritesting.siena.SENPDriver
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-#symbolic.method = SENPDriver.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
+#symbolic.method = veritesting.siena.SENPDriver.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
 #symbolic.method = SENPDriver.mainProcess(sym#sym#sym#con#con#con#con#con#con)
-symbolic.method = SENPDriver.mainProcess(sym#sym#con#con#con#con#con#con#con)
+symbolic.method = veritesting.siena.SENPDriver.mainProcess(sym#sym#con#con#con#con#con#con#con)
 symbolic.minint=-100
 symbolic.maxint=100
 vm.storage.class=nil
@@ -13,7 +13,7 @@ vm.storage.class=nil
 #listener = .listener.ChoiceTracker
 #symbolic.debug=on
 
-veritestingMode=4
+veritestingMode=5
 performanceMode = true
 jitAnalysis=true
 symbolic.dp=z3bitvectorinc

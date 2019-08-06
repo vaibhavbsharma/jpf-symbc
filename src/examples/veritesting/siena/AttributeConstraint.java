@@ -1,3 +1,4 @@
+package veritesting.siena;
 //
 //  This file is part of Siena, a wide-area event notification system.
 //  See http://www.cs.colorado.edu/serl/dot/siena.html

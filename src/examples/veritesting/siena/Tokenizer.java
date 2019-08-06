@@ -1,3 +1,5 @@
+package veritesting.siena;
+
 public class Tokenizer {
 	//
 	// WARNING: now, since Java doesn't have byte literals in the form

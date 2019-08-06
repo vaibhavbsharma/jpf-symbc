@@ -1,3 +1,4 @@
+package veritesting.siena;
 
 public class SENPInvalidFormat extends Exception {
     int		expected_type;

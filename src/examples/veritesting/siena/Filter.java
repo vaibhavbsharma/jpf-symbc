@@ -1,3 +1,4 @@
+package veritesting.siena;
 //
 //  This file is part of Siena, a wide-area event notification system.
 //  See http://www.cs.colorado.edu/serl/dot/siena.html
@@ -25,6 +26,8 @@
 //
 // $Id: Filter.java,v 1.7 2000/04/14 16:40:55 carzanig Exp $
 //
+import veritesting.siena.AttributeConstraint;
+
 import java.util.Set;
 import java.util.Map;
 import java.util.HashSet;
