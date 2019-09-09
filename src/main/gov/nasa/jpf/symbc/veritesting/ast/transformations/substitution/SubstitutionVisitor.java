@@ -321,9 +321,11 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
         SubstitutionVisitor visitor = new SubstitutionVisitor(ti, methodRegion, hgOrdValueSymbolTable, this.useVarTable, this.invocationStack);
         Pair highOrderPair = new Pair(methodRegion.dynStmt.accept(visitor), methodRegion.varTypeTable);
 
+        //TODO: This turns off all high order related exceptions from propagating.
         /*if (firstException == null) {
             firstException = visitor.firstException;
         }*/
+
         /*if (!this.somethingChanged)
             this.somethingChanged = visitor.somethingChanged || (((ExprSubstitutionVisitor) visitor.eva.theVisitor).isSomethingChanged());*/
 

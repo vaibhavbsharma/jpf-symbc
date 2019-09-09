@@ -101,7 +101,10 @@ public class FixedPointWrapper {
                 assert false;
         }
 
+
+
         Exception transformationException = currentTransformation.getFirstException();
+        //TODO:This really does not propagate any exceptions that different transformations can raise. It only propagates specific exceptions from Substitution, which at this point suppresses most high order related exceptions, but propagates exceptions from jitAnalysis and earlyReturn.
         if (firstException == null)
             if (currentTransformation instanceof SubstitutionVisitor)
                 firstException = transformationException;
