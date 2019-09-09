@@ -47,12 +47,12 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.WalaUtil.makeConsta
  * In this transformation, constants are also discovered as part of the process.
  */
 public class SubstitutionVisitor extends FixedPointAstMapVisitor {
+    private final ArrayList<InvokeInstruction> invocationStack;
     private ExprVisitorAdapter<Expression> eva;
     public final DynamicRegion dynRegion;
     public final ThreadInfo ti;
-    private Exception subsExp = null;
-    private StaticRegionException sre = null;
     private boolean useVarTable = false;
+    private static Set<MethodReference> recursiveMethods = new HashSet<>();
 
     /**
      * This is used to identify if a path had spfCase instruction that requires prouning the path. The flag is used
@@ -78,13 +78,13 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
     }
 
     private SubstitutionVisitor(ThreadInfo ti, DynamicRegion dynRegion,
-                                DynamicTable valueSymbolTable, boolean useVarTable) {
+                                DynamicTable valueSymbolTable, boolean useVarTable, ArrayList<InvokeInstruction> invocationStack) {
         super(new ExprSubstitutionVisitor(ti, dynRegion, valueSymbolTable));
         this.ti = ti;
         this.dynRegion = dynRegion;
         eva = super.eva;
         this.useVarTable = useVarTable;
-
+        this.invocationStack = invocationStack;
     }
 
 
@@ -187,6 +187,12 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
 
     @Override
     public Stmt visit(InvokeInstruction c) {
+        StaticRegionException invokeSre = new StaticRegionException("Cannot summarize invoke in " + c.toString());
+
+        if (recursiveMethods.contains(((SSAInvokeInstruction) c.original).getCallSite().getDeclaredTarget())) { //if the method invocation was previously discovered to be recursive then just return, i.e., do not attempt to inline it.
+            System.out.println("Encountering an already discovered recursive method. Returning.");
+            return c;
+        }
 
         ArrayList<Expression> values = new ArrayList<Expression>();
         Expression[] params = new Expression[c.params.length];
@@ -210,9 +216,8 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                     try {
                         keyRegionPair = jitFindMethodRegion(ti, newC);
                     } catch (StaticRegionException e) {
-                        sre = new StaticRegionException("Cannot summarize invoke in " + instruction.toString());
                         if (firstException == null) {
-                            firstException = sre;
+                            firstException = invokeSre;
                             skipRegionStrings.add("Cannot summarize invoke");
                             return newC;
                         }
@@ -220,10 +225,18 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                 } else
                     keyRegionPair = findMethodRegion(ti, newC);
 
-                if (keyRegionPair == null) //case where we couldn't grap the method region, usually because a concrete reference does not exists.
+                if ((keyRegionPair == null)) //case where we couldn't grap the method region, usually because a concrete reference does not exists.
                     return newC;
+
                 StaticRegion hgOrdStaticRegion = keyRegionPair.getSecond();
                 if (hgOrdStaticRegion != null) {
+                    if (isRecursiveCall(newC)) {//check if along the path of invocation we have encountered the same method - meaning we are in a recursive call, then return.
+                        System.out.println("recursive function invocation detected, avoid further inlining.");
+                        recursiveMethods.add(((SSAInvokeInstruction) newC.original).getCallSite().getDeclaredTarget());
+                        return newC;
+                    }
+                    invocationStack.add(newC); //insert in the stack the current method we are trying to inline.
+
                     ++StatisticManager.thisHighOrdCount;
                     String key = keyRegionPair.getFirst();
 
@@ -233,23 +246,13 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                     try {
                         hgOrdStaticRegion = RemoveEarlyReturns.removeEarlyReturns(hgOrdStaticRegion);
                         uniqueHgOrdDynRegion = UniqueRegion.execute(hgOrdStaticRegion);
-
-                    } catch (CloneNotSupportedException e) {
-                        if (firstException == null) {
-                            subsExp = e;
-                            return newC;
-                        }
-                    } catch (StaticRegionException e) {
-                        if (firstException == null) {
-                            sre = e;
-                            return newC;
-                        }
-                    } catch (InvalidClassFileException e) {
-                        if (firstException == null) {
-                            subsExp = e;
-                            return newC;
-                        }
+                    } catch (Exception e) {
+                        if (firstException == null)
+                            firstException = e;
+                        invocationStack.remove(invocationStack.size() - 1); //popping off the stack the last call invocation.
+                        return newC;
                     }
+
                     DynamicTable hgOrdValueSymbolTable = new DynamicTable<Expression>("var-value table",
                             "var",
                             "value",
@@ -260,10 +263,10 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                     try {
                         hgOrdUniqueStmtType = attemptHighOrderRegion(uniqueHgOrdDynRegion, hgOrdValueSymbolTable);
                     } catch (StaticRegionException e) {
-                        if (firstException == null) {
-                            sre = e;
-                            return newC;
-                        }
+                        if (firstException == null)
+                            firstException = e;
+                        invocationStack.remove(invocationStack.size() - 1); //popping off the stack the last call invocation.
+                        return newC;
                     }
                     Stmt hgOrdStmt = hgOrdUniqueStmtType.getFirst();
                     DynamicTable hgOrdTypeTable = hgOrdUniqueStmtType.getSecond();
@@ -274,21 +277,32 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                     if (newC.result.length == 1) {
                         Pair<Stmt, Expression> stmtRetPair = getStmtRetExp(hgOrdStmt);
                         returnStmt = new AssignmentStmt(newC.result[0], stmtRetPair.getSecond());
+                        invocationStack.remove(invocationStack.size() - 1); //popping off the stack the last call invocation.
                         return new CompositionStmt(stmtRetPair.getFirst(), returnStmt);
                     } else {
+                        invocationStack.remove(invocationStack.size() - 1); //popping off the stack the last call invocation.
                         return getStmtRetExp(hgOrdStmt).getFirst();
                     }
                 } else {
-                    sre = new StaticRegionException("Cannot summarize invoke in " + instruction.toString());
                     if (firstException == null)
-                        firstException = sre;
-                    skipRegionStrings.add("Cannot summarize invoke");
+                        firstException = invokeSre;
+                    skipRegionStrings.add("Cannot summarize invoke in :" + c.toString());
                     return newC;
                 }
             } else
                 return newC;
         } else
             return newC;
+    }
+
+    private boolean isRecursiveCall(InvokeInstruction newC) {
+        MethodReference calledTarget = ((SSAInvokeInstruction) newC.original).getCallSite().getDeclaredTarget();
+        for (InvokeInstruction inst : invocationStack) {
+            MethodReference target = ((SSAInvokeInstruction) inst.original).getCallSite().getDeclaredTarget();
+            if (target.equals(calledTarget))
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -304,10 +318,14 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
 
         assert (methodRegion.isMethodRegion);
         hgOrdValueSymbolTable.mergeTable(fillValueSymbolTable(ti, methodRegion));
-        SubstitutionVisitor visitor = new SubstitutionVisitor(ti, methodRegion, hgOrdValueSymbolTable, this.useVarTable);
+        SubstitutionVisitor visitor = new SubstitutionVisitor(ti, methodRegion, hgOrdValueSymbolTable, this.useVarTable, this.invocationStack);
         Pair highOrderPair = new Pair(methodRegion.dynStmt.accept(visitor), methodRegion.varTypeTable);
-        if (!this.somethingChanged)
-            this.somethingChanged = visitor.somethingChanged || (((ExprSubstitutionVisitor) visitor.eva.theVisitor).isSomethingChanged());
+
+        /*if (firstException == null) {
+            firstException = visitor.firstException;
+        }*/
+        /*if (!this.somethingChanged)
+            this.somethingChanged = visitor.somethingChanged || (((ExprSubstitutionVisitor) visitor.eva.theVisitor).isSomethingChanged());*/
 
         return highOrderPair;
     }
@@ -391,8 +409,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
         if (veritestingMode <= 2) return new Pair(key, null);
         for (String className : classList) {
             key = CreateStaticRegions.constructMethodIdentifier(className + "." + methodName + methodSignature);
-            //StaticRegion staticRegion = VeritestingMain.veriRegions.get(key);
-            String jvmMethodName = methodName.toString() + methodSignature; //methodReference.getSignature();
+            String jvmMethodName = key; //methodName.toString() + methodSignature; //methodReference.getSignature();
             StaticRegion staticRegion = JITAnalysis.discoverAllClassAndGetRegion(className, jvmMethodName, key);
             if (staticRegion != null) {
                 if (printRegionDigest)
@@ -570,13 +587,13 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
             try {
                 valueSymbolTable = SubstitutionVisitor.fillValueSymbolTable(ti, dynRegion);
             } catch (StaticRegionException e) {
-                visitor = new SubstitutionVisitor(ti, dynRegion, valueSymbolTable, useVarTable);
+                visitor = new SubstitutionVisitor(ti, dynRegion, valueSymbolTable, useVarTable, new ArrayList<>());
 
                 visitor.firstException = e;
                 return visitor;
             }
 
-        visitor = new SubstitutionVisitor(ti, dynRegion, valueSymbolTable, useVarTable);
+        visitor = new SubstitutionVisitor(ti, dynRegion, valueSymbolTable, useVarTable, new ArrayList<>());
 
         return visitor;
 
