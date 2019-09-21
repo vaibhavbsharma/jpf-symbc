@@ -648,9 +648,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     private static void pushExpOnStack(DynamicRegion dynRegion, StackFrame sf, String returnType, Expression var)
             throws StaticRegionException {
         if (simplify && dynRegion.constantsTable != null) { //only handling the case of ints
-            if (isConstant(dynRegion.constantsTable.lookup((Variable) var))) {
-                var = dynRegion.constantsTable.lookup((Variable) var);
-                returnType = getConstantType(var);
+            Expression constOrVar = dynRegion.constantsTable.lookup((Variable) var);
+            if (isConstant(constOrVar) || isVariable(constOrVar)) {
+                var = constOrVar;
+                returnType = isConstant(constOrVar) ? getConstantType(var) : getGreenVariableType(constOrVar);
             }
         }
         boolean isConst = isConstant(var);

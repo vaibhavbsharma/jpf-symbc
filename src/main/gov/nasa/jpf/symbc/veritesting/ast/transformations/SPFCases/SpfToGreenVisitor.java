@@ -18,6 +18,8 @@ import java.util.LinkedHashSet;
 
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
+import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.isConstant;
+import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.isVariable;
 
 
 /*
@@ -176,21 +178,24 @@ public class SpfToGreenVisitor implements AstVisitor<Expression> {
         Expression newCond;
         Expression newAssign;
         if (dynRegion.earlyReturnResult.hasER()) {
-            boolean isConcreteReturn = false;
+            boolean isConstOrCopyReturn = false;
             if (VeritestingListener.simplify && dynRegion.constantsTable != null){
                 Expression returnVar = dynRegion.earlyReturnResult.retVar;
-                isConcreteReturn = dynRegion.constantsTable.lookup((Variable) returnVar) instanceof IntConstant;
+                isConstOrCopyReturn = isConstant(dynRegion.constantsTable.lookup((Variable) returnVar))
+                        || isVariable(dynRegion.constantsTable.lookup((Variable) returnVar));
             }
 
             newAssign = earlyReturnToGreen(dynRegion.earlyReturnResult.assign, dynRegion);
             newCond = earlyReturnToGreen(dynRegion.earlyReturnResult.condition, dynRegion);
             ReturnResult oldResult = dynRegion.earlyReturnResult;
             RemoveEarlyReturns o = new RemoveEarlyReturns();
-            if(!isConcreteReturn) {
+            if(!isConstOrCopyReturn) {
                 Expression newRetVar = earlyReturnToGreen(dynRegion.earlyReturnResult.retVar, dynRegion);
                 newReturnResult = o.new ReturnResult(oldResult.stmt, newAssign, newCond, oldResult.retPosAndType, newRetVar);
             }
             else {
+                // This lets the ReturnResult.retVar remain 'lookup'-able in the dynRegion.constantsTable by letting
+                // it remain an AstVarExpr. Otherwise it will be turned into a green variable.
                 newReturnResult = o.new ReturnResult(oldResult.stmt, newAssign, newCond, oldResult.retPosAndType, oldResult.retVar);
             }
 

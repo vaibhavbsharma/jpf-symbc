@@ -46,8 +46,8 @@ public class AstVarExpr extends CloneableVariable {
         if (o == null) { return false; }
         if (o.getClass() != this.getClass()) { return false; }
         AstVarExpr ave = (AstVarExpr)o;
-        return (this.getName() == ave.getName() &&
-            this.type == ave.type);
+        return (this.getName().equals(ave.getName()) &&
+            this.type.equals(ave.type));
     }
 
     @Override public String toString() {  return this.getSymName(); }
