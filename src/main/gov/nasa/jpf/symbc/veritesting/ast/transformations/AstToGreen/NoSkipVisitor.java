@@ -69,7 +69,7 @@ public class NoSkipVisitor implements AstVisitor<Stmt> {
 
     @Override
     public Stmt visit(GetInstruction c) {
-        return null;
+        return bad(c);
     }
 
     @Override
