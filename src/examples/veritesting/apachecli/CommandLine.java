@@ -2,12 +2,7 @@ package veritesting.apachecli;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Represents list of arguments parsed against a {@link Options} descriptor.
@@ -40,6 +35,43 @@ public class CommandLine implements Serializable
     CommandLine()
     {
         // nothing to do
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommandLine that = (CommandLine) o;
+        if (args.size() != that.args.size() || options.size() != that.options.size()) return false;
+        for (int i = 0; i < args.size(); i++) {
+            Object thisObj = args.get(i);
+            Object thatObj = that.args.get(i);
+            if (thisObj instanceof char[] && thatObj instanceof char[]) {
+                char thisArr[] = (char []) thisObj;
+                char thatArr[] = (char []) thatObj;
+                if (thisArr.length != thatArr.length) return false;
+                for (int k = 0; k < thisArr.length; k++) {
+                    System.out.println("char array entry mismatch " + thisArr[k] + ", " + thatArr[k]);
+                    if (thisArr[k] != thatArr[k]) return false;
+                }
+            }
+            else if (!args.get(i).equals(that.args.get(i))) {
+                System.out.println("args entry mismatch " + args.get(i) + ", " + that.args.get(i));
+                return false;
+            }
+        }
+        for (int i = 0; i < options.size(); i++) {
+            if (!options.get(i).equals(that.options.get(i))) {
+                System.out.println("options mismatch: " + options.get(i) + ", " + that.options.get(i));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(args, options);
     }
 
     /**
