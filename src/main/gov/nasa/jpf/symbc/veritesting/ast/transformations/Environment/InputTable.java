@@ -52,6 +52,16 @@ public class InputTable extends StaticTable<Integer> {
         ExprRegionInputVisitor exprRegionInputVisitor = new ExprRegionInputVisitor(this, slotParamTable);
         RegionInputVisitor regionInputVisitor = new RegionInputVisitor(exprRegionInputVisitor);
         stmt.accept(regionInputVisitor);
+        Iterator itr = exprRegionInputVisitor.usedWalaVars.iterator();
+        while(itr.hasNext()) {
+            int usedWalaVar = (int) itr.next();
+            if (exprRegionInputVisitor.defWalaVars.contains(usedWalaVar)) itr.remove();
+        }
+        for (int usedWalaVar: exprRegionInputVisitor.usedWalaVars) {
+            int varSlots[] = slotParamTable.lookup(usedWalaVar);
+            int lastValidSlotInd = (varSlots.length == 1 ? 0 : varSlots.length-2);
+            this.add(usedWalaVar, varSlots[lastValidSlotInd]);
+        }
     }
 
     @Override

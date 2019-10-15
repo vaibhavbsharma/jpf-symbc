@@ -286,7 +286,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                 } else {
                     if (firstException == null)
                         firstException = invokeSre;
-                    skipRegionStrings.add("Cannot summarize invoke in :" + c.toString());
+                    skipRegionStrings.add("Cannot summarize invoke in " + c.toString());
                     return newC;
                 }
             } else

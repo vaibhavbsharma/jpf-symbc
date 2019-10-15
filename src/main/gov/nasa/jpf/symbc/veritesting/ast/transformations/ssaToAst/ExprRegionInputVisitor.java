@@ -1,5 +1,6 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst;
 
+import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.WalaVarExpr;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.InputTable;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.SlotParamTable;
@@ -8,6 +9,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 
 /**
@@ -19,6 +21,7 @@ public class ExprRegionInputVisitor extends ExprMapVisitor implements ExprVisito
 
     // maps seen stack slots to the smallest Wala variable number seen for that stack slot
     private HashMap<Integer, Integer> seenSlots;
+    public HashSet<Integer> defWalaVars, usedWalaVars;
     private InputTable inputTable;
     private SlotParamTable slotParamTable;
     public DefUseVisit defUseVisit;
@@ -27,6 +30,8 @@ public class ExprRegionInputVisitor extends ExprMapVisitor implements ExprVisito
         this.inputTable = inputTable;
         this.slotParamTable = slotParamTable;
         this.seenSlots = new HashMap();
+        this.defWalaVars = new HashSet<>();
+        this.usedWalaVars = new HashSet<>();
     }
 
     @Override
@@ -38,7 +43,12 @@ public class ExprRegionInputVisitor extends ExprMapVisitor implements ExprVisito
             // corresponds to the stack slot that is being written to in this source code, which is why this last
             // stack slot cannot be considered as an input stack slot
             int i = (varSlots.length == 1 ? 0 : varSlots.length-2);
-            while(i >= 0) {
+            if (i >= 0) {
+                if (defUseVisit == DefUseVisit.USE) usedWalaVars.add(expr.number);
+                else if (defUseVisit == DefUseVisit.DEF) defWalaVars.add(expr.number);
+                else throw new IllegalArgumentException("WalaVarExpr " + expr + " is neither used nor defined");
+            }
+            /*while(i >= 0) {
                 if (seenBiggerWalaNum(varSlots[i], expr.number)) {
                     if (defUseVisit == DefUseVisit.USE) {
                         inputTable.add(expr.number, varSlots[i]);
@@ -47,7 +57,7 @@ public class ExprRegionInputVisitor extends ExprMapVisitor implements ExprVisito
                     seenSlots.put(varSlots[i], expr.number);
                 }
                 i--;
-            }
+            }*/
         }
         return expr;
     }
