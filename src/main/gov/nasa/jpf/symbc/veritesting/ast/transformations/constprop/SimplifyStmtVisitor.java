@@ -114,20 +114,41 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
         DynamicTable<Expression> newConstantsTable = new DynamicTable<>("Constants Table", "Expression", "Constant Value");
         while (itr.hasNext()) {
             Map.Entry<Variable, Expression> entry = itr.next();
-            Variable newVar;
+            Variable newKey;
+            Expression newValue;
             if (entry.getKey() instanceof FieldRefVarExpr) {
                 FieldRefVarExpr newExpr = ((FieldRefVarExpr) entry.getKey()).clone();
                 newExpr = newExpr.makeUnique(uniqueNum);
-                newVar = newExpr;
+                newKey = newExpr;
             } else if (entry.getKey() instanceof ArrayRefVarExpr) {
                 ArrayRefVarExpr newExpr = ((ArrayRefVarExpr) entry.getKey()).clone();
                 newExpr = newExpr.makeUnique(uniqueNum);
-                newVar = newExpr;
+                newKey = newExpr;
+            } else if (entry.getKey() instanceof AstVarExpr) {
+                AstVarExpr newExpr = ((AstVarExpr) entry.getKey()).clone();
+                newExpr = newExpr.makeUnique(uniqueNum);
+                newKey = newExpr;
             } else if (entry.getKey() instanceof WalaVarExpr) {
                 assert ((WalaVarExpr) entry.getKey()).getUniqueNum() != -1;
-                newVar = entry.getKey(); // WalaVarExpr are assumed to be alpha-renamed by this point
-            } else newVar = entry.getKey();
-            newConstantsTable.add(newVar, entry.getValue());
+                newKey = entry.getKey(); // WalaVarExpr are assumed to be alpha-renamed by this point
+            } else newKey = entry.getKey();
+            if (entry.getValue() instanceof FieldRefVarExpr) {
+                FieldRefVarExpr newExpr = ((FieldRefVarExpr) entry.getValue()).clone();
+                newExpr = newExpr.makeUnique(uniqueNum);
+                newValue = newExpr;
+            } else if (entry.getValue() instanceof ArrayRefVarExpr) {
+                ArrayRefVarExpr newExpr = ((ArrayRefVarExpr) entry.getValue()).clone();
+                newExpr = newExpr.makeUnique(uniqueNum);
+                newValue = newExpr;
+            } else if (entry.getValue() instanceof AstVarExpr) {
+                AstVarExpr newExpr = ((AstVarExpr) entry.getValue()).clone();
+                newExpr = newExpr.makeUnique(uniqueNum);
+                newValue = newExpr;
+            }else if (entry.getValue() instanceof WalaVarExpr) {
+                assert ((WalaVarExpr) entry.getValue()).getUniqueNum() != -1;
+                newValue = entry.getValue(); // WalaVarExpr are assumed to be alpha-renamed by this point
+            } else newValue = entry.getValue();
+            newConstantsTable.add(newKey, newValue);
         }
         return newConstantsTable;
     }

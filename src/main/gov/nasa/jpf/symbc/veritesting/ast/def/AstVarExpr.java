@@ -58,7 +58,7 @@ public class AstVarExpr extends CloneableVariable {
     @Override public List<String> getOperationVector() { return null; }
 
     @Override
-    public CloneableVariable clone() throws CloneNotSupportedException {
+    public AstVarExpr clone() {
         return new AstVarExpr(getName(), this.type, uniqueNum);
     }
 

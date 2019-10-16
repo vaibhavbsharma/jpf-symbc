@@ -19,7 +19,7 @@ symbolic.max_double=100.0
 #listener = .symbc.SymbolicListener
 #symbolic.dp=z3bitvector
 
-veritestingMode = 5
+veritestingMode = 3
 performanceMode = false
 symbolic.lazy = true
 

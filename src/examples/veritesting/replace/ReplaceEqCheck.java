@@ -9,6 +9,7 @@ public class ReplaceEqCheck {
                        char c0, char c1, char c2, char c3, char c4, char c5) {
         replace t = new replace();
         char[] ret = t.mainProcess(c0, c1, c2, c3, c4);
+//        char[] ret = t.mainProcess(c0, 'd', 'd', 'd', 'd');
         Outputs outputs = new Outputs(ret);
         return outputs;
     }

@@ -81,10 +81,10 @@ public class replace {
 		//
 		char[] str = new char[strLen];
 		str[0] = i4;
-		/*
+
 //		str[1] = i4;
 //		str[2] = i8;
-*/
+
 		str[1] = '\0';
 		//
 		change(str, pat, sub);
@@ -461,15 +461,16 @@ public class replace {
 	}
 	
 	private static int makepat(char[] arg, char[] pat) {
-		int lastj = 0;
-		boolean done = false;
-		boolean continueIndex = false;
+		int lastj = 0; // 2
+		boolean done = false; // 3
+		boolean continueIndex = false; // 4
+//		boolean getres = true;
 		if(arg[patParaIndex] != ENDSTR){
 			continueIndex = true;
 		}
 
 		while(continueIndex){
-			int lj = patIndex;
+			int lj = patIndex; // 5
 			//
 			if(arg[patParaIndex] == ANY){
 				if(patIndex < patLen){
@@ -536,7 +537,7 @@ public class replace {
 						patIndex = patIndex + 1;
 					}
 				}
-			} 
+			}
 			else if(arg[patParaIndex] == EOL){
 				if(arg[patParaIndex+1] == ENDSTR){
 					if(patIndex < patLen){
@@ -549,7 +550,7 @@ public class replace {
 						pat[patIndex] = LITCHAR;
 						patIndex = patIndex + 1;
 					}
-					
+
 					char escjunk = esc(arg);
 					if(patIndex < patLen){
 						pat[patIndex] = escjunk;
