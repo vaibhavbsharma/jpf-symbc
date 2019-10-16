@@ -649,6 +649,11 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             throws StaticRegionException {
         if (simplify && dynRegion.constantsTable != null) { //only handling the case of ints
             Expression constOrVar = dynRegion.constantsTable.lookup((Variable) var);
+            if (constOrVar instanceof CloneableVariable) {
+                if (returnType != null)
+                    constOrVar = createGreenVar(returnType, constOrVar.toString());
+                else throwException(new StaticRegionException("cannot create return variable with unknown return type"), INSTANTIATION);
+            }
             if (isConstant(constOrVar) || isVariable(constOrVar)) {
                 var = constOrVar;
                 returnType = isConstant(constOrVar) ? getConstantType(var) : getGreenVariableType(constOrVar);
@@ -853,7 +858,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         pw.println("\n/************************ Printing Time Decomposition Statistics *****************");
         pw.println("static analysis time = " + TimeUnit.NANOSECONDS.toMillis(jitAnalysis ? JITAnalysis.staticAnalysisDur : staticAnalysisDur) + " msec");
         pw.println("Veritesting Dyn Time = " + TimeUnit.NANOSECONDS.toMillis(dynRunTime) + " msec");
-        pw.println("Veritesting fix-pint Time = " + TimeUnit.NANOSECONDS.toMillis(FixedPointWrapper.fixedPointTime) + " msec");
+        pw.println("Veritesting fix-point Time = " + TimeUnit.NANOSECONDS.toMillis(FixedPointWrapper.fixedPointTime) + " msec");
 
         pw.println("\n/************************ Printing Solver Statistics *****************");
         pw.println("Total Solver Queries Count = " + solverCount);
