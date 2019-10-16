@@ -93,6 +93,7 @@ public class RemoveEarlyReturns {
         } else if (init.stmt instanceof ReturnInstruction) {
             ReturnInstruction returnInstruction = (ReturnInstruction) init.stmt;
             int returnPosition = ((IBytecodeMethod) (region.ir.getMethod())).getBytecodeIndex(returnInstruction.original.iindex);
+            if (returnInstruction.original.getUse(0) == -1) region.varTypeTable.add(-1, "void");
             String returnType = region.varTypeTable.lookup(returnInstruction.original.getUse(0));
             Expression assign;
             if (init.hasER()) {

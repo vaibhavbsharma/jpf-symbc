@@ -642,7 +642,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     private static void pushReturnOnStack(StackFrame sf, DynamicRegion dynRegion) throws StaticRegionException {
         String returnType = dynRegion.earlyReturnResult.retPosAndType.getSecond();
         Expression returnVar = dynRegion.earlyReturnResult.retVar;
-        pushExpOnStack(dynRegion, sf, returnType, returnVar);
+        if (!returnType.equals("void"))
+            pushExpOnStack(dynRegion, sf, returnType, returnVar);
     }
 
     private static void pushExpOnStack(DynamicRegion dynRegion, StackFrame sf, String returnType, Expression var)
