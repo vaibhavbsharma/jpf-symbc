@@ -118,4 +118,6 @@ public class BinaryNonLinearIntegerExpression extends NonLinearIntegerExpression
 		}
 	}
 
+	public Operator getOp() { return op;
+	}
 }
