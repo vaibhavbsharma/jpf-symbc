@@ -56,7 +56,7 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.maybeParseC
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
     private static final int c = 3;//TODO make this into a configuration option
-    private static final boolean stopIfCExceeded = true; //TODO make this into a configuration option
+    private static final boolean stopIfCExceeded = false; //TODO make this into a configuration option
     ArrayList<Long> values ;
 
 	public NEWARRAY(int typeCode) {
@@ -145,31 +145,38 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                 if (values.size() == c && stopIfCExceeded) {
                     pc._addDet(Comparator.NE, (IntegerExpression)attr, new IntegerConstant(lastValue));
                     map = pc.solveWithValuation((SymbolicInteger)attr, null);
-                    if (map == null || map.size() == 0 || lastValue == null) {
+                    if (!(map == null || map.size() == 0 || lastValue == null)) {
                         return ti.createAndThrowException("too many feasible solutions for " + name);
                     }
                 }
-                cg = new PCChoiceGenerator(values.size());
+                /* End of Java Ranger changes */
 
-//                cg = new PCChoiceGenerator(2);
+                cg = new PCChoiceGenerator(2);
                 ti.getVM().setNextChoiceGenerator(cg);
                 return this;
             } else {
                 cg = ti.getVM().getSystemState().getChoiceGenerator();
                 assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got:" + cg;
-                sf.pop();
-                arrayLength = Math.toIntExact(values.get((Integer)cg.getNextChoice()));
+//                sf.pop();
+//                arrayLength = Math.toIntExact(values.get((Integer)cg.getNextChoice()));
                 pc = ((PCChoiceGenerator) cg).getCurrentPC();
             }
 
+            ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+            if(prev_cg == null)
+                pc = new PathCondition();
+            else
+                pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+            assert pc != null;
 
             if ((Integer)cg.getNextChoice() == 0) {
                 pc._addDet(Comparator.LT, (IntegerExpression)attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
-//                    return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-                    sf.pop();
-                    arrayLength = 1;
+                    return ti.createAndThrowException("java.lang.NegativeArraySizeException");
+//                    sf.pop();
+//                    arrayLength = 1;
                 } else {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
