@@ -179,7 +179,8 @@ class GreenPbTranslator extends Visitor {
                         }
                     } else assert(false);
                     break;
-                case NEG: assert(false);
+                case NEG:
+                    stack.push((Expr) context.minus(0, l));
                     break;
                 case BIT_AND:
                     stack.push((Expr) context.and( l, r));
