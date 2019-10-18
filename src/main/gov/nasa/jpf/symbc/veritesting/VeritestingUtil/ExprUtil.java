@@ -9,6 +9,8 @@ import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import za.ac.sun.cs.green.expr.*;
 
+import java.util.EmptyStackException;
+
 import static gov.nasa.jpf.symbc.VeritestingListener.performanceMode;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
@@ -29,7 +31,12 @@ public class ExprUtil {
     public static Expression SPFToGreenExpr(gov.nasa.jpf.symbc.numeric.Expression spfExp) {
         SolverTranslator.Translator toGreenTranslator = new SolverTranslator.Translator();
         spfExp.accept(toGreenTranslator);
-        return toGreenTranslator.getExpression();
+        try {
+            return toGreenTranslator.getExpression();
+        } catch (EmptyStackException e) {
+            throwException(new IllegalArgumentException("cannot translate expression of type" + spfExp.getClass().toString() + " to green"), INSTANTIATION);
+            return null;
+        }
     }
 
     /**
