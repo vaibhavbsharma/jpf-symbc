@@ -20,7 +20,7 @@ performanceMode = true
 #interestingClassNames = Util,UnrecognizedOptionException,TypeHandler,PosixParser,Parser,ParseException,OptionValidator,Options,OptionsGroup,OptionBuilder,MissingOptionException,MissingArgumentException,HelpFormatter,GnuParser,CommandLineParser,CommandLine,CLI,BasicParser,AlreadySelectedException,Option
 #symbolic.strings = true
 #symbolic.string_dp = z3
-exclusionsFile=${jpf-symbc}/src/apachecli/MyJava60RegressionExclusions.txt
+exclusionsFile=${jpf-symbc}/src/examples/MyJava60RegressionExclusions.txt
 
 maxStaticExplorationDepth = 2
 symbolic.lazy = true

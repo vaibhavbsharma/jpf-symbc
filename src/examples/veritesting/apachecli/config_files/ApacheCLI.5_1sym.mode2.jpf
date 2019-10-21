@@ -1,6 +1,6 @@
 target=veritesting.apachecli.CLI
-classpath = ${jpf-symbc}/build/apachecli
-sourcepath = ${jpf-symbc}/src/apachecli
+classpath = ${jpf-symbc}/build/examples
+sourcepath = ${jpf-symbc}/src/examples
 #symbolic.method = CLI.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
 symbolic.method = veritesting.apachecli.CLI.mainProcess(sym#sym#sym#sym#sym#con#con#con#sym)
 symbolic.minint=-100
@@ -15,7 +15,7 @@ interestingClassNames = Util,UnrecognizedOptionException,TypeHandler,PosixParser
 #listener = .listener.ChoiceTracker
 #symbolic.strings = true
 #symbolic.string_dp = z3
-#exclusionsFile=${jpf-symbc}/src/apachecli/MyJava60RegressionExclusions.txt
+#exclusionsFile=${jpf-symbc}/src/examples/MyJava60RegressionExclusions.txt
 
 symbolic.dp=z3bitvectorinc
 listener = .symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
