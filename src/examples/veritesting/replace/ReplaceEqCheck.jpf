@@ -2,7 +2,7 @@ target=veritesting.replace.ReplaceEqCheck
 veritestRegionExpectedCount = -1
 
 classpath=${jpf-symbc}/build/examples
-sourcepath=${jpf-symbc}/src/replace
+sourcepath=${jpf-symbc}/src/examples
 vm.storage.class=nil
 symbolic.debug=false
 

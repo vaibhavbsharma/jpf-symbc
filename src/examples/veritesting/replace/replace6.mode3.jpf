@@ -1,7 +1,7 @@
-target=replace11
-classpath=${jpf-symbc}/build/replace
-sourcepath=${jpf-symbc}/src/replace
-symbolic.method = replace11.mainProcess(sym#sym#sym#sym#sym#sym#con#con#con#con#con)
+target=veritesting.replace.replace11
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+symbolic.method = veritesting.replace.replace11.mainProcess(sym#sym#sym#sym#sym#sym#con#con#con#con#con)
 symbolic.minint=-100
 symbolic.maxint=100
 vm.storage.class=nil
@@ -14,7 +14,7 @@ vm.storage.class=nil
 #symbolic.debug=on
 veritestingMode=3
 performanceMode = true
-interestingClassNames = replace11
+interestingClassNames = veritesting.replace.replace11
 
 symbolic.dp=z3bitvectorinc
 listener = .symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
