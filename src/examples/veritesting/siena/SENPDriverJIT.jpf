@@ -1,6 +1,6 @@
 target=veritesting.siena.SENPDriver
-classpath=${jpf-symbc}/build/siena
-sourcepath=${jpf-symbc}/src/siena
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
 #symbolic.method = veritesting.siena.SENPDriver.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
 #symbolic.method = SENPDriver.mainProcess(sym#sym#sym#con#con#con#con#con#con)
 symbolic.method = SENPDriver.mainProcess(sym#con#con#con#con#con#con#con#con)
