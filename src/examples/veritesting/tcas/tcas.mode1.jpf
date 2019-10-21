@@ -1,14 +1,14 @@
-target=tcas
-classpath=${jpf-symbc}/build/tcas,${jpf-symbc}/build/examples/
-sourcepath=${jpf-symbc}/src/tcas
-symbolic.method = tcas.sym1(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym2(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym3(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym4(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym5(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym6(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym7(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym8(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym9(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcas.sym10(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
-#symbolic.method = tcas.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
-#symbolic.method = tcas.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+target=veritesting.tcas.tcas
+classpath=${jpf-symbc}/build/examples,${jpf-symbc}/build/examples/
+sourcepath=${jpf-symbc}/src/examples
+symbolic.method = veritesting.tcas.tcas.sym1(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym2(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym3(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym4(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym5(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym6(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym7(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym8(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym9(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym10(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+#symbolic.method = veritesting.tcas.tcas.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+#symbolic.method = veritesting.tcas.tcas.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
 #symbolic.minint=-100
 #symbolic.maxint=100
 vm.storage.class=nil
 
-#coverage.include=tcas
+#coverage.include=veritesting.tcas.tcas
 
 veritestingMode = 1
 performanceMode = true

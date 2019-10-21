@@ -1,8 +1,8 @@
 target=veritesting.tcas.TCASEqCheck
 veritestRegionExpectedCount = -1
 
-classpath=${jpf-symbc}/build/examples,${jpf-symbc}/build/tcas
-sourcepath=${jpf-symbc}/src/tcas
+classpath=${jpf-symbc}/build/examples,${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
 vm.storage.class=nil
 symbolic.debug=false
 
