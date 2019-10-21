@@ -1,11 +1,16 @@
-# jpf-symbc
-Symbolic PathFinder:
-This is the new location for NASA's Symbolic PathFinder project which was originally at:
-https://babelfish.arc.nasa.gov/trac/jpf/wiki/projects/jpf-symbc.
-The two copies will be kept in sync.
+# Java Ranger
+Java Ranger is a path-merging extension of Symbolic PathFinder (SPF). In this tool, we've extended the `veritesting` technique by Avgerinos et al. for symbolic execution of Java bytecode. 
 
-To compile and run the tool you will also need jpf-core which can be downloaded from here:
-https://github.com/javapathfinder/jpf-core
+The setup of Java Ranger is very similar to the setup used by SPF. The only difference  in  setup  is,  since Java Ranger is  simply  an  extension  of  SPF,  the Java Ranger directory can be specified as a valid `jpf-symbc` extension of JPF. The example configuration required by Java Ranger is exactly the same as the configuration that is required by SPF with the following additions.
 
-See related projects that use Symbolic PathFinder:
-https://github.com/isstac
+`veritestingMode = <1-5>`
+
+veritestingMode specifies the path-merging features to be enabled with each higher number adding a new feature to the set of features enabled by the previous number. Setting veritestingMode to 1 runs vanilla SPF. Setting it to 2 enables path-merging for multi-path regions with no method calls and a single exit point. Setting it to 3 adds path-merging for multi-path regions that make method calls where the method can be summarized by Java Ranger. Setting it to 4 adds path-merging  for  multi-path  regions  with  more  than  one  exit  point  caused  due  to exceptional behavior and unsummarized method calls. Setting it to 5 adds path-merging for summarizing  `return` instructions in multi-path regions by treating them as an additional exit point.
+
+`performanceMode = <true or false>`
+
+Setting `performanceMode` to true causes Java Ranger to minimize the number of solver calls to check the feasibility of the path condition when summarizing a multi-path region with multiple exit points.
+
+`TARGET_CLASSPATH_WALA=<classpath of target code>`
+
+Java Ranger needs this variable to be set up as environment variable. It is not part of the `.jpf` configuration file. This environment variable tells Java Ranger where it should be expecting to find code that needs to be statically summarized
