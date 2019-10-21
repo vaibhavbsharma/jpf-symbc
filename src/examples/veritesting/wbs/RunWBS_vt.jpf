@@ -1,4 +1,4 @@
-target=veritesting.wbs.RunWBS_vt
+target=veritesting.wbs.veritesting.wbs.RunWBS_vt_vt
 classpath=${jpf-symbc}/build/examples/
 sourcepath=${jpf-symbc}/src/examples/
 symbolic.method = veritesting.wbs.WBS_vt.sym1(sym#sym#sym),veritesting.wbs.WBS_vt.sym2(sym#sym#sym),veritesting.wbs.WBS_vt.sym3(sym#sym#sym),veritesting.wbs.WBS_vt.sym4(sym#sym#sym),veritesting.wbs.WBS_vt.sym5(sym#sym#sym),veritesting.wbs.WBS_vt.sym6(sym#sym#sym),veritesting.wbs.WBS_vt.sym7(sym#sym#sym),veritesting.wbs.WBS_vt.sym8(sym#sym#sym),veritesting.wbs.WBS_vt.sym9(sym#sym#sym),veritesting.wbs.WBS_vt.sym10(sym#sym#sym)

@@ -1,8 +1,8 @@
 target=veritesting.wbs.WBSEqCheck
 veritestRegionExpectedCount = -1
 
-classpath=${jpf-symbc}/build/examples,${jpf-symbc}/build/wbs
-sourcepath=${jpf-symbc}/src/wbs
+classpath=${jpf-symbc}/build/examples,${jpf-symbc}/build/examples/
+sourcepath=${jpf-symbc}/src/examples/
 vm.storage.class=nil
 symbolic.debug=false
 
