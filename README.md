@@ -14,3 +14,11 @@ Setting `performanceMode` to true causes Java Ranger to minimize the number of s
 `TARGET_CLASSPATH_WALA=<classpath of target code>`
 
 Java Ranger needs this variable to be set up as environment variable. It is not part of the `.jpf` configuration file. This environment variable tells Java Ranger where it should be expecting to find code that needs to be statically summarized
+
+## People
+The following people have contributed to Java Ranger
+1. Soha Hussein
+2. Vaibhav Sharma
+3. Michael Whalen
+4. Stephen McCamant
+5. Willem Visser
