@@ -1,5 +1,5 @@
 # Java Ranger
-Java Ranger is a path-merging extension of Symbolic PathFinder (SPF). In this tool, we've extended the `veritesting` technique by Avgerinos et al. for symbolic execution of Java bytecode. 
+Java Ranger is a path-merging extension of Symbolic PathFinder (SPF). In this tool, we've extended the `veritesting` technique by Avgerinos et al. (see paper [here](https://users.ece.cmu.edu/~aavgerin/papers/veritesting-icse-2014.pdf)) for symbolic execution of Java bytecode. 
 
 The setup of Java Ranger is very similar to the setup used by SPF. The only difference  in  setup  is,  since Java Ranger is  simply  an  extension  of  SPF,  the Java Ranger directory can be specified as a valid `jpf-symbc` extension of JPF. The example configuration required by Java Ranger is exactly the same as the configuration that is required by SPF with the following additions.
 
