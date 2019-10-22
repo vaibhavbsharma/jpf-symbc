@@ -71,6 +71,7 @@
 	  <available file="src/classes"     type="dir" property="have_classes"/>
 	  <available file="src/tests"       type="dir" property="have_tests"/>
 	  <available file="src/examples"    type="dir" property="have_examples"/>
+	  <available file="src/MerArbiter-v2"    type="dir" property="have_merarbiter_v2"/>
 
 	  <condition property="have_jvm_code">
 		  <or>
@@ -102,7 +103,7 @@
   <!-- ======================= COMPILE SECTION ============================= -->
 
   <!-- public compile -->
-  <target name="compile" depends="-init,-compile-annotations,-compile-main,-compile-peers,-compile-classes,-compile-tests,-compile-examples"
+  <target name="compile" depends="-init,-compile-annotations,-compile-main,-compile-peers,-compile-classes,-compile-tests,-compile-merarbiter-v2,-compile-examples"
 	  description="compile all JPF core sources" >
   </target>
 
@@ -152,6 +153,19 @@
 		  </classpath>
 	  </javac>
   </target>
+
+	<target name="-compile-merarbiter-v2" if="have_merarbiter_v2" depends="-compile-classes">
+		<mkdir dir="build/merarbiter-v2" />
+		<javac srcdir="src/MerArbiter-v2" destdir="build/merarbiter-v2"
+			   debug="${debug}" source="${src_level}" deprecation="${deprecation}"
+			   includeantruntime="false">
+			<classpath>
+				<path refid="lib.path"/>
+				<pathelement location="build/classes"/>
+				<pathelement location="build/annotations"/>
+			</classpath>
+		</javac>
+	</target>
 
   <target name="-compile-examples" if="have_examples" depends="-compile-annotations,-compile-main">
 	  <mkdir dir="build/examples" />
