@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.getArrayLength;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.getExpression;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.getInitialArrayValues;
@@ -66,7 +67,11 @@ public class ArrayExpressions {
             arrayTypesTable.put(arrayRef.ref, p.getSecond());
         }
         if (arrayRef.index instanceof IntConstant) {
-            table.get(arrayRef.ref)[((IntConstant) arrayRef.index).getValue()] = value;
+            int indexValue = ((IntConstant) arrayRef.index).getValue();
+            if (indexValue < 0 || indexValue >= getArrayLength(ti, arrayRef.ref))
+                throwException(new IllegalArgumentException("out of bounds array access in ArrayExpressions"),
+                        StaticRegionException.ExceptionPhase.INSTANTIATION);
+            table.get(arrayRef.ref)[indexValue] = value;
         } else {
             int len = getArrayLength(ti, arrayRef.ref);
             Expression oldValues[] = table.get(arrayRef.ref);
