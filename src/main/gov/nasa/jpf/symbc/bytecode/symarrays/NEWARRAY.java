@@ -109,7 +109,9 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
 		if(attr instanceof SymbolicLengthInteger) {
 			long l = ((SymbolicLengthInteger) attr).solution;
-			assert(l>=0 && l<=Integer.MAX_VALUE) : "Array length must be positive integer";
+//			assert(l>=0 && l<=Integer.MAX_VALUE) : "Array length must be positive integer";
+            if ( !(l >= 0 && l <= Integer.MAX_VALUE))
+                return ti.createAndThrowException("java.lang.NegativeArraySizeException");
 			arrayLength = (int) l;
 			sf.pop();
 		} else 	if(attr instanceof IntegerExpression) {
