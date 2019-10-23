@@ -1,11 +1,14 @@
 package veritesting.nanoxml;
 
 
+import java.util.ArrayList;
+
 public class DumpXML {
 
-	public static void mainProcess(char i0, char i1, char i2, char i3, char i4, char i5, char i6, char i7, char i8){
-		
-		char[] str = new char[9];
+	public static int numIdentifiers;
+	public static int mainProcess(char i0, char i1, char i2, char i3, char i4, char i5, char i6, char i7, char i8){
+		numIdentifiers = 0; // commenting this line out causes the equivalence check to fail
+		char[] str = new char[12];
 		str[0] = i0;
 		str[1] = i1;
 		str[2] = i2;
@@ -35,8 +38,9 @@ public class DumpXML {
 		}
 
 //		(new XMLWriter(System.out)).write(xml);
+		return numIdentifiers;
 	}
     public static void main(String args[]){   
-    	mainProcess('<','a', '>', ';', '<', '!', '?', '>', '/');
+    	mainProcess('<','a', '\t', 't', '=', '=', '"', '1', '"');
     }
 } 

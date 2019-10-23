@@ -37,6 +37,8 @@ import java.io.Reader;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import static veritesting.nanoxml.DumpXML.numIdentifiers;
+
 
 /**
  * StdXMLParser is the core parser of NanoXML.
@@ -184,7 +186,7 @@ public class StdXMLParser
 		} 
 		else if (ch == '!') {
 			this.processSpecialTag(allowCDATA);
-		} 
+		}
 		else {
 			this.reader.unread(ch);
 			//
@@ -469,7 +471,8 @@ public class StdXMLParser
         
 //        this.skipWhitespace(null, null);
         //RootElement is required
-        String rootElement = this.scanIdentifier();
+//        String rootElement = this.scanIdentifier();
+        char[] rootElement = this.scanIdentifier();
 //        this.skipWhitespace(null, null);
         char ch = this.read(null);
         
@@ -609,7 +612,8 @@ public class StdXMLParser
     protected void processElement() throws IOException
     {
     	//
-        String name = this.scanIdentifier();
+//        String name = this.scanIdentifier();
+        char[] name = this.scanIdentifier();
 //        this.skipWhitespace(null, null);
 //        this.validator.elementStarted(name, this.reader.getLineNr());
 //        this.builder.startElement(name, this.reader.getLineNr());
@@ -663,9 +667,11 @@ public class StdXMLParser
                 ch = reader.read();
                 if (ch == '/') {
 //                    this.skipWhitespace(null, null);
-                    String str = this.scanIdentifier();
+//                    String str = this.scanIdentifier();
+                    char[] str = this.scanIdentifier();
                     //
-                    boolean ret = str.equals(name);
+//                    boolean ret = str.equals(name);
+                    boolean ret = charArrayEquals(str, name);
                     if (!ret) {
                         this.errorWrongClosingTag(name, str);
                     }
@@ -709,7 +715,14 @@ public class StdXMLParser
             }
         }
     }
-    
+
+    private boolean charArrayEquals(char[] str, char[] name) {
+        if (str.length != name.length) return false;
+        for (int i = 0; i < str.length; i++)
+            if (str[i] != name[i]) return false;
+        return true;
+    }
+
 //    public void readPCData(Reader reader) throws IOException
 //    {
 //    	StringBuffer str = new StringBuffer();
@@ -737,7 +750,8 @@ public class StdXMLParser
      */
     protected void processAttribute() throws IOException
     {
-        String key = this.scanIdentifier();
+//        String key = this.scanIdentifier();
+        char[] key = this.scanIdentifier();
 //        this.skipWhitespace(null, null);
         char ch = this.read(null);
         if (ch != '=') {
@@ -757,32 +771,41 @@ public class StdXMLParser
      *		if an error occurred reading the data
      */
     //
-    protected String scanIdentifier() throws IOException
+//    protected String scanIdentifier() throws IOException
+    protected char[] scanIdentifier() throws IOException
     {
-        StringBuffer result = new StringBuffer();
+//        StringBuffer result = new StringBuffer();
+        char result[] = new char[10];
+        int resultInd = 0;
         boolean continueIndex = true;
         while(continueIndex) {
             char ch = this.read(null);
 
             if (ch == '_') {
-                result.append(ch);
+//                result.append(ch);
+                result[resultInd++] = ch;
             }
             else if(ch == ':'){
-            	result.append(ch);
+//            	result.append(ch);
+                result[resultInd++] = ch;
             }
             else if(ch == '-'){
-            	result.append(ch);
+//            	result.append(ch);
+                result[resultInd++] = ch;
             }
             else if(ch == '.'){
-            	result.append(ch);
+//            	result.append(ch);
+                result[resultInd++] = ch;
             }
             else if(ch > '\u007E'){
-            	result.append(ch);
+//            	result.append(ch);
+                result[resultInd++] = ch;
             }
             else{
             	boolean _isalnum = isalnum(ch);
             	if(_isalnum){
-            		result.append(ch);
+//            		result.append(ch);
+                    result[resultInd++] = ch;
             	}
             	else{
 //                    this.reader.unread(ch);
@@ -790,7 +813,10 @@ public class StdXMLParser
             	}
             }
         }
-        return result.toString();
+//        String ret = result.toString();
+        numIdentifiers += resultInd;
+//        return ret;
+        return result;
     }
     
 	private static boolean isalnum(char ch) {
@@ -1090,7 +1116,8 @@ public class StdXMLParser
      * @param expectedName the name of the opening tag
      * @param wrongName the name of the closing tag
      */
-    protected void errorWrongClosingTag(String expectedName, String wrongName)
+//    protected void errorWrongClosingTag(String expectedName, String wrongName)
+    protected void errorWrongClosingTag(char[] expectedName, char[] wrongName)
     {
 //    	int nr = this.reader.getLineNr();
     	String str = "Closing tag does not match opening tag";
