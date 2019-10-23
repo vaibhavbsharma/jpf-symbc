@@ -30,10 +30,10 @@ public class ExprUtil {
      */
     public static Expression SPFToGreenExpr(gov.nasa.jpf.symbc.numeric.Expression spfExp) {
         SolverTranslator.Translator toGreenTranslator = new SolverTranslator.Translator();
-        spfExp.accept(toGreenTranslator);
         try {
+            spfExp.accept(toGreenTranslator);
             return toGreenTranslator.getExpression();
-        } catch (EmptyStackException e) {
+        } catch (Exception e) {
             throwException(new IllegalArgumentException("cannot translate expression of type" + spfExp.getClass().toString() + " to green"), INSTANTIATION);
             return null;
         }
