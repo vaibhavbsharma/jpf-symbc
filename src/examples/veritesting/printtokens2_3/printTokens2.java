@@ -5,6 +5,7 @@ import java.io.IOException;
 public class printTokens2 {
 	
 	public static char[] buffer = new char[81];
+	public static int output = 0;
 	
 	public static final int error = 0;
 	public static final int keyword = 1;
@@ -21,6 +22,7 @@ public class printTokens2 {
 	}
 	
 	public static void mainProcess(char i0, char i1, char i2, char i3, char i4, char i5, char i6, char i7){
+		output = 0;
 		
 //		StringBuilder sb = new StringBuilder();
 //		try{
@@ -87,41 +89,49 @@ public class printTokens2 {
 		int type = token_type(token);
 		if(type == spec_symbol){
 			print_spec_symbol(token);
+			output += spec_symbol;
 		}
 		else if(type == error){
 			System.out.print("error, \"");
 			System.out.print(token);
 			System.out.print("\".\n");
+			output += error;
 		}
 		else if(type == keyword){
 			System.out.print("keyword, \"");
 			System.out.print(token);
 			System.out.print("\".\n");
+			output += keyword;
 		}
 
 		else if(type == identifier){
 			System.out.print("identifier, \"");
 			System.out.print(token);
 			System.out.print("\".\n");
+			output += identifier;
 		}
 		else if(type == num_constant){
 			System.out.print("numeric,");
 			System.out.print(token);
 			System.out.print(".\n");
+			output += num_constant;
 		}
 		else if(type == str_constant){
 			System.out.print("string,");
 			System.out.print(token);
 			System.out.print(".\n");
+			output += str_constant;
 		}
 		else if(type == char_constant){
 			System.out.print("character, \"");
 			//
 			System.out.print(token);
 			System.out.print("\".\n");
+			output += char_constant;
 		}
 		else if(type == end){
 			System.out.print("eof.\n");
+			output += end;
 		}
 	}
 
