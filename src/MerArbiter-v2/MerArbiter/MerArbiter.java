@@ -8,7 +8,7 @@ import edu.vanderbilt.isis.sm.UMLInterpreter;
 
 public class MerArbiter {
 
-	private TopLevelArbiter arbiter;
+	public TopLevelArbiter arbiter;
 	private TopLevelUser1 user1;
 	private TopLevelUser2 user2;
 
@@ -42,7 +42,7 @@ public class MerArbiter {
 		this.arbiter.r1.Arbiter3.u2cancel = this.user2.r1.User228.cancel;
 	}
 
-	private void setUser1Input(int resource, boolean reset) {
+	public void setUser1Input(int resource, boolean reset) {
 		this.user1.r1.User122.resourceIn = resource;
 		this.user1.r1.User122.grant = this.arbiter.r1.Arbiter3.u1grant;
 		this.user1.r1.User122.deny = this.arbiter.r1.Arbiter3.u1deny;
@@ -50,7 +50,7 @@ public class MerArbiter {
 		this.user1.r1.User122.reset = reset;
 	}
 
-	private void setUser2Input(int resource, boolean reset) {
+	public void setUser2Input(int resource, boolean reset) {
 		this.user2.r1.User228.resourceIn = resource;
 		this.user2.r1.User228.grant = this.arbiter.r1.Arbiter3.u2grant;
 		this.user2.r1.User228.deny = this.arbiter.r1.Arbiter3.u2deny;
@@ -129,7 +129,7 @@ public class MerArbiter {
 
 	}
 
-	private void runOneStep(Event e) {
+	public void runOneStep(Event e) {
 		this.user1.sim.addEvent(e);
 		this.user1.sim.step();
 		this.user2.sim.addEvent(e);

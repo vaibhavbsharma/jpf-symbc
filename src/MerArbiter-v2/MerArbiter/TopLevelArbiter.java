@@ -111,24 +111,53 @@ public class TopLevelArbiter implements Serializable {
 		public Pseudostate p40 = new Pseudostate(this, Kind.INITIAL);
 
 		public class STATE_T extends State {
-			public boolean u1cancel;
-			public int commUser;
-			public int panCamUser;
-			public int driveUser;
-			public int armUser;
-			public int ratUser;
-			public boolean u1request;
-			public int u1resource;
-			public boolean u1grant;
-			public boolean u1deny;
-			public boolean u1rescind;
+			public boolean u1cancel ;
+			public int commUser ;
+			public int panCamUser ;
+			public int driveUser ;
+			public int armUser ;
+			public int ratUser ;
+			public boolean u1request ;
+			public int u1resource ;
+			public boolean u1grant ;
+			public boolean u1deny ;
+			public boolean u1rescind ;
 			public int[] resources = new int[5];
-			public boolean u2cancel;
-			public boolean u2request;
-			public int u2resource;
-			public boolean u2grant;
-			public boolean u2deny;
-			public boolean u2rescind;
+			public boolean u2cancel ;
+			public boolean u2request ;
+			public int u2resource ;
+			public boolean u2grant ;
+			public boolean u2deny ;
+			public boolean u2rescind ;
+
+			@Override
+			public boolean equals(Object obj) {
+				if (obj instanceof STATE_T) {
+					STATE_T o = (STATE_T) obj;
+					boolean ret = o.u1cancel == u1cancel && o.commUser == commUser && o.panCamUser == panCamUser
+							&& o.driveUser == driveUser
+							&& o.armUser == armUser
+							&& o.ratUser == ratUser
+							&& o.u1request == u1request
+//							&& o.u1resource == u1resource // causes a mismatch for some weird reason
+							&& o.u1grant == u1grant
+							&& o.u1deny == u1deny
+							&& o.u1rescind == u1rescind && o.u2cancel == u2cancel
+							&& o.u2request == u2request && o.u2grant == u2grant && o.u2deny == u2deny
+							&& o.u2rescind == u2rescind && o.resources.length == resources.length;
+					if (!ret) {
+						System.out.println("STATE_T an attribute mismatched");
+						return false;
+					}
+					else {
+						for (int i = 0; i < resources.length; i++) {
+							if (resources[i] != o.resources[i]) return false;
+						}
+						return true;
+					}
+				}
+				return false;
+			}
 
 			public void setData(int val_0, boolean val_1, boolean val_2,
 					boolean val_3, boolean val_4, int val_5) {

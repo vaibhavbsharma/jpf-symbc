@@ -2,7 +2,7 @@ package edu.vanderbilt.isis.sm;
 import java.util.*;
 
 public class StateMachine implements IRegionParent {
-	private ArrayList<Region> regions;
+	public ArrayList<Region> regions;
 
 	public StateMachine(){
 		this.regions = new ArrayList<Region>();
