@@ -1,5 +1,7 @@
 package veritesting.schedule2_3;
 
+import java.util.Objects;
+
 public class Queue {
 	Process head;
 	Process tail;
@@ -47,7 +49,17 @@ public class Queue {
 //		}
 //		return number;
 //	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Queue queue = (Queue) o;
+		return number == queue.number &&
+				Objects.equals(head, queue.head) &&
+				Objects.equals(tail, queue.tail);
+	}
+
 	public Process getCurrent_job(){
 		return head.getNext();
 	}

@@ -32,6 +32,7 @@ public class Schedule2 {
 	}
 	
 	public static void mainProcess(int a1, int a2, int a3){
+		next_pid = 0; // not having this line causes inequivalence
 		current_job = new Queue(); 
 		//
 		prio_queue = new Queue[MAXPRIO + 1];
