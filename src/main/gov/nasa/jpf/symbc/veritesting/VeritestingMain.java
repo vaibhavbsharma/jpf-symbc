@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc.veritesting;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,6 +32,7 @@ import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ClassUtils;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ReflectUtil;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.vm.ThreadInfo;
+import sun.misc.IOUtils;
 import x10.wala.util.NatLoop;
 import x10.wala.util.NatLoopSolver;
 
@@ -103,6 +105,13 @@ public class VeritestingMain {
         try {
             URLClassLoader urlcl = new URLClassLoader(cp);
             Class c = urlcl.loadClass(_className);
+
+            if(VeritestingListener.rewWriteGoTo){
+                byte[] classByteRead = IOUtils.readFully(c.getResourceAsStream('/'+c.getName().replace('.', '/')+".class"),-1,false);
+
+
+            }
+
             Method[] allMethods;
             try {
                 allMethods = c.getDeclaredMethods();
