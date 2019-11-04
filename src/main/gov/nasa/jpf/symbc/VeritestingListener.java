@@ -93,6 +93,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     private static int timeout_mins = -1, timeoutReportingCounter = 12;
     private static long npaths = 0;
 
+    public static int recursiveDepth = 1;
+
     public static StringBuilder regionDigest = new StringBuilder();
     public static boolean printRegionDigest = false;
     private static String regionDigestPrintName;
@@ -191,6 +193,12 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (conf.hasValue("simplify"))
                 simplify = conf.getBoolean("simplify");
+
+            if (conf.hasValue("recursiveDepth")) {
+                recursiveDepth = conf.getInt("recursiveDepth");
+                if (recursiveDepth == 0) //we will unroll recursive functions at least once.
+                    recursiveDepth = 1;
+            }
 
             if (conf.hasValue("SPFCasesHeuristics") && (veritestingMode >= 4))
                 spfCasesHeuristicsOn = conf.getBoolean("SPFCasesHeuristics");
@@ -595,7 +603,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         dynRegion = linearTrans.execute(dynRegion);
 
         /*--------------- Discover Lustre Translation ---------------*/
-        if(contractDiscoveryOn)
+        if (contractDiscoveryOn)
             DiscoverContract.discoverLusterContract(dynRegion);
 
         /*--------------- TO GREEN TRANSFORMATION ---------------*/
@@ -653,7 +661,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             if (constOrVar instanceof CloneableVariable) {
                 if (returnType != null)
                     constOrVar = createGreenVar(returnType, constOrVar.toString());
-                else throwException(new StaticRegionException("cannot create return variable with unknown return type"), INSTANTIATION);
+                else
+                    throwException(new StaticRegionException("cannot create return variable with unknown return type"), INSTANTIATION);
             }
             if (isConstant(constOrVar) || isVariable(constOrVar)) {
                 var = constOrVar;
@@ -699,7 +708,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     /**
      * This method checks that the current PathCondition and after appending the summarized region is satisfiable.
      *
-     * @param ti            Currently running thread.
+     * @param ti        Currently running thread.
      * @param dynRegion Finaly summary of the region, after all transformations has been successfully completed.
      * @return PathCondition is still satisfiable or not.
      * @throws StaticRegionException Exception to indicate a problem while checking SAT of the updated PathCondition.
@@ -720,10 +729,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
         // if we're trying to run fast, then assume that the region summary is satisfiable in any non-SPFCASES mode or
         // if the static choice is the only feasible choice.
-        boolean cond1 =performanceMode && (runMode == VeritestingMode.VERITESTING ||
+        boolean cond1 = performanceMode && (runMode == VeritestingMode.VERITESTING ||
                 runMode == VeritestingMode.HIGHORDER ||
                 (choice != null && choice == STATIC_CHOICE && isOnlyStaticChoiceSat(dynRegion)));
-        if ( cond1 || isPCSat(pc)) {
+        if (cond1 || isPCSat(pc)) {
             currCG.setCurrentPC(pc);
             long t1 = System.nanoTime();
             // if we're running in incremental solving mode, then we need to ask this region summary to be

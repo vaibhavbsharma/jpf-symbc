@@ -2,12 +2,12 @@ package gov.nasa.jpf.symbc.veritesting.ast.transformations.substitution;
 
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.shrikeBT.IInvokeInstruction;
-import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import com.ibm.wala.ssa.SSAInvokeInstruction;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.util.strings.Atom;
 import gov.nasa.jpf.symbc.VeritestingListener;
+import gov.nasa.jpf.symbc.veritesting.FixedPointWrapper;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.VeritestingMain;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.JITAnalysis;
@@ -47,12 +47,16 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.WalaUtil.makeConsta
  * In this transformation, constants are also discovered as part of the process.
  */
 public class SubstitutionVisitor extends FixedPointAstMapVisitor {
-    private final ArrayList<InvokeInstruction> invocationStack;
+    private final ArrayList<MethodReference> invocationStack;
     private ExprVisitorAdapter<Expression> eva;
     public final DynamicRegion dynRegion;
     public final ThreadInfo ti;
     private boolean useVarTable = false;
-    private static Set<MethodReference> recursiveMethods = new HashSet<>();
+//    private static HashMap<MethodReference, Integer> recursiveMethods = new HashMap<>();
+
+    private Pair<MethodReference, Integer> recursiveScope = null;
+
+    private static Set<MethodReference> noFurtherInlines;
 
     /**
      * This is used to identify if a path had spfCase instruction that requires prouning the path. The flag is used
@@ -78,15 +82,19 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
     }
 
     private SubstitutionVisitor(ThreadInfo ti, DynamicRegion dynRegion,
-                                DynamicTable valueSymbolTable, boolean useVarTable, ArrayList<InvokeInstruction> invocationStack) {
+                                DynamicTable valueSymbolTable, boolean useVarTable, ArrayList<MethodReference> invocationStack) {
         super(new ExprSubstitutionVisitor(ti, dynRegion, valueSymbolTable));
         this.ti = ti;
         this.dynRegion = dynRegion;
         eva = super.eva;
         this.useVarTable = useVarTable;
         this.invocationStack = invocationStack;
+        if (FixedPointWrapper.iterationNumber == 1) //resetting discovered and inline methods, for regions discovered
+            // along the exploration path.
+            noFurtherInlines = new HashSet<>();
+        else
+            assert noFurtherInlines != null;
     }
-
 
     @Override
     public Stmt visit(AssignmentStmt a) {
@@ -189,7 +197,11 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
     public Stmt visit(InvokeInstruction c) {
         StaticRegionException invokeSre = new StaticRegionException("Cannot summarize invoke in " + c.toString());
 
-        if (recursiveMethods.contains(((SSAInvokeInstruction) c.original).getCallSite().getDeclaredTarget())) { //if the method invocation was previously discovered to be recursive then just return, i.e., do not attempt to inline it.
+        if ((FixedPointWrapper.iterationNumber > 1) && (noFurtherInlines.contains(((SSAInvokeInstruction) c.original)
+                .getCallSite()
+                .getDeclaredTarget()))
+                ) {   //if the method invocation was previously discovered to be recursive in a previous fix point iteration then just
+            // return, i.e., do not attempt to inline it.
             System.out.println("Encountering an already discovered recursive method. Returning.");
             return c;
         }
@@ -230,12 +242,17 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
 
                 StaticRegion hgOrdStaticRegion = keyRegionPair.getSecond();
                 if (hgOrdStaticRegion != null) {
-                    if (isRecursiveCall(newC)) {//check if along the path of invocation we have encountered the same method - meaning we are in a recursive call, then return.
-                        System.out.println("recursive function invocation detected, avoid further inlining.");
-                        recursiveMethods.add(((SSAInvokeInstruction) newC.original).getCallSite().getDeclaredTarget());
-                        return newC;
+                    MethodReference methodRef = ((SSAInvokeInstruction) newC.original).getCallSite().getDeclaredTarget();
+                    if (isRecursiveCall(methodRef)) {//check if along the path of invocation we have encountered the same
+                        // method - meaning we are in a recursive call
+                        if (!isAllowedRecursiveCall(methodRef)) {
+                            System.out.println("recursive inlining finished for method:" + newC);
+                            noFurtherInlines.add(methodRef);
+                            return newC;
+                        }
                     }
-                    invocationStack.add(newC); //insert in the stack the current method we are trying to inline.
+                    invocationStack.add(methodRef); //insert in the stack the current method we are trying
+                    // to inline.
 
                     ++StatisticManager.thisHighOrdCount;
                     String key = keyRegionPair.getFirst();
@@ -295,14 +312,21 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
             return newC;
     }
 
-    private boolean isRecursiveCall(InvokeInstruction newC) {
-        MethodReference calledTarget = ((SSAInvokeInstruction) newC.original).getCallSite().getDeclaredTarget();
-        for (InvokeInstruction inst : invocationStack) {
-            MethodReference target = ((SSAInvokeInstruction) inst.original).getCallSite().getDeclaredTarget();
-            if (target.equals(calledTarget))
-                return true;
+    private boolean isRecursiveCall(MethodReference calledTarget) {
+        return invocationStack.contains(calledTarget);
+    }
+
+
+    private boolean isAllowedRecursiveCall(MethodReference calledTarget) {
+        assert isRecursiveCall(calledTarget); //assumptions, at this point newC must be known to be recursive
+
+        int countRecursiveCalls = 0;
+        for (MethodReference stackMethodRef : invocationStack) {
+            if (stackMethodRef.equals(calledTarget))
+                ++countRecursiveCalls;
         }
-        return false;
+
+        return (countRecursiveCalls < VeritestingListener.recursiveDepth); //false otherwise.
     }
 
     /**

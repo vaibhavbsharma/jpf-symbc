@@ -53,7 +53,7 @@ public class FixedPointWrapper {
 
     private static DynamicRegion regionAfter = null;
 
-    private static int iterationNumber = 0;
+    public static int iterationNumber = 0;
 
     /**
      * Returns if change has happened
