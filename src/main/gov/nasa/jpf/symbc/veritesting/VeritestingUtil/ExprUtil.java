@@ -1,13 +1,12 @@
 package gov.nasa.jpf.symbc.veritesting.VeritestingUtil;
 
-import gov.nasa.jpf.symbc.numeric.Constraint;
-import gov.nasa.jpf.symbc.numeric.GreenConstraint;
-import gov.nasa.jpf.symbc.numeric.GreenToSPFTranslator;
-import gov.nasa.jpf.symbc.numeric.PathCondition;
+import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.numeric.solvers.SolverTranslator;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import za.ac.sun.cs.green.expr.*;
+import za.ac.sun.cs.green.expr.Expression;
+import za.ac.sun.cs.green.expr.RealConstant;
 
 import java.util.EmptyStackException;
 
@@ -81,12 +80,12 @@ public class ExprUtil {
             case "double":
             case "float":
             case "long":
-                return new RealVariable(varId, Double.MIN_VALUE, Double.MAX_VALUE);
+                return new RealVariable(varId, MinMax.getVarMinDouble(varId), MinMax.getVarMaxDouble(varId));
             case "int":
             case "short":
             case "boolean":
             default: //considered here an object reference
-                return new IntVariable(varId, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                return new IntVariable(varId, (int) MinMax.getVarMinInt(varId), (int) MinMax.getVarMaxInt(varId));
         }
     }
 
