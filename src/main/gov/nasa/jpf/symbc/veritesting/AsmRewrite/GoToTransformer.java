@@ -1,4 +1,6 @@
-package GoToTransformation;
+package gov.nasa.jpf.symbc.veritesting.AsmRewrite;
+
+import gov.nasa.jpf.symbc.veritesting.AsmRewrite.CollectGoTo;
 
 import java.io.File;
 import java.io.IOException;

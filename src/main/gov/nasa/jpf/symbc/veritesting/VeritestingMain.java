@@ -27,6 +27,8 @@ import com.ibm.wala.util.graph.dominators.NumberedDominators;
 import com.ibm.wala.util.io.FileProvider;
 import com.ibm.wala.util.strings.StringStuff;
 import gov.nasa.jpf.symbc.VeritestingListener;
+import gov.nasa.jpf.symbc.veritesting.AsmRewrite.CollectGoTo;
+import gov.nasa.jpf.symbc.veritesting.AsmRewrite.JRClassLoader;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.CreateStaticRegions;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ClassUtils;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ReflectUtil;
@@ -106,10 +108,15 @@ public class VeritestingMain {
             URLClassLoader urlcl = new URLClassLoader(cp);
             Class c = urlcl.loadClass(_className);
 
-            if(VeritestingListener.rewWriteGoTo){
-                byte[] classByteRead = IOUtils.readFully(c.getResourceAsStream('/'+c.getName().replace('.', '/')+".class"),-1,false);
-
-
+            if (VeritestingListener.rewWriteGoTo) {
+                try {
+                    byte[] classByteRead = IOUtils.readFully(c.getResourceAsStream('/' + c.getName().replace('.',
+                            '/') + ".class"), -1, false);
+                    byte[] newClass = CollectGoTo.execute(classByteRead);
+                    c = JRClassLoader.createClass(c.getName(), newClass);
+                } catch (IOException e){
+                    System.out.println("unable to do goTo re-write pass");
+                }
             }
 
             Method[] allMethods;
@@ -257,6 +264,18 @@ public class VeritestingMain {
         try {
             URLClassLoader urlcl = new URLClassLoader(cp);
             Class c = urlcl.loadClass(_className);
+
+            if (VeritestingListener.rewWriteGoTo) {
+                try {
+                    byte[] classByteRead = IOUtils.readFully(c.getResourceAsStream('/' + c.getName().replace('.', '/') + ".class"), -1, false);
+                    byte[] newClass = CollectGoTo.execute(classByteRead);
+                    c = JRClassLoader.createClass(c.getName(), newClass);
+                } catch (IOException e){
+                    System.out.println("unable to do goTo re-write pass");
+                }
+            }
+
+
             Method[] allMethods;
             try {
                 allMethods = c.getDeclaredMethods();

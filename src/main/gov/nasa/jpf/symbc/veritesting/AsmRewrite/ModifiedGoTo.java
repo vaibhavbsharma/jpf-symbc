@@ -1,4 +1,4 @@
-package GoToTransformation;
+package gov.nasa.jpf.symbc.veritesting.AsmRewrite;
 
 import javafx.util.Pair;
 import org.objectweb.asm.Label;
