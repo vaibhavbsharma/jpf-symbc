@@ -80,4 +80,5 @@ public class AstVarExpr extends CloneableVariable {
         return getSymName().hashCode();
     }
 
+    public int getUniqueNum() { return uniqueNum; }
 }

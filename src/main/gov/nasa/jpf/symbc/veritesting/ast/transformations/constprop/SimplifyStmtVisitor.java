@@ -125,9 +125,8 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
                 newExpr = newExpr.makeUnique(uniqueNum);
                 newKey = newExpr;
             } else if (entry.getKey() instanceof AstVarExpr) {
-                AstVarExpr newExpr = ((AstVarExpr) entry.getKey()).clone();
-                newExpr = newExpr.makeUnique(uniqueNum);
-                newKey = newExpr;
+                assert ((AstVarExpr) entry.getKey()).getUniqueNum() != -1;
+                newKey = entry.getKey(); // AstVarExpr are assumed to be alpha-renamed by this point
             } else if (entry.getKey() instanceof WalaVarExpr) {
                 assert ((WalaVarExpr) entry.getKey()).getUniqueNum() != -1;
                 newKey = entry.getKey(); // WalaVarExpr are assumed to be alpha-renamed by this point
@@ -141,9 +140,8 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
                 newExpr = newExpr.makeUnique(uniqueNum);
                 newValue = newExpr;
             } else if (entry.getValue() instanceof AstVarExpr) {
-                AstVarExpr newExpr = ((AstVarExpr) entry.getValue()).clone();
-                newExpr = newExpr.makeUnique(uniqueNum);
-                newValue = newExpr;
+                assert ((AstVarExpr) entry.getValue()).getUniqueNum() != -1;
+                newValue = entry.getValue(); // AstVarExpr are assumed to be alpha-renamed by this point
             }else if (entry.getValue() instanceof WalaVarExpr) {
                 assert ((WalaVarExpr) entry.getValue()).getUniqueNum() != -1;
                 newValue = entry.getValue(); // WalaVarExpr are assumed to be alpha-renamed by this point
