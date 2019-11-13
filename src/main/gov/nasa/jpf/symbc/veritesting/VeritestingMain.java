@@ -45,6 +45,7 @@ import za.ac.sun.cs.green.expr.Operation;
 
 import static gov.nasa.jpf.symbc.VeritestingListener.exclusionsFile;
 import static gov.nasa.jpf.symbc.VeritestingListener.jitAnalysis;
+import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ClassUtils.getCpForClass;
 
 /**
  * Main class file for veritesting static analysis exploration.
@@ -209,19 +210,16 @@ public class VeritestingMain {
             try {
                 scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
                         jitAnalysis == true ? null : (new FileProvider()).getFile(exclusionsFile));
+                System.out.print("Constructing class hierarchy...");
+                cha = ClassHierarchyFactory.make(scope);
+                //cha.addClass(cha2.getLoaders()[0].iterateAllClasses().next());
+            } catch (ClassHierarchyException e) {
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//                    (new FileProvider()).getFile(CallGraphTestUtil.REGRESSION_EXCLUSIONS));
-            System.out.print("Constructing class hierarchy...");
-            try {
-                ClassHierarchy cha2 = ClassHierarchyFactory.make(scope);
-                cha.addClass(cha2.getLoaders()[0].iterateAllClasses().next());
-            } catch (ClassHierarchyException e) {
-                e.printStackTrace();
-            }
-            System.out.println("done!");
         }
+
         MethodReference mr = StringStuff.makeMethodReference(className + "." + methodSig);
         IMethod m = cha.resolveMethod(mr);
         if (m == null) {
@@ -288,7 +286,9 @@ public class VeritestingMain {
         try {
             URLClassLoader urlcl = new URLClassLoader(cp);
             Class c = urlcl.loadClass(_className);
-            Path pathWrite = FileSystems.getDefault().getPath("../build/examples", c.getName() + ".class");
+
+            String classSpecificPath = getCpForClass(c);
+            Path pathWrite = FileSystems.getDefault().getPath(classSpecificPath, c.getName() + ".class");
 
             if ((VeritestingListener.reWriteGoTo) && (!RewrittenClasses.contains(c)
             )) { //rewrite only in rewrite mode and if we haven't already rewritten the class.
@@ -298,6 +298,7 @@ public class VeritestingMain {
                     Files.write(pathWrite, newClass);
                     c = JRClassLoader.createClass(c.getName(), newClass);
                     RewrittenClasses.add(c);
+                    updateClassHierarchy(c, classSpecificPath); // has the side effect of updating cha
                 } catch (IOException e) {
                     System.out.println("unable to do goTo re-write pass");
                 }
@@ -325,6 +326,21 @@ public class VeritestingMain {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private void updateClassHierarchy(Class c, String classSpecificPath) {
+        try {
+            scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(classSpecificPath, null);
+            System.out.print("Constructing class hierarchy...");
+            ClassHierarchy cha2 = ClassHierarchyFactory.make(scope);
+            cha = cha2;
+            //cha.addClass(cha2.getLoaders()[0].iterateAllClasses().next());
+        } catch (ClassHierarchyException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

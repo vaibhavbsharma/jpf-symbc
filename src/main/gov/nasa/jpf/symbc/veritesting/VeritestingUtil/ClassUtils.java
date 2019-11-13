@@ -57,12 +57,12 @@ public class ClassUtils {
         Method[] allMethodsAdditional;
         try {
             allMethodsAdditional = cAdditional.getDeclaredMethods();
-        } catch(NoClassDefFoundError n) {
-            System.out.println("NoClassDefFoundError for methodSummaryClassName = "  +methodSummaryClassName);
+        } catch (NoClassDefFoundError n) {
+            System.out.println("NoClassDefFoundError for methodSummaryClassName = " + methodSummaryClassName);
             System.out.println(n.getMessage());
             return;
         }
-        if(allMethodsAdditional.length == 0) return;
+        if (allMethodsAdditional.length == 0) return;
         //Only need to add subclass once for all the methods in the class
         Method m = allMethodsAdditional[0];
         String signature = null;
@@ -78,10 +78,10 @@ public class ClassUtils {
             return;
         }
         IClass iClass = iMethod.getDeclaringClass();
-        for(IClass subClass: cha.computeSubClasses(iClass.getReference())) {
-            if(iClass.equals(subClass)) continue;
+        for (IClass subClass : cha.computeSubClasses(iClass.getReference())) {
+            if (iClass.equals(subClass)) continue;
             String subClassName = subClass.getReference().getName().getClassName().toString();
-            if(subClass.getReference().getName().getPackage() != null) {
+            if (subClass.getReference().getName().getPackage() != null) {
                 String packageName = subClass.getReference().getName().getPackage().toString().replaceAll("/", ".");
                 subClassName = packageName + "." + subClassName;
             }
@@ -113,10 +113,10 @@ public class ClassUtils {
                 } catch (ClassNotFoundException e) {
                     continue;
                 }
-                if(c == null) continue;
+                if (c == null) continue;
                 Method[] allMethods;
                 try {
-                     allMethods = c.getDeclaredMethods();
+                    allMethods = c.getDeclaredMethods();
                 } catch (NoClassDefFoundError n) {
                     System.out.println("NoClassDefFoundError for className = " + className + "\n " +
                             n.getMessage());
@@ -131,14 +131,14 @@ public class ClassUtils {
                     }
                     MethodReference mr = StringStuff.makeMethodReference(className + "." + signature);
                     IMethod iMethod = cha.resolveMethod(mr);
-                    if(iMethod == null)
+                    if (iMethod == null)
                         continue;
                     AnalysisOptions options = new AnalysisOptions();
                     options.getSSAOptions().setPiNodePolicy(SSAOptions.getAllBuiltInPiNodes());
                     IAnalysisCacheView cache = new AnalysisCacheImpl(options.getSSAOptions());
                     IR ir = cache.getIR(iMethod, Everywhere.EVERYWHERE);
-                    if(ir == null) {
-                        System.out.println("failed to get WALA IR for method: " + className +"." + signature);
+                    if (ir == null) {
+                        System.out.println("failed to get WALA IR for method: " + className + "." + signature);
                         continue;
                     }
                     Iterator<CallSiteReference> iterator = ir.iterateCallSites();
@@ -147,7 +147,7 @@ public class ClassUtils {
                         MethodReference methodReference = reference.getDeclaredTarget();
                         String declaringClass = methodReference.getDeclaringClass().getName().getClassName().toString();
                         String newClassName = declaringClass;
-                        if(methodReference.getDeclaringClass().getName().getPackage() != null) {
+                        if (methodReference.getDeclaringClass().getName().getPackage() != null) {
                             String packageName =
                                     methodReference.getDeclaringClass().getName().getPackage().toString().replace("/", ".");
                             newClassName = packageName + "." + newClassName;
@@ -159,7 +159,7 @@ public class ClassUtils {
                 }
             }
             methodSummaryClassNames.addAll(newClassNames);
-            for(Iterator it = methodSummaryClassNames.iterator(); it.hasNext();) {
+            for (Iterator it = methodSummaryClassNames.iterator(); it.hasNext(); ) {
                 String methodSummaryClassName = (String) it.next();
                 ClassUtils.addSubClassNames(ti, cha, newClassNames, methodSummaryClassName);
             }
@@ -169,7 +169,7 @@ public class ClassUtils {
             ++iteration;
             if (iteration == VeritestingListener.maxStaticExplorationDepth)
                 break;
-        } while(newClassNames.size() != 0);
+        } while (newClassNames.size() != 0);
     }
 
     public static ArrayList<String> getSuperClassList(ThreadInfo ti, String className) {
@@ -177,7 +177,7 @@ public class ClassUtils {
         ClassInfo ci;
         try {
             ci = ti.resolveReferencedClass(className);
-        } catch(ClassInfoException c) {
+        } catch (ClassInfoException c) {
             ret.add(className);
             return ret;
         }
@@ -190,5 +190,11 @@ public class ClassUtils {
 
     public static String getType(TypeName typeName) {
         return typeName.getPackage() != null ? (typeName.getPackage().toString().replace('/', '.') + "." + typeName.getClassName()) : typeName.getClassName().toString();
+    }
+
+    //returns the specific location or class path of this particular loaded class.
+    public static String getCpForClass(Class c) {
+        int index = c.getResource(c.getName() + ".class").getPath().lastIndexOf("/");
+        return c.getResource(c.getName() + ".class").getPath().substring(0, index);
     }
 }
