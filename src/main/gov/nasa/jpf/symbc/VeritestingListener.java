@@ -99,7 +99,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     private static boolean spfCasesHeuristicsOn = false;
 
-    public  static boolean rewWriteGoTo = false; //rewrite is false until it is turned on.
+    public  static boolean reWriteGoTo = false; //rewrite is false until it is turned on.
 
     public enum VeritestingMode {VANILLASPF, VERITESTING, HIGHORDER, SPFCASES, EARLYRETURNS}
 
@@ -210,7 +210,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 maxStaticExplorationDepth = conf.getInt("maxStaticExplorationDepth");
 
             if (conf.hasValue("rewriteGoTo"))
-                rewWriteGoTo = conf.getBoolean("rewriteGoTo");
+                reWriteGoTo = conf.getBoolean("rewriteGoTo");
 
             if (conf.hasValue("contractDiscoveryOn"))
                 contractDiscoveryOn = conf.getBoolean("contractDiscoveryOn");

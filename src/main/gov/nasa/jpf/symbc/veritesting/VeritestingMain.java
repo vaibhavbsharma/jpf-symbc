@@ -2,11 +2,13 @@ package gov.nasa.jpf.symbc.veritesting;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import com.ibm.wala.classLoader.CallSiteReference;
@@ -17,6 +19,7 @@ import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.IAnalysisCacheView;
 import com.ibm.wala.ipa.callgraph.impl.Everywhere;
 import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ipa.cha.ClassHierarchyException;
 import com.ibm.wala.ipa.cha.ClassHierarchyFactory;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.types.MethodReference;
@@ -54,6 +57,7 @@ public class VeritestingMain {
     private boolean methodAnalysis = false;
     private String currentPackageName;
     public static HashMap<String, StaticRegion> veriRegions = new HashMap<>();
+
     public static HashSet<String> skipVeriRegions = new HashSet<>();
     public static final HashSet<String> skipRegionStrings = new HashSet<>();
     private ThreadInfo ti;
@@ -65,11 +69,13 @@ public class VeritestingMain {
     HashSet<NatLoop> loops;
     IR ir;
 
+    public static AnalysisScope scope;
+
     public VeritestingMain(ThreadInfo ti) {
         try {
             Map map = System.getenv();
             String appJar = System.getenv("TARGET_CLASSPATH_WALA");// + appJar;
-            AnalysisScope scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
+            scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
                     jitAnalysis == true ? null : (new FileProvider()).getFile(exclusionsFile));
 //                    (new FileProvider()).getFile(CallGraphTestUtil.REGRESSION_EXCLUSIONS));
             System.out.print("Constructing class hierarchy...");
@@ -108,13 +114,13 @@ public class VeritestingMain {
             URLClassLoader urlcl = new URLClassLoader(cp);
             Class c = urlcl.loadClass(_className);
 
-            if (VeritestingListener.rewWriteGoTo) {
+            if (VeritestingListener.reWriteGoTo) {
                 try {
                     byte[] classByteRead = IOUtils.readFully(c.getResourceAsStream('/' + c.getName().replace('.',
                             '/') + ".class"), -1, false);
                     byte[] newClass = CollectGoTo.execute(classByteRead);
                     c = JRClassLoader.createClass(c.getName(), newClass);
-                } catch (IOException e){
+                } catch (IOException e) {
                     System.out.println("unable to do goTo re-write pass");
                 }
             }
@@ -198,6 +204,24 @@ public class VeritestingMain {
 
 
     private void jitStartAnalysis(String packageName, String className, String methodSig, boolean multiPathAnalysis) throws StaticRegionException {
+        if (VeritestingListener.reWriteGoTo) {//create a new class hierarchy
+            String appJar = System.getenv("TARGET_CLASSPATH_WALA");// + appJar;
+            try {
+                scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
+                        jitAnalysis == true ? null : (new FileProvider()).getFile(exclusionsFile));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+//                    (new FileProvider()).getFile(CallGraphTestUtil.REGRESSION_EXCLUSIONS));
+            System.out.print("Constructing class hierarchy...");
+            try {
+                ClassHierarchy cha2 = ClassHierarchyFactory.make(scope);
+                cha.addClass(cha2.getLoaders()[0].iterateAllClasses().next());
+            } catch (ClassHierarchyException e) {
+                e.printStackTrace();
+            }
+            System.out.println("done!");
+        }
         MethodReference mr = StringStuff.makeMethodReference(className + "." + methodSig);
         IMethod m = cha.resolveMethod(mr);
         if (m == null) {
@@ -264,13 +288,17 @@ public class VeritestingMain {
         try {
             URLClassLoader urlcl = new URLClassLoader(cp);
             Class c = urlcl.loadClass(_className);
+            Path pathWrite = FileSystems.getDefault().getPath("../build/examples", c.getName() + ".class");
 
-            if (VeritestingListener.rewWriteGoTo) {
+            if ((VeritestingListener.reWriteGoTo) && (!RewrittenClasses.contains(c)
+            )) { //rewrite only in rewrite mode and if we haven't already rewritten the class.
                 try {
                     byte[] classByteRead = IOUtils.readFully(c.getResourceAsStream('/' + c.getName().replace('.', '/') + ".class"), -1, false);
                     byte[] newClass = CollectGoTo.execute(classByteRead);
+                    Files.write(pathWrite, newClass);
                     c = JRClassLoader.createClass(c.getName(), newClass);
-                } catch (IOException e){
+                    RewrittenClasses.add(c);
+                } catch (IOException e) {
                     System.out.println("unable to do goTo re-write pass");
                 }
             }
@@ -297,8 +325,6 @@ public class VeritestingMain {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-
-
     }
 
 
@@ -473,5 +499,22 @@ public class VeritestingMain {
     }
 
 
+    public static class RewrittenClasses {
+
+        static HashSet<String> rewrittenClasses = new HashSet();
+
+        public static void add(Class c) {
+            String _className = c.getName();
+            String _package = c.getPackage() != null ? c.getPackage().getName() : "";
+            rewrittenClasses.add(_package + "." + _className);
+        }
+
+        public static boolean contains(Class c) {
+            String _className = c.getName();
+            String _package = c.getPackage() != null ? c.getPackage().getName() : "";
+
+            return rewrittenClasses.contains(_package + "." + _className);
+        }
+    }
 }
 
