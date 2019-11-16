@@ -17,11 +17,6 @@ package veritesting.wbs;/*
  */
 
 
-import gov.nasa.jpf.symbc.Debug;
-import gov.nasa.jpf.symbc.Preconditions;
-import gov.nasa.jpf.vm.Verify;
-
-
 public class WBS_vt {
 	
 	//Internal state
@@ -29,6 +24,11 @@ public class WBS_vt {
 	private int WBS_Node_WBS_BSCU_rlt_PRE1; 
 	private int WBS_Node_WBS_rlt_PRE2;
 //	boolean WBS_Node_WBS_BSCU_SystemModeSelCmd_Logical_Operator6; //10
+
+	//Last given inputs
+	private int myPedalPos;
+	private boolean myAutoBrake;
+	private boolean mySkid;
 
 	//Outputs
 	private int Nor_Pressure;
@@ -74,6 +74,9 @@ public class WBS_vt {
 		int WBS_Node_WBS_SelectorValve_Switch; //16
 		int WBS_Node_WBS_SelectorValve_Switch1; //17
 		int WBS_Node_WBS_Unit_Delay2; //18
+		this.myPedalPos = PedalPos;
+		this.myAutoBrake = AutoBrake;
+		this.mySkid = Skid;
 		
 	   WBS_Node_WBS_Unit_Delay2 = WBS_Node_WBS_rlt_PRE2; 
 	   WBS_Node_WBS_BSCU_Unit_Delay1 = WBS_Node_WBS_BSCU_rlt_PRE1; 
@@ -315,18 +318,23 @@ public class WBS_vt {
 		// This assertion may fail (depending on encoding):
 		//Debug.printPC("PC before assertion ((PedalPos > 0 && PedalPos <= 4 && !Skid) ? (Nor_Pressure > 0) : true) = ");
 
-		// assert((PedalPos > 0 && PedalPos <= 4 && !Skid) ? (Nor_Pressure > 0) : true);
+//		 assert((PedalPos > 0 && PedalPos <= 4 && !Skid) ? (Nor_Pressure > 0) : true);
 
 		// This assertion should fail:
-		 //assert((PedalPos > 0 && PedalPos <= 4) ? (Alt_Pressure > 0 || Nor_Pressure > 0) : true);
+//		 assert((PedalPos > 0 && PedalPos <= 4) ? (Alt_Pressure > 0 || Nor_Pressure > 0) : true);
 
 		// This assertion should also fail:
-		//assert((PedalPos > 0 && !Skid) ? (Alt_Pressure > 0 || Nor_Pressure > 0) : true);
+//		assert((PedalPos > 0 && !Skid) ? (Alt_Pressure > 0 || Nor_Pressure > 0) : true);
+	}
+
+	public boolean checkProp1() {
+		return ((myPedalPos > 0 && myPedalPos <= 4 && !mySkid) ? (Alt_Pressure > 0) : true);
 	}
 
 
 	public static void launch(int pedal1, boolean auto1, boolean skid1, int pedal2, boolean auto2, boolean skid2, int pedal3, boolean auto3, boolean skid3) {
 		WBS_vt WBS_vt = new WBS_vt();
+		for (int i = 0; i < 10; i++)
 		WBS_vt.update(pedal1, auto1, skid1);
 		//wbs.update(pedal2, auto2, skid2);
 		//wbs.update(pedal3, auto3, skid3);
