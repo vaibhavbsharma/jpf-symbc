@@ -2748,11 +2748,12 @@ public class SymbolicStringHandler {
 	public Instruction handletoString(JVMInvokeInstruction invInst,  ThreadInfo th) {
 		StackFrame sf = th.getModifiableTopFrame();
 		Object sym_obj_v2 = sf.getOperandAttr(0);
-		if (sym_obj_v2 instanceof StringExpression) {
-			return null;
-		}
 		StringExpression sym_v1 = null;
-		if (sym_obj_v2 instanceof SymbolicStringBuilder) {
+		if (sym_obj_v2 instanceof StringExpression) {
+//			return null;
+			sym_v1 = (StringExpression) sym_obj_v2;
+		}
+		else if (sym_obj_v2 instanceof SymbolicStringBuilder) {
 			SymbolicStringBuilder sym_v2 = (SymbolicStringBuilder) sym_obj_v2;
 			sym_v1 = sym_v2.getstr();
 		} else {
