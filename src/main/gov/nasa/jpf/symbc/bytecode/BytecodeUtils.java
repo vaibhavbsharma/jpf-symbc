@@ -35,17 +35,8 @@ import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
 import gov.nasa.jpf.symbc.numeric.SymbolicReal;
 import gov.nasa.jpf.symbc.string.StringExpression;
 import gov.nasa.jpf.symbc.string.StringSymbolic;
-import gov.nasa.jpf.vm.AnnotationInfo;
-import gov.nasa.jpf.vm.ChoiceGenerator;
-import gov.nasa.jpf.vm.ClassInfo;
-import gov.nasa.jpf.vm.ElementInfo;
-import gov.nasa.jpf.vm.FieldInfo;
-import gov.nasa.jpf.vm.Instruction;
-import gov.nasa.jpf.vm.LocalVarInfo;
-import gov.nasa.jpf.vm.MethodInfo;
-import gov.nasa.jpf.vm.StackFrame;
-import gov.nasa.jpf.vm.SystemState;
-import gov.nasa.jpf.vm.ThreadInfo;
+import gov.nasa.jpf.symbc.string.SymbolicStringBuilder;
+import gov.nasa.jpf.vm.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -216,6 +207,16 @@ public class BytecodeUtils {
                 // System.out.println("Symbolic string analysis!!!"+invInst);
                 return new InstructionOrSuper(false, handled);
             }
+        } else if (isSymbolicStringCharAt(invInst, th)){
+            throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: charAt");
+        } else if (isSymbolicBuilderCharAt(invInst, th)) {
+            throw new RuntimeException("ERROR: symbolic method not handled on SymbolicStringBuilder: charAt");
+        } else if (isSymbolicStringRegionMatches5(invInst, th)) {
+            throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: regionMatches (case-ignored)");
+        } else if (isSymbolicStringEquals(invInst, th)) {
+            throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: equals");
+        }  else if (isSymbolicStringContains(invInst, th)) {
+            throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: contains");
         }
         // End string handling
 
@@ -606,6 +607,49 @@ public class BytecodeUtils {
             }
         }
         return new InstructionOrSuper(true, null);
+    }
+
+    private static boolean isSymbolicStringCharAt(JVMInvokeInstruction invInst, ThreadInfo th) {
+        return invInst instanceof INVOKEVIRTUAL
+                && invInst.getArgSize() >= 2
+                && th.getTopFrame().getOperandAttr(1) instanceof StringSymbolic
+                && invInst.getInvokedMethodClassName().equals("java.lang.String")
+                && invInst.getInvokedMethodName().equals("charAt(I)C");
+    }
+
+    private static boolean isSymbolicBuilderCharAt(JVMInvokeInstruction invInst, ThreadInfo th) {
+        return invInst instanceof INVOKEVIRTUAL
+                && invInst.getArgSize() >= 2
+                && th.getTopFrame().getOperandAttr(1) instanceof SymbolicStringBuilder
+                && invInst.getInvokedMethodClassName().equals("java.lang.StringBuilder")
+                && invInst.getInvokedMethodName().equals("charAt(I)C");
+    }
+
+    private static boolean isSymbolicStringRegionMatches5(JVMInvokeInstruction invInst, ThreadInfo th) {
+        return invInst instanceof INVOKEVIRTUAL
+                && invInst.getArgSize() == 5
+                && (th.getTopFrame().getOperandAttr(2) instanceof StringSymbolic
+                || th.getTopFrame().getOperandAttr(0) instanceof StringSymbolic)
+                && invInst.getInvokedMethodClassName().equals("java.lang.String")
+                && invInst.getInvokedMethodName().equals("regionMatches(ILjava/lang/String;II)Z");
+    }
+
+    private static boolean isSymbolicStringEquals(JVMInvokeInstruction invInst, ThreadInfo th) {
+        return invInst instanceof INVOKEVIRTUAL
+                && invInst.getArgSize() == 2
+                && th.getTopFrame().getOperandAttr(0) instanceof StringSymbolic
+                && invInst.getInvokedMethodClassName().equals("java.lang.String")
+                && invInst.getInvokedMethodName().equals("equals(Ljava/lang/Object;)Z");
+    }
+
+    private static boolean isSymbolicStringContains(JVMInvokeInstruction invInst, ThreadInfo th) {
+        return invInst instanceof INVOKEVIRTUAL
+                && invInst.getArgSize() == 2
+                && (th.getTopFrame().getOperandAttr(0) instanceof StringSymbolic
+                && th.getTopFrame().getOperandAttr(1) instanceof StringSymbolic
+                && !th.getTopFrame().getOperandAttr(0).equals(th.getTopFrame().getOperandAttr(1)))
+                && invInst.getInvokedMethodClassName().equals("java.lang.String")
+                && invInst.getInvokedMethodName().equals("contains(Ljava/lang/CharSequence;)Z");
     }
 
     /**
