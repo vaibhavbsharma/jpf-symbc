@@ -475,10 +475,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     private void runVeritestingWithSPF(ThreadInfo ti, VM vm, Instruction instructionToExecute, StaticRegion staticRegion,
                                        String key) throws Exception {
 
-        /*if (SamePathOptimization.optimize) {
+        if (SamePathOptimization.optimize) {
             doOptimization(ti, instructionToExecute);
             return;
-        }*/
+        }
 
         if (!ti.isFirstStepInsn() && !StaticBranchChoiceGenerator.heuristicsCountingMode) { // first time around
             StaticPCChoiceGenerator newCG;
@@ -494,9 +494,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             else
                 newCG = new StaticBranchChoiceGenerator(dynRegion, instructionToExecute);
 
-            /*if (canOptimize(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
+            if (canOptimize(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
                 return;
-            }*/
+            }
 
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
 
@@ -911,7 +911,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         /* Begin added for equivalence checking */
         if (veritestRegionExpectedCount != -1) {
             pw.println("Expected Number of Veritested Regions Instances = " + veritestRegionExpectedCount);
-            //assert (veritestRegionCount >= veritestRegionExpectedCount);
+            assert (veritestRegionCount >= veritestRegionExpectedCount);
         }
         pw.println(statisticManager.getDistinctVeriRegionKeys());
         /* End added for equivalence checking */
