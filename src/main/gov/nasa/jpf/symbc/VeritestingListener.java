@@ -374,16 +374,22 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             isRegionEndOk(staticRegion, instructionToExecute);
 
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
-            Instruction nextInstruction = setupSPF(ti, instructionToExecute, dynRegion, null);
-            ++veritestRegionCount;
-            ti.setNextPC(nextInstruction);
-            statisticManager.updateVeriSuccForRegion(key);
+            runOnSamePath(ti, instructionToExecute, dynRegion);
 
             System.out.println("------------- Region was successfully veritested --------------- ");
         } else {
             isRegionEndOk(staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
         }
+    }
+
+    public static void runOnSamePath(ThreadInfo ti, Instruction instructionToExecute, DynamicRegion dynRegion)
+            throws StaticRegionException {
+        Instruction nextInstruction = setupSPF(ti, instructionToExecute, dynRegion, null);
+        ++veritestRegionCount;
+        ti.setNextPC(nextInstruction);
+        statisticManager.updateVeriSuccForRegion(key);
+
     }
 
     private void isRegionEndOk(StaticRegion staticRegion, Instruction instructionToExecute) throws StaticRegionException {

@@ -5,12 +5,8 @@ import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.expr.Expression;
 
-import static gov.nasa.jpf.symbc.VeritestingListener.key;
-import static gov.nasa.jpf.symbc.VeritestingListener.statisticManager;
+import static gov.nasa.jpf.symbc.VeritestingListener.*;
 import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.StaticBranchChoiceGenerator.isOnlyStaticChoiceSat;
-import static gov.nasa.jpf.symbc.VeritestingListener.veritestRegionCount;
-
-import static gov.nasa.jpf.symbc.VeritestingListener.setupSPF;
 
 public class Optimization {
 
@@ -27,11 +23,13 @@ public class Optimization {
 
 
         if (isOnlyStaticChoiceSat(cg.region)) {
-            Instruction nextInstruction = setupSPF(ti, instructionToExecute, cg.region, null);
+            /*Instruction nextInstruction = setupSPF(ti, instructionToExecute, cg.region, null);
             ++veritestRegionCount;
             ti.setNextPC(nextInstruction);
             statisticManager.updateVeriSuccForRegion(key);
-            System.out.println("------------- Region was successfully veritested --------------- ");
+            System.out.println("------------- Region was successfully veritested --------------- ");*/
+
+            runOnSamePath(ti, instructionToExecute, cg.region);
             return true;
         }
         return false;
