@@ -50,6 +50,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
+import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.Optimization.optimizedCG;
 import static gov.nasa.jpf.symbc.veritesting.RangerDiscovery.DiscoverContract.contractDiscoveryOn;
 import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.StaticBranchChoiceGenerator.*;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
@@ -480,6 +481,12 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 newCG = new StaticBranchChoiceGenerator(dynRegion, instructionToExecute, true);
             else
                 newCG = new StaticBranchChoiceGenerator(dynRegion, instructionToExecute);
+
+
+            if(optimizedCG(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) //if we were able to optimize the
+                // choice into the same execution path, i.e., avoid forking, then abort.
+                return;
+
 
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
 
