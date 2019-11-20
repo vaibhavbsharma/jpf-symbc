@@ -18,27 +18,31 @@ public class ModifiedGoTo {
     public Label jumpLabel;
     public boolean isLastGoTo = false;
 
+    //indicates whether the rewrite had encountered the backend condition or not for that class.
+
+    public static boolean conditionFound = false;
+
 
     public ModifiedGoTo(Integer goToPosition, Label jumpLabel, boolean isLastGoTo) {
         this.goToPosition = goToPosition;
         this.jumpLabel = jumpLabel;
         this.isLastGoTo = isLastGoTo;
     }
-
     /**
      * This method iterates over all methods for which we have collected a backedge and tries to create the right
      * label set for it.
      */
     public static HashMap<String, Pair<ArrayList<Label>, HashMap<Integer, ModifiedGoTo>>> createAll(HashMap<String, ArrayList<Pair<Integer, Label>>>
-                                                           methodCollectedJmpInstMap,
-                                                                                                    HashMap<String, ArrayList<Label>>  methodBackEdgeTargetLabels) {
+                                                                                                            methodCollectedJmpInstMap,
+                                                                                                    HashMap<String, ArrayList<Label>> methodBackEdgeTargetLabels) {
 
+        conditionFound = false;
 
         HashMap<String, Pair<ArrayList<Label>, HashMap<Integer, ModifiedGoTo>>> newMethodGoToMap = new HashMap<>();
 
         Iterator<Map.Entry<String, ArrayList<Pair<Integer, Label>>>> methodCollectedJmpInstMapItr = methodCollectedJmpInstMap.entrySet().iterator();
 
-        while(methodCollectedJmpInstMapItr.hasNext()){
+        while (methodCollectedJmpInstMapItr.hasNext()) {
             Map.Entry<String, ArrayList<Pair<Integer, Label>>> entry = methodCollectedJmpInstMapItr.next();
 
             String methodName = entry.getKey();
@@ -67,6 +71,7 @@ public class ModifiedGoTo {
 
             ArrayList<Pair<Integer, Label>> relatedGoToIns = getRelatedGoToInst(backLabel, collectedJumpInstructions);
             if (relatedGoToIns.size() >= 2) {// three or more goTos are going to the same back edge label, then this is where we want to change
+                conditionFound = true;
                 Label newLabel = new Label();
                 newLabels.add(newLabel);
                 for (int i = 0; i <= relatedGoToIns.size() - 2; i++) { //change all of them to a new label except for

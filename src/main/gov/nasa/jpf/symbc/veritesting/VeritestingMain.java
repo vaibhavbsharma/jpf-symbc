@@ -20,7 +20,9 @@ import com.ibm.wala.ipa.callgraph.IAnalysisCacheView;
 import com.ibm.wala.ipa.callgraph.impl.Everywhere;
 import com.ibm.wala.ipa.cha.ClassHierarchy;
 import com.ibm.wala.ipa.cha.ClassHierarchyException;
+
 import com.ibm.wala.ipa.cha.ClassHierarchyFactory;
+import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.util.WalaException;
@@ -32,19 +34,24 @@ import com.ibm.wala.util.strings.StringStuff;
 import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.veritesting.AsmRewrite.CollectGoTo;
 import gov.nasa.jpf.symbc.veritesting.AsmRewrite.JRClassLoader;
+import gov.nasa.jpf.symbc.veritesting.AsmRewrite.TransformerUtil;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.CreateStaticRegions;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ClassUtils;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ReflectUtil;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.vm.ThreadInfo;
+import javafx.util.Pair;
 import sun.misc.IOUtils;
 import x10.wala.util.NatLoop;
 import x10.wala.util.NatLoopSolver;
 
 import za.ac.sun.cs.green.expr.Operation;
 
+import static com.ibm.wala.types.ClassLoaderReference.Application;
+import static com.ibm.wala.types.ClassLoaderReference.Primordial;
 import static gov.nasa.jpf.symbc.VeritestingListener.exclusionsFile;
 import static gov.nasa.jpf.symbc.VeritestingListener.jitAnalysis;
+import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ClassUtils.getAbsoluteFileForClass;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ClassUtils.getCpForClass;
 
 /**
@@ -75,13 +82,15 @@ public class VeritestingMain {
     public VeritestingMain(ThreadInfo ti) {
         try {
             Map map = System.getenv();
-            String appJar = System.getenv("TARGET_CLASSPATH_WALA");// + appJar;
-            scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
-                    jitAnalysis == true ? null : (new FileProvider()).getFile(exclusionsFile));
+            if (!VeritestingListener.jitAnalysis) {
+                String appJar = System.getenv("TARGET_CLASSPATH_WALA");// + appJar;
+                scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
+                        jitAnalysis == true ? null : (new FileProvider()).getFile(exclusionsFile));
 //                    (new FileProvider()).getFile(CallGraphTestUtil.REGRESSION_EXCLUSIONS));
-            System.out.print("Constructing class hierarchy...");
-            cha = ClassHierarchyFactory.make(scope);
-            System.out.println("done!");
+                System.out.print("Constructing class hierarchy...");
+                cha = ClassHierarchyFactory.make(scope);
+                System.out.println("done!");
+            }
             methodSummaryClassNames = new HashSet<String>();
             //veritestingRegions = new HashMap<>();
             veriRegions = new HashMap<>();
@@ -91,11 +100,27 @@ public class VeritestingMain {
         }
     }
 
+    public void resetCha() { //emptying cha after we are done with the analysis.
+        cha = null;
+    }
+
     public static HashSet<String> getAttemptedMethods() {
         return attemptedMethods;
     }
 
     public void analyzeForVeritesting(ArrayList<String> classPaths, String _className) {
+        String appJar = System.getenv("TARGET_CLASSPATH_WALA");// + appJar;
+        try { //if we are not in jitAnalysis then we just analyze everything.
+            scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
+                    jitAnalysis == true ? null : (new FileProvider()).getFile(exclusionsFile));
+//                    (new FileProvider()).getFile(CallGraphTestUtil.REGRESSION_EXCLUSIONS));
+            System.out.print("Constructing class hierarchy...");
+            cha = ClassHierarchyFactory.make(scope);
+            System.out.println("done!");
+        } catch (WalaException | IOException e) {
+            e.printStackTrace();
+        }
+
         endingInsnsHash = new HashSet();
         findClasses(ti, cha, classPaths, _className, methodSummaryClassNames);
         startingPointsHistory = new HashSet();
@@ -114,17 +139,6 @@ public class VeritestingMain {
         try {
             URLClassLoader urlcl = new URLClassLoader(cp);
             Class c = urlcl.loadClass(_className);
-
-            if (VeritestingListener.reWriteGoTo) {
-                try {
-                    byte[] classByteRead = IOUtils.readFully(c.getResourceAsStream('/' + c.getName().replace('.',
-                            '/') + ".class"), -1, false);
-                    byte[] newClass = CollectGoTo.execute(classByteRead);
-                    c = JRClassLoader.createClass(c.getName(), newClass);
-                } catch (IOException e) {
-                    System.out.println("unable to do goTo re-write pass");
-                }
-            }
 
             Method[] allMethods;
             try {
@@ -205,21 +219,6 @@ public class VeritestingMain {
 
 
     private void jitStartAnalysis(String packageName, String className, String methodSig, boolean multiPathAnalysis) throws StaticRegionException {
-        if (VeritestingListener.reWriteGoTo) {//create a new class hierarchy
-            String appJar = System.getenv("TARGET_CLASSPATH_WALA");// + appJar;
-            try {
-                scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
-                        jitAnalysis == true ? null : (new FileProvider()).getFile(exclusionsFile));
-                System.out.print("Constructing class hierarchy...");
-                cha = ClassHierarchyFactory.make(scope);
-                //cha.addClass(cha2.getLoaders()[0].iterateAllClasses().next());
-            } catch (ClassHierarchyException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         MethodReference mr = StringStuff.makeMethodReference(className + "." + methodSig);
         IMethod m = cha.resolveMethod(mr);
         if (m == null) {
@@ -287,23 +286,52 @@ public class VeritestingMain {
             URLClassLoader urlcl = new URLClassLoader(cp);
             Class c = urlcl.loadClass(_className);
 
+
             String classSpecificPath = getCpForClass(c);
             Path pathWrite = FileSystems.getDefault().getPath(classSpecificPath, c.getName() + ".class");
 
-            if ((VeritestingListener.reWriteGoTo) && (!RewrittenClasses.contains(c)
-            )) { //rewrite only in rewrite mode and if we haven't already rewritten the class.
+            Path pathWrite2 = FileSystems.getDefault().getPath(classSpecificPath + "/new", c.getName() + ".class");
+
+            //AnalysisScope scope2 = AnalysisScope.createJavaAnalysisScope();
+
+            AnalysisScope scope2 = null;
+            try {
+                scope2 = AnalysisScopeReader.readJavaScope("/Users/sohahussein/git/java-ranger/WalaScope",
+                        null, urlcl);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            /*try {
+                scope2.addClassFileToScope(Application, new File("/Users/sohahussein/git/java-ranger/build/examples/VeritestingPerf.class"));
+            } catch (InvalidClassFileException e) {
+                e.printStackTrace();
+            }
+*/
+/*
+            if ((VeritestingListener.reWriteGoTo) && (!RewrittenClasses.checkAttempted(c)
+            )) {
+                //rewrite only in rewrite mode and if we haven't already rewritten the class.
                 try {
+                    RewrittenClasses.addAttempted(c);
                     byte[] classByteRead = IOUtils.readFully(c.getResourceAsStream('/' + c.getName().replace('.', '/') + ".class"), -1, false);
-                    byte[] newClass = CollectGoTo.execute(classByteRead);
-                    Files.write(pathWrite, newClass);
-                    c = JRClassLoader.createClass(c.getName(), newClass);
-                    RewrittenClasses.add(c);
-                    updateClassHierarchy(c, classSpecificPath); // has the side effect of updating cha
+                    Pair<Boolean, Byte[]> flagNewClassPair = CollectGoTo.execute(classByteRead);
+                    byte[] newClass = TransformerUtil.toPrimitives(flagNewClassPair.getValue());
+                    Files.write(pathWrite2, newClass);
+                    //   c = JRClassLoader.createClass(c.getName(), newClass);
+                    RewrittenClasses.addSuccess(c, flagNewClassPair.getKey());
                 } catch (IOException e) {
                     System.out.println("unable to do goTo re-write pass");
                 }
             }
+*/
 
+            try {
+                cha = ClassHierarchyFactory.makeWithRoot(scope2);
+                //prepareWala(getAbsoluteFileForClass(c));
+            } catch (ClassHierarchyException e) {
+                e.printStackTrace();
+                return; //can not continue static analysis
+            }
 
             Method[] allMethods;
             try {
@@ -327,8 +355,26 @@ public class VeritestingMain {
             e.printStackTrace();
         }
     }
+/*
+    private void prepareWala(String classFullPath) throws InvalidClassFileException, ClassHierarchyException, IOException {// this has the side effect of populating the
+        // scope
+        // and the
+        // class hierarchy
 
-    private void updateClassHierarchy(Class c, String classSpecificPath) {
+        scope = AnalysisScope.createJavaAnalysisScope();
+        scope.addClassFileToScope(Primordial, new File(classFullPath));
+        //scope = AnalysisScopeReader.makePrimordialScope(null);
+        cha = ClassHierarchyFactory.makeWithRoot(scope);
+return;
+        *//*String appJar = System.getenv("TARGET_CLASSPATH_WALA");// + appJar;
+        scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
+                jitAnalysis == true ? null : (new FileProvider()).getFile(exclusionsFile));
+//                    (new FileProvider()).getFile(CallGraphTestUtil.REGRESSION_EXCLUSIONS));
+        System.out.print("Constructing class hierarchy...");
+        cha = ClassHierarchyFactory.make(scope);*//*
+    }*/
+
+    /*private void updateClassHierarchy(Class c, String classSpecificPath) {
         try {
             scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(classSpecificPath, null);
             System.out.print("Constructing class hierarchy...");
@@ -342,7 +388,7 @@ public class VeritestingMain {
         }
 
     }
-
+*/
 
     private String getPackageName(String c) {
         if (c.contains(".")) return c.substring(0, c.lastIndexOf("."));
@@ -517,19 +563,40 @@ public class VeritestingMain {
 
     public static class RewrittenClasses {
 
-        static HashSet<String> rewrittenClasses = new HashSet();
+        //maps which rewritten class we successfully have rewritten and whether it included our condition or not
+        static HashMap<String, Boolean> rewrittenClasses = new HashMap<>();
 
-        public static void add(Class c) {
+        static HashSet<String> allAtemptedRewriteCls = new HashSet();
+
+        public static void addSuccess(Class c, boolean b) {
             String _className = c.getName();
             String _package = c.getPackage() != null ? c.getPackage().getName() : "";
-            rewrittenClasses.add(_package + "." + _className);
+            rewrittenClasses.put(_package + "." + _className, b);
         }
 
-        public static boolean contains(Class c) {
+        //checks if it class was successfully rewritten regardless of whether it has the condition or not.
+        public static boolean checkSuccess(Class c) {
             String _className = c.getName();
             String _package = c.getPackage() != null ? c.getPackage().getName() : "";
 
-            return rewrittenClasses.contains(_package + "." + _className);
+            return rewrittenClasses.get(_package + "." + _className);
+        }
+
+        public static void addAttempted(Class c) {
+            String _className = c.getName();
+            String _package = c.getPackage() != null ? c.getPackage().getName() : "";
+            allAtemptedRewriteCls.add(_package + "." + _className);
+        }
+
+        public static boolean checkAttempted(Class c) {
+            String _className = c.getName();
+            String _package = c.getPackage() != null ? c.getPackage().getName() : "";
+
+            return allAtemptedRewriteCls.contains(_package + "." + _className);
+        }
+
+        public static String succRewriteStr() {
+            return rewrittenClasses.toString();
         }
     }
 }

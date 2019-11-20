@@ -192,9 +192,18 @@ public class ClassUtils {
         return typeName.getPackage() != null ? (typeName.getPackage().toString().replace('/', '.') + "." + typeName.getClassName()) : typeName.getClassName().toString();
     }
 
-    //returns the specific location or class path of this particular loaded class.
-    public static String getCpForClass(Class c) {
-        int index = c.getResource(c.getName() + ".class").getPath().lastIndexOf("/");
-        return c.getResource(c.getName() + ".class").getPath().substring(0, index);
+    //returns the specific location or file path (not class path) of this particular loaded class.
+    public static String getCpForClass(Class c) throws StaticRegionException {
+        if (c.getProtectionDomain().getCodeSource() != null)
+            return c.getProtectionDomain().getCodeSource().getLocation().getPath();
+        else throw new StaticRegionException("Cannot rewrite library files");
+
+    }
+
+    public static String getAbsoluteFileForClass(Class c) throws StaticRegionException {
+        if (c.getProtectionDomain().getCodeSource() != null)
+            return c.getProtectionDomain().getCodeSource().getLocation().getPath() + (c.getCanonicalName().replace('.','/'));
+        else throw new StaticRegionException("Cannot rewrite library files");
+
     }
 }

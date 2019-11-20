@@ -94,6 +94,7 @@ public class JITAnalysis {
         long endTime = System.nanoTime();
         staticAnalysisDur += endTime - startTime;
 
+        veritestingMain.resetCha();
         if (staticRegion == null) {
             //throw new StaticRegionException("Region " + key + " has no recovered static region");
             System.out.println("Region " + key + " has no recovered static region");

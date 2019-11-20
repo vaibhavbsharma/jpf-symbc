@@ -1,8 +1,9 @@
 package gov.nasa.jpf.symbc.veritesting.AsmRewrite;
 
 import javafx.util.Pair;
-import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.*;
+import org.objectweb.asm.commons.GeneratorAdapter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,7 +37,7 @@ public class CollectGoTo extends ClassVisitor {
     }
 
 
-    public static byte[] execute(byte[] b) {
+    public static Pair<Boolean, Byte[]> execute(byte[] b) {
         ClassReader classReader = new ClassReader(b);
         final ClassWriter cw = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         CollectGoTo firstPassClassVisitor = new CollectGoTo(cw);
@@ -64,10 +65,14 @@ public class CollectGoTo extends ClassVisitor {
                     .COMPUTE_MAXS);
             CollectGoTo secPassClassVisitor = new CollectGoTo(newcw, collectedJumpInstructions, backEdgeTargetLabels);
             newClassReader.accept(secPassClassVisitor, ClassReader.EXPAND_FRAMES);
-            return newcw.toByteArray();
+            Byte[] newBytes = TransformerUtil.toObjects(newcw.toByteArray());
+            return new Pair<Boolean, Byte[]>(ModifiedGoTo.conditionFound, newBytes);
 
-        } else
-            return cw.toByteArray();
+        } else{
+            Byte[] newBytes = TransformerUtil.toObjects(cw.toByteArray());
+            assert !ModifiedGoTo.conditionFound;
+            return new Pair<Boolean, Byte[]>(ModifiedGoTo.conditionFound, newBytes);
+        }
     }
 
 

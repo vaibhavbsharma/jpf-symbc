@@ -99,7 +99,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     private static boolean spfCasesHeuristicsOn = false;
 
-    public  static boolean reWriteGoTo = false; //rewrite is false until it is turned on.
+    public static boolean reWriteGoTo = false; //rewrite is false until it is turned on.
 
     public enum VeritestingMode {VANILLASPF, VERITESTING, HIGHORDER, SPFCASES, EARLYRETURNS}
 
@@ -423,6 +423,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         VeritestingMain veritestingMain = new VeritestingMain(ti);
         long startTime = System.nanoTime();
         veritestingMain.analyzeForVeritesting(classPath, className);
+        veritestingMain.resetCha();
+
         long endTime = System.nanoTime();
         staticAnalysisDur = endTime - startTime;
         statisticManager.collectStaticAnalysisMetrics(VeritestingMain.veriRegions);
@@ -600,7 +602,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         dynRegion = linearTrans.execute(dynRegion);
 
         /*--------------- Discover Lustre Translation ---------------*/
-        if(contractDiscoveryOn)
+        if (contractDiscoveryOn)
             DiscoverContract.discoverLusterContract(dynRegion);
 
         /*--------------- TO GREEN TRANSFORMATION ---------------*/
@@ -697,7 +699,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     /**
      * This method checks that the current PathCondition and after appending the summarized region is satisfiable.
      *
-     * @param ti            Currently running thread.
+     * @param ti        Currently running thread.
      * @param dynRegion Finaly summary of the region, after all transformations has been successfully completed.
      * @return PathCondition is still satisfiable or not.
      * @throws StaticRegionException Exception to indicate a problem while checking SAT of the updated PathCondition.
@@ -718,10 +720,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
         // if we're trying to run fast, then assume that the region summary is satisfiable in any non-SPFCASES mode or
         // if the static choice is the only feasible choice.
-        boolean cond1 =performanceMode && (runMode == VeritestingMode.VERITESTING ||
+        boolean cond1 = performanceMode && (runMode == VeritestingMode.VERITESTING ||
                 runMode == VeritestingMode.HIGHORDER ||
                 (choice != null && choice == STATIC_CHOICE && isOnlyStaticChoiceSat(dynRegion)));
-        if ( cond1 || isPCSat(pc)) {
+        if (cond1 || isPCSat(pc)) {
             currCG.setCurrentPC(pc);
             long t1 = System.nanoTime();
             // if we're running in incremental solving mode, then we need to ask this region summary to be
@@ -854,6 +856,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 //        pw.println(statisticManager.printStaticAnalysisStatistics());
         pw.println(statisticManager.printAllExceptionStatistics());
 
+        pw.println("Number of all statically constructed regions = " + VeritestingMain.veriRegions.size());
         pw.println("\n/************************ Printing Time Decomposition Statistics *****************");
         pw.println("static analysis time = " + TimeUnit.NANOSECONDS.toMillis(jitAnalysis ? JITAnalysis.staticAnalysisDur : staticAnalysisDur) + " msec");
         pw.println("Veritesting Dyn Time = " + TimeUnit.NANOSECONDS.toMillis(dynRunTime) + " msec");
@@ -888,6 +891,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         /* End added for equivalence checking */
 
 
+        pw.println("Rewritten Classes:");
+        pw.println(VeritestingMain.RewrittenClasses.succRewriteStr());
         assert veritestRegionCount == statisticManager.getSuccInstantiations();
         pw.println("Metrics Vector:");
         pw.println(getMetricsVector(dynRunTime));
