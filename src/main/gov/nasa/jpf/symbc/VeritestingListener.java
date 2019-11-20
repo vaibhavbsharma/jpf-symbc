@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc;
 
 
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
+import gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.SamePathOptimization;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
 import gov.nasa.jpf.symbc.veritesting.RangerDiscovery.DiscoverContract;
@@ -50,7 +51,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
-import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.Optimization.optimizedCG;
+import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.SamePathOptimization.*;
 import static gov.nasa.jpf.symbc.veritesting.RangerDiscovery.DiscoverContract.contractDiscoveryOn;
 import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.StaticBranchChoiceGenerator.*;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
@@ -474,6 +475,11 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     private void runVeritestingWithSPF(ThreadInfo ti, VM vm, Instruction instructionToExecute, StaticRegion staticRegion,
                                        String key) throws Exception {
 
+        /*if (SamePathOptimization.optimize) {
+            doOptimization(ti, instructionToExecute);
+            return;
+        }*/
+
         if (!ti.isFirstStepInsn() && !StaticBranchChoiceGenerator.heuristicsCountingMode) { // first time around
             StaticPCChoiceGenerator newCG;
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
@@ -488,11 +494,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             else
                 newCG = new StaticBranchChoiceGenerator(dynRegion, instructionToExecute);
 
-
-            if(optimizedCG(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) //if we were able to optimize the
-                // choice into the same execution path, i.e., avoid forking, then abort.
+            /*if (canOptimize(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
                 return;
-
+            }*/
 
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
 
@@ -503,6 +507,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             statisticManager.updateVeriSuccForRegion(key);
             ++VeritestingListener.veritestRegionCount;
         } else {
+
             ChoiceGenerator<?> cg = ti.getVM().getSystemState().getChoiceGenerator();
             if (cg instanceof StaticPCChoiceGenerator) {
                 StaticPCChoiceGenerator vcg = (StaticPCChoiceGenerator) cg;
@@ -906,7 +911,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         /* Begin added for equivalence checking */
         if (veritestRegionExpectedCount != -1) {
             pw.println("Expected Number of Veritested Regions Instances = " + veritestRegionExpectedCount);
-            assert (veritestRegionCount >= veritestRegionExpectedCount);
+            //assert (veritestRegionCount >= veritestRegionExpectedCount);
         }
         pw.println(statisticManager.getDistinctVeriRegionKeys());
         /* End added for equivalence checking */
