@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc;
 
 
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
+import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.SamePathOptimization;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
@@ -384,14 +385,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         }
     }
 
-    public static void runOnSamePath(ThreadInfo ti, Instruction instructionToExecute, DynamicRegion dynRegion)
-            throws StaticRegionException {
-        Instruction nextInstruction = setupSPF(ti, instructionToExecute, dynRegion, null);
-        ++veritestRegionCount;
-        ti.setNextPC(nextInstruction);
-        statisticManager.updateVeriSuccForRegion(key);
-
-    }
 
     private void isRegionEndOk(StaticRegion staticRegion, Instruction instructionToExecute) throws StaticRegionException {
         boolean isEndingInsnStackConsuming = isStackConsumingRegionEnd(staticRegion, instructionToExecute);
@@ -494,9 +487,12 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             else
                 newCG = new StaticBranchChoiceGenerator(dynRegion, instructionToExecute);
 
+
             if (canOptimize(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
+                //ti.getVM().getSystemState().setIgnored(true);
                 return;
             }
+
 
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
 
@@ -532,9 +528,26 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         super.threadTerminated(vm, terminatedThread);
     }
 
+@Override
+    public void threadStarted(VM vm, ThreadInfo startedThread) {
+    System.out.println("threadStarted");
+    //super.threadTerminated(vm, terminatedThread);
+    }
+
     @Override
     public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
         System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
+    }
+
+    @Override
+    public void stateAdvanced(Search search) {
+        System.out.println("stateAdvanced");
+
+    }
+    @Override
+    public void stateBacktracked(Search search) {
+        System.out.println("stateBacktracked");
+
     }
 
     @Override
@@ -742,7 +755,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         }
         if (currCG == null) throw new StaticRegionException("Cannot find latest PCChoiceGenerator");
         pc = currCG.getCurrentPC();
-        if (runMode.ordinal() < VeritestingMode.SPFCASES.ordinal()) //only add region summary in non spfcases mode.
+        if (runMode.ordinal() < VeritestingMode.SPFCASES.ordinal() || SamePathOptimization.optimize) //only add region
+            // summary in non
+            // spfcases mode.
             pc._addDet(new GreenConstraint(dynRegion.regionSummary));
 
         // if we're trying to run fast, then assume that the region summary is satisfiable in any non-SPFCASES mode or

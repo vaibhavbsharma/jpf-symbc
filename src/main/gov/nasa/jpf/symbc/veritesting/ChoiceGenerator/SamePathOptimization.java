@@ -49,4 +49,14 @@ public class SamePathOptimization {
         optimize = false;
         dynRegion = null;
     }
+
+    public static void runOnSamePath(ThreadInfo ti, Instruction instructionToExecute, DynamicRegion dynRegion)
+            throws StaticRegionException {
+        Instruction nextInstruction = setupSPF(ti, instructionToExecute, dynRegion, null);
+        ++veritestRegionCount;
+        ti.setNextPC(nextInstruction);
+        statisticManager.updateVeriSuccForRegion(key);
+
+    }
+
 }
