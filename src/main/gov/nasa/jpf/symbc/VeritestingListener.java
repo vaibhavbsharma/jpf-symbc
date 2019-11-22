@@ -3,7 +3,6 @@ package gov.nasa.jpf.symbc;
 
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
-import gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.SamePathOptimization;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
 import gov.nasa.jpf.symbc.veritesting.RangerDiscovery.DiscoverContract;
@@ -100,6 +99,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public static StringBuilder regionDigest = new StringBuilder();
     public static boolean printRegionDigest = false;
+    public static boolean singlePathOptimization = false;
+
     private static String regionDigestPrintName;
 
     private static boolean spfCasesHeuristicsOn = false;
@@ -483,11 +484,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             else
                 newCG = new StaticBranchChoiceGenerator(dynRegion, instructionToExecute);
 
-
-            if (canOptimize(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
-                doOptimization(ti, instructionToExecute);
-                return;
-            }
+            if (singlePathOptimization)
+                if (optimizedChoices(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
+                    return;
+                }
 
 
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
@@ -660,7 +660,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             populateSlots(ti, dynRegion);
             clearStack(ti.getTopFrame(), ins);
 
-            if (choice != null && choice == RETURN_CHOICE && VeritestingListener.runMode == VeritestingMode.EARLYRETURNS) {//we are setting up an early return choice.
+            if ((choice != null && choice == RETURN_CHOICE && VeritestingListener.runMode == VeritestingMode
+                    .EARLYRETURNS) || optimizedReturnPath) {//we are setting up an early return choice.
                 pushReturnOnStack(ti.getTopFrame(), dynRegion);
             }
             if (dynRegion.stackOutput != null) {
@@ -668,7 +669,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 pushExpOnStack(dynRegion, ti.getTopFrame(), (String) dynRegion.varTypeTable.lookup(dynRegion.stackOutput),
                         dynRegion.stackOutput);
             }
-            return advanceSpf(ins, dynRegion, choice != null && choice == RETURN_CHOICE);
+            return advanceSpf(ins, dynRegion, (choice != null && choice == RETURN_CHOICE) || optimizedReturnPath);
 
         }
         assert ti.getVM().getSystemState().isIgnored();
@@ -752,15 +753,19 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         }
         if (currCG == null) throw new StaticRegionException("Cannot find latest PCChoiceGenerator");
         pc = currCG.getCurrentPC();
-        if (runMode.ordinal() < VeritestingMode.SPFCASES.ordinal() || SamePathOptimization.optimize) //only add region
+        if (runMode.ordinal() < VeritestingMode.SPFCASES.ordinal() || optimizedRegionPath)
+            //only add region
             // summary in non
             // spfcases mode.
             pc._addDet(new GreenConstraint(dynRegion.regionSummary));
 
+        if (optimizedReturnPath)
+            pc._addDet(new GreenConstraint(earlyReturnPredicate));
+
         // if we're trying to run fast, then assume that the region summary is satisfiable in any non-SPFCASES mode or
         // if the static choice is the only feasible choice.
         boolean cond1 = performanceMode && (runMode == VeritestingMode.VERITESTING ||
-                runMode == VeritestingMode.HIGHORDER ||
+                runMode == VeritestingMode.HIGHORDER || optimizedRegionPath || optimizedReturnPath ||
                 (choice != null && choice == STATIC_CHOICE && isOnlyStaticChoiceSat(dynRegion)));
         if (cond1 || isPCSat(pc)) {
             currCG.setCurrentPC(pc);
