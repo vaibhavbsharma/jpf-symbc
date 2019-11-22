@@ -49,17 +49,16 @@ public class SamePathOptimization {
             ExprUtil.SatResult isReturnPredSat = isSatGreenExpression(earlyReturnPredicate);
 
             //checking if either the region path or the return path are the only sat paths.
-            if ((isRegionPredSat == ExprUtil.SatResult.TRUE) &&
-                    (isThenPredSat == ExprUtil.SatResult.FALSE) &&
+            if ((isThenPredSat == ExprUtil.SatResult.FALSE) &&
                     (isElsePredSat == ExprUtil.SatResult.FALSE) &&
-                    (isReturnPredSat == ExprUtil.SatResult.FALSE)) { //region summary is only true
+                    (isReturnPredSat == ExprUtil.SatResult.FALSE)) { //region summary is only possible true or don't
+                // know
                 runOnSamePath(ti, instructionToExecute, dynRegion);
                 System.out.println("region summary single path optimization applied.");
                 return true;
             } else if ((isRegionPredSat == ExprUtil.SatResult.FALSE) &&
                     (isThenPredSat == ExprUtil.SatResult.FALSE) &&
-                    (isElsePredSat == ExprUtil.SatResult.FALSE) &&
-                    (isReturnPredSat == ExprUtil.SatResult.TRUE)) {//early return is only true.
+                    (isElsePredSat == ExprUtil.SatResult.FALSE)) {//early return is only possible true or don't know.
                 runReturnSamePath(ti, instructionToExecute, dynRegion);
                 System.out.println("early return summary single path optimization applied.");
                 return true;

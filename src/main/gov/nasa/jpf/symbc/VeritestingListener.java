@@ -99,7 +99,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public static StringBuilder regionDigest = new StringBuilder();
     public static boolean printRegionDigest = false;
-    public static boolean singlePathOptimization = false;
+
+    public static boolean singlePathOptimization = true;
 
     private static String regionDigestPrintName;
 
@@ -197,6 +198,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (conf.hasValue("simplify"))
                 simplify = conf.getBoolean("simplify");
+
+            if(conf.hasValue("singlePathOptimization"))
+                singlePathOptimization = conf.getBoolean("singlePathOptimization");
 
             if (conf.hasValue("recursiveDepth")) {
                 recursiveDepth = conf.getInt("recursiveDepth");
