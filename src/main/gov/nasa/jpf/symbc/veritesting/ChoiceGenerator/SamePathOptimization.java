@@ -19,31 +19,22 @@ public class SamePathOptimization {
     Expression thenPredicate;
     Expression elsePredicate;
     Expression earlyReturnPredicate;*/
-
-    //used to register the flag for optimization to populate the output when the flag of isFirstStep
-    public static void registerSamePathOpt(StaticBranchChoiceGenerator cg) {
-        optimize = true;
-        dynRegion = cg.region;
-    }
-
-
-    //This is the condition under which an optimization is possible.
-//TODO:: update the statistics
+    
     public static boolean canOptimize(ThreadInfo ti, Instruction instructionToExecute, StaticBranchChoiceGenerator
             cg)
             throws StaticRegionException {
 
         if (isOnlyStaticChoiceSat(cg.region)) {
-            registerSamePathOpt(cg); // optimize the register the case for next time when we hit.
-            ti.setNextPC(instructionToExecute);
+            dynRegion = cg.region;
+            optimize = true;
             return true;
+
         } else return false;
     }
 
     public static void doOptimization(ThreadInfo ti, Instruction instructionToExecute)
             throws StaticRegionException {
         assert optimize = true && dynRegion != null;
-
         runOnSamePath(ti, instructionToExecute, dynRegion);
 
         optimize = false;

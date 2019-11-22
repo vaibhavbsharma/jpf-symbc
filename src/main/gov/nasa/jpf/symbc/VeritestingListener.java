@@ -468,10 +468,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     private void runVeritestingWithSPF(ThreadInfo ti, VM vm, Instruction instructionToExecute, StaticRegion staticRegion,
                                        String key) throws Exception {
 
-        if (SamePathOptimization.optimize) {
-            doOptimization(ti, instructionToExecute);
-            return;
-        }
 
         if (!ti.isFirstStepInsn() && !StaticBranchChoiceGenerator.heuristicsCountingMode) { // first time around
             StaticPCChoiceGenerator newCG;
@@ -489,7 +485,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
 
             if (canOptimize(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
-                //ti.getVM().getSystemState().setIgnored(true);
+                doOptimization(ti, instructionToExecute);
                 return;
             }
 
@@ -528,10 +524,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         super.threadTerminated(vm, terminatedThread);
     }
 
-@Override
+    @Override
     public void threadStarted(VM vm, ThreadInfo startedThread) {
-    System.out.println("threadStarted");
-    //super.threadTerminated(vm, terminatedThread);
+        System.out.println("threadStarted");
+        //super.threadTerminated(vm, terminatedThread);
     }
 
     @Override
@@ -544,6 +540,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         System.out.println("stateAdvanced");
 
     }
+
     @Override
     public void stateBacktracked(Search search) {
         System.out.println("stateBacktracked");
