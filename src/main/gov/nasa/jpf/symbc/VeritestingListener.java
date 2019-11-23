@@ -499,7 +499,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             SystemState systemState = vm.getSystemState();
             systemState.setNextChoiceGenerator(newCG);
             ti.setNextPC(instructionToExecute);
-            hgOrdRegionInstance += thisHighOrdCount;
             statisticManager.updateVeriSuccForRegion(key);
             ++VeritestingListener.veritestRegionCount;
         } else {
