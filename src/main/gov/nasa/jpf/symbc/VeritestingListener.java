@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc;
 
 
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
+import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
 import gov.nasa.jpf.symbc.veritesting.RangerDiscovery.DiscoverContract;
@@ -50,6 +51,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
+import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.SamePathOptimization.*;
 import static gov.nasa.jpf.symbc.veritesting.RangerDiscovery.DiscoverContract.contractDiscoveryOn;
 import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.StaticBranchChoiceGenerator.*;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
@@ -97,6 +99,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public static StringBuilder regionDigest = new StringBuilder();
     public static boolean printRegionDigest = false;
+
+    public static boolean singlePathOptimization = true;
+
     private static String regionDigestPrintName;
 
     private static boolean spfCasesHeuristicsOn = false;
@@ -193,6 +198,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (conf.hasValue("simplify"))
                 simplify = conf.getBoolean("simplify");
+
+            if(conf.hasValue("singlePathOptimization"))
+                singlePathOptimization = conf.getBoolean("singlePathOptimization");
 
             if (conf.hasValue("recursiveDepth")) {
                 recursiveDepth = conf.getInt("recursiveDepth");
@@ -373,10 +381,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             isRegionEndOk(staticRegion, instructionToExecute);
 
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
-            Instruction nextInstruction = setupSPF(ti, instructionToExecute, dynRegion, null);
-            ++veritestRegionCount;
-            ti.setNextPC(nextInstruction);
-            statisticManager.updateVeriSuccForRegion(key);
+            runOnSamePath(ti, instructionToExecute, dynRegion);
 
             System.out.println("------------- Region was successfully veritested --------------- ");
         } else {
@@ -384,6 +389,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
         }
     }
+
 
     private void isRegionEndOk(StaticRegion staticRegion, Instruction instructionToExecute) throws StaticRegionException {
         boolean isEndingInsnStackConsuming = isStackConsumingRegionEnd(staticRegion, instructionToExecute);
@@ -467,6 +473,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     private void runVeritestingWithSPF(ThreadInfo ti, VM vm, Instruction instructionToExecute, StaticRegion staticRegion,
                                        String key) throws Exception {
 
+
         if (!ti.isFirstStepInsn() && !StaticBranchChoiceGenerator.heuristicsCountingMode) { // first time around
             StaticPCChoiceGenerator newCG;
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
@@ -481,15 +488,21 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             else
                 newCG = new StaticBranchChoiceGenerator(dynRegion, instructionToExecute);
 
+            if (singlePathOptimization)
+                if (optimizedChoices(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
+                    return;
+                }
+
+
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
 
             SystemState systemState = vm.getSystemState();
             systemState.setNextChoiceGenerator(newCG);
             ti.setNextPC(instructionToExecute);
-            hgOrdRegionInstance += thisHighOrdCount;
             statisticManager.updateVeriSuccForRegion(key);
             ++VeritestingListener.veritestRegionCount;
         } else {
+
             ChoiceGenerator<?> cg = ti.getVM().getSystemState().getChoiceGenerator();
             if (cg instanceof StaticPCChoiceGenerator) {
                 StaticPCChoiceGenerator vcg = (StaticPCChoiceGenerator) cg;
@@ -515,8 +528,26 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     }
 
     @Override
+    public void threadStarted(VM vm, ThreadInfo startedThread) {
+        System.out.println("threadStarted");
+        //super.threadTerminated(vm, terminatedThread);
+    }
+
+    @Override
     public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
         System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
+    }
+
+    @Override
+    public void stateAdvanced(Search search) {
+        System.out.println("stateAdvanced");
+
+    }
+
+    @Override
+    public void stateBacktracked(Search search) {
+        System.out.println("stateBacktracked");
+
     }
 
     @Override
@@ -632,7 +663,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             populateSlots(ti, dynRegion);
             clearStack(ti.getTopFrame(), ins);
 
-            if (choice != null && choice == RETURN_CHOICE && VeritestingListener.runMode == VeritestingMode.EARLYRETURNS) {//we are setting up an early return choice.
+            if ((choice != null && choice == RETURN_CHOICE && VeritestingListener.runMode == VeritestingMode
+                    .EARLYRETURNS) || optimizedReturnPath) {//we are setting up an early return choice.
                 pushReturnOnStack(ti.getTopFrame(), dynRegion);
             }
             if (dynRegion.stackOutput != null) {
@@ -640,7 +672,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 pushExpOnStack(dynRegion, ti.getTopFrame(), (String) dynRegion.varTypeTable.lookup(dynRegion.stackOutput),
                         dynRegion.stackOutput);
             }
-            return advanceSpf(ins, dynRegion, choice != null && choice == RETURN_CHOICE);
+            return advanceSpf(ins, dynRegion, (choice != null && choice == RETURN_CHOICE) || optimizedReturnPath);
 
         }
         assert ti.getVM().getSystemState().isIgnored();
@@ -724,13 +756,19 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         }
         if (currCG == null) throw new StaticRegionException("Cannot find latest PCChoiceGenerator");
         pc = currCG.getCurrentPC();
-        if (runMode.ordinal() < VeritestingMode.SPFCASES.ordinal()) //only add region summary in non spfcases mode.
+        if (runMode.ordinal() < VeritestingMode.SPFCASES.ordinal() || optimizedRegionPath)
+            //only add region
+            // summary in non
+            // spfcases mode.
             pc._addDet(new GreenConstraint(dynRegion.regionSummary));
+
+        if (optimizedReturnPath)
+            pc._addDet(new GreenConstraint(earlyReturnPredicate));
 
         // if we're trying to run fast, then assume that the region summary is satisfiable in any non-SPFCASES mode or
         // if the static choice is the only feasible choice.
         boolean cond1 = performanceMode && (runMode == VeritestingMode.VERITESTING ||
-                runMode == VeritestingMode.HIGHORDER ||
+                runMode == VeritestingMode.HIGHORDER || optimizedRegionPath || optimizedReturnPath ||
                 (choice != null && choice == STATIC_CHOICE && isOnlyStaticChoiceSat(dynRegion)));
         if (cond1 || isPCSat(pc)) {
             currCG.setCurrentPC(pc);

@@ -287,7 +287,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
     // 3: staticNominalReturn
     // NB: then and else constraints are the same (here).  We will tack on the additional
     // constraint for the 'then' and 'else' branches when we execute the choice generator.
-    private PathCondition createPC(PathCondition pc, Expression regionSummary, Expression constraint) {
+    public static PathCondition createPC(PathCondition pc, Expression regionSummary, Expression constraint) {
         PathCondition pcCopy = pc.make_copy();
         za.ac.sun.cs.green.expr.Expression copyConstraint = new Operation(Operation.Operator.AND, regionSummary, constraint);
         pcCopy._addDet(new GreenConstraint(copyConstraint));
