@@ -395,9 +395,14 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
 
         String currClassName = null;
         if (!instruction.isStatic() && !instruction.isSpecial()) {
-            if (c.params[0] instanceof IntConstant) //if the first param is a constant, then it is already a reference and it isn't in the varTypeTable, instead we need to ask SPF for it.
+            if (c.params[0] instanceof IntConstant) { //if the first param is a constant, then it is already a reference and it isn't in the varTypeTable, instead we need to ask SPF for it.
+                if (((IntConstant)c.params[0]).getValue() == 0) {
+                    ti.requestSUTException("java.lang.NullPointerException", "found a null pointer reference");
+                    throwException(new IllegalArgumentException("cannot instantiate region with null pointer derefernece"),
+                            StaticRegionException.ExceptionPhase.INSTANTIATION);
+                }
                 currClassName = ti.getHeap().get(((IntConstant) c.params[0]).getValue()).getClassInfo().getName();
-            else if (VeritestingListener.simplify &&
+            } else if (VeritestingListener.simplify &&
                     dynRegion.constantsTable != null &&
                     dynRegion.constantsTable.lookup((Variable) c.params[0]) instanceof IntConstant) { //check if we can find it in the constant table.
 
