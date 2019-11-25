@@ -93,6 +93,13 @@ public class SimplifyRangerExprVisitor extends ExprMapVisitor implements ExprVis
                 result = isSatGreenExpression(ret);
                 ret =  result == ExprUtil.SatResult.TRUE ? TRUE:
                         (result == ExprUtil.SatResult.FALSE ? FALSE: translateNotExpr((Operation) ret));
+                if (result == ExprUtil.SatResult.DONTKNOW && expr.getOperator() == Operation.Operator.NOT
+                        && ret instanceof Operation && ((Operation) ret).getArity() == 2) {
+                    // (<NOT> (a <binop> b)) was translated into a (a <inverse-binop> b) by translateNotExpr
+                    result = isSatGreenExpression(ret);
+                    ret =  result == ExprUtil.SatResult.TRUE ? TRUE:
+                            (result == ExprUtil.SatResult.FALSE ? FALSE: ret);
+                }
                 break;
             case ADD:
                 if (op1 instanceof IntConstant && op2 instanceof IntConstant) {

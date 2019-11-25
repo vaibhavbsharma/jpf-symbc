@@ -216,6 +216,30 @@ public class ExprUtil {
                     case GE: return val1 >= val2 ? TRUE: FALSE;
                     default: return DONTKNOW;
                 }
+            } else if (operand2 instanceof IntConstant) {
+                int val2 = ((IntConstant) operand2).getValue();
+                switch(operation.getOperator()) {
+                    case LE: if (val2 == Integer.MAX_VALUE) { return TRUE; } // every val1 <= MAX_VALUE
+                    else break;
+                    case GE: if (val2 == Integer.MIN_VALUE) { return TRUE; } // every val1 >= MIN_VALUE
+                    else break;
+                    case GT: if (val2 == Integer.MAX_VALUE) { return FALSE; } // val1 > MAX_VALUE for no val1
+                    else break;
+                    case LT: if (val2 == Integer.MIN_VALUE) { return FALSE; } // val1 < MIN_VALUE for no val1
+                    else break;
+                }
+            } else if (operand1 instanceof IntConstant) {
+                int val1 = ((IntConstant) operand1).getValue();
+                switch(operation.getOperator()) {
+                    case LE: if (val1 == Integer.MIN_VALUE) { return TRUE; } // for all val2, MIN_VALUE <= val2
+                    else break;
+                    case GE: if (val1 == Integer.MAX_VALUE) { return TRUE; } // for all val2, MAX_VALUE >= val2
+                    else break;
+                    case GT: if (val1 == Integer.MIN_VALUE) { return FALSE; } // MIN_VALUE > val2 for no val2
+                    else break;
+                    case LT: if (val1 == Integer.MAX_VALUE) { return FALSE; } // MAX_VALUE < val2 for no val2
+                    else break;
+                }
             }
         } else if (operation.getArity() == 1) {
             Expression operand1 = operation.getOperand(0);
