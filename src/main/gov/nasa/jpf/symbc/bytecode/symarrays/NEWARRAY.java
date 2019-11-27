@@ -55,8 +55,9 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.maybeParseC
 
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
-    private static final int c = 3;//TODO make this into a configuration option
+    private static final int c = 0;//TODO make this into a configuration option
     private static final boolean stopIfCExceeded = false; //TODO make this into a configuration option
+    private static final int[] smallValues = {2, 3, 4, 5, 10};
     ArrayList<Long> values ;
 
 	public NEWARRAY(int typeCode) {
@@ -127,33 +128,59 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                 }
                 assert pc != null;
 
-                Map<String, Object> map = attr instanceof SymbolicInteger ?
+                String name = attr instanceof SymbolicInteger ? ((SymbolicInteger) attr).getName() : null;
+                if (attr instanceof BinaryNonLinearIntegerExpression) {
+                    // if attr is BNLIE with same operands, concretize the operand to avoid reasoning over the non-linear arithmetic
+                    BinaryNonLinearIntegerExpression attrBNLIE = (BinaryNonLinearIntegerExpression) attr;
+                    if (attrBNLIE.left instanceof SymbolicInteger && attrBNLIE.right instanceof SymbolicInteger
+                            && attrBNLIE.left.equals(attrBNLIE.right)) {
+                        name = ((SymbolicInteger) attrBNLIE.left).getName();
+                        attr = attrBNLIE.left;
+                    }
+                }
+                if (name == null) {
+                    ti.getVM().getSystemState().setIgnored(true);
+                    return getNext(ti);
+                }
+                /*Map<String, Object> map = attr instanceof SymbolicInteger ?
                         pc.solveWithValuation((SymbolicInteger) attr, null) : null;
                 String name = map != null ? ((SymbolicInteger) attr).getName() : null;
                 Long lastValue = getVal(map, name);
                 if (map == null || map.size() == 0 || lastValue == null) { //reached an unsat state
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
-                }
+                }*/
                 values = new ArrayList<>();
-                values.add(lastValue);
-                while (c - values.size() > 0) {
+//                values.add(lastValue);
+                /*while (c - values.size() > 0) {
                     pc._addDet(Comparator.NE, (IntegerExpression)attr, new IntegerConstant(lastValue));
-                    map = pc.solveWithValuation((SymbolicInteger)attr, null);
-                    lastValue = getVal(map, name);
+                    Map<String, Object> map = pc.solveWithValuation((SymbolicInteger)attr, null);
+                    Long lastValue = getVal(map, name);
                     if (map == null || map.size() == 0 || lastValue == null) break;
                     else values.add(lastValue);
+                }*/
+                for (int i = 0; i < smallValues.length; i++) {
+                    PathCondition newPC = pc.make_copy();
+                    newPC._addDet(Comparator.EQ, (IntegerExpression)attr, new IntegerConstant(smallValues[i]));
+                    Map<String, Object> map = newPC.solveWithValuation((SymbolicInteger)attr, null);
+                    Long lastValue = getVal(map, name);
+                    if (map == null || map.size() == 0 || lastValue == null) continue;
+                    else if (lastValue == smallValues[i]) values.add(lastValue);
                 }
-                if (values.size() == c && stopIfCExceeded) {
+                /*if (values.size() == c && stopIfCExceeded) {
                     pc._addDet(Comparator.NE, (IntegerExpression)attr, new IntegerConstant(lastValue));
                     map = pc.solveWithValuation((SymbolicInteger)attr, null);
                     if (!(map == null || map.size() == 0 || lastValue == null)) {
                         return ti.createAndThrowException("too many feasible solutions for " + name);
                     }
-                }
+                }*/
+                // First choice is to explore negative array length
+                // Last choice is to explore unconstrained symbolic array length
+                // All the choices in the middle explore small array lengths
+                cg = new PCChoiceGenerator(values.size()+2);
                 /* End of Java Ranger changes */
 
-                cg = new PCChoiceGenerator(2);
+//                cg = new PCChoiceGenerator(2);
                 ti.getVM().setNextChoiceGenerator(cg);
                 return this;
             } else {
@@ -173,7 +200,7 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
             assert pc != null;
 
             if ((Integer)cg.getNextChoice() == 0) {
-                pc._addDet(Comparator.LT, (IntegerExpression)attr, new IntegerConstant(0));
+                pc._addDet(Comparator.LT, getBNLIEOperand((IntegerExpression)attr), new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                     return ti.createAndThrowException("java.lang.NegativeArraySizeException");
@@ -183,7 +210,18 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
-            } else {
+            } else if ((Integer)cg.getNextChoice() < cg.getTotalNumberOfChoices()-1) {
+                pc._addDet(Comparator.GE, getBNLIEOperand((IntegerExpression)attr), new IntegerConstant(0));
+                if (pc.simplify()) {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                    arrayLength = sf.pop();
+                } else {
+                    ti.getVM().getSystemState().setIgnored(true);
+                    return getNext(ti);
+                }
+                arrayLength = Math.toIntExact(values.get((Integer)cg.getNextChoice()-1));
+                pc._addDet(Comparator.EQ, getBNLIEOperand((IntegerExpression)attr), new IntegerConstant(arrayLength));
+            } else if ((Integer)cg.getNextChoice() == cg.getTotalNumberOfChoices()-1) {
                 pc._addDet(Comparator.GE, (IntegerExpression)attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -244,4 +282,16 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 	    return getNext(ti);
 	    
 	}
+
+    private IntegerExpression getBNLIEOperand(IntegerExpression attr) {
+	    if (!(attr instanceof BinaryNonLinearIntegerExpression)) return attr;
+        BinaryNonLinearIntegerExpression attrBNLIE = (BinaryNonLinearIntegerExpression) attr;
+        if (attrBNLIE.left instanceof SymbolicInteger && attrBNLIE.right instanceof SymbolicInteger
+                && attrBNLIE.left.equals(attrBNLIE.right)) {
+            return attrBNLIE.left;
+        }
+        assert(false);
+        return null;
+    }
+
 }
