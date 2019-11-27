@@ -19,13 +19,14 @@
 package gov.nasa.jpf.symbc.bytecode;
 
 
-import gov.nasa.jpf.symbc.numeric.IntegerExpression;
+import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.string.SymbolicLengthInteger;
-import gov.nasa.jpf.vm.ClassInfo;
-import gov.nasa.jpf.vm.ClassLoaderInfo;
-import gov.nasa.jpf.vm.Instruction;
-import gov.nasa.jpf.vm.StackFrame;
-import gov.nasa.jpf.vm.ThreadInfo;
+import gov.nasa.jpf.vm.*;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+import static gov.nasa.jpf.symbc.veritesting.AdapterSynth.SPFAdapterSynth.getVal;
 
 /**
  * Symbolic version of the MULTIANEWARRAY class from jpf-core. Like NEWARRAY,
@@ -37,6 +38,8 @@ import gov.nasa.jpf.vm.ThreadInfo;
  */
 
 public class MULTIANEWARRAY extends gov.nasa.jpf.jvm.bytecode.MULTIANEWARRAY {
+	ArrayList<Long> values;
+	private final int[] smallValues = new int[]{2, 3, 4, 5, 6, 7, 8, 9, 10};
 
 	public MULTIANEWARRAY(String typeName, int dimensions) {
 		super(typeName, dimensions);
@@ -46,6 +49,7 @@ public class MULTIANEWARRAY extends gov.nasa.jpf.jvm.bytecode.MULTIANEWARRAY {
 	public Instruction execute(ThreadInfo ti) {
 		arrayLengths = new int[dimensions];
 		StackFrame sf = ti.getModifiableTopFrame();
+		PathCondition pc = null;
 		for (int i = dimensions - 1; i >= 0; i--) {
 			Object attr = sf.getOperandAttr();
 			
@@ -55,7 +59,64 @@ public class MULTIANEWARRAY extends gov.nasa.jpf.jvm.bytecode.MULTIANEWARRAY {
 				arrayLengths[i] = (int) l;
 				sf.pop();
 			} else 	if(attr instanceof IntegerExpression) {
-				throw new RuntimeException("MULTIANEWARRAY: symbolic array length");
+				/* These changes are introduced by Java Ranger */
+				if (attr instanceof SymbolicInteger) {
+					if (smallValues.length < dimensions)
+						throw new RuntimeException("MULTIANEWARRAY: not enough small values available to concretize all dimensions");
+					ChoiceGenerator<?> cg = null;
+					if (!ti.isFirstStepInsn()) {
+						if (ti.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
+							pc = ((PCChoiceGenerator) (ti.getVM().getSystemState().getChoiceGenerator())).getCurrentPC();
+						} else {
+							pc = new PathCondition();
+							pc._addDet(Comparator.EQ, new IntegerConstant(0), new IntegerConstant(0));
+						}
+						assert pc != null;
+						String name = ((SymbolicInteger) attr).getName();
+						if (name == null) {
+							ti.getVM().getSystemState().setIgnored(true);
+							return getNext(ti);
+						}
+						values = new ArrayList<>();
+						for (int j = 0; j < dimensions; j++) {
+							PathCondition newPC = pc.make_copy();
+							Object opAttr = sf.getOperandAttr(j);
+							if (opAttr instanceof SymbolicInteger) {
+								try { values.add(((SymbolicInteger) opAttr).solution()); }
+								catch (RuntimeException e) {
+									newPC._addDet(Comparator.EQ, (IntegerExpression) opAttr, new IntegerConstant(smallValues[j]));
+									Map<String, Object> map = newPC.solveWithValuation((SymbolicInteger) opAttr, null);
+									Long lastValue = getVal(map, name);
+									if (lastValue == smallValues[j]) values.add(lastValue);
+								}
+							} else values.add(Long.valueOf(sf.peek(j)));
+						}
+						if (values.size() < dimensions)
+							throw new RuntimeException("MULTIANEWARRAY: could not concretize all dimensions");
+						// Explore small values only for every dimension
+						cg = new PCChoiceGenerator(1);
+						ti.getVM().setNextChoiceGenerator(cg);
+						return this;
+					} else {
+						cg = ti.getVM().getSystemState().getChoiceGenerator();
+						assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got:" + cg;
+						ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+						if(prev_cg == null)
+							pc = new PathCondition();
+						else
+							pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+						assert pc != null;
+						arrayLengths[i] = Math.toIntExact(values.get(i));
+						Object opAttr = sf.getOperandAttr(i);
+						if (opAttr instanceof IntegerExpression) {
+							pc._addDet(Comparator.EQ, (IntegerExpression) opAttr, new IntegerConstant(arrayLengths[i]));
+						}
+						((PCChoiceGenerator) cg).setCurrentPC(pc);
+						sf.pop();
+					}
+					/* End of Java Ranger changes */
+				} else throw new RuntimeException("MULTIANEWARRAY: symbolic array length");
 			} else {
 				arrayLengths[i] = sf.pop();
 			}
