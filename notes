@@ -1,0 +1,164 @@
+TODO:
+Put the SymbolicStringHandler.handoetoString() fix back in
+Add the Verifier.assume() fix from Yannic
+
+1118-3 (https://www-users.cs.umn.edu/~vaibhav/results/jr-mode5-recdepth12-1118-3.html) was run without the ABC solver and had 355 right answers with 4 wrong answers (CharSequenceToString, StringConcatenation01, replace5_eqchk, SortedListInsert-MemUnsat01). 
+1118-4 was run with the ABC solver but it also had the SymbolicStringHandler.handletoString() fix because of which I think it had 303 right answers with 5 wrong answers(spec1-4_product45, 46, 47, 48, and 1). It also used Debug.symbolicBoolean instead of creating a CG because of which it got the right answer with replace5_eqchk.
+
+1118-5 setup:
+Using Debug.symbolicBoolean in makeSymbolicBoolean instead of creating a CG via Verify.randomBool
+Reverting the SymbolicStringHandler.handletoString() change which can also be seen in git log
+Using veritestingMode=5, recdepth=12, with ABC string solver.
+Results: It looks like these results were unaffected by the SymbolicStringHandle.handletoString() fix reversion because the results of 1118-5 look like they're the same as 1118-4
+**maybe I should put the SymbolicStringHandler.handletoString() fix back in**
+had 303 right answers with 5 wrong answers(spec1-4_product45, 46, 47, 48, and 1)
+
+1119 setup:
+Running it with string solver set to z3str with symbolic.strings set to true without the SymbolicStringHandler.handletoString() fix. Also using Debug.symbolicBoolean in makeSymbolicBoolean instead of making a CG via Verify.randomBool.
+veritestingMode=5, recdepth=12
+Another idea to try out: add the fix in Verifier.assume suggested by Yannic
+Results: Expecting these results to be similar to 1118-3, got similar results but got 9 wrong answers (spec1-5_product1, 45, 46, 47, 48, bug-test-gen-119, StringConcatenation01, CharSequenceToString, algorithms/SortedListInsert-MemUnsat01). The spec ones should go away with veritestingMode set to 3. bug-test-gen-119 makes SPF crash on setting symbolic.strings to false.
+Got 350 right, final score 273
+
+1119-2 setup:
+Running it with symbolic.strings set to false and veritestingMode = 3.
+Got 369 right this time, 8 wrong, final score 282.
+Wrong: jayhorn-recursive/UnsatAddition02, jbmc-regression/StaticCharMethods02, StringBuilderChars03, StringCompare02, StringConstructors03, StringContains01, StringMiscellaneous03, algorithms/SortedListInsert-MemUnsat01
+
+1119-3 setup:
+Running with symbolic.strings=true, stringsolver=ABC, veritestingMode=3, recDepth=12. Also, the fix for SymbolicStringHandler.handletoString() has been put back in. The fix for Verifier.assume() is not included.
+Expectation: UnsatAddition02 should be the only wrong answer. I have tested all of the previous wrong answers and found JR to either run out of memory (SortedListInsert-MemUnsat01), or crash due to ABC (bug-test-gen-119), or give the right answer to most of the String-related benchmarks. There should be about 303 right answers.
+Result: 306 right, 4 wrong answers (SatPrimes01, UnsatAddition02, spec1-5_product60, spec1-5_product64)
+The two spec-related wrong answers are due to ABC's errors.
+
+1120 setup:
+Ran with symbolic.strings=false, stringsolver=z3str, veritestingMode=3, recDepth=12. Left the fix for SymbolicStringHandler.handletoString() in. The fix for Verifier.assume() was not included.
+In addition, I added fixes to stop SPF from proceeding forward when it runs into a charAt, regionMatches, contains calls on a StringSymbolic or SymbolicStringBuilder. These fixes fixed JR's wrong answers on StaticCharMethods02, StringBuilderChars03, StringCompare02, StringConstructors03, StringContains01, StringMiscellaneous03. 
+Result: 357 right, 2 wrong (UnsatAddition02, SortedListInsert-MemUnsat01). The two wrong answers should go away after we get the avoid-useless-CG-creation fix working.
+
+spf-1120 setup:
+Ran jpf-sv-comp with veritestingMode=1, stringsolver=z3str, symbolic.strings=false. Let my fixes for SymbolicStringHandler.handletoString(), and BytecodeUtils in.
+Result: Got 370 right, 8 wrong (Unsataddition02, TCAS_prop1, BellmanFord-FunSat01, BellmanFord-FunUnsat01, BellmanFord-MemUnsat01, BinaryTreeSearch-FunSat01, RedBlackTree-FunSat01, SortedListInsert-MemUnsat01).
+Total score 319 
+
+1120-2 setup:
+adding the Verifier.assume() fix to the 1120 setup.
+symbolic.strings=false, stringsolver=z3str, veritestingMode=3, recDepth=12.
+Result: Got 370 right, 7 wrong (Unsataddition02, BellmanFord-FunSat01, BellmanFord-FunUnsat01, BellmanFord-MemUnsat01, InsertionSort-FunUnsat01, MergeSortIterative-MemSat01, SortedListInsert-MemUnsat01)
+
+1120-3 setup:
+Reverting the Verifier.assume() fix to make JR's Verifier.assume() crash again.
+Pulling in the latest benchmarks as of Nov 20, 5:08 PM Central Time.
+Leaving the fix for SymbolicStringHandler.handletoString() in.
+Using symbolic.strings=false, stringsolver=z3str, veritestingMode=3, recDepth=12.
+Expecting to see the same results as 1120.
+Result: same as 1120
+
+1120-4 setup:
+Leaving the fix for SymbolicStringHandler.handletoString() in.
+Using symbolic.strings=false, stringsolver=z3str, veritestingMode=3, recDepth=12.
+Running with search.depth_limit=25.
+Result: 349 right, 2 wrong (UnsatAddition02, array1), score = 458 
+
+1122 setup:
+Leaving the fix for SymbolicStringHandler.handletoString() in.
+Using symbolic.strings=false, stringsolver=z3str, veritestingMode=5, recDepth=12, search.depth_limit=12.
+Running wth 4 GB memlimit
+Result: 359 right, 2 wrong (UnsatAddition02, SortedListMemInsert-MemUnsat01)
+** This setup gets a couple more right than 1120, the memlimit of 4 GB helps but also gets UnsatAddition02 wrong instead of running out of memory. I may have run this at veritestingMode=3**
+
+1123 setup:
+**Running with no depth limit**
+Leaving the fix for SymbolicStringHandler.handletoString() in.
+Using symbolic.strings=false, stringsolver=z3str, veritestingMode=3, recDepth=12.
+Running wth 4 GB memlimit
+Result: Got 342 right answers, no wrong answers, total score = 492
+
+1123-1 setup:
+**Fixing the Verifier.assume() crash**
+Running with no depth limit
+Leaving the fix for SymbolicStringHandler.handletoString() in.
+Using symbolic.strings=false, stringsolver=z3str, veritestingMode=3, recDepth=12.
+Running wth 4 GB memlimit
+Result: 344 right, 2 wrong (BellmanFord-FunUnsat01, BellmanFord-MemUnsat01), total score = 432
+Time: about 10.5 hours
+
+1123-2 setup:
+Fixing the Verifier.assume() crash
+Running with no depth limit
+Leaving the fix for SymbolicStringHandler.handletoString() in.
+Using symbolic.strings=false, stringsolver=z3str, **veritestingMode=5**, recDepth=12.
+Running wth 4 GM memlimit
+Result: 347 right, 2 wrong (BellmanFord-FunUnsat01, BellmanFord-MemUnsat01), total score = 437
+
+1124 setup:
+**Fixed the SortedListInsert-MemUnsat01 bug**
+**Revert the Verifier.assume() fix**
+**Set veritestingMode=5**
+**Set recDepth=12**
+**singlePathOptimization=true (aka Soha's fix is also used in this run)**
+Use memlimit=4GB, search.depth_limit=12 
+The idea is to prevent the wrong answer in UnsatAddition02 using the extra recDepth while still getting the benefit of extra memory. JR used to memout on UnsatAddition02 on 2 GB memlimit but started giving the wrong answer with 4 GB memlimit.
+I may have to restruct JR to 4 GB memlimit in SV-COMP.
+Result: 363 right, 1 wrong (SortedListInsert-MemSat01). Seems like Soha's fix causes UnsatAddition02 to timeout but my fix to SortedListInsert-MemUnsat01 causes the null pointer exception to also occur in teh MemSat01 case. We get 6 more right in this configuration but that may just be new benchmarks.
+Time: took about 2.5 hours to finish
+
+1124-2 setup:
+**Fixed the SortedListInsert-MemSat01 bug while preserving the right answer for SortedListInsert-MemUnsat01**
+Reverting Verifier.assume() fix
+veritestingMode=5, recDepth=12, singlePathOptimization=true, memlimit=4 GB, search.depth_limit=12, symbolic.strings=false, strings.dp=z3str
+Result: 366 right, 0 wrong, total score = 533
+**best results so far**
+
+1125 setup:
+**running with 8 GB memlim**
+Fixed the SortedListInsert-MemSat01 bug while preserving the right answer for SortedListInsert-MemUnsat01
+Reverting Verifier.assume() fix
+veritestingMode=5, recDepth=12, singlePathOptimization=true, memlimit=8 GB, search.depth_limit=12, symbolic.strings=false, strings.dp=z3str
+Result: 366 right, 0 wrong, total score = 533
+**same as the best results so far with 4 GB memlimit (1124-2)**
+
+1125-2 setup:
+**running with 2 CPUs**
+running with 8 GB memlim
+Fixed the SortedListInsert-MemSat01 bug while preserving the right answer for SortedListInsert-MemUnsat01
+Reverting Verifier.assume() fix
+veritestingMode=5, recDepth=12, singlePathOptimization=true, memlimit=8 GB, search.depth_limit=12, symbolic.strings=false, strings.dp=z3str
+Result: 366 right, 0 wrong, total score = 533
+**same as the best results so far with 4 GB memlimit (1124-2) and 8 GB memlimit (1125)**
+
+1126 setup:
+**Put the Verifier.assume() fix back in**
+running with 2 CPUs
+running with 8 GB memlim
+Fixed the SortedListInsert-MemSat01 bug while preserving the right answer for SortedListInsert-MemUnsat01
+veritestingMode=5, recDepth=12, singlePathOptimization=true, memlimit=8 GB, search.depth_limit=12, symbolic.strings=false, strings.dp=z3str
+Result: 377 right, 4 wrong (BellmanFord-FunUnsat01, BellmanFord-MemUnsat01, InsertionSort-FunUnsat01, MergeSortIterative-MemUnsat01). 
+* JR gets wrong answers on BellmanFord-FunUnsat01 and BellmanFord-MemUnsat01 because of missing support for LinearIntegerExpression objects appearing as the array length variable for arrays with symbolic length. In a situation like this, JR (SPF really) ignores the path because it cannot conclude anything about the path. 
+* On InsertionSort-FunUnsat01, the issue is JR's exploration up to a bounded depth. In this situation, symbolic execution runs into path explosion resulting from an unconstrained variable used as the length of an array. The benchmark sorts the array first with branching and later runs an assertion on the first two array entries. JR gets caught in the branches in the insertion sort and never makes it to the code after the insertion sort, even when the depth bound is removed. A strategy of concretizing the symbolic array length to small values would get us the right answer quickly on this benchmark.  
+
+
+1127 setup:
+**Added a fix in symarrays/NEWARRAY.java to do concretization for 5 small array length values**
+Put the Verifier.assume() fix back in
+running with 2 CPUs
+running with 8 GB memlim
+Fixed the SortedListInsert-MemSat01 bug while preserving the right answer for SortedListInsert-MemUnsat01
+veritestingMode=5, recDepth=12, singlePathOptimization=true, memlimit=8 GB, **search.depth_limit=13**, symbolic.strings=false, strings.dp=z3str
+Result: 381 right, 0 wrong, total score = 559
+A majority of the "unknown" results have two root causes:
+1. Purposeful crashes in SPF due to disabled symbolic strings. I've made SPF crash if it finds invocation of methods like "charAt" on symbolic strings. Most of these are on jbmc-regression/String* benchmarks.
+2. Missing implementation of symbolic array length on multi-dimensional arrays. There are about 6 of these happening on algorithm/ benchmarks. 
+I would improve on these two categories in the future by getting symbolic strings working with z3str3 and getting symbolic array lengths to work on multi-dimensional arrays. 
+**better than 1124-2, best results so far**
+
+1127-2 setup:
+**Committed the fix in symarrays/NEWARRAY.java to do concretization for 5 small array length values instead of a manual edit**
+Put the Verifier.assume() fix back in
+running with 2 CPUs
+running with 8 GB memlim
+Fixed the SortedListInsert-MemSat01 bug while preserving the right answer for SortedListInsert-MemUnsat01
+veritestingMode=5, recDepth=12, singlePathOptimization=true, memlimit=8 GB, search.depth_limit=13, symbolic.strings=false, strings.dp=z3str
+Result HTML: jr-mode5-depthlim12-recdepth12-assumefixed-singlpathopt-sortedlistfix-8gbmemlim-2cpus-symarrfix-2.html
+Result: 381 right, 0 wrong, total score = 559.
+** same as best results so far in 1127 **
