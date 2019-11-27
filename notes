@@ -1,6 +1,9 @@
 TODO:
-Put the SymbolicStringHandler.handoetoString() fix back in
-Add the Verifier.assume() fix from Yannic
+A majority of the "unknown" results have two root causes:
+1. Purposeful crashes in SPF due to disabled symbolic strings. I've made SPF crash if it finds invocation of methods like "charAt" on symbolic strings. Most of these are on jbmc-regression/String* benchmarks.
+2. Missing implementation of symbolic array length on multi-dimensional arrays. There are about 6 of these happening on algorithm/ benchmarks. 
+I would improve on these two categories in the future by getting symbolic strings working with z3str3 and getting symbolic array lengths to work on multi-dimensional arrays. 
+3. Get incremental solving to work even with a depth limit. This can significantly speed up Java Ranger's use of summaries.
 
 1118-3 (https://www-users.cs.umn.edu/~vaibhav/results/jr-mode5-recdepth12-1118-3.html) was run without the ABC solver and had 355 right answers with 4 wrong answers (CharSequenceToString, StringConcatenation01, replace5_eqchk, SortedListInsert-MemUnsat01). 
 1118-4 was run with the ABC solver but it also had the SymbolicStringHandler.handletoString() fix because of which I think it had 303 right answers with 5 wrong answers(spec1-4_product45, 46, 47, 48, and 1). It also used Debug.symbolicBoolean instead of creating a CG because of which it got the right answer with replace5_eqchk.
