@@ -1,7 +1,7 @@
 TODO:
 A majority of the "unknown" results have two root causes:
 1. Purposeful crashes in SPF due to disabled symbolic strings. I've made SPF crash if it finds invocation of methods like "charAt" on symbolic strings. Most of these are on jbmc-regression/String* benchmarks.
-2. Missing implementation of symbolic array length on multi-dimensional arrays. There are about 6 of these happening on algorithm/ benchmarks. 
+2. Missing implementation of symbolic array length on multi-dimensional arrays. There are about 6 of these happening on algorithm/ benchmarks. Even though I got symbolic array lengths concretized to small values in the multinewarray bytecode instruction, I ran into a bad interaction with heap path condition in bytecode/GETFIELD.java#187. 
 I would improve on these two categories in the future by getting symbolic strings working with z3str3 and getting symbolic array lengths to work on multi-dimensional arrays. 
 3. Get incremental solving to work even with a depth limit. This can significantly speed up Java Ranger's use of summaries.
 
@@ -148,6 +148,7 @@ running with 2 CPUs
 running with 8 GB memlim
 Fixed the SortedListInsert-MemSat01 bug while preserving the right answer for SortedListInsert-MemUnsat01
 veritestingMode=5, recDepth=12, singlePathOptimization=true, memlimit=8 GB, **search.depth_limit=13**, symbolic.strings=false, strings.dp=z3str
+Result HTML: jr-mode5-depthlim12-recdepth12-assumefixed-singlpathopt-sortedlistfix-8gbmemlim-2cpus-symarrfix.html
 Result: 381 right, 0 wrong, total score = 559
 A majority of the "unknown" results have two root causes:
 1. Purposeful crashes in SPF due to disabled symbolic strings. I've made SPF crash if it finds invocation of methods like "charAt" on symbolic strings. Most of these are on jbmc-regression/String* benchmarks.
