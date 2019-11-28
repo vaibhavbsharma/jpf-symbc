@@ -1,9 +1,10 @@
-TODO:
-A majority of the "unknown" results have two root causes:
-1. Purposeful crashes in SPF due to disabled symbolic strings. I've made SPF crash if it finds invocation of methods like "charAt" on symbolic strings. Most of these are on jbmc-regression/String* benchmarks.
-2. Missing implementation of symbolic array length on multi-dimensional arrays. There are about 6 of these happening on algorithm/ benchmarks. Even though I got symbolic array lengths concretized to small values in the multinewarray bytecode instruction, I ran into a bad interaction with heap path condition in bytecode/GETFIELD.java#187. 
-I would improve on these two categories in the future by getting symbolic strings working with z3str3 and getting symbolic array lengths to work on multi-dimensional arrays. 
-3. Get incremental solving to work even with a depth limit. This can significantly speed up Java Ranger's use of summaries.
+Final SV-COMP 2020 summary:
+There are 40 "unknown" results of JR out of 421 SV-COMP 2020 benchmarks. The breakdown of "unknown" results is as follows:
+1. SPF crashes purposefully due to disabled symbolic strings. I've made SPF crash if it finds invocation of methods like "charAt" on symbolic strings. Most of these are on jbmc-regression/String* benchmarks. These crashes total 22 "unknown" results. 
+2. Missing implementation of symbolic array length on multi-dimensional arrays. There are about 6 of these happening on algorithm/ benchmarks. Even though I got symbolic array lengths concretized to small values in the multinewarray bytecode instruction, I ran into a bad interaction with heap path condition in bytecode/GETFIELD.java#187. 3 more symbolic array length-related crashes also result from possible out-of-bounds array accesses.  
+3. The third root cause of "unknown"s is timeouts. JR runs into 8 timeouts.
+4. A fourth root cause is limited exploration depth. JR runs into this once with an equivalence check on ApacheCLI.
+Finally, JR can run much faster with incremental solving working within a depth limit. 
 
 1118-3 (https://www-users.cs.umn.edu/~vaibhav/results/jr-mode5-recdepth12-1118-3.html) was run without the ABC solver and had 355 right answers with 4 wrong answers (CharSequenceToString, StringConcatenation01, replace5_eqchk, SortedListInsert-MemUnsat01). 
 1118-4 was run with the ABC solver but it also had the SymbolicStringHandler.handletoString() fix because of which I think it had 303 right answers with 5 wrong answers(spec1-4_product45, 46, 47, 48, and 1). It also used Debug.symbolicBoolean instead of creating a CG because of which it got the right answer with replace5_eqchk.
@@ -166,3 +167,16 @@ veritestingMode=5, recDepth=12, singlePathOptimization=true, memlimit=8 GB, sear
 Result HTML: jr-mode5-depthlim12-recdepth12-assumefixed-singlpathopt-sortedlistfix-8gbmemlim-2cpus-symarrfix-2.html
 Result: 381 right, 0 wrong, total score = 559.
 ** same as best results so far in 1127 **
+
+1127-3 setup:
+Re-ran the submitted java-ranger
+Committed the fix in symarrays/NEWARRAY.java to do concretization for 5 small array length values instead of a manual edit
+Put the Verifier.assume() fix back in
+running with 2 CPUs
+running with 8 GB memlim
+Fixed the SortedListInsert-MemSat01 bug while preserving the right answer for SortedListInsert-MemUnsat01
+veritestingMode=5, recDepth=12, singlePathOptimization=true, memlimit=8 GB, search.depth_limit=13, symbolic.strings=false, strings.dp=z3str
+Result HTML: jr-mode5-depthlim12-recdepth12-assumefixed-singlpathopt-sortedlistfix-8gbmemlim-2cpus-symarrfix-3.html
+Result: 381 right, 0 wrong, total score = 559.
+** same as best results so far in 1127 **
+
