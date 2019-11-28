@@ -1,0 +1,20 @@
+target=MyCRC32
+classpath=${jpf-symbc}/build/classes,${jpf-symbc}/build/examples
+symbolic.dp=z3bitvector
+symbolic.min_int=-10000
+symbolic.max_int=2147483647
+symbolic.min_double=-10000.0
+symbolic.max_double=10000.0
+symbolic.lazy=on
+symbolic.arrays=true
+veritestingMode = 1
+performanceMode = true
+symbolic.method=MyCRC32.getSymChar(sym)
+
+symbolic.dp=z3bitvectorinc
+listener = .symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+symbolic.optimizechoices=false
+
+
+#vm.storage.class=nil
+#symbolic.debug=false
