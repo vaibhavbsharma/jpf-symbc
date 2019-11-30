@@ -101,7 +101,7 @@ public class StackSlotIVisitor implements SSAInstruction.IVisitor {
     @Override
     public void visitInvoke(SSAInvokeInstruction ins) {
 
-        for (int i = 0; i < ins.getNumberOfParameters(); i++) {
+        for (int i = 0; i < ins.getNumberOfPositionalParameters(); i++) {
             populateVars(ins, ins.getUse(i));
         }
 
@@ -173,7 +173,7 @@ public class StackSlotIVisitor implements SSAInstruction.IVisitor {
     public void populateVars(SSAInstruction ins, int var) {
 //        int iindex = ir.getBasicBlockForInstruction(ins).getLastInstruction().iindex;
         SSAInstruction lastIns = ir.getBasicBlockForInstruction(ins).getLastInstruction();
-        int iindex = lastIns != null ? lastIns.iindex : ins.iindex;
+        int iindex = lastIns != null ? lastIns.iIndex() : ins.iIndex();
         if (iindex != -1 && slotParamTable.lookup(var) == null) {
             int[] localNumbers = ir.findLocalsForValueNumber(iindex, var);
             if ((localNumbers != null) && !(ir.getSymbolTable().isConstant(var)))

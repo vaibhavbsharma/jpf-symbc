@@ -26,8 +26,8 @@ public class InvokeInstruction extends Instruction {
         for (int i = 0; i < ins.getNumberOfReturnValues(); i++) {
             result[i] = new WalaVarExpr(ins.getReturnValue(i));
         }
-        this.params = new Expression[ins.getNumberOfParameters()];
-        for (int i = 0; i < ins.getNumberOfParameters(); i++) {
+        this.params = new Expression[ins.getNumberOfPositionalParameters()];
+        for (int i = 0; i < ins.getNumberOfPositionalParameters(); i++) {
             params[i] = new WalaVarExpr(ins.getUse(i));
         }
     }

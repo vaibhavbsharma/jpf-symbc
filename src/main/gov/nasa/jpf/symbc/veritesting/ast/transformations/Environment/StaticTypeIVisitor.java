@@ -107,7 +107,7 @@ public class StaticTypeIVisitor implements SSAInstruction.IVisitor {
     @Override
     public void visitInvoke(SSAInvokeInstruction ins) {
 
-        for (int i = 0; i < ins.getNumberOfParameters(); i++) {
+        for (int i = 0; i < ins.getNumberOfPositionalParameters(); i++) {
             populateVars(ins, ins.getUse(i));
         }
 
