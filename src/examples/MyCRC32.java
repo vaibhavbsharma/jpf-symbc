@@ -28,8 +28,15 @@ public class MyCRC32 {
         byte bytes[] = new byte[maxLen];
         maxLen--;
         while (maxLen >= 0) bytes[maxLen--] = getSymChar((byte) 'a');
-        bytes[0] = Verifier.nondetByte();
-        System.out.println(computeCRC32(bytes));
+        for (int i = 0; i < maxLen; i++)
+            bytes[i] = Verifier.nondetByte();
+        int crc32Result = computeCRC32(bytes);
+        for (int i = 0; i < maxLen; i++)
+            bytes[i] = 'a';
+        if (crc32Result == computeCRC32(bytes)) {
+            System.out.println("success!!");
+            assert false;
+        }
     }
 
     private static byte getSymChar(byte a) {
