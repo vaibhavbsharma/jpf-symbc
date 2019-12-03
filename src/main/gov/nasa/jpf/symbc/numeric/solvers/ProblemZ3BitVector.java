@@ -197,14 +197,17 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 }
 
                 if(success){
-                    String fileName = folderName + "/" + StatisticManager.instructionToExec+"$" + StatisticManager.solverQueriesUnique + ".txt";
+                    String fileName = folderName + "/MyCRC32.len" + System.getenv("MAX_LENGTH") + ".smt2"; //StatisticManager.instructionToExec+"$" + StatisticManager.solverQueriesUnique + ".txt";
                     ++StatisticManager.solverQueriesUnique;
                     try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                             new FileOutputStream(fileName), "utf-8"))) {
 
                         DiscoverContract.z3QuerySet.add(new Pair(solver.toString(), z3FunDecSet));
 
-                        writer.write(DiscoverContract.toSMT(solver.toString(), z3FunDecSet));
+//                        writer.write(DiscoverContract.toSMT(solver.toString(), z3FunDecSet));
+                        writer.write("  (set-logic QF_BV)\n" +
+                                "  (set-info :smt-lib-version 2.0)\n");
+                        writer.write(solver.toString()+ "\n(check-sat)\n(get-model)\n(exit)\n");
                     }
                 }
                 else

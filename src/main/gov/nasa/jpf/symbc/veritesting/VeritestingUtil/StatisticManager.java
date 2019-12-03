@@ -17,7 +17,7 @@ public class StatisticManager {
     public static String instructionToExec;
     public static boolean veritestingRunning = false;
     public static int solverQueriesUnique = 0;
-    public static boolean inializeQueriesFile = true;
+    public static boolean inializeQueriesFile = false;
     public static int hgOrdRegionInstance = 0;
     public static int PCSatSolverCount = 0;
     public static long PCSatSolverTime = 0;
