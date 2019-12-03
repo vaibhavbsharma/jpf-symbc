@@ -259,9 +259,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 timeoutReportingCounter--;
             }
         }
-        if (instructionToExecute.getPosition() == 92 && instructionToExecute instanceof IfInstruction) {
-            SymbolicInstructionFactory.debugMode = true;
-        } else SymbolicInstructionFactory.debugMode = false;
         StackFrame curr = ti.getTopFrame();
 
         boolean isIfInstruction = instructionToExecute instanceof IfInstruction;

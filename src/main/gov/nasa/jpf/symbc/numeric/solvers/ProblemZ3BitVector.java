@@ -197,6 +197,10 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 }
 
                 if(success){
+                    System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                    System.out.println(solver.toString());
+                    long z3time = 0;
+                    long t1 = System.nanoTime();
                     String fileName = folderName + "/MyCRC32.len" + System.getenv("MAX_LENGTH") + ".smt2"; //StatisticManager.instructionToExec+"$" + StatisticManager.solverQueriesUnique + ".txt";
                     ++StatisticManager.solverQueriesUnique;
                     try (Writer writer = new BufferedWriter(new OutputStreamWriter(
@@ -207,8 +211,21 @@ public class ProblemZ3BitVector extends ProblemGeneral {
 //                        writer.write(DiscoverContract.toSMT(solver.toString(), z3FunDecSet));
                         writer.write("  (set-logic QF_BV)\n" +
                                 "  (set-info :smt-lib-version 2.0)\n");
-                        writer.write(solver.toString()+ "\n(check-sat)\n(get-model)\n(exit)\n");
+                        writer.write(solver.toString()+ "\n(check-sat)\n(exit)\n");
                     }
+                    Process p = Runtime.getRuntime().exec("z3 " + fileName);
+                    BufferedReader input =
+                            new BufferedReader
+                                    (new InputStreamReader(p.getInputStream()));
+                    String line;
+                    result = true;
+                    while ((line = input.readLine()) != null) {
+                        if (line.contains("unsat")) result = false;
+                    }
+
+                    z3time += System.nanoTime()-t1;
+                    System.out.println("\nSolving time of z3 bitvector is " + TimeUnit.NANOSECONDS.toMillis(z3time) + " ms");
+                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");
                 }
                 else
                     System.out.println("Encountered a problem while creating Solver Queries directory.");
@@ -217,14 +234,14 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 /*********** SH: end logging *******************/
 
 
-        	    System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        	    /*System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         		System.out.println(solver.toString());
         		long z3time = 0;
                 long t1 = System.nanoTime();
                 result = solver.check() == Status.SATISFIABLE ? true : false;
                 z3time += System.nanoTime()-t1;
                 System.out.println("\nSolving time of z3 bitvector is " + TimeUnit.NANOSECONDS.toMillis(z3time) + " ms");
-                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");
+                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");*/
         	}
         	else{
         	    long t1 = System.nanoTime();
