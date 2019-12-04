@@ -1,6 +1,7 @@
 package gov.nasa.jpf.symbc;
 
 
+import com.ibm.wala.util.shrike.gotoTransformation.GoToTransformer;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
@@ -199,7 +200,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             if (conf.hasValue("simplify"))
                 simplify = conf.getBoolean("simplify");
 
-            if(conf.hasValue("singlePathOptimization"))
+            if (conf.hasValue("singlePathOptimization"))
                 singlePathOptimization = conf.getBoolean("singlePathOptimization");
 
             if (conf.hasValue("recursiveDepth")) {
@@ -222,6 +223,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             }
             if (conf.hasValue("maxStaticExplorationDepth"))
                 maxStaticExplorationDepth = conf.getInt("maxStaticExplorationDepth");
+
+            if (conf.hasValue("goToRewriteOn"))
+                GoToTransformer.active = conf.getBoolean("goToRewriteOn");
 
             if (conf.hasValue("contractDiscoveryOn"))
                 contractDiscoveryOn = conf.getBoolean("contractDiscoveryOn");
@@ -907,6 +911,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         pw.println("static analysis time = " + TimeUnit.NANOSECONDS.toMillis(jitAnalysis ? JITAnalysis.staticAnalysisDur : staticAnalysisDur) + " msec");
         pw.println("Veritesting Dyn Time = " + TimeUnit.NANOSECONDS.toMillis(dynRunTime) + " msec");
         pw.println("Veritesting fix-point Time = " + TimeUnit.NANOSECONDS.toMillis(FixedPointWrapper.fixedPointTime) + " msec");
+        pw.println("GoTo rewrite instances = " + GoToTransformer.goToUpdatedClasses.size());
 
         pw.println("\n/************************ Printing Solver Statistics *****************");
         pw.println("Total Solver Queries Count = " + solverCount);
