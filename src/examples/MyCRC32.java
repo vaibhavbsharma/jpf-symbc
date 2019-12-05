@@ -3,6 +3,18 @@ import org.sosy_lab.sv_benchmarks.Verifier;
 import static java.lang.Integer.reverse;
 
 public class MyCRC32 {
+
+    public static int reverse(int i) {
+        // HD, Figure 7-1
+        i = (i & 0x55555555) << 1 | (i >>> 1) & 0x55555555;
+        i = (i & 0x33333333) << 2 | (i >>> 2) & 0x33333333;
+        i = (i & 0x0f0f0f0f) << 4 | (i >>> 4) & 0x0f0f0f0f;
+        i = (i << 24) | ((i & 0xff00) << 8);
+        i = i | ((i >>> 8) & 0xff00);
+        i = i | (i >>> 24);
+        return i;
+    }
+
     public static int computeCRC32(byte message[]) {
         int i, j;
         int byt, crc;
