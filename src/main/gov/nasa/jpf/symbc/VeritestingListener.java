@@ -226,6 +226,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (conf.hasValue("goToRewriteOn"))
                 GoToTransformer.active = conf.getBoolean("goToRewriteOn");
+            else{
+                GoToTransformer.active = false;
+                GoToTransformer.statisticsOn = false;
+            }
 
             if (conf.hasValue("contractDiscoveryOn"))
                 contractDiscoveryOn = conf.getBoolean("contractDiscoveryOn");
