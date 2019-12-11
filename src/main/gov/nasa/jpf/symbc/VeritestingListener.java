@@ -345,30 +345,30 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             }
         } catch (IllegalArgumentException e) {
             statisticManager.updateSPFHitForRegion(key, e.getMessage());
-            System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + e.getMessage() + "\n");
+            //System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + e.getMessage() + "\n");
             updateSkipRegions(e.getMessage(), key);
             writeRegionDigest();
             return;
         } catch (StaticRegionException sre) {
             statisticManager.updateSPFHitForRegion(key, sre.getMessage());
-            System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + sre.getMessage() + "\n");
+            //System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + sre.getMessage() + "\n");
             updateSkipRegions(sre.getMessage(), key);
             writeRegionDigest();
             return;
         } catch (VisitorException greenEx) {
             statisticManager.updateSPFHitForRegion(key, greenEx.getMessage());
-            System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + greenEx.getMessage() + "\n");
+            //System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + greenEx.getMessage() + "\n");
             updateSkipRegions(greenEx.getMessage(), key);
             writeRegionDigest();
             return;
         } catch (CloneNotSupportedException e) {
-            System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + e.getMessage() + "\n");
+            //System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + e.getMessage() + "\n");
             e.printStackTrace();
             updateSkipRegions(e.getMessage(), key);
             writeRegionDigest();
             return;
         } catch (Exception e) {
-            System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + e.getMessage() + "\n");
+            //System.out.println("!!!!!!!! Aborting Veritesting !!!!!!!!!!!! " + "\n" + e.getMessage() + "\n");
             e.printStackTrace();
             updateSkipRegions(e.getMessage(), key);
             writeRegionDigest();
@@ -383,7 +383,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
             runOnSamePath(ti, instructionToExecute, dynRegion);
 
-            System.out.println("------------- Region was successfully veritested --------------- ");
+            //System.out.println("------------- Region was successfully veritested --------------- ");
         } else {
             isRegionEndOk(staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
@@ -522,48 +522,48 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
-        System.out.println("threadTerminated");
+        //System.out.println("threadTerminated");
         npaths++;
         super.threadTerminated(vm, terminatedThread);
     }
 
     @Override
     public void threadStarted(VM vm, ThreadInfo startedThread) {
-        System.out.println("threadStarted");
+        //System.out.println("threadStarted");
         //super.threadTerminated(vm, terminatedThread);
     }
 
     @Override
     public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
-        System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
+        //System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
     }
 
     @Override
     public void stateAdvanced(Search search) {
-        System.out.println("stateAdvanced");
+        //System.out.println("stateAdvanced");
 
     }
 
     @Override
     public void stateBacktracked(Search search) {
-        System.out.println("stateBacktracked");
+        //System.out.println("stateBacktracked");
 
     }
 
     @Override
     public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
-        System.out.println("choiceGeneratorProcessed: at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+        //System.out.println("choiceGeneratorProcessed: at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
     }
 
     private DynamicRegion runVeritesting(ThreadInfo ti, Instruction instructionToExecute, StaticRegion staticRegion,
                                          String key) throws Exception {
         Exception transformationException = null;
-        System.out.println("\n---------- STARTING Transformations for conditional region: " + key +
-                "\n" + PrettyPrintVisitor.print(staticRegion.staticStmt) + "\n");
-        staticRegion.slotParamTable.print();
-        staticRegion.inputTable.print();
-        staticRegion.outputTable.print();
-        staticRegion.varTypeTable.print();
+        // System.out.println("\n---------- STARTING Transformations for conditional region: " + key +
+        //         "\n" + PrettyPrintVisitor.print(staticRegion.staticStmt) + "\n");
+        // staticRegion.slotParamTable.print();
+        // staticRegion.inputTable.print();
+        // staticRegion.outputTable.print();
+        // staticRegion.varTypeTable.print();
 
         /*-------------- EARLY RETURN TRANSFORMATION ---------------*/
         if (runMode == VeritestingMode.EARLYRETURNS) {

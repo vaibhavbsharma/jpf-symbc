@@ -63,13 +63,13 @@ public class UniqueRegion {
                     uniqueNum, staticRegion.earlyReturnResult);
 
 
-        System.out.println("\n--------------- UNIQUENESS TRANSFORMATION ---------------");
-        System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
-        dynRegion.slotParamTable.print();
-        dynRegion.inputTable.print();
-        dynRegion.varTypeTable.print();
-        dynRegion.outputTable.print();
-        System.out.println("Stack output: " + dynRegion.stackOutput);
+        // System.out.println("\n--------------- UNIQUENESS TRANSFORMATION ---------------");
+        // System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
+        // dynRegion.slotParamTable.print();
+        // dynRegion.inputTable.print();
+        // dynRegion.varTypeTable.print();
+        // dynRegion.outputTable.print();
+        // System.out.println("Stack output: " + dynRegion.stackOutput);
 
         return dynRegion;
     }

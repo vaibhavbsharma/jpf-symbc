@@ -587,18 +587,18 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
         */
         this.instantiatedRegion = new DynamicRegion(dynRegion, dynStmt, new SPFCaseList(), null, null, dynRegion.earlyReturnResult);
 
-        System.out.println("\n--------------- SUBSTITUTION TRANSFORMATION for: " + VeritestingListener.key + " ---------------\n");
-        System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
-        dynRegion.slotParamTable.print();
-        dynRegion.outputTable.print();
-        dynRegion.varTypeTable.print();
+        // System.out.println("\n--------------- SUBSTITUTION TRANSFORMATION for: " + VeritestingListener.key + " ---------------\n");
+        // System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
+        // dynRegion.slotParamTable.print();
+        // dynRegion.outputTable.print();
+        // dynRegion.varTypeTable.print();
 
-        System.out.println("\n--------------- AFTER SUBSTITUTION TRANSFORMATION for: " + VeritestingListener.key + " ---------------\n");
-        System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
-        instantiatedRegion.slotParamTable.print();
-        instantiatedRegion.outputTable.print();
-        instantiatedRegion.varTypeTable.print();
-        System.out.println("Stack output: " + dynRegion.stackOutput);
+        // System.out.println("\n--------------- AFTER SUBSTITUTION TRANSFORMATION for: " + VeritestingListener.key + " ---------------\n");
+        // System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
+        // instantiatedRegion.slotParamTable.print();
+        // instantiatedRegion.outputTable.print();
+        // instantiatedRegion.varTypeTable.print();
+        // System.out.println("Stack output: " + dynRegion.stackOutput);
 
         if (!this.somethingChanged)
             this.somethingChanged = ((ExprSubstitutionVisitor) eva.theVisitor).isSomethingChanged();

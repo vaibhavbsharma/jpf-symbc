@@ -186,28 +186,28 @@ public class AstToGreenVisitor implements AstVisitor<Expression> {
         Stmt noRangerVarStmt = noWalaVarStmt.accept(astMapVisitor);
         NoSkipVisitor noSkipVisitor = new NoSkipVisitor();
 
-        System.out.println("\n--------------- NO-SKIP OPTIMIZATION ---------------");
+        // System.out.println("\n--------------- NO-SKIP OPTIMIZATION ---------------");
         Stmt noSkipStmt = noRangerVarStmt.accept(noSkipVisitor);
 //        if (noSkipStmt instanceof SkipStmt)
 //            throwException(new IllegalArgumentException("concrete region"), INSTANTIATION);
-        System.out.println(PrettyPrintVisitor.print(noSkipStmt));
+        // System.out.println(PrettyPrintVisitor.print(noSkipStmt));
 
-        System.out.println("\n--------------- TO GREEN TRANSFORMATION ---------------");
+        // System.out.println("\n--------------- TO GREEN TRANSFORMATION ---------------");
         AstToGreenVisitor toGreenVisitor = new AstToGreenVisitor();
         Expression regionSummary = noSkipStmt.accept(toGreenVisitor);
 
 
-        System.out.format("%1$-70s %2$-100s\n", "|Stmt", "|Green Expression");
-        System.out.format("%1$-70s %2$-100s\n", "|-----------------------------------------------------------",
-                "|------------------------------------------------------");
+        // System.out.format("%1$-70s %2$-100s\n", "|Stmt", "|Green Expression");
+        // System.out.format("%1$-70s %2$-100s\n", "|-----------------------------------------------------------",
+                // "|------------------------------------------------------");
 
-        for (int i = 0; i < toGreenVisitor.stmtList.size(); i++) {
-            System.out.format("%1$-70s %2$-100s\n", toGreenVisitor.stmtList.get(i), ExprUtil.AstToString(toGreenVisitor.greenList.get(i)));
-        }
+        // for (int i = 0; i < toGreenVisitor.stmtList.size(); i++) {
+            // System.out.format("%1$-70s %2$-100s\n", toGreenVisitor.stmtList.get(i), ExprUtil.AstToString(toGreenVisitor.greenList.get(i)));
+        // }
 
-        System.out.println("\nGreen Expression pushed on the Path Condition:");
-        System.out.println(ExprUtil.AstToString(regionSummary));
-        System.out.println("Stack output: " + dynRegion.stackOutput);
+        // System.out.println("\nGreen Expression pushed on the Path Condition:");
+        // System.out.println(ExprUtil.AstToString(regionSummary));
+        // System.out.println("Stack output: " + dynRegion.stackOutput);
 
 /*
 
