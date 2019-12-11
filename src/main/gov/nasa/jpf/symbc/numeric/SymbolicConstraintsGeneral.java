@@ -153,8 +153,8 @@ public class SymbolicConstraintsGeneral {
             result = pb.solve();
         }
 
-        if (SymbolicInstructionFactory.debugMode)
-            System.out.println("numeric PC: " + pc + " -> " + result + "\n");
+//        if (SymbolicInstructionFactory.debugMode)
+//            System.out.println("numeric PC: " + pc + " -> " + result + "\n");
 
         if (SymbolicInstructionFactory.regressMode) {
             String output = "##NUMERIC PC: ";

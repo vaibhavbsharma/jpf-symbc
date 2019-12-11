@@ -114,11 +114,11 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         minAllowed = (long) -(Math.pow(2, bitVectorLength - 1));
         maxAllowed = (long) (Math.pow(2, bitVectorLength - 1) - 1);
         useFpForReals = SymbolicInstructionFactory.fp;
-        if (SymbolicInstructionFactory.debugMode) {
+        /*if (SymbolicInstructionFactory.debugMode) {
             System.out.println("Z3bitvector using " + bitVectorLength + "-bit bitvectors.");
             System.out.println("Allowed [min,max] values: [" + minAllowed + "," + maxAllowed + "].");
             System.out.println("Using floating point for reals: " + (useFpForReals ? "yes" : "no"));
-        }
+        }*/
     }
 
     public void cleanup() {
@@ -197,8 +197,8 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 }
 
                 if(success){
-                    System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-                    System.out.println(solver.toString());
+//                    System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//                    System.out.println(solver.toString());
                     long z3time = 0;
                     long t1 = System.nanoTime();
                     String fileName = folderName + "/MyCRC32.len" + System.getenv("MAX_LENGTH") + ".smt2"; //StatisticManager.instructionToExec+"$" + StatisticManager.solverQueriesUnique + ".txt";
@@ -225,7 +225,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
 
                     z3time += System.nanoTime()-t1;
                     System.out.println("\nSolving time of z3 bitvector is " + TimeUnit.NANOSECONDS.toMillis(z3time) + " ms");
-                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");
+//                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");
                 }
                 else
                     System.out.println("Encountered a problem while creating Solver Queries directory.");

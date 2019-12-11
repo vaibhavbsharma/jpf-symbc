@@ -366,8 +366,8 @@ public class SymbolicStringConstraintsGeneral {
 
 	public boolean isSatisfiable(StringPathCondition pc) {
 		logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-		if (SymbolicInstructionFactory.debugMode)
-			System.out.println("string analysis: " + pc);
+//		if (SymbolicInstructionFactory.debugMode)
+//			System.out.println("string analysis: " + pc);
 		//println ("Path Constraint # " + entered);
 		//println ("CURRENT PATH CONSTRAINT:\n");
 		//println(pc.toString());
