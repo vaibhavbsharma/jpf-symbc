@@ -21,16 +21,18 @@
 package gov.nasa.jpf.symbc.bytecode;
 
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
-import gov.nasa.jpf.symbc.numeric.Comparator;
-import gov.nasa.jpf.symbc.numeric.IntegerExpression;
-import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
-import gov.nasa.jpf.symbc.numeric.PathCondition;
+import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.ArrayIndexOutOfBoundsExecutiveException;
 import gov.nasa.jpf.vm.ElementInfo;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.MJIEnv;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.commons.math.transform.FastFourierTransformer.isPowerOf2;
 
 /**
  * Load int from array ..., arrayref, index => ..., value
@@ -56,6 +58,10 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
         int len = (eiArray.getArrayFields()).arrayLength(); // assumed concrete
         lastLength = len; // YN: store last length
 
+        ArrayList<Integer> spine = checkGF2(ti, eiArray);
+        if (spine != null) {
+            return finishIALOAD(ti, frame, eiArray, buildFromSpine(spine, (IntegerExpression) peekIndexAttr(ti)));
+        }
         if (!ti.isFirstStepInsn()) {
             PCChoiceGenerator arrayCG;
 
@@ -144,27 +150,99 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
              * (scheduler.setsSharedArrayCG( ti, this, eiArray, index)){ return this; } }
              */
 
-            frame.pop(2); // now we can pop index and array reference
-            // assign to index any value between 0 and array length
+            return finishIALOAD(ti, frame, eiArray, eiArray.getElementAttr(index));
+        }
+    }
 
-            try {
-                push(frame, eiArray, index);
+    private Instruction finishIALOAD(ThreadInfo ti, StackFrame frame, ElementInfo eiArray, Object elementAttr) {
+        frame.pop(2); // now we can pop index and array reference
+        // assign to index any value between 0 and array length
 
-                Object elementAttr = eiArray.getElementAttr(index);
-                if (elementAttr != null) {
-                    if (getElementSize() == 1) {
-                        frame.setOperandAttr(elementAttr);
-                    } else {
-                        frame.setLongOperandAttr(elementAttr);
-                    }
+        try {
+            push(frame, eiArray, index);
+
+            if (elementAttr != null) {
+                if (getElementSize() == 1) {
+                    frame.setOperandAttr(elementAttr);
+                } else {
+                    frame.setLongOperandAttr(elementAttr);
                 }
+            }
 
-                return getNext(ti);
+            return getNext(ti);
 
-            } catch (ArrayIndexOutOfBoundsExecutiveException ex) {
-                return ex.getInstruction();
+        } catch (ArrayIndexOutOfBoundsExecutiveException ex) {
+            return ex.getInstruction();
+        }
+    }
+
+    static int log(int x, int base)
+    {
+        return (int) (Math.log(x) / Math.log(base));
+    }
+
+    private ArrayList<Integer> checkGF2(ThreadInfo ti, ElementInfo elementInfo) {
+        int len = elementInfo.arrayLength();
+        ArrayList<Integer> array = new ArrayList<>();
+        for (int i = 0; i < len; i++)
+            array.add(elementInfo.getIntElement(i));
+        IntegerExpression indexExp = (IntegerExpression) peekIndexAttr(ti);
+        int startOffset = 0;
+        if (indexExp instanceof BinaryLinearIntegerExpression) {
+            IntegerExpression leftOp = ((BinaryLinearIntegerExpression) indexExp).getLeft();
+            IntegerExpression rightOp = ((BinaryLinearIntegerExpression) indexExp).getRight();
+            int constVal = 0;
+            if (((BinaryLinearIntegerExpression) indexExp).getOp() == Operator.PLUS) {
+                if (leftOp instanceof IntegerConstant) constVal = (int) ((IntegerConstant) leftOp).value;
+                if (rightOp instanceof IntegerConstant) constVal = (int) ((IntegerConstant) rightOp).value;
+                if (constVal % 256 == 0 && constVal >= 0 && constVal <= 1792) startOffset = constVal;
             }
         }
+        ArrayList<Integer> spine = getSubSpine(array, startOffset, 256);
+        if (spine == null)
+            return null;
+        return spine;
+    }
+
+    private ArrayList<Integer> getSubSpine(ArrayList<Integer> origArray, int startInd, int len) {
+        List<Integer> array = origArray.subList(startInd, startInd+len);
+        int indexWidth = log(len, 2);
+        ArrayList<Integer> spine = new ArrayList<>();
+        System.out.print("spine: ");
+        for (int i = 0; i <= indexWidth-1; i++) {
+            spine.add(array.get(1<<i));
+            System.out.print(String.format("0x%x ", spine.get(spine.size()-1)));
+        }
+        System.out.println();
+        for (int i = 0; i < len; i++) {
+            int fromSpineVal = buildFromSpine(spine, i);
+//            System.out.println(String.format("0x%x, 0x%x", fromSpineVal, array.get(i)));
+            if (!array.get(i).equals(fromSpineVal))
+                return null;
+        }
+        return spine;
+    }
+
+    private int buildFromSpine(ArrayList<Integer> spine, int index) {
+        int fromSpineVal = 0;
+        for (int i = 0; i < spine.size(); i++) {
+            if ((index & (1<<i)) != 0) fromSpineVal ^= spine.get(i);
+        }
+        return fromSpineVal;
+    }
+
+    private IntegerExpression buildFromSpine(ArrayList<Integer> spine, IntegerExpression index) {
+        IntegerExpression fromSpineVal = null;
+        int bvlen = SymbolicInstructionFactory.bvlength;
+        for (int i = 0; i < spine.size(); i++) {
+            BinaryLinearIntegerExpression a = new BinaryLinearIntegerExpression(index, Operator.SHIFTR, new IntegerConstant(i));
+            BinaryLinearIntegerExpression bit = new BinaryLinearIntegerExpression(a, Operator.AND, new IntegerConstant(1));
+            BinaryLinearIntegerExpression bitShl = new BinaryLinearIntegerExpression(bit, Operator.SHIFTL, new IntegerConstant(bvlen-1));
+            BinaryLinearIntegerExpression bitShlShr = new BinaryLinearIntegerExpression(bitShl, Operator.SHIFTR, new IntegerConstant(bvlen-1));
+            BinaryLinearIntegerExpression term = new BinaryLinearIntegerExpression(bitShlShr, Operator.AND, new IntegerConstant(spine.get(i)));
+            fromSpineVal = fromSpineVal == null ? term : new BinaryLinearIntegerExpression(fromSpineVal, Operator.XOR, term);
+        }
+        return fromSpineVal;
     }
 
 }

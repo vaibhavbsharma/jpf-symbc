@@ -294,7 +294,7 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
 
 
 	  public Instruction lcmp() {
-		    return (filter.isPassing(ci) ? new LCMP(): super.lcmp());
+		    return (filter.isPassing(ci) ? (pcChoiceOptimization) ? new gov.nasa.jpf.symbc.bytecode.optimization.LCMP() : new LCMP(): super.lcmp());
 		  }
 
 
