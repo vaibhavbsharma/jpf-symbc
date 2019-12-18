@@ -20,6 +20,7 @@
  * Some portions of this file Copyright (c) 2004-2006 Intel Corportation
  * and licensed under the BSD license.
  */
+import java.util.Random;
 import java.util.zip.Checksum;
 /**
  * A pure-java implementation of the CRC32 checksum that uses
@@ -104,8 +105,10 @@ public class PureJavaCrc32C implements Checksum {
         while (j >= 0) bytes[j--] = getSymChar((byte) 'a');
         PureJavaCrc32C crc32C = new PureJavaCrc32C();
         crc32C.reset();
-        for (int i = 0; i < maxLen; i++)
-            bytes[i] = getSymChar((byte) 'a');//Verifier.nondetByte();
+        Random gen = new Random();
+        gen.nextBytes(bytes);
+//        for (int i = 0; i < maxLen; i++)
+//            bytes[i] = getSymChar((byte) ;);//Verifier.nondetByte();
         crc32C.update(bytes, 0, bytes.length);
 //        crc32C.update(bytes[0]);
         int crc32Result = (int) crc32C.getValue();
