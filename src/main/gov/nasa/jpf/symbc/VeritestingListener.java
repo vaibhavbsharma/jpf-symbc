@@ -227,8 +227,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             if (conf.hasValue("goToRewriteOn"))
                 GoToTransformer.active = conf.getBoolean("goToRewriteOn");
             else{
-                GoToTransformer.active = false;
-                GoToTransformer.statisticsOn = false;
+                GoToTransformer.active = true;
+                GoToTransformer.statisticsOn = true;
             }
 
             if (conf.hasValue("contractDiscoveryOn"))
@@ -386,21 +386,21 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     private void runVeritestingWrapper(ThreadInfo ti, VM vm, StaticRegion staticRegion, Instruction instructionToExecute) throws Exception {
         if ((runMode != VeritestingMode.SPFCASES) && (runMode != VeritestingMode.EARLYRETURNS)) {
-            isRegionEndOk(staticRegion, instructionToExecute);
+            isRegionEndOk(ti, staticRegion, instructionToExecute);
 
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
             runOnSamePath(ti, instructionToExecute, dynRegion);
 
             System.out.println("------------- Region was successfully veritested --------------- ");
         } else {
-            isRegionEndOk(staticRegion, instructionToExecute);
+            isRegionEndOk(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
         }
     }
 
 
-    private void isRegionEndOk(StaticRegion staticRegion, Instruction instructionToExecute) throws StaticRegionException {
-        boolean isEndingInsnStackConsuming = isStackConsumingRegionEnd(staticRegion, instructionToExecute);
+    private void isRegionEndOk(ThreadInfo ti, StaticRegion staticRegion, Instruction instructionToExecute) throws StaticRegionException {
+        boolean isEndingInsnStackConsuming = isStackConsumingRegionEnd(ti, staticRegion, instructionToExecute);
         // If region ends on a stack operand consuming instruction then the region should have a stack output
         if (isEndingInsnStackConsuming && staticRegion.stackOutput == null) {
             String ex = "Region ends on a stack-consuming instruction";
