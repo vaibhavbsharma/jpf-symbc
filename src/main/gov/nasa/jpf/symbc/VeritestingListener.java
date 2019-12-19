@@ -226,9 +226,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (conf.hasValue("goToRewriteOn"))
                 GoToTransformer.active = conf.getBoolean("goToRewriteOn");
-            else{
-                GoToTransformer.active = true;
-                GoToTransformer.statisticsOn = true;
+            else {
+                GoToTransformer.active = false;
+                GoToTransformer.statisticsOn = false;
             }
 
             if (conf.hasValue("contractDiscoveryOn"))
@@ -909,6 +909,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
         //pw.println(statisticManager.printAllRegionStatistics());
 //        pw.println(statisticManager.printStaticAnalysisStatistics());
+        pw.println("Encountered Veritesting Regions in veriRegions (i.e., VeriTestingMain.veriRegions size) = " + VeritestingMain.veriRegions.size());
         pw.println(statisticManager.printAllExceptionStatistics());
 
         pw.println("\n/************************ Printing Time Decomposition Statistics *****************");
