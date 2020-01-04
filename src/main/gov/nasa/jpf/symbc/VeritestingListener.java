@@ -1,6 +1,7 @@
 package gov.nasa.jpf.symbc;
 
 
+import com.ibm.wala.util.shrike.gotoTransformation.GoToTransformer;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
@@ -199,7 +200,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             if (conf.hasValue("simplify"))
                 simplify = conf.getBoolean("simplify");
 
-            if(conf.hasValue("singlePathOptimization"))
+            if (conf.hasValue("singlePathOptimization"))
                 singlePathOptimization = conf.getBoolean("singlePathOptimization");
 
             if (conf.hasValue("recursiveDepth")) {
@@ -222,6 +223,15 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             }
             if (conf.hasValue("maxStaticExplorationDepth"))
                 maxStaticExplorationDepth = conf.getInt("maxStaticExplorationDepth");
+
+            if (conf.hasValue("goToRewriteOn")) {
+                GoToTransformer.active = conf.getBoolean("goToRewriteOn");
+                if (GoToTransformer.active)
+                    GoToTransformer.statisticsOn = true;
+            } else { //SH: right now setting defaults to true for testing.
+                GoToTransformer.active = true;
+                GoToTransformer.statisticsOn = true;
+            }
 
             if (conf.hasValue("contractDiscoveryOn"))
                 contractDiscoveryOn = conf.getBoolean("contractDiscoveryOn");
@@ -378,21 +388,21 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     private void runVeritestingWrapper(ThreadInfo ti, VM vm, StaticRegion staticRegion, Instruction instructionToExecute) throws Exception {
         if ((runMode != VeritestingMode.SPFCASES) && (runMode != VeritestingMode.EARLYRETURNS)) {
-            isRegionEndOk(staticRegion, instructionToExecute);
+            isRegionEndOk(ti, staticRegion, instructionToExecute);
 
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
             runOnSamePath(ti, instructionToExecute, dynRegion);
 
             System.out.println("------------- Region was successfully veritested --------------- ");
         } else {
-            isRegionEndOk(staticRegion, instructionToExecute);
+            isRegionEndOk(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
         }
     }
 
 
-    private void isRegionEndOk(StaticRegion staticRegion, Instruction instructionToExecute) throws StaticRegionException {
-        boolean isEndingInsnStackConsuming = isStackConsumingRegionEnd(staticRegion, instructionToExecute);
+    private void isRegionEndOk(ThreadInfo ti, StaticRegion staticRegion, Instruction instructionToExecute) throws StaticRegionException {
+        boolean isEndingInsnStackConsuming = isStackConsumingRegionEnd(ti, staticRegion, instructionToExecute);
         // If region ends on a stack operand consuming instruction then the region should have a stack output
         if (isEndingInsnStackConsuming && staticRegion.stackOutput == null) {
             String ex = "Region ends on a stack-consuming instruction";
@@ -901,12 +911,14 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
         //pw.println(statisticManager.printAllRegionStatistics());
 //        pw.println(statisticManager.printStaticAnalysisStatistics());
+        pw.println("Encountered Veritesting Regions in veriRegions (i.e., VeriTestingMain.veriRegions size) = " + VeritestingMain.veriRegions.size());
         pw.println(statisticManager.printAllExceptionStatistics());
 
         pw.println("\n/************************ Printing Time Decomposition Statistics *****************");
         pw.println("static analysis time = " + TimeUnit.NANOSECONDS.toMillis(jitAnalysis ? JITAnalysis.staticAnalysisDur : staticAnalysisDur) + " msec");
         pw.println("Veritesting Dyn Time = " + TimeUnit.NANOSECONDS.toMillis(dynRunTime) + " msec");
         pw.println("Veritesting fix-point Time = " + TimeUnit.NANOSECONDS.toMillis(FixedPointWrapper.fixedPointTime) + " msec");
+        pw.println("GoTo rewrite instances = " + GoToTransformer.goToUpdatedClasses.size());
 
         pw.println("\n/************************ Printing Solver Statistics *****************");
         pw.println("Total Solver Queries Count = " + solverCount);
