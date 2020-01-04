@@ -224,11 +224,13 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             if (conf.hasValue("maxStaticExplorationDepth"))
                 maxStaticExplorationDepth = conf.getInt("maxStaticExplorationDepth");
 
-            if (conf.hasValue("goToRewriteOn"))
+            if (conf.hasValue("goToRewriteOn")) {
                 GoToTransformer.active = conf.getBoolean("goToRewriteOn");
-            else {
-                GoToTransformer.active = false;
-                GoToTransformer.statisticsOn = false;
+                if (GoToTransformer.active)
+                    GoToTransformer.statisticsOn = true;
+            } else { //SH: right now setting defaults to true for testing.
+                GoToTransformer.active = true;
+                GoToTransformer.statisticsOn = true;
             }
 
             if (conf.hasValue("contractDiscoveryOn"))
