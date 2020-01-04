@@ -1,8 +1,8 @@
 package gov.nasa.jpf.symbc.veritesting.VeritestingUtil;
 
+import gov.nasa.jpf.JPFException;
 import gov.nasa.jpf.jvm.bytecode.GOTO;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
-import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.numeric.solvers.ProblemGeneral;
 import gov.nasa.jpf.symbc.numeric.solvers.ProblemZ3BitVectorIncremental;
@@ -21,7 +21,6 @@ import za.ac.sun.cs.green.expr.Operation;
 
 import java.io.File;
 
-import static gov.nasa.jpf.symbc.VeritestingListener.performanceMode;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 
@@ -34,6 +33,7 @@ public class SpfUtil {
 
     /**
      * Returns number of operands depending on the if-bytecode instruction.
+     *
      * @param instruction"if" bytecode instruction
      * @return Number of operands.
      * @throws StaticRegionException
@@ -67,7 +67,8 @@ public class SpfUtil {
 
     /**
      * Checks if the "if" condition is symbolic based on the the operands of the "if" bytecode instruction.
-     * @param ti Current ThreadInfo object
+     *
+     * @param ti  Current ThreadInfo object
      * @param ins Current "if" bytecode instruction.
      * @return True if the operand(s) of "if" condition is symbolic and false if it was concerete.
      * @throws StaticRegionException
@@ -115,7 +116,7 @@ public class SpfUtil {
                 isSymCondition = isBothSidesFeasible(ti, getComparator(ins), getNegComparator(ins), operand1, operand2);
             }*/
         }
-        if(operandNum == -11)
+        if (operandNum == -11)
             isSymCondition = false;
 
         return isSymCondition;
@@ -144,7 +145,8 @@ public class SpfUtil {
 
     /**
      * Checks if the "if" condition is symbolic by visiting the condition expression of the statement of the staticRegion
-     * @param ti Current ThreadInfo object
+     *
+     * @param ti   Current ThreadInfo object
      * @param stmt Statement of the static region.
      * @return True if the operand(s) of "if" condition is symbolic and false if it was concerete.
      * @throws StaticRegionException
@@ -178,9 +180,10 @@ public class SpfUtil {
 
     /**
      * This creates SPF constants depending on the type of the variable.
-     * @param sf Current Stack Frame
+     *
+     * @param sf       Current Stack Frame
      * @param variable Variable number for which we want to create the constant.
-     * @param varType The type of which the constant should be created in SPF.
+     * @param varType  The type of which the constant should be created in SPF.
      * @return SPF constant expression..
      * @throws StaticRegionException
      */
@@ -206,9 +209,9 @@ public class SpfUtil {
 
     public static void emptyFolder(File folder) {
         File[] files = folder.listFiles();
-        if(files!=null) { //some JVMs return null for empty dirs
-            for(File f: files) {
-                if(f.isDirectory()) {
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
                     emptyFolder(f);
                 } else {
                     f.delete();
@@ -216,7 +219,6 @@ public class SpfUtil {
             }
         }
     }
-
 
 
     public static Comparator getComparator(Instruction instruction) {
@@ -241,7 +243,7 @@ public class SpfUtil {
                 return Comparator.NE;
             default:
                 System.out.println("Unknown comparator: " + instruction.getMnemonic());
-                assert(false);
+                assert (false);
                 return null;
         }
     }
@@ -268,15 +270,15 @@ public class SpfUtil {
                 return Comparator.EQ;
             default:
                 System.out.println("Unknown comparator: " + instruction.getMnemonic());
-                assert(false);
+                assert (false);
                 return null;
         }
     }
 
     // we want to allow only stores at the end of the region but skip regions that end on any other instruction that
     // consumes 1 or more stack operands
-    public static boolean isStackConsumingRegionEnd(StaticRegion region, Instruction ins) throws StaticRegionException {
-        int endIns = region.endIns;
+    public static boolean isStackConsumingRegionEnd(ThreadInfo ti, StaticRegion region, Instruction ins) throws StaticRegionException {
+        /*int endIns = region.endIns;
         Instruction prevIns = null;
         while (ins != null && ins.getPosition() != endIns) {
             if (ins instanceof GOTO && (((GOTO) ins).getTarget().getPosition() <= endIns)) {
@@ -291,8 +293,17 @@ public class SpfUtil {
         if (ins == null) {
             assert prevIns != null;
             throw new StaticRegionException("region end instruction cannot be found");
+        }*/
+        //Instruction ret = ins;
+        Instruction ret;
+        try {
+            ret = ti.getTopFrameMethodInfo().getInstructionAt(region.endIns);
+        } catch (JPFException e) {
+            throw new StaticRegionException("region end instruction cannot be found");
         }
-        Instruction ret = ins;
+        if (ret == null)
+            throw new StaticRegionException("region end instruction cannot be found");
+
         // this hack used to go along with a corresponding hack in VeritestingListener.advanceSpf that would advance
         // SPF beyond a store at the end of the region. These hacks aren't needed anymore but I am keeping this code
         // around until a month or two has gone by after we've stopped seeing these issues (March 13, 2019)
@@ -331,8 +342,7 @@ public class SpfUtil {
                 if (PCParser.parse(pc, pb) == null) {
                     throwException(new StaticRegionException("Couldn't send region summary to incremental solver"), INSTANTIATION);
                 }
-            }
-            else throwException(new StaticRegionException("Unsupported solver type for veritesting"), INSTANTIATION);
+            } else throwException(new StaticRegionException("Unsupported solver type for veritesting"), INSTANTIATION);
         }
     }
 
