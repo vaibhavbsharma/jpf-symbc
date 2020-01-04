@@ -5,29 +5,29 @@ public class SheepAndGoat extends TestRegionBaseClass {
                          boolean b0, boolean b1, boolean b2, boolean b3, boolean b4, boolean b5) {
         return simpleRegion(in0);
     }
-    public static int staticMethod2(int x) {
-        int myCount = 0;
-        if (x > 100) {
-            myCount = 1;
-        } else {
-            myCount = 3;
+    public static int sheepAndGoatLeft(int i) {
+        int j = 0;
+        System.out.println(Integer.toBinaryString(i));
+
+        while(i != 0) {
+            int zeroCount = Integer.numberOfTrailingZeros(i);
+            if (zeroCount != 0) {
+                i >>= zeroCount;
+            } else {
+                j >>>= 1;
+                j ^= Integer.reverse(1);
+                i >>= 1;
+            }
         }
-        return myCount;
-    }
-    public static int staticMethod1(int x) {
-        int myCount = 0;
-        if (x > 10) {
-            myCount = staticMethod2(x);
-        } else {
-            myCount = 2;
-        }
-        return myCount;
+
+        System.out.println(Integer.toBinaryString(j));
+        return j;
     }
 
     public static Outputs simpleRegion(int y) {
         int methodCount = 0;
         if (y > 0)
-            methodCount = staticMethod1(y);
+            methodCount = sheepAndGoatLeft(y);
         Outputs o = new Outputs();
         o.intOutputs = new int[1];
         o.intOutputs[0] = methodCount;

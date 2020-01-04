@@ -1,4 +1,4 @@
-target=veritesting.HigherOrder1
+target=veritesting.SheepAndGoat
 veritestRegionExpectedCount = 4
 # Classes that wish to test a veritesting region can populate the expected value of
 # VeritestingListener.veritestRegionCount in this variable. TestVeritesting will assert

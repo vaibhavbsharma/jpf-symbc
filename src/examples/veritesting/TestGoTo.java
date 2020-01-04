@@ -5,18 +5,31 @@ public class TestGoTo extends TestRegionBaseClass {
                          boolean b0, boolean b1, boolean b2, boolean b3, boolean b4, boolean b5) {
         return simpleRegion(in0);
     }
+
     public static int testGoTo(int i) {
         int j = 0;
 
         while (j <= 1) {
             if (i == 0) {
                 i >>= 2;
-            }
+            } else ++i;
             ++j;
-            ++i;
         }
         System.out.println(Integer.toBinaryString(j));
         return j;
+    }
+
+    public int testWhileProblem1(int i, int j) {
+        int x = 0;
+        while (i != 0) {
+            if (j != 0) {
+                x = 5;
+            } else {
+                x = 6;
+            }
+        }
+        return x;
+
     }
 
 
