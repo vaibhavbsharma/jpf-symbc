@@ -109,6 +109,8 @@ public class TProgram extends Ast {
 
     @Override
     public <T, S extends T> T accept(AstVisitor<T, S> visitor) {
-        return visitor.visit(new Program(Location.NULL, types, constants, functions, nodes, "T_node"));
+        //return visitor.visit(new Program(Location.NULL, types, constants, functions, nodes, "T_node"));
+        assert false; //turning off creation of TPrograms for now.
+        return null;
     }
 }

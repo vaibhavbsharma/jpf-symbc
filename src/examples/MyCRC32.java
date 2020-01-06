@@ -24,12 +24,19 @@ public class MyCRC32 {
     }
 
     public static void main(String args[]) {
-        int maxLen = Integer.parseInt(System.getenv("MAX_LENGTH"));
+        final int maxLen = Integer.parseInt(System.getenv("MAX_LENGTH"));
         byte bytes[] = new byte[maxLen];
-        maxLen--;
-        while (maxLen >= 0) bytes[maxLen--] = getSymChar((byte) 'a');
-        bytes[0] = Verifier.nondetByte();
-        System.out.println(computeCRC32(bytes));
+        int j = maxLen - 1;
+        while (j >= 0) bytes[j--] = getSymChar((byte) 'a');
+        for (int i = 0; i < maxLen; i++)
+            bytes[i] = getSymChar((byte) 'a');//Verifier.nondetByte();
+        int crc32Result = computeCRC32(bytes);
+        for (int i = 0; i < maxLen; i++)
+            bytes[i] = 'a';
+        if (crc32Result == computeCRC32(bytes)) {
+            System.out.println("success!!");
+            assert false;
+        }
     }
 
     private static byte getSymChar(byte a) {

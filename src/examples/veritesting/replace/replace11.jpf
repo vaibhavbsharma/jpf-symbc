@@ -1,8 +1,15 @@
-target=veritesting.replace.replace11
+
+target=veritesting.replace.replace11 ##SH
+#target=veritesting.replace.veritesting.replace.replace11
+
 classpath=${jpf-symbc}/build/examples/
 sourcepath=${jpf-symbc}/src/examples/
 #symbolic.method = veritesting.replace.replace11.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
-symbolic.method = veritesting.replace.replace11.mainProcess(sym#con#con#con#con#con#con#con#con#con#con)
+symbolic.method = veritesting.replace.replace11.mainProcess(sym#con#con#con#con#con#con#con#con#con#con) ## SH
+
+#symbolic.method = veritesting.replace.veritesting.replace.replace11.mainProcess
+(sym#con#con#con#con#con#con#con#con#con#con)
+
 symbolic.minint=-100
 symbolic.maxint=100
 vm.storage.class=nil

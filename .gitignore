@@ -15,4 +15,3 @@ trace
 logs/
 out/
 !.idea/*
-lib/*.jar
