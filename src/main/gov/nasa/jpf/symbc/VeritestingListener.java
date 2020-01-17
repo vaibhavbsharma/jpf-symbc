@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc;
 
 
 import com.ibm.wala.util.shrike.gotoTransformation.GoToTransformer;
+import gov.nasa.jpf.JPFException;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
@@ -669,7 +670,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 pushExpOnStack(dynRegion, ti.getTopFrame(), (String) dynRegion.varTypeTable.lookup(dynRegion.stackOutput),
                         dynRegion.stackOutput);
             }
-            return advanceSpf(ins, dynRegion, (choice != null && choice == RETURN_CHOICE) || optimizedReturnPath);
+            return advanceSpf(ti, ins, dynRegion, (choice != null && choice == RETURN_CHOICE) || optimizedReturnPath);
 
         }
         assert ti.getVM().getSystemState().isIgnored();
@@ -863,17 +864,29 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
      * @param ins       Insturction to be executed.
      * @param dynRegion Dynamic region that has been successfully transformed and summarized.
      */
-    public static Instruction advanceSpf(Instruction ins, DynamicRegion dynRegion, boolean earlyReturnSetup) {
+    public static Instruction advanceSpf(ThreadInfo ti, Instruction ins, DynamicRegion dynRegion, boolean earlyReturnSetup) throws StaticRegionException {
         int endIns;
         if (!earlyReturnSetup) // going to first instruction after the region
             endIns = dynRegion.endIns;
         else //going to a return instruction
             endIns = dynRegion.earlyReturnResult.retPosAndType.getFirst();
-        while (ins.getPosition() != endIns) {
+
+        //using jpf api to find the right instruction to jump to.
+        /*while (ins.getPosition() != endIns) {
             if (ins instanceof GOTO && (((GOTO) ins).getTarget().getPosition() <= endIns))
                 ins = ((GOTO) ins).getTarget();
             else ins = ins.getNext();
+        }*/
+
+        Instruction ret;
+        try {
+            ret = ti.getTopFrameMethodInfo().getInstructionAt(endIns);
+        } catch (JPFException e) {
+            throw new StaticRegionException("region end instruction cannot be found");
         }
+        if (ret == null)
+            throw new StaticRegionException("region end instruction cannot be found");
+
         // this hack used to go along with a corresponding hack in SpfUtil.isStackConsumingRegionEnd that would advance
         // SPF beyond a store at the end of the region. These hacks aren't needed anymore but I am keeping this code
         // around until a month or two has gone by after we've stopped seeing these issues (March 13, 2019)
@@ -883,7 +896,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 //            assert false; //too late to throw a StaticRegionException, region's outputs have already been written
 //        }
         //ti.setNextPC(ins);
-        return ins;
+        return ret;
     }
 
 
