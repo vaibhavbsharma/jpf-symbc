@@ -307,7 +307,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
         if (this.heuristicsCountingMode) { //setup heuristics path conditions
             setPC(pc.make_copy(), HEURISTICS_THEN_CHOICE);
             setPC(pc.make_copy(), HEURISTICS_ELSE_CHOICE);
-            Instruction endIns = VeritestingListener.advanceSpf(instructionToExecute, region, false);
+            Instruction endIns = VeritestingListener.advanceSpf(ti, instructionToExecute, region, false);
             RegionHitExactHeuristic regionHitExactHeuristic = new RegionHitExactHeuristic(key, endIns, endIns.getMethodInfo() , 0);
             /*if(!HeuristicManager.addRegionExactHeuristic(regionHitExactHeuristic))
                 this.heuristicsCountingMode = false;*/
