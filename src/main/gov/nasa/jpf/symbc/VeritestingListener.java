@@ -227,8 +227,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 if (GoToTransformer.active)
                     GoToTransformer.statisticsOn = true;
             } else { //SH: right now setting defaults to true for testing.
-                GoToTransformer.active = true;
-                GoToTransformer.statisticsOn = true;
+                GoToTransformer.active = false;
+                GoToTransformer.statisticsOn = false;
             }
 
             StatisticManager.veritestingRunning = true;
