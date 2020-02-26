@@ -24,7 +24,7 @@ import static gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.Arr
 import static za.ac.sun.cs.green.expr.Operation.Operator.*;
 
 public class ArraySSAVisitor extends FixedPointAstMapVisitor {
-    private static int arrayExceptionNumber = 4242  ;
+    private static int arrayExceptionNumber = 4242;
     private DynamicRegion dynRegion;
     private ThreadInfo ti;
     static final int ARRAY_SUBSCRIPT_BASE = 0;
@@ -50,7 +50,7 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
             return new AssignmentStmt(c.def, new IntConstant(len));
         } else if (dynRegion.constantsTable != null && c.arrayref instanceof Variable &&
                 dynRegion.constantsTable.lookup((Variable) c.arrayref) instanceof IntConstant) {
-            int ref = ((IntConstant)dynRegion.constantsTable.lookup((Variable) c.arrayref)).getValue();
+            int ref = ((IntConstant) dynRegion.constantsTable.lookup((Variable) c.arrayref)).getValue();
             int len = ti.getElementInfo(ref).getArrayFields().arrayLength();
             somethingChanged = true;
             return new AssignmentStmt(c.def, new IntConstant(len));
@@ -67,8 +67,10 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
             ArrayRef arrayRef = ArrayRef.makeArrayRef(c);
             if (c.arrayref instanceof IntConstant) {
                 if (isUnsupportedArrayRef(arrayRef)) return getThrowInstruction();
+                ArrayExpressions arrayExpressionsCopy = arrayExpressions.clone();
                 rhs = arrayExpressions.get(arrayRef);
                 type = arrayExpressions.getType(arrayRef.ref);
+                arrayExpressions = arrayExpressionsCopy;
             } else exceptionalMessage = "encountered obj-ref in ArrayLoadInstruction that is not a constant";
             // only one of rhs and exceptionalMessage should be non-null
             assert (rhs == null) ^ (exceptionalMessage == null);
@@ -87,8 +89,7 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
             somethingChanged = false;
             firstException = e;
             return c;
-        }
-        catch (StaticRegionException e) {
+        } catch (StaticRegionException e) {
             somethingChanged = false;
             firstException = e;
             return c;
@@ -105,7 +106,8 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
     }
 
     public static Stmt getThrowInstruction() {
-        return new ThrowInstruction(new SSAThrowInstruction(-1, nextArrayExceptionNumber()) {});
+        return new ThrowInstruction(new SSAThrowInstruction(-1, nextArrayExceptionNumber()) {
+        });
     }
 
     public static int nextArrayExceptionNumber() {
@@ -118,8 +120,7 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
         if (!IntConstant.class.isInstance(putIns.arrayref)) {
             firstException = new IllegalArgumentException("Cannot handle symbolic object references in ArraySSAVisitor");
             return putIns;
-        }
-        else {
+        } else {
             try {
                 ArrayRef arrayRef = ArrayRef.makeArrayRef(putIns);
                 if (isUnsupportedArrayRef(arrayRef)) return getThrowInstruction();
@@ -162,8 +163,7 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
         if (gammaStmt != null) {
             somethingChanged = true;
             return new CompositionStmt(new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse), gammaStmt);
-        }
-        else return new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse);
+        } else return new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse);
     }
 
     private Stmt mergeArrayExpressions(Expression condition, ArrayExpressions thenExps, ArrayExpressions elseExps) {
@@ -204,7 +204,7 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
     private Stmt createGammaStmtArray(int ref, Expression condition, Expression[] thenExpArr, Expression[] elseExpArr,
                                       String type) {
         Stmt compStmt = null;
-        for (int i=0; i < thenExpArr.length; i++){
+        for (int i = 0; i < thenExpArr.length; i++) {
             ArrayRef arrayRef = new ArrayRef(ref, new IntConstant(i));
             ArrayRefVarExpr lhs = new ArrayRefVarExpr(arrayRef,
                     new SubscriptPair(-1, gsm.createSubscript(ref)));
@@ -217,8 +217,7 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
     }
 
 
-
-    public DynamicRegion execute(){
+    public DynamicRegion execute() {
         Stmt arrayStmt = dynRegion.dynStmt.accept(this);
         instantiatedRegion = new DynamicRegion(dynRegion, arrayStmt, new SPFCaseList(), null, null, dynRegion.earlyReturnResult);
         instantiatedRegion.arrayOutputs = this.arrayExpressions;
