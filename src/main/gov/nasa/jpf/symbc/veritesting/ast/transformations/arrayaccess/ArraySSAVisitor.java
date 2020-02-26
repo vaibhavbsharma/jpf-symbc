@@ -67,10 +67,8 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
             ArrayRef arrayRef = ArrayRef.makeArrayRef(c);
             if (c.arrayref instanceof IntConstant) {
                 if (isUnsupportedArrayRef(arrayRef)) return getThrowInstruction();
-                ArrayExpressions arrayExpressionsCopy = arrayExpressions.clone();
                 rhs = arrayExpressions.get(arrayRef);
                 type = arrayExpressions.getType(arrayRef.ref);
-                arrayExpressions = arrayExpressionsCopy;
             } else exceptionalMessage = "encountered obj-ref in ArrayLoadInstruction that is not a constant";
             // only one of rhs and exceptionalMessage should be non-null
             assert (rhs == null) ^ (exceptionalMessage == null);
