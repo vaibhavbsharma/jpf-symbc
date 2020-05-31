@@ -1,5 +1,6 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess;
 
+import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.ArrayRef;
@@ -140,8 +141,10 @@ public class ArrayUtil {
                 if (newExpr instanceof CloneableVariable)
                     newExpr = createGreenVar(type, newExpr.toString());
                 if (!(newExpr instanceof IntConstant)) {
-                    eiArray.setElementAttr(i, greenToSPFExpression(newExpr));
-                    assert (greenToSPFExpression(newExpr) != null);
+                    gov.nasa.jpf.symbc.numeric.Expression spfExp = greenToSPFExpression(newExpr);
+                    assert (spfExp != null);
+                    VeritestingListener.regionOutputToKeyMap.put(spfExp, VeritestingListener.key);
+                    eiArray.setElementAttr(i, spfExp);
                 }
             }
         }

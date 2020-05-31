@@ -117,6 +117,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     // reads in an array of Strings, each of which is the name of a method whose regions we wish to report metrics for
     public static String[] interestingClassNames;
 
+    public static HashMap<gov.nasa.jpf.symbc.numeric.Expression, String> regionOutputToKeyMap = new HashMap<>();
+
     public String[] regionKeys = {"replace.amatch([C[CI)I#160",
             "replace.amatch([C[CI)I#77",
             "replace.dodash(C[C[C)V#112",
@@ -829,7 +831,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             } else
                 symVar = createGreenVar((String) dynRegion.varTypeTable.lookup(var), ((WalaVarExpr) var).getSymName());
             //TODO: Dont write a local output as a symbolic expression attribute if it is a constant
-            sf.setSlotAttr(slot, greenToSPFExpression(symVar));
+            gov.nasa.jpf.symbc.numeric.Expression spfExp = greenToSPFExpression(symVar);
+            regionOutputToKeyMap.put(spfExp, key);
+            sf.setSlotAttr(slot, spfExp);
         }
     }
 
@@ -844,7 +848,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 if (symVar instanceof CloneableVariable)
                     symVar = createGreenVar(type, symVar.toString()); // assumes toString() would return the same string as getSymName()
             } else symVar = createGreenVar(type, expr.getSymName());
-            new SubstituteGetOutput(ti, expr.fieldRef, false, greenToSPFExpression(symVar)).invoke();
+            gov.nasa.jpf.symbc.numeric.Expression spfExp = greenToSPFExpression(symVar);
+            regionOutputToKeyMap.put(spfExp, key);
+            new SubstituteGetOutput(ti, expr.fieldRef, false, spfExp).invoke();
         }
     }
 
