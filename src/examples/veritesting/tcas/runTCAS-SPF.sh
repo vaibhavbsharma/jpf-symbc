@@ -13,7 +13,7 @@ TARGET_CLASSPATH_WALA=$JRDIR/build/examples/ && export TARGET_CLASSPATH_WALA
 
 echo "Running 2 step - mode 1"
 MAX_STEPS=2 && export MAX_STEPS
-timeout $(($TIMEOUT_MINS))m  java -Djava.library.path=$JRDIR/lib -Xmx12288m -ea -Dfile.encoding=UTF-8 -jar $JPF_CORE_DIR/build/RunJPF.jar $VERIDIR/src/examples/veritesting/tcas/tcas.mode1.jpf >& $VERIDIR/logs/tcas.mode1.$(($MAX_STEPS))step.log
+timeout $(($TIMEOUT_MINS))m  java -Djava.library.path=$JRDIR/lib -Xmx12288m -ea -Dfile.encoding=UTF-8 -jar $JPF_CORE_DIR/build/RunJPF.jar $VERIDIR/src/examples/veritesting/tcas/tcas.mode1.jpf >& $VERIDIR/logs/tcas.$(($MAX_STEPS))step.mode1.log
 # tcas mode1 3 steps already times out in 24 hours
 # echo "Running 4 step - mode 1"
 # MAX_STEPS=4 && export MAX_STEPS 

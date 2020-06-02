@@ -39,15 +39,13 @@ TARGET_CLASSPATH_WALA=$JRDIR/build/tcas/ && export TARGET_CLASSPATH_WALA
 #echo "Running 9 step - mode 5"
 #MAX_STEPS=9 && export MAX_STEPS && runSPF-tcas $JRDIR/src/examples/veritesting/tcas/tcas.mode5.jpf >& $JRDIR/logs/tcas.mode5.$(($MAX_STEPS))step.log
 echo "Running 10 step - mode 5"
-MAX_STEPS=10 && export MAX_STEPS && runSPF-tcas $JRDIR/src/examples/veritesting/tcas/tcas.mode5.jpf >& $JRDIR/logs/tcas.mode5.$(($MAX_STEPS))step.log
-
-
+MAX_STEPS=10 && export MAX_STEPS && runSPF-tcas $JRDIR/src/examples/veritesting/tcas/tcas.mode5.jpf >& $JRDIR/logs/tcas.$(($MAX_STEPS))step.mode5.log
 echo "Running 10 step - mode 4"
-MAX_STEPS=10 && export MAX_STEPS && runSPF-tcas $JRDIR/src/examples/veritesting/tcas/tcas.mode4.jpf >& $JRDIR/logs/tcas.mode4.$(($MAX_STEPS))step.log
+MAX_STEPS=10 && export MAX_STEPS && runSPF-tcas $JRDIR/src/examples/veritesting/tcas/tcas.mode4.jpf >& $JRDIR/logs/tcas.$(($MAX_STEPS))step.mode4.log
 echo "Running 10 step - mode 3"
-MAX_STEPS=10 && export MAX_STEPS && runSPF-tcas $JRDIR/src/examples/veritesting/tcas/tcas.mode3.jpf >& $JRDIR/logs/tcas.mode3.$(($MAX_STEPS))step.log
+MAX_STEPS=10 && export MAX_STEPS && runSPF-tcas $JRDIR/src/examples/veritesting/tcas/tcas.mode3.jpf >& $JRDIR/logs/tcas.$(($MAX_STEPS))step.mode3.log
 echo "Running 10 step - mode 2"
-MAX_STEPS=10 && export MAX_STEPS && runSPF-tcas $JRDIR/src/examples/veritesting/tcas/tcas.mode2.jpf >& $JRDIR/logs/tcas.mode2.$(($MAX_STEPS))step.log
+MAX_STEPS=10 && export MAX_STEPS && runSPF-tcas $JRDIR/src/examples/veritesting/tcas/tcas.mode2.jpf >& $JRDIR/logs/tcas.$(($MAX_STEPS))step.mode2.log
 # run tcas with up to 10 steps in mode 1
 # echo "Running 1 step - mode 1"
 # MAX_STEPS=1 && export MAX_STEPS && runSPF-tcas $JRDIR/src/tcas/tcas.mode1.jpf >& $JRDIR/logs/tcas.mode1.$(($MAX_STEPS))step.log
