@@ -1,6 +1,6 @@
 target=veritesting.schedule2_3.Schedule2
-classpath=${jpf-symbc}/build/schedule2_3
-sourcepath=${jpf-symbc}/src/schedule2_3
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
 symbolic.method = veritesting.schedule2_3.Schedule2.mainProcess(sym#sym#sym)
 symbolic.minint=-100
 symbolic.maxint=100
