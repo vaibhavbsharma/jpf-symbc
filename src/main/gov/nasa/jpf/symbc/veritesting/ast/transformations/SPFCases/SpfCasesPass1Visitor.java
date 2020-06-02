@@ -211,8 +211,8 @@ public class SpfCasesPass1Visitor implements AstVisitor<Stmt> {
         Stmt dynStmt = dynRegion.dynStmt.accept(visitor);
 
 
-        System.out.println("--------------- SPFCases TRANSFORMATION 1ST PASS ---------------");
-        System.out.println(StmtPrintVisitor.print(dynStmt));
+//        System.out.println("--------------- SPFCases TRANSFORMATION 1ST PASS ---------------");
+//        System.out.println(StmtPrintVisitor.print(dynStmt));
 
         return new DynamicRegion(dynRegion,
                 dynStmt,

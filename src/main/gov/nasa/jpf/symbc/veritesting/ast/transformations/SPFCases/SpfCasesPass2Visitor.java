@@ -192,14 +192,14 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
         SpfCasesPass2Visitor visitor = new SpfCasesPass2Visitor();
         Stmt dynStmt = dynRegion.dynStmt.accept(visitor);
 
-        System.out.println("--------------- SPFCases TRANSFORMATION 2ND PASS ---------------");
-        System.out.println(StmtPrintVisitor.print(dynStmt));
+//        System.out.println("--------------- SPFCases TRANSFORMATION 2ND PASS ---------------");
+//        System.out.println(StmtPrintVisitor.print(dynStmt));
         SPFCaseList detectedCases = new SPFCaseList(visitor.spfCaseSet);
         detectedCases.print();
 
         dynRegion.earlyReturnResult.condition = visitor.earlyReturnCondition;
 
-        System.out.println("printing early return result condition after spfcases2: " + visitor.earlyReturnCondition);
+//        System.out.println("printing early return result condition after spfcases2: " + visitor.earlyReturnCondition);
         return new DynamicRegion(dynRegion,
                 dynStmt,
                 detectedCases, null, null, dynRegion.earlyReturnResult);

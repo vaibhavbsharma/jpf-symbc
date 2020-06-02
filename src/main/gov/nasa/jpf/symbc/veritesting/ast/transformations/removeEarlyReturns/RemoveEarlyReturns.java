@@ -276,8 +276,8 @@ Similar things can be done for SPF Cases.
  */
 
     public StaticRegion analyze(StaticRegion region) throws StaticRegionException, InvalidClassFileException {
-        System.out.println("\nRegion prior to removeEarlyReturns: " +
-                PrettyPrintVisitor.print(region.staticStmt));
+        /*System.out.println("\nRegion prior to removeEarlyReturns: " +
+                PrettyPrintVisitor.print(region.staticStmt));*/
         ReturnResult stmtResult = doStmt(new ReturnResult(region.staticStmt));
         Stmt resultStmt;
         if (stmtResult.hasER()) { // if the region has a early return
@@ -308,8 +308,8 @@ Similar things can be done for SPF Cases.
             resultStmt = stmtResult.stmt;
 
 
-        System.out.println("\nRegion after removeEarlyReturns: " +
-                StmtPrintVisitor.print(resultStmt));
+        /*System.out.println("\nRegion after removeEarlyReturns: " +
+                StmtPrintVisitor.print(resultStmt));*/
         // VarTypeTable varTypeTable = new VarTypeTable(region.varTypeTable);
 
         // MWW TODO: need to add in types and new vars somewhere.

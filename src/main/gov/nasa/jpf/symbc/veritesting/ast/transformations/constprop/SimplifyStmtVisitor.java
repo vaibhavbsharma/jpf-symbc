@@ -166,14 +166,14 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
             instantiatedRegion.constantsTable = this.constantsTable;
         else dynRegion.constantsTable.addAll(this.constantsTable);
 //            simplifyArrayOutputs(dynRegion);
-        System.out.println("\n--------------- AFTER SIMPLIFICATION ---------------\n");
+        /*System.out.println("\n--------------- AFTER SIMPLIFICATION ---------------\n");
         System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
         Iterator<Map.Entry<Variable, Expression>> itr = instantiatedRegion.constantsTable.table.entrySet().iterator();
         System.out.println("Constants Table:");
         while (itr.hasNext()) {
             Map.Entry<Variable, Expression> entry = itr.next();
             System.out.println(entry.getKey() + ": " + entry.getValue());
-        }
+        }*/
         return instantiatedRegion;
     }
 }

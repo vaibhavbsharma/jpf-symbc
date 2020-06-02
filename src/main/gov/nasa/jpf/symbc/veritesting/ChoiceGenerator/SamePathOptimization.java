@@ -35,7 +35,7 @@ public class SamePathOptimization {
 
             runOnSamePath(ti, instructionToExecute, dynRegion);
 
-            System.out.println("region summary single path optimization applied.");
+//            System.out.println("region summary single path optimization applied.");
             return true;
         } else { // checking if only the region summary or the early return path is true.
 

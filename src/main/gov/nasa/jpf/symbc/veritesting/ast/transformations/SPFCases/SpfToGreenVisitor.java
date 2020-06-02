@@ -204,8 +204,8 @@ public class SpfToGreenVisitor implements AstVisitor<Expression> {
         }
 
 
-        System.out.println("\n--------------- SPFCases GREEN PREDICATE ---------------");
-        System.out.println(StmtPrintVisitor.print(spfPredicateSummary));
+        /*System.out.println("\n--------------- SPFCases GREEN PREDICATE ---------------");
+        System.out.println(StmtPrintVisitor.print(spfPredicateSummary));*/
 
         DynamicRegion greenDynRegion = new DynamicRegion(dynRegion,
                 dynRegion.dynStmt,
