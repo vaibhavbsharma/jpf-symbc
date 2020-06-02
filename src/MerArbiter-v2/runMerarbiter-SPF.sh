@@ -7,7 +7,7 @@ TIMEOUT_MINS=720 && export TIMEOUT_MINS
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/export/scratch2/vaibhav/java-ranger/lib && export LD_LIBRARY_PATH
 TARGET_CLASSPATH_WALA=/export/scratch2/vaibhav/java-ranger/build/merarbiter-v2/ && export TARGET_CLASSPATH_WALA 
 
-for STEPS in {6..8}; do
+for STEPS in {6..6}; do
   for MODE in {1..1}; do
     echo "running MerArbiter-v2.$((STEPS))step.mode$((MODE))";
     MAX_STEPS=$(($STEPS)) && export MAX_STEPS 
