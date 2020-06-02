@@ -1,13 +1,15 @@
 #!/bin/bash
 
-alias runSPF-wbs='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/export/scratch2/vaibhav/java-ranger/lib TARGET_CLASSPATH_WALA=/export/scratch2/vaibhav/java-ranger/build/examples/ java -Djava.library.path=/export/scratch2/vaibhav/java-ranger/lib -Xmx12288m -ea -Dfile.encoding=UTF-8 -jar /export/scratch/vaibhav/jpf-core-veritesting/build/RunJPF.jar '
+VERIDIR=$(pwd)/../../../../
+JPF_CORE_DIR=$VERIDIR/../jpf-core
+alias runSPF-wbs='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$VERIDIR/lib TARGET_CLASSPATH_WALA=$VERIDIR/build/examples/ java -Djava.library.path=$VERIDIR/lib -Xmx12288m -ea -Dfile.encoding=UTF-8 -jar $JPF_CORE_DIR/build/RunJPF.jar '
 shopt -s expand_aliases
-VERIDIR=/export/scratch2/vaibhav/java-ranger
-runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode1.jpf >& $VERIDIR/logs/WBS.mode1.log
-runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode2.jpf >& $VERIDIR/logs/WBS.mode2.log
-runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode3.jpf >& $VERIDIR/logs/WBS.mode3.log
-runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode4.jpf >& $VERIDIR/logs/WBS.mode4.log
-runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode5.jpf >& $VERIDIR/logs/WBS.mode5.log
+echo $VERIDIR
+# runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode1.jpf >& $VERIDIR/logs/WBS.mode1.log
+# runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode2.jpf >& $VERIDIR/logs/WBS.mode2.log
+# runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode3.jpf >& $VERIDIR/logs/WBS.mode3.log
+# runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode4.jpf >& $VERIDIR/logs/WBS.mode4.log
+# runSPF-wbs $VERIDIR/src/examples/veritesting/wbs/WBS.mode5.jpf >& $VERIDIR/logs/WBS.mode5.log
 
 TIMEOUT_MINS=720 && export TIMEOUT_MINS
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/export/scratch2/vaibhav/java-ranger/lib && export LD_LIBRARY_PATH
@@ -54,7 +56,7 @@ MAX_STEPS=10 && export MAX_STEPS && runSPF-wbs $VERIDIR/src/examples/veritesting
 # MAX_STEPS=5 && export MAX_STEPS && runSPF-wbs $VERIDIR/src/wbs/RunWBS.mode1.jpf >& $VERIDIR/logs/RunWBS.mode1.$(($MAX_STEPS))step.log
 # echo "Running 6 step - mode 1"
 # MAX_STEPS=6 && export MAX_STEPS
-# timeout $(($TIMEOUT_MINS))m  java -Djava.library.path=/export/scratch2/vaibhav/java-ranger/lib -Xmx12288m -ea -Dfile.encoding=UTF-8 -jar /export/scratch/vaibhav/jpf-core-veritesting/build/RunJPF.jar  $VERIDIR/src/wbs/RunWBS.mode1.jpf >& $VERIDIR/logs/RunWBS.mode1.$(($MAX_STEPS))step.log
+# timeout $(($TIMEOUT_MINS))m  java -Djava.library.path=$VERIDIR/lib -Xmx12288m -ea -Dfile.encoding=UTF-8 -jar /export/scratch/vaibhav/jpf-core-veritesting/build/RunJPF.jar  $VERIDIR/src/wbs/RunWBS.mode1.jpf >& $VERIDIR/logs/RunWBS.mode1.$(($MAX_STEPS))step.log
 # echo "Running 7 step - mode 1"
 # MAX_STEPS=7 && export MAX_STEPS && runSPF-wbs $VERIDIR/src/wbs/RunWBS.mode1.jpf >& $VERIDIR/logs/RunWBS.mode1.$(($MAX_STEPS))step.log
 # echo "Running 8 step - mode 1"
