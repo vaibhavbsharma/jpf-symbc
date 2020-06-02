@@ -2,7 +2,7 @@
   <configuration default="false" name="ExtraSimplePad" type="JarApplication" factoryName="JAR Application">
     <output_file path="$PROJECT_DIR$/logs/ExtraSimplePad.log" is_save="true" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-    <option name="JAR_PATH" value="$PROJECT_DIR$/../../../scratch/vaibhav/jpf-core/build/RunJPF.jar" />
+    <option name="JAR_PATH" value="$PROJECT_DIR$/../../svaib/jpf-core/build/RunJPF.jar" />
     <option name="VM_PARAMETERS" value="-Djava.library.path=&quot;$PROJECT_DIR$/lib/&quot; -Xmx1024m -ea" />
     <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/src/examples/ExtraSimplePad.jpf" />
     <option name="WORKING_DIRECTORY" value="lib" />
