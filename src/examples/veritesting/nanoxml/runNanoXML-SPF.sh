@@ -5,7 +5,7 @@ alias runSPF-nanoxml='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$JRDIR/lib TARGET_CLASSPA
 shopt -s direxpand
 shopt -s expand_aliases
  for i in {7..7}; do
-   for j in {5..2}; do
+   for j in {1..1}; do
      echo "running DumpXML.$((i))sym.mode$((j))";
      runSPF-nanoxml  $JRDIR/src/examples/veritesting/nanoxml/DumpXML.$((i))sym.mode$((j)).jpf >& $JRDIR/logs/DumpXML.$((i))sym.mode$((j)).log
    done;
