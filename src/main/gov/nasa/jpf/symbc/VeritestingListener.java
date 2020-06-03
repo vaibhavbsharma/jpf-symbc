@@ -66,6 +66,23 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.StatisticManager.*;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases.SpfCasesInstruction.*;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.doArrayStore;
 
+/**
+ * This is the entry point to Java Ranger. Through this listener JR intercept symbolic branch instructions and attempt to path-merge them by summarizing them as a constraint to be added on the path condition.
+ *
+ * Main JR transformations happen in FixedPointWrapper, which iterates different transformations until a fixed point is reached.
+ *
+ * JR also implements the single-path cases (called in the implementation SPFCases) through StaticChoiceGenerator, which allows JR to explore unsummarized behaviors of the region.
+ *
+ *
+ * JR have two instances of the region, a Static Region, and a Dynamic Region, where the static one has no runtime information included, whereas the dynamic one is where instantiation time information is found.
+ * Initially, JR creates the Static Region representing the fragment of the code that is about to be executed, this is done through the JITAnalysis. All Static Regions encounter are cached into VeritestingMain.veriRegions HashMap.
+ *
+ * JR then applies different transformations on it using the FixedPointWrapper, to turn the static region into a dynamic one, and finally to turn the dynamic region into a constraint.
+ *
+ * Finally JR decides what would parts have not completely been summarized and creates a choice for them using StaticBranchChoiceGenerator.
+ *
+ *
+ */
 public class VeritestingListener extends PropertyListenerAdapter implements PublisherExtension {
 
 
