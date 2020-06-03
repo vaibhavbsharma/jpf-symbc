@@ -29,6 +29,10 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.isPCSat;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.isSatGreenExpression;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.maybeParseConstraint;
 
+/**
+ * JR choice generator that allows exploration of "Static Choice", "Early Return Choice", and unsummarized "then" and "else" choices.
+ * The later, "then" and "else" choices, are refered to as single-path cases.
+ */
 
 public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
 
