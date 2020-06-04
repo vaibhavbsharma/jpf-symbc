@@ -15,7 +15,10 @@ Setting `performanceMode` to true causes Java Ranger to minimize the number of s
 
 Java Ranger needs this variable to be set up as environment variable. It is not part of the `.jpf` configuration file. This environment variable tells Java Ranger where it should be expecting to find code that needs to be statically summarized
 
-## People
+# Documentation
+Documentation for Java Ranger is available here: [https://vaibhavbsharma.github.io/java-ranger/docs/index.html](https://vaibhavbsharma.github.io/java-ranger/docs/index.html)
+
+# People
 The following people have contributed to Java Ranger
 1. Soha Hussein
 2. Vaibhav Sharma
