@@ -10,17 +10,31 @@ public class Obligation implements Cloneable, Comparable {
     String className;
     String methodSig;
     int instLine;
-    ObligationSide oblSide;
+    ObligationSide oblgSide;
     SSAInstruction inst;
     ArrayList<Obligation> reachableObl;
 
 
-    public Obligation(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, ArrayList<Obligation> reachableObl, ObligationSide oblSide) {
+    //used by wala obligation creation
+    public Obligation(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, ArrayList<Obligation> reachableObl, ObligationSide oblgSide) {
         this.spfPackageName = toSpfPackageName(walaPackageName);
         this.className = className;
         this.methodSig = methodSig;
         this.instLine = instLine;
-        this.oblSide = oblSide;
+        this.oblgSide = oblgSide;
+        this.inst = inst;
+        this.reachableObl = reachableObl;
+    }
+
+    // SPF version of creating an obligation
+    public Obligation(String spfPackageClassName, String methodSig, int instLine, SSAInstruction inst, ArrayList<Obligation> reachableObl, ObligationSide oblgSide) {
+
+        assert spfPackageClassName.contains(".") : "unexpected formate for packageClassName for SPF, it needs to be seperated by dot, but found:" + spfPackageClassName;
+        this.spfPackageName = spfPackageClassName.substring(0, spfPackageClassName.indexOf("."));
+        this.className = spfPackageClassName.substring(spfPackageClassName.indexOf("."));
+        this.methodSig = methodSig;
+        this.instLine = instLine;
+        this.oblgSide = oblgSide;
         this.inst = inst;
         this.reachableObl = reachableObl;
     }
@@ -36,7 +50,7 @@ public class Obligation implements Cloneable, Comparable {
     }
 
     public String toString() {
-        return spfPackageName + "_" + className + "_" + methodSig + "_" + instLine + "_" + oblSide.name();
+        return spfPackageName + "." + className + "." + methodSig + "." + instLine + "." + oblgSide.name();
     }
 
 
