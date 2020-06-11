@@ -41,14 +41,7 @@ public class ObligationMgr {
 
     // when encountering an instruction, tries to see its side was already covered or not. depending on that either ignore the choice or continue
     //returns a ignore flag, true if the obligation is already covered, false otherwise.
-    public static boolean coverNgetIgnore(IfInstruction ifInst, ObligationSide oblgSide) {
-        String spfPackageClassName = ifInst.getMethodInfo().getClassInfo().getName();
-        String methodSig = ifInst.getMethodInfo().getUniqueName();
-        int instLine = ifInst.getPosition();
-        SSAInstruction inst = null;
-        ArrayList<Obligation> reachableObl = null;
-
-        Obligation oblg = new Obligation(spfPackageClassName, methodSig, instLine, inst, reachableObl, oblgSide);
+    public static boolean coverNgetIgnore(Obligation oblg) {
 
         Integer oblgIndex = obligationsMap.get(oblg);
 /*

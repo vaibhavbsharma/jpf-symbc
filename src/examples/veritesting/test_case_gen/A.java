@@ -14,7 +14,7 @@ public class A {
     }
 
     public int getIncAThroughB() {
-        return bRef.getIncA();
+        return bRef.getIncA(this);
     }
 
     public int branchInA(boolean x) {
@@ -32,6 +32,6 @@ public class A {
     public int fibA(int n) {
         if (n <= 1)
             return n;
-        return bRef.fibB(n - 1) + bRef.fibB(n - 2);
+        return bRef.fibB(n - 1) + fib(n - 2);
     }
 }

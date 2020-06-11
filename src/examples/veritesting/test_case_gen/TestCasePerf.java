@@ -1,5 +1,7 @@
 package veritesting.test_case_gen;
 
+import gov.nasa.jpf.symbc.Debug;
+
 public class TestCasePerf {
 
     public static void main(String[] args) {
@@ -7,7 +9,7 @@ public class TestCasePerf {
         int myVal = myA.getIncA();
         System.out.println("my A value is = " + myVal);*/
 //        singleBranchCov(1, 1);
-        singleBranchCov(1, 1);
+        doubleRec(1, 1);
     }
 
     public static int singleBranchCov(int x, int y) {
@@ -66,6 +68,18 @@ public class TestCasePerf {
             else x = x + a.fib(x);
         }
         //  Debug.printPC("printing pc at the end of the path");
+        return x;
+    }
+
+    public static int doubleRec(int x, int y) {
+
+        veritesting.test_case_gen.A a = new veritesting.test_case_gen.A();
+        for (int i = 0; i < 2; i++) {
+            if (x == 1)
+                x = y;
+            else x = x + a.fibA(3);
+        }
+//          Debug.printPC("printing pc at the end of the path");
         return x;
     }
 }
