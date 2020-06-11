@@ -1,6 +1,5 @@
 package gov.nasa.jpf.symbc.veritesting.branchcoverage;
 
-import com.ibm.wala.classLoader.ClassLoaderImpl;
 import com.ibm.wala.classLoader.IBytecodeMethod;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ipa.callgraph.AnalysisCacheImpl;
@@ -12,7 +11,6 @@ import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.types.MethodReference;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
 
 import java.util.HashSet;
@@ -29,7 +27,7 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
     String methodSig;
     IMethod iMethod;
     int irInstIndex;
-    public static HashSet<String> visitedClasses = new HashSet<>();
+    public static HashSet<String> visitedClassesMethod = new HashSet<>();
 
     public BranchOblgCollectorVisitor(String walaPackageName, String className, String methodSig, IMethod iMethod, int irInstIndex) {
         this.walaPackageName = walaPackageName;
@@ -73,12 +71,12 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         String className = m.getDeclaringClass().getName().getClassName().toString();
         String methodSignature = m.getSelector().toString();
 
-        String classUniqueName = CoverageUtil.classUniqueName(walaPackageName, className);
+        String classUniqueName = CoverageUtil.classUniqueName(walaPackageName, className, methodSignature);
 
         //return from collecting obligations from the invoked method if we have already visited it or if it is not loaded by Application class loader.
-        if (visitedClasses.contains(classUniqueName) || !(m.getDeclaringClass().getClassLoader().toString().equals("Application")))
+        if (visitedClassesMethod.contains(classUniqueName) || !(m.getDeclaringClass().getClassLoader().toString().equals("Application")))
             return;
-        visitedClasses.add(classUniqueName);
+        visitedClassesMethod.add(classUniqueName);
 
         BranchOblgCollectorVisitor branchOblgCollectorVisitor = null;
 

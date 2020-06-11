@@ -30,8 +30,8 @@ public class Obligation implements Cloneable, Comparable {
     public Obligation(String spfPackageClassName, String methodSig, int instLine, SSAInstruction inst, ArrayList<Obligation> reachableObl, ObligationSide oblgSide) {
 
         assert spfPackageClassName.contains(".") : "unexpected formate for packageClassName for SPF, it needs to be seperated by dot, but found:" + spfPackageClassName;
-        this.spfPackageName = spfPackageClassName.substring(0, spfPackageClassName.indexOf("."));
-        this.className = spfPackageClassName.substring(spfPackageClassName.indexOf("."));
+        this.spfPackageName = spfPackageClassName.substring(0, spfPackageClassName.lastIndexOf("."));
+        this.className = spfPackageClassName.substring(spfPackageClassName.lastIndexOf(".") + 1);
         this.methodSig = methodSig;
         this.instLine = instLine;
         this.oblgSide = oblgSide;
@@ -59,8 +59,7 @@ public class Obligation implements Cloneable, Comparable {
         if ((spfPackageName.equals(((Obligation) o).spfPackageName)) &&
                 (className.equals(((Obligation) o).className)) &&
                 (methodSig.equals(((Obligation) o).methodSig)) &&
-                (inst == ((Obligation) o).inst) &&
-                (reachableObl.size() == (((Obligation) o).reachableObl.size())))
+                (instLine == ((Obligation) o).instLine) && oblgSide == ((Obligation) o).oblgSide)
             return 1;
         else return 0;
 
@@ -74,8 +73,7 @@ public class Obligation implements Cloneable, Comparable {
         return ((spfPackageName.equals(((Obligation) o).spfPackageName)) &&
                 (className.equals(((Obligation) o).className)) &&
                 (methodSig.equals(((Obligation) o).methodSig)) &&
-                (inst == ((Obligation) o).inst) &&
-                (reachableObl.size() == (((Obligation) o).reachableObl.size())));
+                (instLine == ((Obligation) o).instLine) && oblgSide == ((Obligation) o).oblgSide);
     }
 
     @Override

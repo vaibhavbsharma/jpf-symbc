@@ -8,12 +8,13 @@ symbolic.debug=false
 
 symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov(sym#sym)
 
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.branchDoubleRec(sym#sym)
+
 symbolic.dp=z3bitvector
 
 #listener = .symbc.SymbolicListener
 #listener = gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 listener = .symbc.BranchListener
-
 
 symbolic.lazy = true
 

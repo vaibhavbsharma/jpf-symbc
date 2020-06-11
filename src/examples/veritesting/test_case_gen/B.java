@@ -12,4 +12,10 @@ public class B {
     public int getIncA(){
         return aRef.getIncB();
     }
+
+    public int fibB(int n){
+        if (n <= 1)
+            return n;
+        return aRef.fibA(n-1) + aRef.fibA(n-2);
+    }
 }

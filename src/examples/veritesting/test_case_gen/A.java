@@ -13,7 +13,25 @@ public class A {
         return bRef.getIncB();
     }
 
-    public int getIncAThroughB(){
+    public int getIncAThroughB() {
         return bRef.getIncA();
+    }
+
+    public int branchInA(boolean x) {
+        if (x)
+            return 1;
+        else return 2;
+    }
+
+    public int fib(int n) {
+        if (n <= 1)
+            return n;
+        return fib(n - 1) + fib(n - 2);
+    }
+
+    public int fibA(int n) {
+        if (n <= 1)
+            return n;
+        return bRef.fibB(n - 1) + bRef.fibB(n - 2);
     }
 }
