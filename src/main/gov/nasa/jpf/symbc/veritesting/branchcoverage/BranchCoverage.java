@@ -17,8 +17,6 @@ import gov.nasa.jpf.vm.ThreadInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static gov.nasa.jpf.symbc.BranchListener.targetAbsPath;
 import static gov.nasa.jpf.symbc.BranchListener.targetClass;
@@ -63,7 +61,7 @@ public class BranchCoverage {
             SSAInstruction ins = instructions[irInstIndex];
             if (ins != null) {
                 if (branchOblgCollectorVisitor == null)
-                    branchOblgCollectorVisitor = new BranchOblgCollectorVisitor(walaPackageName, className, methodSignature, m, irInstIndex);
+                    branchOblgCollectorVisitor = new BranchOblgCollectorVisitor(entryIR, walaPackageName, className, methodSignature, m, irInstIndex);
                 else
                     branchOblgCollectorVisitor.updateInstIndex(irInstIndex);
                 ins.visit(branchOblgCollectorVisitor);

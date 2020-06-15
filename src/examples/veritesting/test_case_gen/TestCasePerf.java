@@ -9,7 +9,9 @@ public class TestCasePerf {
         int myVal = myA.getIncA();
         System.out.println("my A value is = " + myVal);*/
 //        singleBranchCov(1, 1);
-        doubleRec(1, 1);
+        doubleBranchCov(1,1);
+//        doubleRec(1, 1);
+//        complexBranchCov(1,1);
     }
 
     public static int singleBranchCov(int x, int y) {

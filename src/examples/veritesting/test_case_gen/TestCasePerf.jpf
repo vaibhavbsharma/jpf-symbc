@@ -8,7 +8,12 @@ symbolic.debug=false
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
+symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
+
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
 
 symbolic.dp=z3bitvector
 
