@@ -6,6 +6,7 @@ import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 public class ObligationMgr {
@@ -21,15 +22,15 @@ public class ObligationMgr {
         coveredArray = new boolean[obligationsMap.size()];
     }
 
-    public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, ArrayList<Obligation> reachableObl) {
-        Obligation oblgTrue = new Obligation(walaPackageName, className, methodSig, instLine, inst, null, ObligationSide.THEN);
-        Obligation oblgFalse = new Obligation(walaPackageName, className, methodSig, instLine, inst, null, ObligationSide.ELSE);
+    public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, HashSet<Obligation> reachableObl) {
+        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, null, ObligationSide.THEN);
+        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, null, ObligationSide.ELSE);
 
-        if (oblgExists(oblgFalse))
+        if (oblgExists(oblgElse))
             return;
 
-        obligationsMap.put(oblgTrue, indexSerial++);
-        obligationsMap.put(oblgFalse, indexSerial++);
+        obligationsMap.put(oblgThen, indexSerial++);
+        obligationsMap.put(oblgElse, indexSerial++);
     }
 
 
