@@ -58,13 +58,13 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
      * @param inst
      */
     public void visitConditionalBranch(SSAConditionalBranchInstruction inst) {
-        int instLine = 0;
-        try {
+        int instLine = inst.iIndex();
+        /*try { //no need for this to find the instruction index, it is already available in the instruction itself.
             instLine = (((IBytecodeMethod) (iMethod)).getBytecodeIndex(irInstIndex));
         } catch (InvalidClassFileException e) {
             System.out.println("exception while getting instruction index from wala. Failing");
             e.printStackTrace();
-        }
+        }*/
 
         HashSet<Obligation> reachableOblg = (new ObligationReachability(ir, inst)).reachableObligations();
 
