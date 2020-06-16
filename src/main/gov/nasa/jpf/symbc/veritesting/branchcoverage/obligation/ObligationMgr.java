@@ -3,10 +3,7 @@ package gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation;
 import com.ibm.wala.ssa.SSAInstruction;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ObligationMgr {
 
@@ -43,9 +40,8 @@ public class ObligationMgr {
     }
 
 
-    // when encountering an instruction, tries to see its side was already covered or not. depending on that either ignore the choice or continue
-    //returns a ignore flag, true if the obligation is already covered, false otherwise.
-    public static boolean coverNgetIgnore(Obligation oblg) {
+    // when encountering an instruction, tries to see its side was already covered or not, return true if it is a new coverage otherwise return false.
+    public static boolean isNewCoverage(Obligation oblg) {
 
         Integer oblgIndex = obligationsMap.get(oblg);
 /*
@@ -58,12 +54,13 @@ public class ObligationMgr {
 
         if ((oblgIndex == null)) {
             System.out.println("obligation not found in the obligation HashMap. Assumed none application/user branch. Coverage Ignored for instruction.");
-            return false; //returning ignore flag to false, since it is none user branch that we do not care about and we'd like to resume execution to potientially find something down the line.
+            return false; // no new obligation that we are looking for are covered in this instance
         }
-        if (isOblgCovered(oblg)) return true; //returning ignore flag to true, since the oblgation is already covered.
+        if (isOblgCovered(oblg))
+            return false; //this is an already covered obligation, so nothing new here, returning false.
         else {
             coveredArray[oblgIndex] = true;
-            return false; //returning ignore flag to false, since the oblgation is NOT covered.
+            return true; //this is a new coverage, thus returning true
         }
     }
 
@@ -106,6 +103,14 @@ public class ObligationMgr {
         else return new Obligation[]{};
     }
 
+    public static boolean isAllObligationCovered() {
+        for (boolean coverage : coveredArray)
+            if (!coverage)
+                return false;
+
+        return true;
+    }
+
     public static void printCoverage(PrintWriter pw) {
         pw.println("Obligation -----> Coverage:");
 
@@ -124,4 +129,6 @@ public class ObligationMgr {
         }
         return coverageStr;
     }
+
+
 }

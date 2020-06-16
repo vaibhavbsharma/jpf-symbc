@@ -33,6 +33,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     // the appropriate set of choices, otherwise if it isn't symbolic then it will only invoke "instructionExecuted" only once, and thus we shouldn't return then, and we should check and/or collect obligations then
     public static boolean isSymBranchInst = false;
 
+    public static boolean newCoverageFound = false;
+    private boolean allObligationsCovered = false;
+
     public BranchListener(Config conf, JPF jpf) {
         if ((conf.getString("targetAbsPath") == null)) {
             System.out.println("target class or its absolute path is undefined in jpf file for coverage. Aborting");
@@ -52,7 +55,14 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     }
 
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
+        if (allObligationsCovered) {
+            ti.getVM().getSystemState().setIgnored(true);
+            return;
+        }
+
         try {
+            if (instructionToExecute.toString().equals("if_icmpne 34"))
+                System.out.println("in if_icmpne 43");
             if (firstTime) {
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
@@ -60,8 +70,11 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 System.out.println(ObligationMgr.printCoverage());
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
-                if (instructionToExecute instanceof IfInstruction) isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
-                if (instructionToExecute instanceof IfInstruction) guideSPF(ti, instructionToExecute);
+                if (instructionToExecute instanceof IfInstruction)
+                    isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
+                if (runMode == RunMode.GUIDED_SPF) {
+                    if (instructionToExecute instanceof IfInstruction) guideSPF(ti, instructionToExecute);
+                }
             }
         } catch (ClassHierarchyException e) {
             e.printStackTrace();
@@ -78,7 +91,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         if (uncoveredReachOblg == null) //indicating an obligation that we do not care about covering, i.e., not an application code.
             return;
-        else if ((uncoveredReachOblg.length == 0)) {//no new obligation can be reached
+        else if ((uncoveredReachOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
             ti.getVM().getSystemState().setIgnored(true);
             System.out.println("path is ignored");
         } else {//this is where we have something uncovered and we want to create choices to guide spf
@@ -88,7 +101,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
         if (runMode == RunMode.VANILLA_SPF) runVanillaSPF(executedInstruction, currentThread);
-        else if (runMode == RunMode.GUIDED_SPF) runGuidedSPF(executedInstruction, currentThread);
+        else if (runMode == RunMode.GUIDED_SPF) collectCoverage(executedInstruction, currentThread);
         else {
             System.out.println("cannot run in mode:" + runMode);
             assert false;
@@ -97,48 +110,54 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     //executes all paths and all obligations without any side effect of checking covered obligations,
     // it just tracks the order of execution of interesting user code.
-    // it skips printing visiting symbolic instructions for the first time only. Since at that point SPF creates the choices but does not
+    // it skips printing visiting symbolic instructions, with two choices feasible, for the first time only. Since at that point SPF creates the choices but does not
     // execute the semantics of the bytecode instruction yet.
     private void runVanillaSPF(Instruction executedInstruction, ThreadInfo currentThread) {
+//        System.out.println("after inst: " + executedInstruction);
         if (executedInstruction instanceof IfInstruction) {
             //used to check if we are in the case of symbolic instruction and we are hitting for the first time. As we want to only intercept
             //either symbolic instruction after isFirstStepInsn has finished or a concerte instruction
-            if (!currentThread.isFirstStepInsn() && isSymBranchInst) {
-                isSymBranchInst = false;
+            Instruction nextInst = currentThread.getNextPC();
+            if (!currentThread.isFirstStepInsn() && (nextInst == executedInstruction)) { // the second condition indicates that the spf listener have not recognoized a single choice being possible, because if it does then the nextPc would have been either its target or its nextInst
                 return;
             }
             System.out.println("after execution of  instruction: " + executedInstruction);
 
-            isSymBranchInst = false;
 
             ObligationSide oblgSide;
-            if (((IfInstruction) executedInstruction).getTarget() == currentThread.getNextPC()) oblgSide = ObligationSide.ELSE;
+            if (((IfInstruction) executedInstruction).getTarget() == nextInst)
+                oblgSide = ObligationSide.ELSE;
             else {
                 oblgSide = ObligationSide.THEN;
-                assert (executedInstruction).getNext() == currentThread.getNextPC();
+                assert (executedInstruction).getNext() == nextInst;
             }
             Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
             if (ObligationMgr.oblgExists(oblg)) System.out.println("Executing obligation" + oblg);
+
+            isSymBranchInst = false;
         }
     }
 
-    private void runGuidedSPF(Instruction executedInstruction, ThreadInfo currentThread) {
+    private void collectCoverage(Instruction executedInstruction, ThreadInfo currentThread) {
+        if(allObligationsCovered){
+            return;
+        }
 
         if (executedInstruction instanceof IfInstruction) {
 
             //used to check if we are in the case of symbolic instruction and we are hitting for the first time. As we want to only intercept
             //either symbolic instruction after isFirstStepInsn has finished or a concrete instruction
-            if (!currentThread.isFirstStepInsn() && isSymBranchInst) {
-                isSymBranchInst = false;
+            Instruction nextInst = currentThread.getNextPC();
+            if (!currentThread.isFirstStepInsn() && (nextInst == executedInstruction)) { // the second condition indicates that the spf listener have not recognoized a single choice being possible, because if it does then the nextPc would have been either its target or its nextInst
                 return;
             }
-            isSymBranchInst = false;
 
             ObligationSide oblgSide;
-            if (((IfInstruction) executedInstruction).getTarget() == currentThread.getNextPC()) oblgSide = ObligationSide.ELSE;
+            if (((IfInstruction) executedInstruction).getTarget() == nextInst)
+                oblgSide = ObligationSide.ELSE;
             else {
                 oblgSide = ObligationSide.THEN;
-                assert (executedInstruction).getNext() == currentThread.getNextPC();
+                assert (executedInstruction).getNext() == nextInst;
             }
 
             Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
@@ -146,17 +165,21 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 System.out.println("after execution of  instruction: " + executedInstruction);
                 System.out.println("whose obligation is: " + oblg);
 
-                if ((ObligationMgr.coverNgetIgnore(oblg))) {
+                if ((ObligationMgr.isNewCoverage(oblg))) {
+                    newCoverageFound = true;
 //                    currentThread.getVM().getSystemState().setIgnored(true);
                     //currentThread.setNextPC()
                 }
                 System.out.println(ObligationMgr.printCoverage());
             }
+            isSymBranchInst = false;
         }
     }
 
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         System.out.println("end of thread");
+        newCoverageFound = false;
+        allObligationsCovered = ObligationMgr.isAllObligationCovered();
     }
 
 
