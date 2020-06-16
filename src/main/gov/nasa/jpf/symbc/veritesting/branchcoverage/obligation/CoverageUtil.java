@@ -31,7 +31,7 @@ public class CoverageUtil {
         String walaPackageName = m.getDeclaringClass().getName().getPackage().toString();
         String className = m.getDeclaringClass().getName().getClassName().toString();
         String methodSig = m.getSelector().toString();
-        int instLine = getInstructionLineNum(m, inst);
+        int instLine = getWalaInstLineNum(m, inst);
 
         Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN);
         Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE);
@@ -41,7 +41,7 @@ public class CoverageUtil {
         return oblgs;
     }
 
-    public static int getInstructionLineNum(IMethod iMethod, SSAInstruction inst) {
+    public static int getWalaInstLineNum(IMethod iMethod, SSAInstruction inst) {
 
 
         int instLine = 0;

@@ -58,8 +58,9 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
      * @param inst
      */
     public void visitConditionalBranch(SSAConditionalBranchInstruction inst) {
-        int instLine = inst.iIndex();
-        /*try { //no need for this to find the instruction index, it is already available in the instruction itself.
+        int instLine = CoverageUtil.getWalaInstLineNum(iMethod, inst);
+        /*inst.iIndex();
+        try { //no need for this to find the instruction index, it is already available in the instruction itself.
             instLine = (((IBytecodeMethod) (iMethod)).getBytecodeIndex(irInstIndex));
         } catch (InvalidClassFileException e) {
             System.out.println("exception while getting instruction index from wala. Failing");
@@ -70,7 +71,6 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
 
         ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, reachableOblg);
     }
-
 
 
     /**
@@ -93,8 +93,7 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         String classUniqueName = CoverageUtil.classUniqueName(walaPackageName, className, methodSignature);
 
         //return from collecting obligations from the invoked method if we have already visited it or if it is not loaded by Application class loader.
-        if (visitedClassesMethod.contains(classUniqueName) || !(m.getDeclaringClass().getClassLoader().toString().equals("Application")))
-            return;
+        if (visitedClassesMethod.contains(classUniqueName) || !(m.getDeclaringClass().getClassLoader().toString().equals("Application"))) return;
         visitedClassesMethod.add(classUniqueName);
 
         BranchOblgCollectorVisitor branchOblgCollectorVisitor = null;
@@ -102,10 +101,8 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         for (int irInstIndex = 0; irInstIndex < ir.getInstructions().length; irInstIndex++) {
             SSAInstruction ins = ir.getInstructions()[irInstIndex];
             if (ins != null) {
-                if (branchOblgCollectorVisitor == null)
-                    branchOblgCollectorVisitor = new BranchOblgCollectorVisitor(ir, walaPackageName, className, methodSignature, m, irInstIndex);
-                else
-                    branchOblgCollectorVisitor.updateInstIndex(irInstIndex);
+                if (branchOblgCollectorVisitor == null) branchOblgCollectorVisitor = new BranchOblgCollectorVisitor(ir, walaPackageName, className, methodSignature, m, irInstIndex);
+                else branchOblgCollectorVisitor.updateInstIndex(irInstIndex);
                 ins.visit(branchOblgCollectorVisitor);
             }
         }
