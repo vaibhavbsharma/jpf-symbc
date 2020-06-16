@@ -41,17 +41,13 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         targetClass = conf.getString("target");
         targetAbsPath = conf.getString("targetAbsPath");
 
-        if (conf.hasValue("mode"))
-            if (conf.getInt("mode") == 1)
-                runMode = RunMode.VANILLA_SPF;
-            else if (conf.getInt("mode") == 2)
-                runMode = RunMode.GUIDED_SPF;
-            else if (conf.getInt("mode") == 3)
-                runMode = RunMode.JR;
-            else {
-                System.out.println("unknown mode. Failing");
-                assert false;
-            }
+        if (conf.hasValue("mode")) if (conf.getInt("mode") == 1) runMode = RunMode.VANILLA_SPF;
+        else if (conf.getInt("mode") == 2) runMode = RunMode.GUIDED_SPF;
+        else if (conf.getInt("mode") == 3) runMode = RunMode.JR;
+        else {
+            System.out.println("unknown mode. Failing");
+            assert false;
+        }
 
     }
 
@@ -64,8 +60,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 System.out.println(ObligationMgr.printCoverage());
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
-                if (instructionToExecute instanceof IfInstruction)
-                    isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
+                if (instructionToExecute instanceof IfInstruction) isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
+                if (instructionToExecute instanceof IfInstruction) guideSPF(ti, instructionToExecute);
             }
         } catch (ClassHierarchyException e) {
             e.printStackTrace();
@@ -75,12 +71,24 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
     }
 
+    private void guideSPF(ThreadInfo ti, Instruction instructionToExecute) {
+        Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.THEN);
+        //only the then obligation is stored in the reachability map since it is the same in both the then and the else side of a given node.
+        Obligation[] uncoveredReachOblg = ObligationMgr.isReachableOblgsCovered(oblgThen);
+
+        if (uncoveredReachOblg == null) //indicating an obligation that we do not care about covering, i.e., not an application code.
+            return;
+        else if ((uncoveredReachOblg.length == 0)) {//no new obligation can be reached
+            ti.getVM().getSystemState().setIgnored(true);
+            System.out.println("path is ignored");
+        } else {//this is where we have something uncovered and we want to create choices to guide spf
+        }
+    }
+
 
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
-        if (runMode == RunMode.VANILLA_SPF)
-            runVanillaSPF(executedInstruction, currentThread);
-        else if (runMode == RunMode.GUIDED_SPF)
-            runGuidedSPF(executedInstruction, currentThread);
+        if (runMode == RunMode.VANILLA_SPF) runVanillaSPF(executedInstruction, currentThread);
+        else if (runMode == RunMode.GUIDED_SPF) runGuidedSPF(executedInstruction, currentThread);
         else {
             System.out.println("cannot run in mode:" + runMode);
             assert false;
@@ -104,15 +112,13 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             isSymBranchInst = false;
 
             ObligationSide oblgSide;
-            if (((IfInstruction) executedInstruction).getTarget() == currentThread.getNextPC())
-                oblgSide = ObligationSide.ELSE;
+            if (((IfInstruction) executedInstruction).getTarget() == currentThread.getNextPC()) oblgSide = ObligationSide.ELSE;
             else {
                 oblgSide = ObligationSide.THEN;
                 assert (executedInstruction).getNext() == currentThread.getNextPC();
             }
             Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
-            if (ObligationMgr.oblgExists(oblg))
-                System.out.println("Executing obligation" + oblg);
+            if (ObligationMgr.oblgExists(oblg)) System.out.println("Executing obligation" + oblg);
         }
     }
 
@@ -129,8 +135,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             isSymBranchInst = false;
 
             ObligationSide oblgSide;
-            if (((IfInstruction) executedInstruction).getTarget() == currentThread.getNextPC())
-                oblgSide = ObligationSide.ELSE;
+            if (((IfInstruction) executedInstruction).getTarget() == currentThread.getNextPC()) oblgSide = ObligationSide.ELSE;
             else {
                 oblgSide = ObligationSide.THEN;
                 assert (executedInstruction).getNext() == currentThread.getNextPC();

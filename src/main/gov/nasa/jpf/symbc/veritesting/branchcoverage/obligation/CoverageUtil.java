@@ -20,9 +20,8 @@ public class CoverageUtil {
         String methodSig = ifInst.getMethodInfo().getUniqueName();
         int instLine = ifInst.getPosition();
         SSAInstruction inst = null;
-        HashSet<Obligation> reachableObl = null;
 
-        return new Obligation(spfPackageClassName, methodSig, instLine, inst, reachableObl, oblgSide);
+        return new Obligation(spfPackageClassName, methodSig, instLine, inst, oblgSide);
     }
 
 
@@ -34,8 +33,8 @@ public class CoverageUtil {
         String methodSig = m.getSelector().toString();
         int instLine = getInstructionLineNum(m, inst);
 
-        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, null, ObligationSide.THEN);
-        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, null, ObligationSide.ELSE);
+        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN);
+        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE);
 
         oblgs.add(oblgThen);
         oblgs.add(oblgElse);
