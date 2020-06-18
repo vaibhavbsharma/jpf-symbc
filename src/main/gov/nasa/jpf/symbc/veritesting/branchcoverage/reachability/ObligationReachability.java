@@ -1,17 +1,11 @@
 package gov.nasa.jpf.symbc.veritesting.branchcoverage.reachability;
 
 import com.ibm.wala.ssa.*;
-import com.ibm.wala.util.CancelException;
-import com.ibm.wala.util.collections.CollectionFilter;
 import com.ibm.wala.util.collections.HashSetFactory;
 import com.ibm.wala.util.graph.Graph;
-import com.ibm.wala.util.graph.GraphReachability;
-import com.ibm.wala.util.graph.GraphSlicer;
-import com.ibm.wala.util.graph.impl.GraphInverter;
-import com.ibm.wala.util.graph.traverse.DFS;
-import com.ibm.wala.util.intset.OrdinalSet;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationSide;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,14 +16,22 @@ public class ObligationReachability {
 
     IR ir;
     private SSACFG cfg;
-    private ISSABasicBlock interestingBlock;
+    private ISSABasicBlock interestingSuccBB;
+
+    //used to reset the state of seen block for each BB being tested.
     private HashSet<ISSABasicBlock> seenBlocks;
 
 
-    public ObligationReachability(IR ir, SSAConditionalBranchInstruction ifInst) {
+    public ObligationReachability(IR ir, SSAConditionalBranchInstruction ifInst, ObligationSide side) {
         this.ir = ir;
         this.cfg = ir.getControlFlowGraph();
-        this.interestingBlock = cfg.getBlockForInstruction(ifInst.iIndex());
+        Iterator<ISSABasicBlock> successorItr = cfg.getNormalSuccessors(cfg.getBlockForInstruction(ifInst.iIndex())).iterator();
+        if (side == ObligationSide.ELSE) //getting the "then" successor
+            interestingSuccBB = successorItr.next();
+        else { //getting the "else" successor
+            successorItr.next();
+            interestingSuccBB = successorItr.next();
+        }
         this.seenBlocks = new HashSet<>();
     }
 
@@ -59,7 +61,7 @@ public class ObligationReachability {
             @Override
             public boolean test(ISSABasicBlock bb) {
                 seenBlocks.add(bb);
-                if (cfg.getNormalSuccessors(interestingBlock).contains(bb)) {
+                if (interestingSuccBB == bb) {
                     seenBlocks.clear();
                     return true;
                 } else if (cfg.getNormalPredecessors(bb).size() == 1) {

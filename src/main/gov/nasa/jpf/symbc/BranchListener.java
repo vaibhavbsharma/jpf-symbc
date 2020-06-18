@@ -167,8 +167,6 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
                 if ((ObligationMgr.isNewCoverage(oblg))) {
                     newCoverageFound = true;
-//                    currentThread.getVM().getSystemState().setIgnored(true);
-                    //currentThread.setNextPC()
                 }
                 System.out.println(ObligationMgr.printCoverage());
             }

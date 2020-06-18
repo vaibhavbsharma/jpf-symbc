@@ -9,7 +9,6 @@ public class ObligationMgr {
 
     public static final HashMap<Obligation, Integer> obligationsMap = new HashMap<>();
 
-    //since reachability of the then and the else are the same, we only store the reachable obligation for one of them. It always the "then"
     public static final HashMap<Obligation, HashSet<Obligation>> reachabilityMap = new HashMap<>();
 
     private static int indexSerial = 0;
@@ -21,7 +20,7 @@ public class ObligationMgr {
         coveredArray = new boolean[obligationsMap.size()];
     }
 
-    public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, HashSet<Obligation> reachableObl) {
+    public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, HashSet<Obligation> reacheableThenOblgs, HashSet<Obligation> reacheableElseOblgs) {
         Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN);
         Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE);
 
@@ -30,7 +29,8 @@ public class ObligationMgr {
         obligationsMap.put(oblgThen, indexSerial++);
         obligationsMap.put(oblgElse, indexSerial++);
 
-        reachabilityMap.put(oblgThen, reachableObl);
+        reachabilityMap.put(oblgThen, reacheableThenOblgs);
+        reachabilityMap.put(oblgElse, reacheableElseOblgs);
     }
 
 
@@ -44,13 +44,6 @@ public class ObligationMgr {
     public static boolean isNewCoverage(Obligation oblg) {
 
         Integer oblgIndex = obligationsMap.get(oblg);
-/*
-        Set<Obligation> oblgKeySet = obligationsMap.keySet();
-        for (Obligation myOblg : oblgKeySet) {
-            System.out.println(myOblg);
-        }*/
-
-//        assert (!(oblgIndex == null)) : "obligation not found in the obligation HashMap. Something is wrong. Failing.";
 
         if ((oblgIndex == null)) {
             System.out.println("obligation not found in the obligation HashMap. Assumed none application/user branch. Coverage Ignored for instruction.");
@@ -67,10 +60,7 @@ public class ObligationMgr {
     // SPF methods to manipulate covering at runtime. Must always be called with already existing obligation in the map.
     public static boolean isOblgCovered(Obligation oblg) {
         Integer oblgIndex = obligationsMap.get(oblg);
-        Set<Obligation> oblgKeySet = obligationsMap.keySet();
-        /*for (Obligation myOblg : oblgKeySet) {
-            System.out.println(myOblg);
-        }*/
+
         assert (!(oblgIndex == null)) : ("obligation not found in the obligation HashMap. Something is wrong. Failing.");
 
         assert oblgIndex < coveredArray.length;
@@ -85,7 +75,6 @@ public class ObligationMgr {
     //returns an array of unreachableObligations, empty array if all are already covered and null if the mainOblg is not found in the map indicating it is not an obligation we are tracking for coverage.
     public static Obligation[] isReachableOblgsCovered(Obligation mainOblg) {
         ArrayList<Obligation> uncoveredOblgList = new ArrayList<>();
-        assert mainOblg.oblgSide == ObligationSide.THEN : "reachability map is storing the then side only, since the reachability of a node is the same among its then and else sides.";
 
         if (!reachabilityMap.containsKey(mainOblg)) {  //if it can't be found in t he reachability map then it must be the that it doesn't exist in the obligationMap as well indicating that it is an obligation that we do not care about tracking its cover, for example, it is not an application users code.
             assert !obligationsMap.containsKey(mainOblg);

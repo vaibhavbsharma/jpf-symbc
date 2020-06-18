@@ -18,9 +18,11 @@ import com.ibm.wala.util.graph.GraphReachability;
 import com.ibm.wala.util.graph.GraphSlicer;
 import com.ibm.wala.util.graph.traverse.DFS;
 import com.ibm.wala.util.intset.OrdinalSet;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.reachability.ObligationReachability;
 
 import java.io.IOException;
@@ -67,9 +69,10 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
             e.printStackTrace();
         }*/
 
-        HashSet<Obligation> reachableOblg = (new ObligationReachability(ir, inst)).reachableObligations();
+        HashSet<Obligation> reacheableThenOblgs = (new ObligationReachability(ir, inst, ObligationSide.THEN)).reachableObligations();
+        HashSet<Obligation> reacheableElseOblgs = (new ObligationReachability(ir, inst, ObligationSide.ELSE)).reachableObligations();
 
-        ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, reachableOblg);
+        ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, reacheableThenOblgs, reacheableElseOblgs);
     }
 
 
