@@ -60,39 +60,37 @@ public class ObligationReachability {
         Predicate<ISSABasicBlock> isSuccessor = new Predicate<ISSABasicBlock>() {
             @Override
             public boolean test(ISSABasicBlock bb) {
-                seenBlocks.add(bb);
-                if (interestingSuccBB == bb) {
-                    seenBlocks.clear();
-                    return true;
-                } else if (cfg.getNormalPredecessors(bb).size() == 1) {
-                    ISSABasicBlock predecessor = cfg.getNormalPredecessors(bb).iterator().next();
-                    if (seenBlocks.contains(predecessor)) { // we are visiting the same nodes again indicating a loop is found but we cannot find on this path a predessor that is a successor of the branching instruction.
-                        seenBlocks.clear();
-                        return false;
-                    }
-                    seenBlocks.add(predecessor);
-                    return test(predecessor);
-                } else if (cfg.getNormalPredecessors(bb).size() == 2) {
-                    ISSABasicBlock predecessor1 = (ISSABasicBlock) cfg.getNormalPredecessors(bb).toArray()[0];
-                    ISSABasicBlock predecessor2 = (ISSABasicBlock) cfg.getNormalPredecessors(bb).toArray()[1];
-                    if (seenBlocks.contains(predecessor1)) { // we are visiting the same nodes again indicating a loop is found but we cannot find on this path a predessor that is a successor of the branching instruction.
-                        seenBlocks.add(predecessor2);
-                        return test(predecessor2);
-                    } else if (seenBlocks.contains(predecessor2)) {
-                        seenBlocks.add(predecessor1);
-                        return test(predecessor1);
-                    } else {
-                        seenBlocks.add(predecessor1);
-                        seenBlocks.add(predecessor2);
-                        return test(predecessor1) || test(predecessor2);
-                    }
-                } else if (cfg.getNormalPredecessors(bb).size() == 0) {
+                if (seenBlocks.contains(bb)) {
                     seenBlocks.clear();
                     return false;
                 } else
-                    assert false; // unexpected scenario.
-                seenBlocks.clear();
-                return false;
+                    seenBlocks.add(bb);
+                if (interestingSuccBB == bb) { // if it is me, then return true, since I am reachable by definition
+                    seenBlocks.clear();
+                    return true;
+                } else if (cfg.getNormalPredecessors(bb).size() >= 1) { //case we have more than one predecessor to check
+                    Object[] predecessors = cfg.getNormalPredecessors(bb).toArray();
+                    for (Object predecessor : predecessors) {//testing all unseen BBs
+                        if (seenBlocks.contains(predecessor)) { // we are visiting the same nodes again indicating a loop is found but we cannot find on this path a predessor that is a successor of the branching instruction.
+                            seenBlocks.clear();
+                            return false;
+                        }
+                        if (test((ISSABasicBlock) predecessor)) {
+                            seenBlocks.clear();
+                            seenBlocks.add(bb);
+                            return true;
+                        } else seenBlocks.add(bb);
+                    }
+                    seenBlocks.clear();
+                    return false;
+                } else if (cfg.getNormalPredecessors(bb).size() == 0) {
+                    seenBlocks.clear();
+                    return false;
+                } else {// unexpected scenario.
+                    assert false;
+                    seenBlocks.clear();
+                    return false;
+                }
             }
         };
         Set<ISSABasicBlock> reachableSet = reachableSubset(cfg, isSuccessor);

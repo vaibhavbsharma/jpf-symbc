@@ -8,10 +8,11 @@ symbolic.debug=false
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
 
+symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDF(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
 

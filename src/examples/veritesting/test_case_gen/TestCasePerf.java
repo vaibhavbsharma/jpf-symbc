@@ -1,7 +1,5 @@
 package veritesting.test_case_gen;
 
-import gov.nasa.jpf.symbc.Debug;
-
 public class TestCasePerf {
 
     public static void main(String[] args) {
@@ -9,9 +7,10 @@ public class TestCasePerf {
         int myVal = myA.getIncA();
         System.out.println("my A value is = " + myVal);*/
 //        singleBranchCov(1, 1);
-        doubleBranchCov(1,1);
+//        doubleBranchCov(1, 1);
 //        doubleRec(1, 1);
 //        complexBranchCov(1,1);
+        unoptimalDFS(1, 1);
     }
 
     public static int singleBranchCov(int x, int y) {
@@ -37,6 +36,42 @@ public class TestCasePerf {
             return 1;
         else return 0;
     }
+
+    public static int unoptimalDFS(int x, int y) {
+        if (x == y)
+            return 1;
+
+        for (int i = 0; i < 2; i++) {
+            if (x == 1)
+                x = y + 3;
+            else if (y > 1)
+                x = x + 1;
+            else
+                x = x + 2;
+        }
+        return x;
+    }
+
+
+    public static int doubleLoopUnoptimalDFS(int x, int y) {
+        int j = 0;
+        if (x == y)
+            return 1;
+
+        for (int i = 0; i < 2; i++) {
+            if (x == 1)
+                x = y + 3;
+            else if (y > 1) {
+                while (j < 4) {
+                    x = x + 1;
+                    j++;
+                }
+            } else
+                x = x + 2;
+        }
+        return x;
+    }
+
 
     public static int complexBranchCov(int x, int y) {
 
