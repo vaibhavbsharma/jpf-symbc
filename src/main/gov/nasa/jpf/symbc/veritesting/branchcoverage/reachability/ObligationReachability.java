@@ -89,6 +89,8 @@ public class ObligationReachability {
         HashSet<ISSABasicBlock> predecessors = new HashSet<>(cfg.getNormalPredecessors(bb));
         if (predecessors.size() == 0)
             return collectedPred;
+        else if (collectedPred.contains(interestingSuccBB)) //save collecting predecessors if we already have the interestingBB collected already, in which case we just want to return.
+            return collectedPred;
         else
             for (ISSABasicBlock predecessor : predecessors) {
                 if (!collectedPred.contains(predecessor)) {
