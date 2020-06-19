@@ -86,15 +86,24 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     private void guideSPF(ThreadInfo ti, Instruction instructionToExecute) {
         Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.THEN);
-        //only the then obligation is stored in the reachability map since it is the same in both the then and the else side of a given node.
-        Obligation[] uncoveredReachOblg = ObligationMgr.isReachableOblgsCovered(oblgThen);
+        Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.ELSE);
 
-        if (uncoveredReachOblg == null) //indicating an obligation that we do not care about covering, i.e., not an application code.
+        //only the then obligation is stored in the reachability map since it is the same in both the then and the else side of a given node.
+        Obligation[] uncoveredReachThenOblg = ObligationMgr.isReachableOblgsCovered(oblgThen);
+        Obligation[] uncoveredReachElseOblg = ObligationMgr.isReachableOblgsCovered(oblgElse);
+
+        //uncoveredReachThenOblg <=> uncoveredReachElseOblg; iff relation
+        assert ((!(uncoveredReachThenOblg == null) || uncoveredReachElseOblg == null) && (!(uncoveredReachElseOblg == null)) || uncoveredReachThenOblg == null);
+
+        if ((uncoveredReachThenOblg == null))//indicating an obligation that we do not care about covering, i.e., not an application code.
             return;
-        else if ((uncoveredReachOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
+        else if ((uncoveredReachElseOblg.length == 0) || (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
             ti.getVM().getSystemState().setIgnored(true);
             System.out.println("path is ignored");
         } else {//this is where we have something uncovered and we want to create choices to guide spf
+            int thenOrder = uncoveredReachThenOblg == null ? 0 : uncoveredReachThenOblg.length;
+            int elseOrder = uncoveredReachElseOblg == null ? 0 : uncoveredReachElseOblg.length;
+
         }
     }
 
@@ -139,7 +148,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     }
 
     private void collectCoverage(Instruction executedInstruction, ThreadInfo currentThread) {
-        if(allObligationsCovered){
+        if (allObligationsCovered) {
             return;
         }
 

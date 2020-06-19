@@ -11,7 +11,8 @@ public class TestCasePerf {
 //        doubleRec(1, 1);
 //        complexBranchCov(1,1);
 //        unoptimalDFS(1, 1);
-        doubleLoopUnoptimalDFS(1,1);
+//        doubleLoopUnoptimalDFS(1, 1);
+        doubleLoop(1, 1);
     }
 
     public static int singleBranchCov(int x, int y) {
@@ -69,6 +70,19 @@ public class TestCasePerf {
                 }
             } else
                 x = x + 2;
+        }
+        return x;
+    }
+
+
+    public static int doubleLoop(int x, int y) {
+
+        int j = 0;
+        for (int i = 0; i < 2; i++) {
+            while (j < 4) {
+                x = x + 1;
+                j++;
+            }
         }
         return x;
     }

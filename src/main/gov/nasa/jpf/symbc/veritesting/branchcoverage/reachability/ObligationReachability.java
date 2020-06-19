@@ -7,11 +7,13 @@ import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationSide;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Predicate;
+
+import static com.ibm.wala.cfg.Util.getNotTakenSuccessor;
+import static com.ibm.wala.cfg.Util.getTakenSuccessor;
 
 public class ObligationReachability {
 
@@ -26,12 +28,11 @@ public class ObligationReachability {
     public ObligationReachability(IR ir, SSAConditionalBranchInstruction ifInst, ObligationSide side) {
         this.ir = ir;
         this.cfg = ir.getControlFlowGraph();
-        Iterator<ISSABasicBlock> successorItr = cfg.getNormalSuccessors(cfg.getBlockForInstruction(ifInst.iIndex())).iterator();
+        SSACFG.BasicBlock branchBB = cfg.getBlockForInstruction(ifInst.iIndex());
         if (side == ObligationSide.ELSE) //getting the "then" successor - they are filliped in WALA
-            interestingSuccBB = successorItr.next();
+            interestingSuccBB = getNotTakenSuccessor(cfg, branchBB);
         else { //getting the "else" successor
-            successorItr.next();
-            interestingSuccBB = successorItr.next();
+            interestingSuccBB = getTakenSuccessor(cfg, branchBB);
         }
         this.seenBlocks = new HashSet<>();
     }

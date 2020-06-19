@@ -12,9 +12,11 @@ symbolic.debug=false
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDF(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDF(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
+
+symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoop(sym#sym)
 
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
