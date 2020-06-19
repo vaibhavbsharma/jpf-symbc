@@ -7,6 +7,7 @@ import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationSide;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -18,7 +19,7 @@ public class ObligationReachability {
     private SSACFG cfg;
     private ISSABasicBlock interestingSuccBB;
 
-    //used to reset the state of seen block for each BB being tested.
+    //used identify loops in traversing predecessors, thus failing in this case.
     private HashSet<ISSABasicBlock> seenBlocks;
 
 
@@ -26,7 +27,7 @@ public class ObligationReachability {
         this.ir = ir;
         this.cfg = ir.getControlFlowGraph();
         Iterator<ISSABasicBlock> successorItr = cfg.getNormalSuccessors(cfg.getBlockForInstruction(ifInst.iIndex())).iterator();
-        if (side == ObligationSide.ELSE) //getting the "then" successor
+        if (side == ObligationSide.ELSE) //getting the "then" successor - they are filliped in WALA
             interestingSuccBB = successorItr.next();
         else { //getting the "else" successor
             successorItr.next();
@@ -37,7 +38,7 @@ public class ObligationReachability {
 
 
     //borrowed from GraphSlicer from WALA
-    public static <T> Set<T> reachableSubset(Graph<T> g, Predicate<T> p) {
+    public <T> Set<T> reachableSubset(Graph<T> g, Predicate<T> p) {
         if (g == null) {
             throw new IllegalArgumentException("g is null");
         } else {
@@ -49,6 +50,7 @@ public class ObligationReachability {
                 if (p.test(o)) {
                     roots.add(o);
                 }
+                seenBlocks = new HashSet<>();
             }
             return roots;
         }
@@ -60,48 +62,80 @@ public class ObligationReachability {
         Predicate<ISSABasicBlock> isSuccessor = new Predicate<ISSABasicBlock>() {
             @Override
             public boolean test(ISSABasicBlock bb) {
+                if (interestingSuccBB == bb) { // if it is me, then return true, since I am reachable by definition
+                    return true;
+                } else {
+                    HashSet<ISSABasicBlock> allPredecessors = collectPredecessors(new HashSet<>(), bb);
+                    if (allPredecessors == null)
+                        return false;
+                    else
+                        return allPredecessors.contains(interestingSuccBB);
+                }
+            }
+        };
+        Set<ISSABasicBlock> reachableSet = reachableSubset(cfg, isSuccessor);
+        return reachableSet;
+    }
+
+    /**
+     * collects all predecessors for BasicBlock bb and check if the interestingBB is one of them.
+     *
+     * @param collectedPred
+     * @param bb
+     * @return
+     */
+    private HashSet<ISSABasicBlock> collectPredecessors(HashSet<ISSABasicBlock> collectedPred, ISSABasicBlock bb) {
+
+        HashSet<ISSABasicBlock> predecessors = new HashSet<>(cfg.getNormalPredecessors(bb));
+        if (predecessors.size() == 0)
+            return collectedPred;
+        else
+            for (ISSABasicBlock predecessor : predecessors) {
+                if (!collectedPred.contains(predecessor)) {
+                    collectedPred.add(predecessor);
+                    HashSet<ISSABasicBlock> parentPred = (collectPredecessors(collectedPred, predecessor));
+                    collectedPred.addAll(parentPred);
+                }
+            }
+        return (HashSet<ISSABasicBlock>) collectedPred;
+    }
+
+/*
+
+    public Set<ISSABasicBlock> buildReachableBB() {
+
+        Predicate<ISSABasicBlock> isSuccessor = new Predicate<ISSABasicBlock>() {
+            @Override
+            public boolean test(ISSABasicBlock bb) {
                 if (seenBlocks.contains(bb)) {
-                    seenBlocks.clear();
                     return false;
                 } else
                     seenBlocks.add(bb);
                 if (interestingSuccBB == bb) { // if it is me, then return true, since I am reachable by definition
-                    seenBlocks.clear();
                     return true;
                 } else if (cfg.getNormalPredecessors(bb).size() >= 1) { //case we have more than one predecessor to check
                     Object[] predecessors = cfg.getNormalPredecessors(bb).toArray();
                     for (Object predecessor : predecessors) {//testing all unseen BBs
-                        if (seenBlocks.contains(predecessor)) { // we are visiting the same nodes again indicating a loop is found but we cannot find on this path a predessor that is a successor of the branching instruction.
-                            seenBlocks.clear();
-                            return false;
-                        }
                         if (test((ISSABasicBlock) predecessor)) {
+                            return true;
+                        } else {
                             seenBlocks.clear();
                             seenBlocks.add(bb);
-                            return true;
-                        } else seenBlocks.add(bb);
+                        }
                     }
-                    seenBlocks.clear();
                     return false;
                 } else if (cfg.getNormalPredecessors(bb).size() == 0) {
-                    seenBlocks.clear();
                     return false;
                 } else {// unexpected scenario.
                     assert false;
-                    seenBlocks.clear();
                     return false;
                 }
             }
         };
         Set<ISSABasicBlock> reachableSet = reachableSubset(cfg, isSuccessor);
-        /*GraphReachability reachableBB = new GraphReachability(cfg, isSuccessor);
-        reachableBB.solve(null);
-        OrdinalSet reachablilityOutput = reachableBB.getReachableSet(interestingBlock);
-
-        return GraphSlicer.prune(cfg, new CollectionFilter<>(reachableSet));*/
         return reachableSet;
     }
-
+*/
 
     /**
      * Collects BasicBlocks that have BranchInstructions.

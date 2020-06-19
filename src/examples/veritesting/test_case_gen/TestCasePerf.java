@@ -10,7 +10,8 @@ public class TestCasePerf {
 //        doubleBranchCov(1, 1);
 //        doubleRec(1, 1);
 //        complexBranchCov(1,1);
-        unoptimalDFS(1, 1);
+//        unoptimalDFS(1, 1);
+        doubleLoopUnoptimalDFS(1,1);
     }
 
     public static int singleBranchCov(int x, int y) {
