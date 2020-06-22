@@ -13,6 +13,7 @@ import gov.nasa.jpf.report.PublisherExtension;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.RunMode;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.choices.BranchCovPCChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
@@ -101,14 +102,11 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             ti.getVM().getSystemState().setIgnored(true);
             System.out.println("path is ignored");
         } else {//this is where we have something uncovered and we want to create choices to guide spf - this is not needed in concrete branches
-            int thenOrder = uncoveredReachThenOblg.length;
-            int elseOrder = uncoveredReachElseOblg.length;
-
-            if(isSymBranchInst){// only then we want to use the ordering and the branching.
-
+            if (isSymBranchInst) {// only then we want to use the ordering and the branching.
+                //default setting is "else" exploration then the "then" exploration. flip if needed
+                boolean flip = uncoveredReachThenOblg.length > uncoveredReachElseOblg.length;
+                BranchCovPCChoiceGenerator.execute(ti, (IfInstruction) instructionToExecute, flip);
             }
-
-
         }
     }
 

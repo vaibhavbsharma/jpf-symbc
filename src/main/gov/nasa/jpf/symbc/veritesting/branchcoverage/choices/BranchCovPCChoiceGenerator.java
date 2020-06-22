@@ -61,7 +61,7 @@ public class BranchCovPCChoiceGenerator extends PCChoiceGenerator {
     //To indicate which precedence this CG is taking, could be different from one to another
     boolean flip;
 
-    public BranchCovPCChoiceGenerator(int count, Instruction instruction, boolean flip) {
+    public BranchCovPCChoiceGenerator(int count, IfInstruction instruction, boolean flip) {
         super(0, count);
         this.flip = flip;
         this.instruction = instruction;
@@ -70,6 +70,8 @@ public class BranchCovPCChoiceGenerator extends PCChoiceGenerator {
     public static void execute(ThreadInfo ti, IfInstruction instructionToExecute, boolean flip) {
         Kind kind = getKind(instructionToExecute);
         if (kind == Kind.BINARYIF) ti.setNextPC(executeBinaryIf(ti, instructionToExecute, flip));
+        else if (kind == Kind.UNARYIF) ti.setNextPC(executeUnaryIf(ti, instructionToExecute, flip));
+        else assert false : "unsupported branching instruction";
     }
 
 
@@ -82,6 +84,7 @@ public class BranchCovPCChoiceGenerator extends PCChoiceGenerator {
         IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(0);
 
         if ((sym_v1 == null) && (sym_v2 == null)) { // both conditions are concrete
+            assert false : "unexpected concrete instruction in BranchCovPCChoiceGenerator";
             return instructionToExecute;
         } else { // at least one condition is symbolic
             Instruction nxtInstr = getNextInstructionAndSetPCChoice(ti, instructionToExecute, sym_v1, sym_v2, trueComparator, falseComparator, flip);
@@ -92,6 +95,26 @@ public class BranchCovPCChoiceGenerator extends PCChoiceGenerator {
         }
     }
 
+    public static Instruction executeUnaryIf(ThreadInfo ti, IfInstruction instructionToExecute, boolean flip) {
+
+        StackFrame sf = ti.getModifiableTopFrame();
+        IntegerExpression sym_v = (IntegerExpression) sf.getOperandAttr();
+
+        Comparator trueComparator = SpfUtil.getComparator(instructionToExecute);
+        Comparator falseComparator = SpfUtil.getNegComparator(instructionToExecute);
+
+        if (sym_v == null) { // the condition is concrete
+            assert false : "unexpected concrete instruction in BranchCovPCChoiceGenerator";
+            return instructionToExecute;
+        } else { // the condition is symbolic
+            Instruction nxtInstr = getNextInstructionAndSetPCChoice(ti, instructionToExecute, sym_v, trueComparator, falseComparator, flip);
+            /*if(nxtInstr==getTarget())
+                conditionValue=true;
+            else
+                conditionValue=false;*/
+            return nxtInstr;
+        }
+    }
 
     public static Kind getKind(Instruction instruction) {
         switch (instruction.getMnemonic()) {
@@ -117,6 +140,7 @@ public class BranchCovPCChoiceGenerator extends PCChoiceGenerator {
     }
 
 
+    //binary branching instruction
     public static Instruction getNextInstructionAndSetPCChoice(ThreadInfo ti, IfInstruction instr, IntegerExpression sym_v1, IntegerExpression sym_v2, Comparator trueComparator, Comparator falseComparator, boolean flip) {
 
 
@@ -175,6 +199,7 @@ public class BranchCovPCChoiceGenerator extends PCChoiceGenerator {
             int v1 = ti.getModifiableTopFrame().pop();
             PathCondition pc;
             PCChoiceGenerator curCg = (PCChoiceGenerator) ti.getVM().getSystemState().getChoiceGenerator();
+            assert curCg instanceof BranchCovPCChoiceGenerator : "unexpected type for choice generator. Failing";
 
             PCChoiceGenerator prevCg = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
@@ -183,7 +208,8 @@ public class BranchCovPCChoiceGenerator extends PCChoiceGenerator {
 
             boolean conditionValue = (Integer) curCg.getNextChoice() == 1 ? true : false;
 
-            conditionValue = flip ? !conditionValue : conditionValue;
+            //else side is always executed first, flip the order if needed
+            conditionValue = ((BranchCovPCChoiceGenerator) curCg).flip ? !conditionValue : conditionValue;
 
             if (conditionValue) {
                 if (sym_v1 != null) {
@@ -204,4 +230,79 @@ public class BranchCovPCChoiceGenerator extends PCChoiceGenerator {
             }
         }
     }
+
+
+    //unary branching instruction
+    public static Instruction getNextInstructionAndSetPCChoice(ThreadInfo ti,
+                                                               IfInstruction instr,
+                                                               IntegerExpression sym_v,
+                                                               Comparator trueComparator,
+                                                               Comparator falseComparator, boolean flip) {
+
+        if (!ti.isFirstStepInsn()) { // first time around
+            PCChoiceGenerator prevPcGen;
+            ChoiceGenerator<?> cg = ti.getVM().getChoiceGenerator();
+            if (cg instanceof PCChoiceGenerator)
+                prevPcGen = (PCChoiceGenerator) cg;
+            else
+                prevPcGen = (PCChoiceGenerator) cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+            PathCondition pc;
+            if (prevPcGen != null)
+                pc = prevPcGen.getCurrentPC();
+            else
+                pc = new PathCondition();
+
+            PathCondition eqPC = pc.make_copy();
+            PathCondition nePC = pc.make_copy();
+            eqPC._addDet(trueComparator, sym_v, 0);
+            nePC._addDet(falseComparator, sym_v, 0);
+
+            boolean eqSat = eqPC.simplify();
+            boolean neSat = nePC.simplify();
+
+            if (eqSat) {
+                if (neSat) {
+                    BranchCovPCChoiceGenerator newPCChoice = new BranchCovPCChoiceGenerator(2, instr, flip);
+                    newPCChoice.setOffset(instr.getPosition());
+                    newPCChoice.setMethodName(instr.getMethodInfo().getFullName());
+                    ti.getVM().getSystemState().setNextChoiceGenerator(newPCChoice);
+                    return instr;
+                } else {
+                    ti.getModifiableTopFrame().pop();
+                    return instr.getTarget();
+                }
+            } else {
+                ti.getModifiableTopFrame().pop();
+                return instr.getNext(ti);
+            }
+        } else {
+            ti.getModifiableTopFrame().pop();
+            PathCondition pc;
+            PCChoiceGenerator curCg = (PCChoiceGenerator) ti.getVM().getSystemState().getChoiceGenerator();
+            assert curCg instanceof BranchCovPCChoiceGenerator : "unexpected type for choice generator. Failing";
+
+            PCChoiceGenerator prevCg = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+            if (prevCg == null)
+                pc = new PathCondition();
+            else
+                pc = prevCg.getCurrentPC();
+            boolean conditionValue = (Integer) curCg.getNextChoice() == 1 ? true : false;
+
+            //else side is always executed first, flip the order if needed
+            conditionValue = ((BranchCovPCChoiceGenerator) curCg).flip ? !conditionValue : conditionValue;
+
+            if (conditionValue) {
+                pc._addDet(trueComparator, sym_v, 0);
+                ((PCChoiceGenerator) curCg).setCurrentPC(pc);
+                return instr.getTarget();
+            } else {
+                pc._addDet(falseComparator, sym_v, 0);
+                ((PCChoiceGenerator) curCg).setCurrentPC(pc);
+                return instr.getNext(ti);
+            }
+        }
+    }
+
 }
