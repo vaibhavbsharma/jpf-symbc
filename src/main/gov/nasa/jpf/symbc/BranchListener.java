@@ -100,9 +100,14 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         else if ((uncoveredReachElseOblg.length == 0) || (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
             ti.getVM().getSystemState().setIgnored(true);
             System.out.println("path is ignored");
-        } else {//this is where we have something uncovered and we want to create choices to guide spf
-            int thenOrder = uncoveredReachThenOblg == null ? 0 : uncoveredReachThenOblg.length;
-            int elseOrder = uncoveredReachElseOblg == null ? 0 : uncoveredReachElseOblg.length;
+        } else {//this is where we have something uncovered and we want to create choices to guide spf - this is not needed in concrete branches
+            int thenOrder = uncoveredReachThenOblg.length;
+            int elseOrder = uncoveredReachElseOblg.length;
+
+            if(isSymBranchInst){// only then we want to use the ordering and the branching.
+
+            }
+
 
         }
     }
