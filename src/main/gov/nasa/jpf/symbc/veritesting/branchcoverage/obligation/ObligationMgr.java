@@ -74,7 +74,7 @@ public class ObligationMgr {
 
     //returns an array of unreachableObligations, empty array if all are already covered and null if the mainOblg is not found in the map indicating it is not an obligation we are tracking for coverage.
     public static Obligation[] isReachableOblgsCovered(Obligation mainOblg) {
-        ArrayList<Obligation> uncoveredOblgList = new ArrayList<>();
+        HashSet<Obligation> uncoveredOblgList = new HashSet<>();
 
         if (!reachabilityMap.containsKey(mainOblg)) {  //if it can't be found in t he reachability map then it must be the that it doesn't exist in the obligationMap as well indicating that it is an obligation that we do not care about tracking its cover, for example, it is not an application users code.
             assert !obligationsMap.containsKey(mainOblg);

@@ -28,7 +28,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     public static String targetClass;
     public static String targetAbsPath;
-    public static RunMode runMode = RunMode.VANILLA_SPF; //1 for spf mode, 2 for Branch Coverage mode
+    public static RunMode runMode = RunMode.GUIDED_SPF; //1 for spf mode, 2 for Branch Coverage mode
 
     // used to flag that the executed branch instruction is symbolic or not. In which case the "instructionExecuted" should let the "firstStepInstruction" check in place, i.e., to return to spf to create
     // the appropriate set of choices, otherwise if it isn't symbolic then it will only invoke "instructionExecuted" only once, and thus we shouldn't return then, and we should check and/or collect obligations then
@@ -62,8 +62,6 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
 
         try {
-            if (instructionToExecute.toString().equals("if_icmpne 34"))
-                System.out.println("in if_icmpne 43");
             if (firstTime) {
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
@@ -71,10 +69,11 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 System.out.println(ObligationMgr.printCoverage());
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
-                if (instructionToExecute instanceof IfInstruction)
+                if (instructionToExecute instanceof IfInstruction) {
                     isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
-                if (runMode == RunMode.GUIDED_SPF) {
-                    if (instructionToExecute instanceof IfInstruction) guideSPF(ti, instructionToExecute);
+                    if ((isSymBranchInst) && (runMode == RunMode.GUIDED_SPF)) {
+                        guideSPF(ti, instructionToExecute);
+                    }
                 }
             }
         } catch (ClassHierarchyException e) {
@@ -98,15 +97,22 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         if ((uncoveredReachThenOblg == null))//indicating an obligation that we do not care about covering, i.e., not an application code.
             return;
-        else if ((uncoveredReachElseOblg.length == 0) || (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
+
+        System.out.println("before execution of  instruction: " + instructionToExecute);
+
+        if ((uncoveredReachElseOblg.length == 0) || (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
             ti.getVM().getSystemState().setIgnored(true);
             System.out.println("path is ignored");
         } else {//this is where we have something uncovered and we want to create choices to guide spf - this is not needed in concrete branches
-            if (isSymBranchInst) {// only then we want to use the ordering and the branching.
-                //default setting is "else" exploration then the "then" exploration. flip if needed
-                boolean flip = uncoveredReachThenOblg.length > uncoveredReachElseOblg.length;
-                BranchCovPCChoiceGenerator.execute(ti, (IfInstruction) instructionToExecute, flip);
-            }
+            //default setting is "else" exploration then the "then" exploration. flip if needed
+            boolean flip = false;
+            if ((uncoveredReachThenOblg.length > uncoveredReachElseOblg.length) // if then has more reachable obligations
+                    || ((ObligationMgr.isOblgCovered(oblgElse) && !ObligationMgr.isOblgCovered(oblgThen))) //if "else" side has been already covered but the "then" is not covered yet
+            )
+                flip = true;
+
+            if (flip) System.out.println("flipping then and else sides.");
+            BranchCovPCChoiceGenerator.execute(ti, (IfInstruction) instructionToExecute, flip);
         }
     }
 
@@ -138,9 +144,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
             ObligationSide oblgSide;
             if (((IfInstruction) executedInstruction).getTarget() == nextInst)
-                oblgSide = ObligationSide.ELSE;
-            else {
                 oblgSide = ObligationSide.THEN;
+            else {
+                oblgSide = ObligationSide.ELSE;
                 assert (executedInstruction).getNext() == nextInst;
             }
             Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
@@ -166,9 +172,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
             ObligationSide oblgSide;
             if (((IfInstruction) executedInstruction).getTarget() == nextInst)
-                oblgSide = ObligationSide.ELSE;
-            else {
                 oblgSide = ObligationSide.THEN;
+            else {
+                oblgSide = ObligationSide.ELSE;
                 assert (executedInstruction).getNext() == nextInst;
             }
 
