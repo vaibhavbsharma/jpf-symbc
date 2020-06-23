@@ -22,6 +22,8 @@ import gov.nasa.jpf.vm.*;
 
 import java.io.*;
 
+import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr.printCoverage;
+
 public class BranchListener extends PropertyListenerAdapter implements PublisherExtension {
 
     boolean firstTime = true;
@@ -66,7 +68,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
                 firstTime = false;
-                System.out.println(ObligationMgr.printCoverage());
+                printCoverage();
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
                 if (instructionToExecute instanceof IfInstruction) {
@@ -85,41 +87,44 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     }
 
     private void guideSPF(ThreadInfo ti, Instruction instructionToExecute) {
-        Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.THEN);
-        Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.ELSE);
+        boolean flip = false;
+        if (!ti.isFirstStepInsn()) { // first time around
+            Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.THEN);
+            Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.ELSE);
 
-        //only the then obligation is stored in the reachability map since it is the same in both the then and the else side of a given node.
-        Obligation[] uncoveredReachThenOblg = ObligationMgr.isReachableOblgsCovered(oblgThen);
-        Obligation[] uncoveredReachElseOblg = ObligationMgr.isReachableOblgsCovered(oblgElse);
+            //only the then obligation is stored in the reachability map since it is the same in both the then and the else side of a given node.
+            Obligation[] uncoveredReachThenOblg = ObligationMgr.isReachableOblgsCovered(oblgThen);
+            Obligation[] uncoveredReachElseOblg = ObligationMgr.isReachableOblgsCovered(oblgElse);
 
-        //uncoveredReachThenOblg <=> uncoveredReachElseOblg; iff relation
-        assert ((!(uncoveredReachThenOblg == null) || uncoveredReachElseOblg == null) && (!(uncoveredReachElseOblg == null)) || uncoveredReachThenOblg == null);
+            //uncoveredReachThenOblg <=> uncoveredReachElseOblg; iff relation
+            assert ((!(uncoveredReachThenOblg == null) || uncoveredReachElseOblg == null) && (!(uncoveredReachElseOblg == null)) || uncoveredReachThenOblg == null);
 
-        if ((uncoveredReachThenOblg == null))//indicating an obligation that we do not care about covering, i.e., not an application code.
-            return;
+            if ((uncoveredReachThenOblg == null))//indicating an obligation that we do not care about covering, i.e., not an application code.
+                return;
 
-        System.out.println("before execution of  instruction: " + instructionToExecute);
+            System.out.println("before execution of  instruction: " + instructionToExecute);
 
-        if ((uncoveredReachElseOblg.length == 0) || (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
-            ti.getVM().getSystemState().setIgnored(true);
-            System.out.println("path is ignored");
-        } else {//this is where we have something uncovered and we want to create choices to guide spf - this is not needed in concrete branches
-            //default setting is "else" exploration then the "then" exploration. flip if needed
-            boolean flip = false;
-            if ((uncoveredReachThenOblg.length > uncoveredReachElseOblg.length) // if then has more reachable obligations
-                    || ((ObligationMgr.isOblgCovered(oblgElse) && !ObligationMgr.isOblgCovered(oblgThen))) //if "else" side has been already covered but the "then" is not covered yet
-            )
-                flip = true;
+            if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
+                ti.getVM().getSystemState().setIgnored(true);
+                System.out.println("path is ignored");
+            } else {//this is where we have something uncovered and we want to create choices to guide spf - this is not needed in concrete branches
+                //default setting is "else" exploration then the "then" exploration. flip if needed
+                if ((uncoveredReachThenOblg.length > uncoveredReachElseOblg.length) // if then has more reachable obligations
+                        || ((ObligationMgr.isOblgCovered(oblgElse) && !ObligationMgr.isOblgCovered(oblgThen))) //if "else" side has been already covered but the "then" is not covered yet
+                )
+                    flip = true;
 
-            if (flip) System.out.println("flipping then and else sides.");
-            BranchCovPCChoiceGenerator.execute(ti, (IfInstruction) instructionToExecute, flip);
+                if (flip) System.out.println("flipping then and else sides.");
+            }
         }
+        BranchCovPCChoiceGenerator.execute(ti, (IfInstruction) instructionToExecute, flip);
     }
 
 
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
         if (runMode == RunMode.VANILLA_SPF) runVanillaSPF(executedInstruction, currentThread);
-        else if (runMode == RunMode.GUIDED_SPF) collectCoverage(executedInstruction, currentThread);
+        else if ((runMode == RunMode.GUIDED_SPF) || (runMode == RunMode.CHECK_COVERAGE_SPF))
+            collectCoverage(executedInstruction, currentThread);
         else {
             System.out.println("cannot run in mode:" + runMode);
             assert false;
@@ -183,10 +188,11 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 System.out.println("after execution of  instruction: " + executedInstruction);
                 System.out.println("whose obligation is: " + oblg);
 
-                if ((ObligationMgr.isNewCoverage(oblg))) {
+                if ((ObligationMgr.isNewCoverage(oblg)) && (!newCoverageFound)) {
                     newCoverageFound = true;
                 }
-                System.out.println(ObligationMgr.printCoverage());
+//                System.out.println(ObligationMgr.printCoverage());
+                printCoverage();
             }
             isSymBranchInst = false;
         }
@@ -204,6 +210,6 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         PrintWriter pw = publisher.getOut();
         publisher.publishTopicStart("Branch Coverage report:");
 
-        pw.println(ObligationMgr.printCoverage());
+        printCoverage();
     }
 }

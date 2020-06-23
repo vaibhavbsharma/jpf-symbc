@@ -109,14 +109,14 @@ public class ObligationMgr {
         }
     }
 
-    public static String printCoverage() {
-        String coverageStr = ("Obligation -----> Coverage:\n");
+    public static void printCoverage() {
+        System.out.print ("Obligation -----> Coverage:\n");
 
         Set<Obligation> olgKeySet = obligationsMap.keySet();
         for (Obligation oblg : olgKeySet) {
-            coverageStr = coverageStr.concat(oblg + " -----> " + coveredArray[obligationsMap.get(oblg)] + " \n");
+            System.out.print(oblg + " -----> " + coveredArray[obligationsMap.get(oblg)] + " \n");
         }
-        return coverageStr;
+        System.out.println();
     }
 
 
