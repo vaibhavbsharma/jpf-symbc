@@ -23,6 +23,7 @@ import gov.nasa.jpf.vm.*;
 import java.io.*;
 
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr.printCoverage;
+import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr.printReachability;
 
 public class BranchListener extends PropertyListenerAdapter implements PublisherExtension {
 
@@ -69,6 +70,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 ObligationMgr.finishedCollection();
                 firstTime = false;
                 printCoverage();
+                printReachability();
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
                 if (instructionToExecute instanceof IfInstruction) {

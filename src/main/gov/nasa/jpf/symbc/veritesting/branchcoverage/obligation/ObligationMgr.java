@@ -110,13 +110,21 @@ public class ObligationMgr {
     }
 
     public static void printCoverage() {
-        System.out.print ("Obligation -----> Coverage:\n");
+        System.out.print("Obligation -----> Coverage:\n");
 
         Set<Obligation> olgKeySet = obligationsMap.keySet();
         for (Obligation oblg : olgKeySet) {
             System.out.print(oblg + " -----> " + coveredArray[obligationsMap.get(oblg)] + " \n");
         }
         System.out.println();
+    }
+
+    public static void printReachability() {
+        System.out.print("Obligation Reachability-----> Coverage:\n");
+
+        for (Obligation oblg : reachabilityMap.keySet()) {
+            System.out.print(oblg + " -----> " + reachabilityMap.get(oblg) + " \n");
+        }
     }
 
 
