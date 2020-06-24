@@ -1,0 +1,36 @@
+target=veritesting.test_case_gen.TestCasePerf
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+vm.storage.class=nil
+symbolic.debug=false
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
+
+symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoop(sym#sym)
+
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
+
+symbolic.dp=z3bitvector
+
+jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchCoverageSymInstructionFactory
+
+
+#listener = .symbc.SymbolicListener
+#listener = gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
+listener = .symbc.BranchListener
+
+symbolic.lazy = true
+
+
+branchCoverageOn=true
+targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
+runMode=3

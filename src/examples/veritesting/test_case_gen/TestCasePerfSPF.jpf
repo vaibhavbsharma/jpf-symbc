@@ -4,19 +4,17 @@ sourcepath=${jpf-symbc}/src/examples
 vm.storage.class=nil
 symbolic.debug=false
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.testSimple1(sym)
-
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDF(sym#sym)
+symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoop(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoop(sym#sym)
 
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
@@ -32,3 +30,4 @@ symbolic.lazy = true
 
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
+runMode=2
