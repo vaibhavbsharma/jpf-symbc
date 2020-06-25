@@ -34,12 +34,12 @@
 // THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT
 // DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
 //
-package gov.nasa.jpf.symbc.bytecode.branchcoverage.util;
+package gov.nasa.jpf.symbc.bytecode.branchchoices.util;
 
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 
 // a stateful choice generator that keeps track of the order of the visits
-public class BranchCoverageChoiceGenerator extends PCChoiceGenerator {
+public class BranchChoiceGenerator extends PCChoiceGenerator {
 
 
     public enum Kind {UNARYIF, BINARYIF, NULLIF, OTHER}
@@ -47,7 +47,7 @@ public class BranchCoverageChoiceGenerator extends PCChoiceGenerator {
     //To indicate which precedence this CG is taking, could be different from one to another
     public final boolean flip;
 
-    public BranchCoverageChoiceGenerator(int count, boolean flip) {
+    public BranchChoiceGenerator(int count, boolean flip) {
         super(0, count);
         this.flip = flip;
         if(flip)

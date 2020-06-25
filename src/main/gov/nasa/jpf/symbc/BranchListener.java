@@ -10,7 +10,7 @@ import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.PublisherExtension;
-import gov.nasa.jpf.symbc.bytecode.branchcoverage.util.IFInstrSymbHelper;
+import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.RunMode;
@@ -56,6 +56,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             assert false;
         }
 
+        if ((conf.hasValue("GuideBranchExploration")))
+            BranchSymInstructionFactory.GuideBranchExploration = conf.getBoolean("GuideBranchExploration");
     }
 
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {

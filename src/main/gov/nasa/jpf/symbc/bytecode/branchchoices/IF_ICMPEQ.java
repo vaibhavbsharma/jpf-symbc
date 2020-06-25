@@ -33,20 +33,20 @@
 //THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT
 //DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
 
-package gov.nasa.jpf.symbc.bytecode.branchcoverage;
+package gov.nasa.jpf.symbc.bytecode.branchchoices;
 
-
-import gov.nasa.jpf.symbc.bytecode.branchcoverage.util.IFInstrSymbHelper;
+import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
 import gov.nasa.jpf.symbc.numeric.Comparator;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
+
 //we should factor out some of the code and put it in a parent class for all "if statements"
 
-public class IF_ICMPGE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGE{
-	public IF_ICMPGE(int targetPosition){
+public class IF_ICMPEQ extends gov.nasa.jpf.jvm.bytecode.IF_ICMPEQ{
+	public IF_ICMPEQ(int targetPosition){
 	    super(targetPosition);
 	  }
 	@Override
@@ -58,15 +58,15 @@ public class IF_ICMPGE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGE{
 		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(0);
 
 		if ((sym_v1 == null) && (sym_v2 == null)) { // both conditions are concrete
-			//System.out.println("Execute IF_ICMPGE: The conditions are concrete");
+			//System.out.println("Execute IF_ICMPEQ: The conditions are concrete");
 			return super.execute(ti);
 		}else{ // at least one condition is symbolic
 			Instruction nxtInstr = IFInstrSymbHelper.getNextInstructionAndSetPCChoice(ti, 
 																					  this, 
 																					  sym_v1,
 																					  sym_v2,
-																					  Comparator.GE, 
-																					  Comparator.LT);
+																					  Comparator.EQ, 
+																					  Comparator.NE);
 			if(nxtInstr==getTarget())
 				conditionValue=true;
 			else 

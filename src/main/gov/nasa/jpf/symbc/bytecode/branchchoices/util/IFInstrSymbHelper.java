@@ -19,7 +19,7 @@
 /**
  *
  */
-package gov.nasa.jpf.symbc.bytecode.branchcoverage.util;
+package gov.nasa.jpf.symbc.bytecode.branchchoices.util;
 
 
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
@@ -79,7 +79,7 @@ public class IFInstrSymbHelper {
 
             if (eqSat) {
                 if (neSat) {
-                    BranchCoverageChoiceGenerator newPCChoice = new BranchCoverageChoiceGenerator(2, flipBranchExploration);
+                    BranchChoiceGenerator newPCChoice = new BranchChoiceGenerator(2, flipBranchExploration);
                     newPCChoice.setOffset(instr.getPosition());
                     newPCChoice.setMethodName(instr.getMethodInfo().getFullName());
                     ti.getVM().getSystemState().setNextChoiceGenerator(newPCChoice);
@@ -111,7 +111,7 @@ public class IFInstrSymbHelper {
 
             boolean conditionValue = (Integer) curCg.getNextChoice() == 1 ? true : false;
 
-            conditionValue = ((BranchCoverageChoiceGenerator) curCg).flip ? !conditionValue : conditionValue;
+            conditionValue = ((BranchChoiceGenerator) curCg).flip ? !conditionValue : conditionValue;
 
             if (conditionValue) {
                 if (sym_v1 != null) {
@@ -136,4 +136,79 @@ public class IFInstrSymbHelper {
             }
         }
     }
+
+
+
+    public static Instruction getNextInstructionAndSetPCChoice(ThreadInfo ti,
+                                                               IfInstruction instr,
+                                                               IntegerExpression sym_v,
+                                                               Comparator trueComparator,
+                                                               Comparator falseComparator) {
+
+        //TODO: fix conditionValue
+        if(!ti.isFirstStepInsn()) { // first time around
+            PCChoiceGenerator prevPcGen;
+            ChoiceGenerator<?> cg = ti.getVM().getChoiceGenerator();
+            if(cg instanceof PCChoiceGenerator)
+                prevPcGen = (PCChoiceGenerator)cg;
+            else
+                prevPcGen = (PCChoiceGenerator)cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+            PathCondition pc;
+            if(prevPcGen!=null)
+                pc = prevPcGen.getCurrentPC();
+            else
+                pc = new PathCondition();
+
+            PathCondition eqPC = pc.make_copy();
+            PathCondition nePC = pc.make_copy();
+            eqPC._addDet(trueComparator, sym_v, 0);
+            nePC._addDet(falseComparator, sym_v, 0);
+
+            boolean eqSat = eqPC.simplify();
+            boolean neSat = nePC.simplify();
+
+            if(eqSat) {
+                if(neSat) {
+                    BranchChoiceGenerator newPCChoice = new BranchChoiceGenerator(2, flipBranchExploration);
+                    newPCChoice.setOffset(instr.getPosition());
+                    newPCChoice.setMethodName(instr.getMethodInfo().getFullName());
+                    ti.getVM().getSystemState().setNextChoiceGenerator(newPCChoice);
+                    flipBranchExploration = false;
+                    return instr;
+                } else {
+                    ti.getModifiableTopFrame().pop();
+                    return instr.getTarget();
+                }
+            } else {
+                ti.getModifiableTopFrame().pop();
+                return instr.getNext(ti);
+            }
+        } else {
+            ti.getModifiableTopFrame().pop();
+            PathCondition pc;
+            PCChoiceGenerator curCg = (PCChoiceGenerator)ti.getVM().getSystemState().getChoiceGenerator();
+
+            PCChoiceGenerator prevCg = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+            if(prevCg == null )
+                pc = new PathCondition();
+            else
+                pc = prevCg.getCurrentPC();
+            boolean conditionValue = (Integer)curCg.getNextChoice()==1 ? true: false;
+
+            conditionValue = ((BranchChoiceGenerator) curCg).flip ? !conditionValue : conditionValue;
+
+            if(conditionValue) {
+                pc._addDet(trueComparator, sym_v, 0);
+                ((PCChoiceGenerator) curCg).setCurrentPC(pc);
+                return instr.getTarget();
+            } else {
+                pc._addDet(falseComparator, sym_v, 0);
+                ((PCChoiceGenerator) curCg).setCurrentPC(pc);
+                return instr.getNext(ti);
+            }
+        }
+    }
+
 }

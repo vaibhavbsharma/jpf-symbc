@@ -33,9 +33,9 @@
 //THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT
 //DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
 
-package gov.nasa.jpf.symbc.bytecode.branchcoverage;
+package gov.nasa.jpf.symbc.bytecode.branchchoices;
 
-import gov.nasa.jpf.symbc.bytecode.branchcoverage.util.IFInstrSymbHelper;
+import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
 import gov.nasa.jpf.symbc.numeric.Comparator;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
 import gov.nasa.jpf.vm.Instruction;
