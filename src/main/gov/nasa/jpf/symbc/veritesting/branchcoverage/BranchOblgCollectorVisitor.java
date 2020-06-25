@@ -89,7 +89,7 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         IAnalysisCacheView cache = new AnalysisCacheImpl(options.getSSAOptions());
         IR ir = cache.getIR(m, Everywhere.EVERYWHERE);
 
-        String walaPackageName = m.getDeclaringClass().getName().getPackage().toString();
+        String walaPackageName = CoverageUtil.getWalaPackageName(m);
         String className = m.getDeclaringClass().getName().getClassName().toString();
         String methodSignature = m.getSelector().toString();
 

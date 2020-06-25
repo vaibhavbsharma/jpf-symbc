@@ -12,6 +12,7 @@ import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.util.WalaException;
 import com.ibm.wala.util.config.AnalysisScopeReader;
 import com.ibm.wala.util.graph.Graph;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.vm.ThreadInfo;
 
@@ -53,7 +54,8 @@ public class BranchCoverage {
         IR entryIR = cg.getEntrypointNodes().iterator().next().getIR(); //getting the first entry point
         SSAInstruction[] instructions = entryIR.getInstructions();
         IMethod m = entryIR.getMethod();
-        String walaPackageName = m.getDeclaringClass().getName().getPackage().toString();
+
+        String walaPackageName = CoverageUtil.getWalaPackageName(m);
         String className = m.getDeclaringClass().getName().getClassName().toString();
         String methodSignature = m.getSelector().toString();
         BranchOblgCollectorVisitor branchOblgCollectorVisitor = null;

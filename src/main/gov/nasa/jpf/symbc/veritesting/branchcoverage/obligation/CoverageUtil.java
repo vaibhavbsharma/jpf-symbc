@@ -11,7 +11,10 @@ import java.util.HashSet;
 
 public class CoverageUtil {
 
+    public static String UNKNOWN_PACKAGE = "UNDEFINED";
+
     public static String classUniqueName(String packageName, String classsName, String methodSig) {
+        packageName = packageName == null ? UNKNOWN_PACKAGE : packageName;
         return packageName + "." + classsName + "." + methodSig;
     }
 
@@ -28,7 +31,7 @@ public class CoverageUtil {
     public static HashSet<Obligation> createOblgFromWalaInst(IR ir, SSAInstruction inst) {
         HashSet<Obligation> oblgs = new HashSet();
         IMethod m = ir.getMethod();
-        String walaPackageName = m.getDeclaringClass().getName().getPackage().toString();
+        String walaPackageName = getWalaPackageName(m);
         String className = m.getDeclaringClass().getName().getClassName().toString();
         String methodSig = m.getSelector().toString();
         int instLine = getWalaInstLineNum(m, inst);
@@ -54,5 +57,9 @@ public class CoverageUtil {
         }
         assert false;
         return 0;
+    }
+
+    public static String getWalaPackageName(IMethod m) {
+        return m.getDeclaringClass().getName().getPackage() != null ? m.getDeclaringClass().getName().getPackage().toString() : UNKNOWN_PACKAGE;
     }
 }
