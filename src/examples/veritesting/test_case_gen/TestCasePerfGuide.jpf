@@ -21,7 +21,7 @@ symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
 
 symbolic.dp=z3bitvector
 
-jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchCoverageSymInstructionFactory
+jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 
 #listener = .symbc.SymbolicListener

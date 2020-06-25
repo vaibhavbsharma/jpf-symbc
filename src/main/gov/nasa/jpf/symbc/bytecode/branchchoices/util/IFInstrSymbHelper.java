@@ -83,7 +83,6 @@ public class IFInstrSymbHelper {
                     newPCChoice.setOffset(instr.getPosition());
                     newPCChoice.setMethodName(instr.getMethodInfo().getFullName());
                     ti.getVM().getSystemState().setNextChoiceGenerator(newPCChoice);
-                    flipBranchExploration = false;
                     return instr;
                 } else {
                     ti.getModifiableTopFrame().pop();
@@ -174,7 +173,6 @@ public class IFInstrSymbHelper {
                     newPCChoice.setOffset(instr.getPosition());
                     newPCChoice.setMethodName(instr.getMethodInfo().getFullName());
                     ti.getVM().getSystemState().setNextChoiceGenerator(newPCChoice);
-                    flipBranchExploration = false;
                     return instr;
                 } else {
                     ti.getModifiableTopFrame().pop();

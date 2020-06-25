@@ -21,9 +21,9 @@ symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
 
 symbolic.dp=z3bitvector
 
-#listener = .symbc.SymbolicListener
+listener = .symbc.SymbolicListener
 #listener = gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
-listener = .symbc.BranchListener
+#listener = .symbc.BranchListener
 
 symbolic.lazy = true
 

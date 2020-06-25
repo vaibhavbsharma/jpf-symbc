@@ -8,11 +8,13 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
+import gov.nasa.jpf.report.ConsolePublisher;
 import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.PublisherExtension;
 import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.BranchCoverage;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageStatistics;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.RunMode;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
@@ -31,7 +33,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     public static String targetClass;
     public static String targetAbsPath;
-    public static RunMode runMode = RunMode.GUIDED_SPF; //1 for vanilla spf mode, 2 for Branch Coverage mode, 3 for guided SPF
+    public static RunMode coverageMode = RunMode.GUIDED_SPF; //1 for vanilla spf mode, 2 for Branch Coverage mode, 3 for guided SPF
 
     // used to flag that the executed branch instruction is symbolic or not. In which case the "instructionExecuted" should let the "firstStepInstruction" check in place, i.e., to return to spf to create
     // the appropriate set of choices, otherwise if it isn't symbolic then it will only invoke "instructionExecuted" only once, and thus we shouldn't return then, and we should check and/or collect obligations then
@@ -39,8 +41,11 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     public static boolean newCoverageFound = false;
     private boolean allObligationsCovered = false;
+    private CoverageStatistics coverageStatistics = new CoverageStatistics();
 
     public BranchListener(Config conf, JPF jpf) {
+        jpf.addPublisherExtension(ConsolePublisher.class, this);
+
         if ((conf.getString("targetAbsPath") == null)) {
             System.out.println("target class or its absolute path is undefined in jpf file for coverage. Aborting");
             assert false;
@@ -48,9 +53,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         targetClass = conf.getString("target");
         targetAbsPath = conf.getString("targetAbsPath");
 
-        if (conf.hasValue("runMode")) if (conf.getInt("runMode") == 1) runMode = RunMode.VANILLA_SPF;
-        else if (conf.getInt("runMode") == 2) runMode = RunMode.CHECK_COVERAGE_SPF;
-        else if (conf.getInt("runMode") == 3) runMode = RunMode.GUIDED_SPF;
+        if (conf.hasValue("runMode")) if (conf.getInt("runMode") == 1) coverageMode = RunMode.VANILLA_SPF;
+        else if (conf.getInt("runMode") == 2) coverageMode = RunMode.CHECK_COVERAGE_SPF;
+        else if (conf.getInt("runMode") == 3) coverageMode = RunMode.GUIDED_SPF;
         else {
             System.out.println("unknown mode. Failing");
             assert false;
@@ -77,7 +82,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             } else {
                 if (instructionToExecute instanceof IfInstruction) {
                     isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
-                    if ((isSymBranchInst) && (runMode == RunMode.GUIDED_SPF)) {
+                    if ((isSymBranchInst) && (coverageMode == RunMode.GUIDED_SPF)) {
                         guideSPF(ti, instructionToExecute);
                     }
                 }
@@ -117,7 +122,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 if (!ti.isFirstStepInsn()) { // first time around
                     IFInstrSymbHelper.flipBranchExploration = true;
                     System.out.println("flipping then and else sides.");
-                }
+                } else
+                    IFInstrSymbHelper.flipBranchExploration = false;
             }
         }
 //        BranchCovPCChoiceGenerator.execute(ti, (IfInstruction) instructionToExecute, flip);
@@ -125,11 +131,11 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
 
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
-        if (runMode == RunMode.VANILLA_SPF) runVanillaSPF(executedInstruction, currentThread);
-        else if ((runMode == RunMode.GUIDED_SPF) || (runMode == RunMode.CHECK_COVERAGE_SPF))
+        if (coverageMode == RunMode.VANILLA_SPF) runVanillaSPF(executedInstruction, currentThread);
+        else if ((coverageMode == RunMode.GUIDED_SPF) || (coverageMode == RunMode.CHECK_COVERAGE_SPF))
             collectCoverage(executedInstruction, currentThread);
         else {
-            System.out.println("cannot run in mode:" + runMode);
+            System.out.println("cannot run in mode:" + coverageMode);
             assert false;
         }
     }
@@ -191,8 +197,11 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 System.out.println("after execution of  instruction: " + executedInstruction);
                 System.out.println("whose obligation is: " + oblg);
 
-                if ((ObligationMgr.isNewCoverage(oblg)) && (!newCoverageFound)) {
-                    newCoverageFound = true;
+                if (ObligationMgr.isNewCoverage(oblg)) {
+                    coverageStatistics.recordObligationCovered(oblg);
+                    if (!newCoverageFound) {
+                        newCoverageFound = true;
+                    }
                 }
 //                System.out.println(ObligationMgr.printCoverage());
                 printCoverage();
@@ -208,6 +217,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     }
 
 
+    // -------- the publisher interface
     @Override
     public void publishFinished(Publisher publisher) {
         PrintWriter pw = publisher.getOut();
