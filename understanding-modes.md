@@ -1,3 +1,5 @@
+# Understanding Java Ranger's modes
+
 Java Ranger can be run in 5 different modes as set up the [veritestingMode](https://vaibhavbsharma.github.io/java-ranger/docs/gov/nasa/jpf/symbc/VeritestingListener.VeritestingMode.html). `veritestingMode` specifies the path-merging features to be enabled with each higher number adding a new feature to the set of features enabled by the previous number. 
 * Setting `veritestingMode` to 1 runs vanilla SPF. 
 * Setting it to 2 enables path-merging for multi-path regions with no method calls and a single exit point. 
