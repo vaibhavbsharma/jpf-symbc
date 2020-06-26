@@ -21,7 +21,10 @@ Java Ranger needs this variable to be set up as environment variable. It is not 
 Documentation for Java Ranger is available here: [https://vaibhavbsharma.github.io/java-ranger/docs/index.html](https://vaibhavbsharma.github.io/java-ranger/docs/index.html). 
 
 ## Java Ranger wiki
-A wiki containing a high-level overview of Java Ranger's code can be found at: [https://github.com/vaibhavbsharma/java-ranger/wiki](https://github.com/vaibhavbsharma/java-ranger/wiki).
+More information on Java Ranger can be found in the following pages
+* [Understanding Java Ranger's source code](https://vaibhavbsharma.github.io/java-ranger/understanding-ranger.html)
+* [Adding new transformations to Java Ranger](https://vaibhavbsharma.github.io/java-ranger/adding-new-transformations.html)
+* [Understanding Java Ranger's modes](https://vaibhavbsharma.github.io/java-ranger/understanding-modes.html)
 
 # People
 The following people have contributed to Java Ranger
