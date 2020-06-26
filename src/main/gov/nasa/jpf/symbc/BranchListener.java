@@ -24,13 +24,12 @@ import gov.nasa.jpf.vm.*;
 
 import java.io.*;
 
-import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr.printCoverage;
-import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr.printReachability;
+import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr.*;
 
 public class BranchListener extends PropertyListenerAdapter implements PublisherExtension {
 
     boolean firstTime = true;
-
+    public static boolean evaluationMode = false;
     public static String targetClass;
     public static String targetAbsPath;
     public static RunMode coverageMode = RunMode.GUIDED_SPF; //1 for vanilla spf mode, 2 for Branch Coverage mode, 3 for guided SPF
@@ -52,6 +51,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
         targetClass = conf.getString("target");
         targetAbsPath = conf.getString("targetAbsPath");
+
+        if (conf.hasValue("evaluationMode")) evaluationMode = conf.getBoolean("evaluationMode");
 
         if (conf.hasValue("runMode")) if (conf.getInt("runMode") == 1) coverageMode = RunMode.VANILLA_SPF;
         else if (conf.getInt("runMode") == 2) coverageMode = RunMode.CHECK_COVERAGE_SPF;
@@ -78,6 +79,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 firstTime = false;
                 printCoverage();
                 printReachability();
+                printOblgToBBMap();
+                
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
                 if (instructionToExecute instanceof IfInstruction) {

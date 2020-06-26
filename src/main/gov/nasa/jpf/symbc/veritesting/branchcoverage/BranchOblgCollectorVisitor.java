@@ -72,7 +72,7 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         HashSet<Obligation> reacheableThenOblgs = (new ObligationReachability(ir, inst, ObligationSide.THEN)).reachableObligations();
         HashSet<Obligation> reacheableElseOblgs = (new ObligationReachability(ir, inst, ObligationSide.ELSE)).reachableObligations();
 
-        ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, reacheableThenOblgs, reacheableElseOblgs);
+        ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, ir.getControlFlowGraph().getBlockForInstruction(inst.iIndex()),reacheableThenOblgs, reacheableElseOblgs);
     }
 
 

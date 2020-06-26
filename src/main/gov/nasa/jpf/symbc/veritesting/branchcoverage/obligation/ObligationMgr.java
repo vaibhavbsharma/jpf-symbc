@@ -1,6 +1,9 @@
 package gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation;
 
+import com.ibm.wala.ssa.ISSABasicBlock;
+import com.ibm.wala.ssa.SSACFG;
 import com.ibm.wala.ssa.SSAInstruction;
+import gov.nasa.jpf.symbc.BranchListener;
 
 import java.io.PrintWriter;
 import java.util.*;
@@ -11,6 +14,8 @@ public class ObligationMgr {
 
     public static final HashMap<Obligation, HashSet<Obligation>> reachabilityMap = new HashMap<>();
 
+    private static final HashMap<Obligation, ISSABasicBlock> obligationBBMap = new HashMap<>();
+
     private static int indexSerial = 0;
 
     private static boolean[] coveredArray;
@@ -20,7 +25,7 @@ public class ObligationMgr {
         coveredArray = new boolean[obligationsMap.size()];
     }
 
-    public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, HashSet<Obligation> reacheableThenOblgs, HashSet<Obligation> reacheableElseOblgs) {
+    public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, SSACFG.BasicBlock blockForOblg, HashSet<Obligation> reacheableThenOblgs, HashSet<Obligation> reacheableElseOblgs) {
         Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN);
         Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE);
 
@@ -31,6 +36,9 @@ public class ObligationMgr {
 
         reachabilityMap.put(oblgThen, reacheableThenOblgs);
         reachabilityMap.put(oblgElse, reacheableElseOblgs);
+
+        if (!BranchListener.evaluationMode)
+            obligationBBMap.put(oblgThen, blockForOblg);
     }
 
 
@@ -136,5 +144,15 @@ public class ObligationMgr {
         }
     }
 
+
+    public static void printOblgToBBMap() {
+        if (!BranchListener.evaluationMode) {
+            System.out.print("Obligation -----> Basic Block:\n");
+
+            for (Obligation oblg : obligationBBMap.keySet()) {
+                System.out.print(oblg + " -----> " + obligationBBMap.get(oblg) + " \n");
+            }
+        }
+    }
 
 }
