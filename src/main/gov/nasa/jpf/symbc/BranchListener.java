@@ -76,8 +76,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
                 firstTime = false;
-//                printCoverage();
-//                printReachability();
+                printCoverage();
+                printReachability();
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
                 if (instructionToExecute instanceof IfInstruction) {
@@ -203,7 +203,6 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                         newCoverageFound = true;
                     }
                 }
-//                System.out.println(ObligationMgr.printCoverage());
 //                printCoverage();
             }
             isSymBranchInst = false;
@@ -214,6 +213,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         System.out.println("end of thread");
         newCoverageFound = false;
         allObligationsCovered = ObligationMgr.isAllObligationCovered();
+        coverageStatistics.recordCoverageForThread();
     }
 
 

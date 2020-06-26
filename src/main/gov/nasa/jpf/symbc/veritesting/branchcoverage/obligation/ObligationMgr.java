@@ -119,6 +119,15 @@ public class ObligationMgr {
         System.out.println();
     }
 
+    public static String printCoverageStr() {
+        String coverageStr = "";
+        Set<Obligation> olgKeySet = obligationsMap.keySet();
+        for (Obligation oblg : olgKeySet) {
+            coverageStr += (oblg + " -----> " + coveredArray[obligationsMap.get(oblg)] + " \n");
+        }
+        return coverageStr;
+    }
+
     public static void printReachability() {
         System.out.print("Obligation Reachability-----> Coverage:\n");
 
