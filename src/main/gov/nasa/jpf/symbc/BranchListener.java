@@ -56,7 +56,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         if (conf.hasValue("runMode")) if (conf.getInt("runMode") == 1) coverageMode = RunMode.VANILLA_SPF;
         else if (conf.getInt("runMode") == 2) coverageMode = RunMode.CHECK_COVERAGE_SPF;
-        else if (conf.getInt("runMode") == 3) coverageMode = RunMode.GUIDED_SPF;
+        else if (conf.getInt("runMode") == 3){ coverageMode = RunMode.GUIDED_SPF; BranchSymInstructionFactory.GuideBranchExploration = true;}
         else {
             System.out.println("unknown mode. Failing");
             assert false;
