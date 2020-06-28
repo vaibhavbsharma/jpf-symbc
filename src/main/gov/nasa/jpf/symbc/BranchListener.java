@@ -54,19 +54,18 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         if (conf.hasValue("evaluationMode")) evaluationMode = conf.getBoolean("evaluationMode");
 
-        if (conf.hasValue("coverageMode"))
-            if (conf.getInt("coverageMode") == 1) coverageMode = CoverageMode.COLLECT_COVERAGE;
-            else if (conf.getInt("coverageMode") == 2) coverageMode = CoverageMode.COLLECT_PRUNE;
-            else if (conf.getInt("coverageMode") == 3) {
-                coverageMode = CoverageMode.COLLECT_GUIDE;
-                BranchSymInstructionFactory.GuideBranchExploration = true;
-            } else if (conf.getInt("coverageMode") == 4) {
-                coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
-                BranchSymInstructionFactory.GuideBranchExploration = true;
-            } else {
-                System.out.println("unknown mode. Failing");
-                assert false;
-            }
+        if (conf.hasValue("coverageMode")) if (conf.getInt("coverageMode") == 1) coverageMode = CoverageMode.COLLECT_COVERAGE;
+        else if (conf.getInt("coverageMode") == 2) coverageMode = CoverageMode.COLLECT_PRUNE;
+        else if (conf.getInt("coverageMode") == 3) {
+            coverageMode = CoverageMode.COLLECT_GUIDE;
+            BranchSymInstructionFactory.GuideBranchExploration = true;
+        } else if (conf.getInt("coverageMode") == 4) {
+            coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
+            BranchSymInstructionFactory.GuideBranchExploration = true;
+        } else {
+            System.out.println("unknown mode. Failing");
+            assert false;
+        }
 
         System.out.println("---- CoverageMode = " + coverageMode);
 
@@ -76,6 +75,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
         if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) // pruning only in pruning mode
             if (allObligationsCovered) {
+                System.out.println("all obligation covered, ignoring all paths.");
                 ti.getVM().getSystemState().setIgnored(true);
                 return;
             }
@@ -95,10 +95,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 if (instructionToExecute instanceof IfInstruction) {
                     isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
                     if (isSymBranchInst) {
-                        if (coverageMode != CoverageMode.COLLECT_COVERAGE)
-                            prunOrGuideSPF(ti, instructionToExecute);
-                    } else //concrete branch
-                        pruneOnly(ti, instructionToExecute);
+                        if (coverageMode != CoverageMode.COLLECT_COVERAGE) prunOrGuideSPF(ti, instructionToExecute);
+                    } //concrete branch will be pruned in instructionExecuted.
                 }
             }
         } catch (ClassHierarchyException e) {
@@ -113,7 +111,6 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.THEN);
         Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.ELSE);
 
-        //only the then obligation is stored in the reachability map since it is the same in both the then and the else side of a given node.
         Obligation[] uncoveredReachThenOblg = ObligationMgr.isReachableOblgsCovered(oblgThen);
         Obligation[] uncoveredReachElseOblg = ObligationMgr.isReachableOblgsCovered(oblgElse);
 
@@ -126,48 +123,21 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         System.out.println("before execution of  instruction: " + instructionToExecute);
 
 
-        if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
+        if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//EARLY PRUNING, no new obligation can be reached
             if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) { //prune only in pruning mode.
                 ti.getVM().getSystemState().setIgnored(true);
-                System.out.println("path is ignored");
+                System.out.println("EARLY PRUNING CASE: path is ignored");
             }
-        } else {//this is where we have something uncovered and we want to create choices to guide spf - this is not needed in concrete branches
+        } else {//GUIDING HERE - this is not needed in concrete branches
             //default setting is "else" exploration then the "then" exploration. flip if needed
             if ((uncoveredReachThenOblg.length > uncoveredReachElseOblg.length) // if then has more reachable obligations
                     || ((ObligationMgr.isOblgCovered(oblgElse) && !ObligationMgr.isOblgCovered(oblgThen))) //if "else" side has been already covered but the "then" is not covered yet
             ) {
-                if (coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE || coverageMode == CoverageMode.COLLECT_GUIDE) // guide only in guiding mode.
+                if (coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE || coverageMode == CoverageMode.COLLECT_GUIDE) // GUIDE: only in guiding mode.
                     if (!ti.isFirstStepInsn()) { // first time around
                         IFInstrSymbHelper.flipBranchExploration = true;
                         System.out.println("flipping then and else sides.");
-                    } else
-                        IFInstrSymbHelper.flipBranchExploration = false;
-            }
-        }
-    }
-
-
-    private void pruneOnly(ThreadInfo ti, Instruction instructionToExecute) {
-        Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.THEN);
-        Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.ELSE);
-
-        //only the then obligation is stored in the reachability map since it is the same in both the then and the else side of a given node.
-        Obligation[] uncoveredReachThenOblg = ObligationMgr.isReachableOblgsCovered(oblgThen);
-        Obligation[] uncoveredReachElseOblg = ObligationMgr.isReachableOblgsCovered(oblgElse);
-
-        //uncoveredReachThenOblg <=> uncoveredReachElseOblg; iff relation
-        assert ((!(uncoveredReachThenOblg == null) || uncoveredReachElseOblg == null) && (!(uncoveredReachElseOblg == null)) || uncoveredReachThenOblg == null);
-
-        if ((uncoveredReachThenOblg == null)) //indicating an obligation that we do not care about covering, i.e., not an application code.
-            return;
-
-        System.out.println("before execution of  instruction: " + instructionToExecute);
-
-
-        if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
-            if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) { //prune only in pruning mode.
-                ti.getVM().getSystemState().setIgnored(true);
-                System.out.println("path is ignored");
+                    } else IFInstrSymbHelper.flipBranchExploration = false;
             }
         }
     }
@@ -175,78 +145,59 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     // after the instruction is executed we only need to collect the covered obligation.
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
-        collectCoverage(executedInstruction, currentThread);
+        if (executedInstruction instanceof IfInstruction) collectCoverageAndPrune(executedInstruction, currentThread);
     }
 
-/*
 
-    //executes all paths and all obligations without any side effect of checking covered obligations,
-    // it just tracks the order of execution of interesting user code.
-    // it skips printing visiting symbolic instructions, with two choices feasible, for the first time only. Since at that point SPF creates the choices but does not
-    // execute the semantics of the bytecode instruction yet.
-    private void runVanillaSPF(Instruction executedInstruction, ThreadInfo currentThread) {
-//        System.out.println("after inst: " + executedInstruction);
-        if (executedInstruction instanceof IfInstruction) {
-            //used to check if we are in the case of symbolic instruction and we are hitting for the first time. As we want to only intercept
-            //either symbolic instruction after isFirstStepInsn has finished or a concerte instruction
-            Instruction nextInst = currentThread.getNextPC();
-            if (!currentThread.isFirstStepInsn() && (nextInst == executedInstruction)) { // the second condition indicates that the spf listener have not recognoized a single choice being possible, because if it does then the nextPc would have been either its target or its nextInst
-                return;
-            }
-            System.out.println("after execution of  instruction: " + executedInstruction);
-
-
-            ObligationSide oblgSide;
-            if (((IfInstruction) executedInstruction).getTarget() == nextInst)
-                oblgSide = ObligationSide.THEN;
-            else {
-                oblgSide = ObligationSide.ELSE;
-                assert (executedInstruction).getNext() == nextInst;
-            }
-            Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
-            if (ObligationMgr.oblgExists(oblg)) System.out.println("Executing obligation" + oblg);
-
-            isSymBranchInst = false;
-        }
-    }
-*/
-
-    private void collectCoverage(Instruction executedInstruction, ThreadInfo currentThread) {
+    private void collectCoverageAndPrune(Instruction executedInstruction, ThreadInfo currentThread) {
         if (allObligationsCovered) {
             return;
         }
 
-        if (executedInstruction instanceof IfInstruction) {
 
-            //used to check if we are in the case of symbolic instruction and we are hitting for the first time. As we want to only intercept
-            //either symbolic instruction after isFirstStepInsn has finished or a concrete instruction
-            Instruction nextInst = currentThread.getNextPC();
-            if (!currentThread.isFirstStepInsn() && (nextInst == executedInstruction)) { // the second condition indicates that the spf listener have not recognoized a single choice being possible, because if it does then the nextPc would have been either its target or its nextInst
-                return;
-            }
+        //used to check if we are in the case of symbolic instruction and we are hitting for the first time. As we want to only intercept
+        //either symbolic instruction after isFirstStepInsn has finished or a concrete instruction
+        Instruction nextInst = currentThread.getNextPC();
+        if (!currentThread.isFirstStepInsn() && (nextInst == executedInstruction)) { // the second condition indicates that the spf listener have not recognoized a single choice being possible, because if it does then the nextPc would have been either its target or its nextInst
+            return;
+        }
 
-            ObligationSide oblgSide;
-            if (((IfInstruction) executedInstruction).getTarget() == nextInst)
-                oblgSide = ObligationSide.THEN;
-            else {
-                oblgSide = ObligationSide.ELSE;
-                assert (executedInstruction).getNext() == nextInst;
-            }
+        ObligationSide oblgSide;
+        if (((IfInstruction) executedInstruction).getTarget() == nextInst) oblgSide = ObligationSide.THEN;
+        else {
+            oblgSide = ObligationSide.ELSE;
+            assert (executedInstruction).getNext() == nextInst;
+        }
 
-            Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
-            if (ObligationMgr.oblgExists(oblg)) {
-                System.out.println("after execution of  instruction: " + executedInstruction);
-                System.out.println("whose obligation is: " + oblg);
+        Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
+        if (ObligationMgr.oblgExists(oblg)) {
+            System.out.println("after execution of  instruction: " + executedInstruction + "---- obligation is: " + oblg);
 
-                if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
-                    coverageStatistics.recordObligationCovered(oblg);
-                    if (!newCoverageFound) {
-                        newCoverageFound = true;
-                    }
+            if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
+                coverageStatistics.recordObligationCovered(oblg);
+                if (!newCoverageFound) {
+                    newCoverageFound = true;
                 }
-//                printCoverage();
             }
-            isSymBranchInst = false;
+            if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE)  //prune only in pruning mode.
+                prunePath(currentThread, oblg);
+//                printCoverage();
+        }
+        isSymBranchInst = false;
+    }
+
+
+    private void prunePath(ThreadInfo ti, Obligation oblg) {
+
+        Obligation[] uncoveredReachableOblg = ObligationMgr.isReachableOblgsCovered(oblg);
+
+        if ((uncoveredReachableOblg == null)) //indicating an obligation that we do not care about covering, i.e., not an application code.
+            return;
+
+        if ((uncoveredReachableOblg.length == 0) && !newCoverageFound) {//no new obligation can be reached
+            assert (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) : "pruning can only happen in pruning mode. Failing";
+            ti.getVM().getSystemState().setIgnored(true);
+            System.out.println("SINGLE CHOICE PRUNING: path is ignored");
         }
     }
 

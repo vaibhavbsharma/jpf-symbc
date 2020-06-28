@@ -32,7 +32,7 @@ public class Obligation implements Cloneable, Comparable {
     public Obligation(String spfPackageClassName, String methodSig, int instLine, SSAInstruction inst, ObligationSide oblgSide) {
 
         if (!spfPackageClassName.contains(".")) {
-            System.out.println("WARNING: Class has no package define.");
+//            System.out.println("WARNING: Class has no package define.");
             this.spfPackageName = UNKNOWN_PACKAGE;
             this.className = spfPackageClassName;
         } else {
