@@ -6,7 +6,7 @@ import gov.nasa.jpf.vm.Instruction;
 
 public class BranchSymInstructionFactory extends SymbolicInstructionFactory {
 
-    //jpf configuration to initiate the guiding exploration of branches.
+
     public static boolean GuideBranchExploration = false;
 
     public BranchSymInstructionFactory(Config conf) {

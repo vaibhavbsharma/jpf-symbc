@@ -45,7 +45,7 @@ public class BranchCoverage {
         IAnalysisCacheView cache = new AnalysisCacheImpl(analysisOptions.getSSAOptions());
         CallGraphBuilder cgBuilder = Util.makeZeroCFABuilder(Language.JAVA, analysisOptions, cache, cha, scope);
         CallGraph cg = cgBuilder.makeCallGraph(analysisOptions, null);
-        System.out.println("made the class hierarchy");
+//        System.out.println("made the class hierarchy");
         Graph<CGNode> g = pruneForAppLoader(cg);
 
         //I am not expecting to see multiple entery points at least for now.
