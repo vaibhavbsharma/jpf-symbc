@@ -48,7 +48,7 @@ public class BranchChoiceGenerator extends PCChoiceGenerator {
     public final boolean flip;
 
     public BranchChoiceGenerator(int count, boolean flip) {
-        super(0, count);
+        super(count);
         this.flip = flip;
         if(flip)
             System.out.println("I am a flipped CG: " + this);
