@@ -29,20 +29,20 @@ public class CoverageStatistics {
 
     public CoverageStatistics() {
         LocalDateTime time = LocalDateTime.now();
-        statisticFileName = "../logs/CoverageStatistics_" + "mode_" + coverageMode + time + ".txt";
-        coveragePerThreadFileName = "../logs/CoveragePerThread_" + "mode_" + coverageMode + time + ".txt";
+        statisticFileName = "../logs/CoverageStatistics_" + "mode_" + coverageMode + ".txt";
+        coveragePerThreadFileName = "../logs/CoveragePerThread_" + "mode_" + coverageMode + ".txt";
 
         try {
             fw1 = new FileWriter(statisticFileName);
             bw1 = new BufferedWriter(fw1);
             out1 = new PrintWriter(bw1);
-            out1.println("Obligation ------> Time ");
+            out1.println(time + "  Obligation ------> Time ");
             out1.close();
 
             fw2 = new FileWriter(coveragePerThreadFileName);
             bw2 = new BufferedWriter(fw2);
             out2 = new PrintWriter(bw2);
-            out2.println("Coverage Per Thread");
+            out2.println(time + "  Coverage Per Thread");
             out2.close();
         } catch (IOException e) {
             System.out.println("problem writing to statistics file");
