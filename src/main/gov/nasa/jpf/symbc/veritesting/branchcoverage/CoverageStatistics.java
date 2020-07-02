@@ -26,6 +26,8 @@ public class CoverageStatistics {
     String coveragePerThreadFileName;
     int threadCount = 0;
 
+    //contains the normalized time after which we will record the coverage.
+    static Long timeNormVal = null;
 
     public CoverageStatistics() {
         LocalDateTime time = LocalDateTime.now();
@@ -51,11 +53,17 @@ public class CoverageStatistics {
     }
 
     public void recordObligationCovered(Obligation oblg) {
+        Long coverageTime;
+        if (timeNormVal == null) {
+            timeNormVal = System.currentTimeMillis();
+            coverageTime = 0L;
+        } else
+            coverageTime = System.currentTimeMillis() - timeNormVal;
         try {
             fw1 = new FileWriter(statisticFileName, true);
             bw1 = new BufferedWriter(fw1);
             out1 = new PrintWriter(bw1);
-            out1.println(oblg + "," + LocalDateTime.now());
+            out1.println(oblg + "," + coverageTime);
             out1.close();
         } catch (IOException e) {
             System.out.println("problem writing to statistics file");
