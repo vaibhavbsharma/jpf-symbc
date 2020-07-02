@@ -53,7 +53,7 @@ public class Obligation implements Cloneable, Comparable {
      * @return
      */
     private String toSpfPackageName(String packageName) {
-        return packageName.equals(UNKNOWN_PACKAGE) ? packageName.replaceAll("/", ".") : UNKNOWN_PACKAGE;
+        return !packageName.equals(UNKNOWN_PACKAGE) ? packageName.replaceAll("/", ".") : UNKNOWN_PACKAGE;
     }
 
     public String toString() {
