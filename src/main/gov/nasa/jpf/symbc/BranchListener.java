@@ -11,6 +11,7 @@ import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.report.ConsolePublisher;
 import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.PublisherExtension;
+import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.BranchCoverage;
@@ -29,7 +30,7 @@ import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligatio
 public class BranchListener extends PropertyListenerAdapter implements PublisherExtension {
 
     boolean firstTime = true;
-    public static boolean evaluationMode = false;
+    public static boolean evaluationMode = true;
     public static String targetClass;
     public static String targetAbsPath;
     public static CoverageMode coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE; //1 for vanilla spf mode, 2 for Branch Coverage mode, 3 for guided SPF
@@ -120,7 +121,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         if ((uncoveredReachThenOblg == null)) //indicating an obligation that we do not care about covering, i.e., not an application code.
             return;
 
-        System.out.println("before execution of  instruction: " + instructionToExecute);
+        System.out.println("before: " + instructionToExecute);
 
 
         if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//EARLY PRUNING, no new obligation can be reached
@@ -171,7 +172,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
         if (ObligationMgr.oblgExists(oblg)) {
-            System.out.println("after execution of  instruction: " + executedInstruction + "---- obligation is: " + oblg);
+            System.out.println("after: " + executedInstruction + "---- obligation is: " + oblg);
 
             if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
                 coverageStatistics.recordObligationCovered(oblg);
@@ -208,6 +209,10 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         coverageStatistics.recordCoverageForThread();
     }
 
+    public void stateBacktracked(Search search) {
+        System.out.println("backtracking now");
+    }
+
 
     // -------- the publisher interface
     @Override
@@ -216,5 +221,6 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         publisher.publishTopicStart("Branch Coverage report:");
 
         printCoverage();
+        coverageStatistics.printOverallStats();
     }
 }

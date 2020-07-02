@@ -155,4 +155,11 @@ public class ObligationMgr {
         }
     }
 
+    public static float getCoveragePercent() {
+        int numberOfCoverage = 0;
+        for (int i = 0; i < coveredArray.length; i++)
+            numberOfCoverage = coveredArray[i] ? ++numberOfCoverage : numberOfCoverage;
+
+        return ((float) numberOfCoverage / coveredArray.length) * 100;
+    }
 }
