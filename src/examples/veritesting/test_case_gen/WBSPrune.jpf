@@ -15,4 +15,4 @@ listener = .symbc.BranchListener
 
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/WBS.class
-coverageMode=3
+coverageMode=2
