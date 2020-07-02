@@ -33,4 +33,4 @@ symbolic.lazy = true
 
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
-runMode=3
+coverageMode=3
