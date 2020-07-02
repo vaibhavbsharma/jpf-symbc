@@ -1,0 +1,19 @@
+target=veritesting.tcas.tcas
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+symbolic.method = veritesting.tcas.tcas.sym1(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym2(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym3(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas..sym4(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym5(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym6(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas..sym7(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym8(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym9(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),veritesting.tcas.tcas.sym10(con#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+
+vm.storage.class=nil
+symbolic.debug=false
+
+#listener = .symbc.SymbolicListener
+
+symbolic.dp=z3bitvector
+
+jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
+listener = .symbc.BranchListener
+
+branchCoverageOn=true
+targetAbsPath=${jpf-symbc}/build/examples/veritesting/tcas/tcas.class
+coverageMode=1
+
