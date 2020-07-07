@@ -30,7 +30,7 @@ import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligatio
 public class BranchListener extends PropertyListenerAdapter implements PublisherExtension {
 
     boolean firstTime = true;
-    public static boolean evaluationMode = true;
+    public static boolean evaluationMode = false;
     public static String targetClass;
     public static String targetAbsPath;
     public static CoverageMode coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE; //1 for vanilla spf mode, 2 for Branch Coverage mode, 3 for guided SPF

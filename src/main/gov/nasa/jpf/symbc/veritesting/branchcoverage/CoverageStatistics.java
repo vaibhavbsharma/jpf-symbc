@@ -2,30 +2,40 @@ package gov.nasa.jpf.symbc.veritesting.branchcoverage;
 
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
-import jkind.lustre.Node;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Set;
 
 import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
 import static gov.nasa.jpf.symbc.BranchListener.evaluationMode;
 
 public class CoverageStatistics {
 
-    public static FileWriter fw1;
-    public static BufferedWriter bw1;
-    public static PrintWriter out1;
+    public static FileWriter statisticFilefw;
+    public static BufferedWriter statisticFilebw;
+    public static PrintWriter statisticFilepw;
 
-    public static FileWriter fw2;
-    public static BufferedWriter bw2;
-    public static PrintWriter out2;
+    public static FileWriter executionStatFilefw;
+    public static BufferedWriter executionStatFilebw;
+    public static PrintWriter executionStatFilepw;
+
+
+    public static FileWriter threadCoveragefw;
+    public static BufferedWriter threadCoveragebw;
+    public static PrintWriter threadCoverageout;
 
     String statisticFileName;
+    String executionStatFileName;
     String coveragePerThreadFileName;
+
     int threadCount = 0;
+
+    private static HashMap<Obligation, Long> threadOblgMap = new HashMap<>();
 
     //contains the normalized time after which we will record the coverage.
     static Long timeNormVal = null;
@@ -33,21 +43,28 @@ public class CoverageStatistics {
     public CoverageStatistics() {
         LocalDateTime time = LocalDateTime.now();
         statisticFileName = "../logs/CoverageStatistics_" + "mode_" + coverageMode + ".txt";
+        executionStatFileName = "../logs/ExecutionStatistics_" + "mode_" + coverageMode + ".txt";
         coveragePerThreadFileName = "../logs/CoveragePerThread_" + "mode_" + coverageMode + ".txt";
 
         try {
-            fw1 = new FileWriter(statisticFileName);
-            bw1 = new BufferedWriter(fw1);
-            out1 = new PrintWriter(bw1);
-            out1.println(time + "  Obligation ------> Time ");
-            out1.close();
+            statisticFilefw = new FileWriter(statisticFileName);
+            statisticFilebw = new BufferedWriter(statisticFilefw);
+            statisticFilepw = new PrintWriter(statisticFilebw);
+            statisticFilepw.println(time + "  Obligation ------> Time ");
+            statisticFilepw.close();
+
+            executionStatFilefw = new FileWriter(executionStatFileName);
+            executionStatFilebw = new BufferedWriter(executionStatFilefw);
+            executionStatFilepw = new PrintWriter(executionStatFilebw);
+            executionStatFilepw.println(time + "  Obligation ------> Execution Time ");
+            executionStatFilepw.close();
 
             if (!evaluationMode) {
-                fw2 = new FileWriter(coveragePerThreadFileName);
-                bw2 = new BufferedWriter(fw2);
-                out2 = new PrintWriter(bw2);
-                out2.println(time + "  Coverage Per Thread");
-                out2.close();
+                threadCoveragefw = new FileWriter(coveragePerThreadFileName);
+                threadCoveragebw = new BufferedWriter(threadCoveragefw);
+                threadCoverageout = new PrintWriter(threadCoveragebw);
+                threadCoverageout.println(time + "  Coverage Per Thread");
+                threadCoverageout.close();
             }
         } catch (IOException e) {
             System.out.println("problem writing to statistics file");
@@ -56,18 +73,31 @@ public class CoverageStatistics {
     }
 
     public void recordObligationCovered(Obligation oblg) {
+        long currentTime = System.currentTimeMillis();
+
         Long coverageTime;
         if (timeNormVal == null) {
-            timeNormVal = System.currentTimeMillis();
+            timeNormVal = currentTime;
             coverageTime = 0L;
         } else
-            coverageTime = System.currentTimeMillis() - timeNormVal;
+            coverageTime = currentTime - timeNormVal;
+
+        Long oblgCoverageTime = threadOblgMap.get(oblg);
+        assert (oblgCoverageTime == null) : "unexpected obligation being re-covered.";
+        threadOblgMap.put(oblg, timeNormVal);
         try {
-            fw1 = new FileWriter(statisticFileName, true);
-            bw1 = new BufferedWriter(fw1);
-            out1 = new PrintWriter(bw1);
-            out1.println(oblg + "," + coverageTime);
-            out1.close();
+            statisticFilefw = new FileWriter(statisticFileName, true);
+            statisticFilebw = new BufferedWriter(statisticFilefw);
+            statisticFilepw = new PrintWriter(statisticFilebw);
+            statisticFilepw.println(oblg + "," + coverageTime);
+            statisticFilepw.close();
+
+
+            executionStatFilefw = new FileWriter(executionStatFileName, true);
+            executionStatFilebw = new BufferedWriter(executionStatFilefw);
+            executionStatFilepw = new PrintWriter(executionStatFilebw);
+            executionStatFilepw.println(oblg + "," + currentTime);
+            executionStatFilepw.close();
         } catch (IOException e) {
             System.out.println("problem writing to statistics file");
             assert false;
@@ -77,12 +107,17 @@ public class CoverageStatistics {
     public void recordCoverageForThread() {
         if (!evaluationMode)
             try {
-                fw2 = new FileWriter(coveragePerThreadFileName, true);
-                bw2 = new BufferedWriter(fw2);
-                out2 = new PrintWriter(bw2);
-                out2.println("Coverage At the End of Thread: " + ++threadCount);
-                out2.println(ObligationMgr.printCoverageStr());
-                out2.close();
+                threadCoveragefw = new FileWriter(coveragePerThreadFileName, true);
+                threadCoveragebw = new BufferedWriter(threadCoveragefw);
+                threadCoverageout = new PrintWriter(threadCoveragebw);
+                threadCoverageout.println("Coverage At the End of Thread, total Obligation");
+                threadCoverageout.println(++threadCount + "," + threadOblgMap.size());
+                if (threadOblgMap.size() > 0)
+                    threadCoverageout.println(printThreadOblgMap());
+                else
+                    threadCoverageout.println("NONE");
+                threadOblgMap.clear();
+                threadCoverageout.close();
             } catch (IOException e) {
                 System.out.println("problem writing to coverage per thread file");
                 assert false;
@@ -94,14 +129,24 @@ public class CoverageStatistics {
 
 
         try {
-            fw1 = new FileWriter(statisticFileName, true);
-            bw1 = new BufferedWriter(fw1);
-            out1 = new PrintWriter(bw1);
-            out1.println(coveragePercent);
-            out1.close();
+            statisticFilefw = new FileWriter(statisticFileName, true);
+            statisticFilebw = new BufferedWriter(statisticFilefw);
+            statisticFilepw = new PrintWriter(statisticFilebw);
+            statisticFilepw.println(coveragePercent);
+            statisticFilepw.close();
         } catch (IOException e) {
             System.out.println("problem writing to statistics file");
             assert false;
         }
+    }
+
+
+    public static String printThreadOblgMap() {
+        String coverageStr = "";
+        Set<Obligation> olgKeySet = threadOblgMap.keySet();
+        for (Obligation oblg : olgKeySet) {
+            coverageStr += (oblg + "," + threadOblgMap.get(oblg) + " \n");
+        }
+        return coverageStr;
     }
 }
