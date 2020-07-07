@@ -44,7 +44,7 @@ import java.util.Random;
 
 public class SymbolicInteger extends LinearIntegerExpression
 {
-	public static long UNDEFINED = Long.MIN_VALUE;
+	public static long UNDEFINED = Integer.MIN_VALUE;
 	public long _min = 0;
 	public long _max = 0;
 	public long solution = UNDEFINED; // C
