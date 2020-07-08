@@ -43,9 +43,9 @@ public class CoverageStatistics {
         LocalDateTime time = LocalDateTime.now();
         int evnMaxSteps = Integer.valueOf(System.getenv("MAX_STEPS"));
 
-        statisticFileName = "../logs/" + benchmarkName + "/" + benchmarkName + "CoverageOnlyStat_mode_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
-        executionStatFileName = "../logs/" + benchmarkName + "/" + benchmarkName + "ExecutionStat_mode_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
-        coveragePerThreadFileName = "../logs/" + benchmarkName + "/" + benchmarkName + "ThreadStat_mode_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+        statisticFileName = "../logs/" + benchmarkName.toLowerCase() + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+        executionStatFileName = "../logs/" + benchmarkName.toLowerCase() + "/" + benchmarkName + "ExecStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+        coveragePerThreadFileName = "../logs/" + benchmarkName.toLowerCase() + "/" + benchmarkName + "ThreadStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
 
         try {
             statisticFilefw = new FileWriter(statisticFileName);
