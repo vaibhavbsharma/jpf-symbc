@@ -35,6 +35,7 @@ public class CoverageStatistics {
     int threadCount = 0;
 
     private static HashMap<Obligation, Long> threadOblgMap = new HashMap<>();
+    static int newOblgPerThreadCount = 0;
 
     //contains the normalized time after which we will record the coverage.
     static Long timeNormVal = null;
@@ -60,13 +61,14 @@ public class CoverageStatistics {
             executionStatFilepw.println(time + "  Obligation ------> Execution Time ");
             executionStatFilepw.close();
 
-            if (!evaluationMode) {
-                threadCoveragefw = new FileWriter(coveragePerThreadFileName);
-                threadCoveragebw = new BufferedWriter(threadCoveragefw);
-                threadCoverageout = new PrintWriter(threadCoveragebw);
-                threadCoverageout.println(time + "  Coverage Per Thread");
-                threadCoverageout.close();
-            }
+
+            threadCoveragefw = new FileWriter(coveragePerThreadFileName);
+            threadCoveragebw = new BufferedWriter(threadCoveragefw);
+            threadCoverageout = new PrintWriter(threadCoveragebw);
+            if(!evaluationMode) threadCoverageout.println(time + "  Coverage Per Thread");
+            else threadCoverageout.println("ThreadNum , NewOblgCount");
+            threadCoverageout.close();
+
         } catch (IOException e) {
             System.out.println("PROBLEM writing to statistics file");
             assert false;
@@ -74,6 +76,8 @@ public class CoverageStatistics {
     }
 
     public void recordObligationCovered(Obligation oblg) {
+        ++newOblgPerThreadCount;
+
         long currentTime = System.currentTimeMillis();
 
         Long coverageTime;
@@ -83,9 +87,12 @@ public class CoverageStatistics {
         } else
             coverageTime = currentTime - timeNormVal;
 
-        Long oblgCoverageTime = threadOblgMap.get(oblg);
-        assert (oblgCoverageTime == null) : "unexpected obligation being re-covered.";
-        threadOblgMap.put(oblg, timeNormVal);
+        if (!evaluationMode) {
+            Long oblgCoverageTime = threadOblgMap.get(oblg);
+            assert (oblgCoverageTime == null) : "unexpected obligation being re-covered.";
+            threadOblgMap.put(oblg, timeNormVal);
+        }
+
         try {
             statisticFilefw = new FileWriter(statisticFileName, true);
             statisticFilebw = new BufferedWriter(statisticFilefw);
@@ -106,23 +113,29 @@ public class CoverageStatistics {
     }
 
     public void recordCoverageForThread() {
-        if (!evaluationMode)
-            try {
-                threadCoveragefw = new FileWriter(coveragePerThreadFileName, true);
-                threadCoveragebw = new BufferedWriter(threadCoveragefw);
-                threadCoverageout = new PrintWriter(threadCoveragebw);
-                threadCoverageout.println("Coverage At the End of Thread, total Obligation");
-                threadCoverageout.println(++threadCount + "," + threadOblgMap.size());
+        try {
+            threadCoveragefw = new FileWriter(coveragePerThreadFileName, true);
+            threadCoveragebw = new BufferedWriter(threadCoveragefw);
+            threadCoverageout = new PrintWriter(threadCoveragebw);
+//            threadCoverageout.println("Coverage At the End of Thread, total Obligation");
+            threadCoverageout.println(++threadCount + "," + newOblgPerThreadCount);
+            if (!evaluationMode) {
+                assert newOblgPerThreadCount == threadOblgMap.size();
                 if (threadOblgMap.size() > 0)
                     threadCoverageout.println(printThreadOblgMap());
-                else
+                else {
                     threadCoverageout.println("NONE");
-                threadOblgMap.clear();
-                threadCoverageout.close();
-            } catch (IOException e) {
-                System.out.println("problem writing to coverage per thread file");
-                assert false;
+                    threadOblgMap.clear();
+                    threadCoverageout.close();
+                }
+            } else {
+                newOblgPerThreadCount = 0;
             }
+            threadCoverageout.close();
+        } catch (IOException e) {
+            System.out.println("problem writing to coverage per thread file");
+            assert false;
+        }
     }
 
     public void printOverallStats() {
