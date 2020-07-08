@@ -7,7 +7,7 @@ symbolic.debug=false
 
 #listener = .symbc.SymbolicListener
 
-symbolic.dp=z3bitvector
+symbolic.dp=z3
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 listener = .symbc.BranchListener

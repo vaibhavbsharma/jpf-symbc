@@ -8,12 +8,12 @@ symbolic.debug=false
 
 #listener = .symbc.SymbolicListener
 
-symbolic.dp=z3bitvector
+symbolic.dp=z3
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 listener = .symbc.BranchListener
 
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/veritesting/tcas/tcas.class
-coverageMode=3
+coverageMode=2
 

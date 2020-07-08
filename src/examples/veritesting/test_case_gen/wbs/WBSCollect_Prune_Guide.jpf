@@ -7,7 +7,7 @@ symbolic.debug=false
 
 #listener = .symbc.SymbolicListener
 
-symbolic.dp=z3bitvector
+symbolic.dp=z3
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 listener = .symbc.BranchListener
@@ -15,4 +15,4 @@ listener = .symbc.BranchListener
 
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/WBS.class
-coverageMode=2
+coverageMode=4

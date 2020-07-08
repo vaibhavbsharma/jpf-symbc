@@ -24,7 +24,7 @@ MAXSTEPS=$2 && export MAX_STEPS
 
 echo "maxsteps is $MAXSTEPS"
 
-#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Steps_$MAXSTEPS.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollectPrune.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_Steps_$MAXSTEPS.log
-#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollectGuide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Guide_Steps_$MAXSTEPS.log
-#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollectPrune_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_Guide_Steps_$MAXSTEPS.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune.jpf #>& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_steps$MAXSTEPS.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_Guide_steps$2.log
