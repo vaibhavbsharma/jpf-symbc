@@ -104,7 +104,7 @@ public class CoverageStatistics {
             executionStatFilefw = new FileWriter(executionStatFileName, true);
             executionStatFilebw = new BufferedWriter(executionStatFilefw);
             executionStatFilepw = new PrintWriter(executionStatFilebw);
-            executionStatFilepw.println(oblg + "," + currentTime);
+            executionStatFilepw.println(oblg + "," + (currentTime-timeZero));
             executionStatFilepw.close();
         } catch (IOException e) {
             System.out.println("problem writing to statistics file");

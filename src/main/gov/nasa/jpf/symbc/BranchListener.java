@@ -43,6 +43,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     private boolean allObligationsCovered = false;
     private CoverageStatistics coverageStatistics;
     public static String benchmarkName;
+    public static Long timeZero;
 
     public BranchListener(Config conf, JPF jpf) {
         jpf.addPublisherExtension(ConsolePublisher.class, this);
@@ -99,10 +100,10 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
                 firstTime = false;
+                timeZero = System.currentTimeMillis();
                 printCoverage();
                 printReachability();
                 printOblgToBBMap();
-
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
                 if (instructionToExecute instanceof IfInstruction) {
