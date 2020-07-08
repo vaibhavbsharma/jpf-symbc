@@ -41,10 +41,11 @@ public class CoverageStatistics {
 
     public CoverageStatistics() {
         LocalDateTime time = LocalDateTime.now();
+        int evnMaxSteps = Integer.valueOf(System.getenv("MAX_STEPS"));
 
-        statisticFileName = "../logs/" + benchmarkName + "CoverageStatistics_" + "mode_" + coverageMode + ".txt";
-        executionStatFileName = "../logs/" + benchmarkName + "ExecutionStatistics_" + "mode_" + coverageMode + ".txt";
-        coveragePerThreadFileName = "../logs/" + benchmarkName + "CoveragePerThread_" + "mode_" + coverageMode + ".txt";
+        statisticFileName = "../logs/" + benchmarkName + "/" + benchmarkName + "CoverageOnlyStat_mode_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+        executionStatFileName = "../logs/" + benchmarkName + "/" + benchmarkName + "ExecutionStat_mode_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+        coveragePerThreadFileName = "../logs/" + benchmarkName + "/" + benchmarkName + "ThreadStat_mode_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
 
         try {
             statisticFilefw = new FileWriter(statisticFileName);
@@ -67,7 +68,7 @@ public class CoverageStatistics {
                 threadCoverageout.close();
             }
         } catch (IOException e) {
-            System.out.println("problem writing to statistics file");
+            System.out.println("PROBLEM writing to statistics file");
             assert false;
         }
     }
