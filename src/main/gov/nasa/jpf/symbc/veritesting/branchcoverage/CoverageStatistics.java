@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Set;
 
-import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
-import static gov.nasa.jpf.symbc.BranchListener.evaluationMode;
+import static gov.nasa.jpf.symbc.BranchListener.*;
 
 public class CoverageStatistics {
 
@@ -42,9 +41,10 @@ public class CoverageStatistics {
 
     public CoverageStatistics() {
         LocalDateTime time = LocalDateTime.now();
-        statisticFileName = "../logs/CoverageStatistics_" + "mode_" + coverageMode + ".txt";
-        executionStatFileName = "../logs/ExecutionStatistics_" + "mode_" + coverageMode + ".txt";
-        coveragePerThreadFileName = "../logs/CoveragePerThread_" + "mode_" + coverageMode + ".txt";
+
+        statisticFileName = "../logs/" + benchmarkName + "CoverageStatistics_" + "mode_" + coverageMode + ".txt";
+        executionStatFileName = "../logs/" + benchmarkName + "ExecutionStatistics_" + "mode_" + coverageMode + ".txt";
+        coveragePerThreadFileName = "../logs/" + benchmarkName + "CoveragePerThread_" + "mode_" + coverageMode + ".txt";
 
         try {
             statisticFilefw = new FileWriter(statisticFileName);

@@ -42,6 +42,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     public static boolean newCoverageFound = false;
     private boolean allObligationsCovered = false;
     private CoverageStatistics coverageStatistics;
+    public static String benchmarkName;
 
     public BranchListener(Config conf, JPF jpf) {
         jpf.addPublisherExtension(ConsolePublisher.class, this);
@@ -55,22 +56,33 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         if (conf.hasValue("evaluationMode")) evaluationMode = conf.getBoolean("evaluationMode");
 
-        if (conf.hasValue("coverageMode")) if (conf.getInt("coverageMode") == 1) coverageMode = CoverageMode.COLLECT_COVERAGE;
-        else if (conf.getInt("coverageMode") == 2) coverageMode = CoverageMode.COLLECT_PRUNE;
-        else if (conf.getInt("coverageMode") == 3) {
-            coverageMode = CoverageMode.COLLECT_GUIDE;
-            BranchSymInstructionFactory.GuideBranchExploration = true;
-        } else if (conf.getInt("coverageMode") == 4) {
-            coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
-            BranchSymInstructionFactory.GuideBranchExploration = true;
-        } else {
-            System.out.println("unknown mode. Failing");
-            assert false;
-        }
+        if (conf.hasValue("coverageMode"))
+            if (conf.getInt("coverageMode") == 1) coverageMode = CoverageMode.COLLECT_COVERAGE;
+            else if (conf.getInt("coverageMode") == 2) coverageMode = CoverageMode.COLLECT_PRUNE;
+            else if (conf.getInt("coverageMode") == 3) {
+                coverageMode = CoverageMode.COLLECT_GUIDE;
+                BranchSymInstructionFactory.GuideBranchExploration = true;
+            } else if (conf.getInt("coverageMode") == 4) {
+                coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
+                BranchSymInstructionFactory.GuideBranchExploration = true;
+            } else {
+                System.out.println("unknown mode. Failing");
+                assert false;
+            }
+
+        benchmarkName = setBenchmarkName(conf.getString("target"));
 
         System.out.println("---- CoverageMode = " + coverageMode);
 
         coverageStatistics = new CoverageStatistics();
+    }
+
+    private String setBenchmarkName(String target) {
+        int classIndex = target.lastIndexOf(".");
+        if (classIndex == -1)
+            return target;
+        else
+            return target.substring(classIndex + 1);
     }
 
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
