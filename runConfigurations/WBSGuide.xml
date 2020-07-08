@@ -1,18 +1,18 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="WBSGuide" type="JarApplication" factoryName="JAR Application">
+  <configuration default="false" name="WBSGuide" type="JarApplication">
     <output_file path="$PROJECT_DIR$/logs/WBSGuide.log" is_save="true" />
-    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <option name="JAR_PATH" value="$PROJECT_DIR$/../jpf-core/build/RunJPF.jar" />
     <option name="VM_PARAMETERS" value="-Djava.library.path=&quot;$PROJECT_DIR$/lib/&quot; -Xmx10000m -ea" />
-    <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/src/examples/veritesting/test_case_gen/WBSGuide.jpf" />
+    <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/src/examples/veritesting/test_case_gen/wbs/WBSGuide.jpf" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/lib" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
     <envs>
       <env name="TARGET_CLASSPATH_WALA" value="../build/examples/" />
       <env name="LD_LIBRARY_PATH" value="../lib/" />
+      <env name="MAX_STEPS" value="1" />
     </envs>
-    <method>
+    <method v="2">
       <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/build.xml" target="clean" />
       <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/build.xml" target="build" />
     </method>
