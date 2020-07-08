@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## takes as input mac or number of steps, for example ./runCoverageTCAS.sh linux 1
+
 if [ "$1" = "mac" ]; then
   alias runCoverage='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/Users/sohahussein/git/java-ranger/lib TARGET_CLASSPATH_WALA=/Users/sohahussein/git/java-ranger/build/examples/ java -Djava.library.path=/Users/sohahussein/git/java-ranger/lib  -ea -Dfile.encoding=UTF-8 -jar /Users/sohahussein/git/jpf-core/build/RunJPF.jar '
 else
@@ -16,9 +18,11 @@ else
   COVERAGEDIR=/home/soha/git/java-ranger
 fi
 
-MAX_STEPS=3 && export MAX_STEPS
+MAXSTEPS=$2 && export MAX_STEPS
 
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect_Prune.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Guide.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect_Guide.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect_Prune_Guide.log
+echo "maxsteps is $MAXSTEPS"
+
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_$MAXSTEPS_steps.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_Prune_$MAXSTEPS_steps.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Guide.jpf >& $COVERAGEDIR/log/tcas/TCASCollect_Guide_$MAXSTEPS_steps.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_Prune_Guide_$MAXSTEPS_steps.log

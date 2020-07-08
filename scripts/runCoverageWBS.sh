@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this is running the valid properties and using mutation for them
+## takes as input mac or number of steps, for example ./runCoverageWBS.sh linux 1
 
 if [ "$1" = "mac" ]; then
   #export DYLD_LIBRARY_PATH=/Users/sohahussein/git/java-ranger/lib
@@ -20,7 +20,11 @@ else
   COVERAGEDIR=/home/soha/git/java-ranger
 fi
 
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect_Prune.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect_Guide.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect_Prune_Guide.log
+MAXSTEPS=$2 && export MAX_STEPS
+
+echo "maxsteps is $MAXSTEPS"
+
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_$MAXSTEPS_steps.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_$MAXSTEPS_steps.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Guide_$MAXSTEPS_steps.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_Guide_$MAXSTEPS_steps.log
