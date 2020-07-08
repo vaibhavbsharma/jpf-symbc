@@ -20,7 +20,7 @@ else
   COVERAGEDIR=/home/soha/git/java-ranger
 fi
 
-#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune.jpf #>& $COVERAGEDIR/logs/coverage/wbs/WBSCollect_Prune.log
-#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect_Guide.log
-#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect_Prune_Guide.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect_Prune.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect_Guide.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/coverage/wbs/WBSCollect_Prune_Guide.log

@@ -16,9 +16,9 @@ else
   COVERAGEDIR=/home/soha/git/java-ranger
 fi
 
-MAX_STEPS=6 && export MAX_STEPS
+MAX_STEPS=3 && export MAX_STEPS
 
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/WBSCollect.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/WBSCollect_Prune.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect_Prune.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect_Guide.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect_Prune_Guide.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect_Prune.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Guide.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect_Guide.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/coverage/tcas/TCASCollect_Prune_Guide.log
