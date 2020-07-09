@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import static gov.nasa.jpf.symbc.BranchListener.coverageExclusions;
+import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil.UNKNOWN_PACKAGE;
 
 
 /**
@@ -85,7 +86,11 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
     }
 
     private String constructWalaSign() {
-        return "L" + className + "." + methodSig;
+        String refinedMethodSig = methodSig.replaceAll(";", "");
+        if (walaPackageName.equals(UNKNOWN_PACKAGE))
+            return "L" + className + "." + refinedMethodSig;
+        else
+            return "L" + walaPackageName + "/" + className + "." + refinedMethodSig;
     }
 
 

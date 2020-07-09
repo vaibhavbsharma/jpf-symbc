@@ -31,6 +31,7 @@ import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligatio
 public class BranchListener extends PropertyListenerAdapter implements PublisherExtension {
 
     // this is used to hold signature of methods that we know we do not want to cover its oblgations, like the setup for running multiple steps in WBS and TCAS
+    //must not have simicolon in it
     public static HashSet<String> coverageExclusions = new HashSet<>();
     boolean firstTime = true;
     public static boolean evaluationMode = true;

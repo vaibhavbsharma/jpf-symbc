@@ -15,5 +15,9 @@ listener = .symbc.BranchListener
 
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/veritesting/tcas/tcas.class
+coverageExclusions=LWBS.launch(IZZIZZIZZIZZIZZ)V
+
+coverageExclusions=Lveritesting/tcas/tcas.main([Ljava/lang/String)V
+
 coverageMode=4
 

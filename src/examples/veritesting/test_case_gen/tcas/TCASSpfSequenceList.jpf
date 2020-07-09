@@ -11,11 +11,14 @@ symbolic.debug=false
 symbolic.dp=z3
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
-#listener = .symbc.BranchListener
+listener = .symbc.BranchListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 
-listener = .symbc.SymbolicListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
+#listener = .symbc.SymbolicListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/veritesting/tcas/tcas.class
-coverageMode=1
+
+coverageExclusions=Lveritesting/tcas/tcas.main([Ljava/lang/String)V
+
+coverageMode=4
 
