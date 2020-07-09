@@ -71,4 +71,9 @@ public class BranchCoverage {
         }
         ObligationMgr.finishedCollection();
     }
+
+    public static void finishedCollection() {
+        cha = null;
+        BranchOblgCollectorVisitor.finishedCollection();
+    }
 }

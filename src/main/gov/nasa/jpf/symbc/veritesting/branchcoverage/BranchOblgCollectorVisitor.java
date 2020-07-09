@@ -56,6 +56,10 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         this.irInstIndex = irInstIndex;
     }
 
+    public static void finishedCollection() {
+        visitedClassesMethod = null;
+    }
+
     /**
      * when encountering a branch we need to collect its obligation
      *

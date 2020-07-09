@@ -104,6 +104,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 System.out.println("---- CoverageMode = " + coverageMode + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS")!=null? ", STEPS "+System.getenv("MAX_STEPS"): ""));
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
+                BranchCoverage.finishedCollection();
                 firstTime = false;
                 timeZero = System.currentTimeMillis();
                 printCoverage();
