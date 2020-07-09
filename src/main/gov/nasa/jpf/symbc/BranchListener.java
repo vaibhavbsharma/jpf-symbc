@@ -109,9 +109,11 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 BranchCoverage.finishedCollection();
                 firstTime = false;
                 timeZero = System.currentTimeMillis();
-                printCoverage();
-                printReachability();
-                printOblgToBBMap();
+                if (!evaluationMode) {
+                    printCoverage();
+                    printReachability();
+                    printOblgToBBMap();
+                }
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
                 if (instructionToExecute instanceof IfInstruction) {
