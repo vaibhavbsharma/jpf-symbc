@@ -95,14 +95,15 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
         if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) // pruning only in pruning mode
             if (allObligationsCovered) {
-                System.out.println("all obligation covered, ignoring all paths.");
+                if (!evaluationMode)
+                    System.out.println("all obligation covered, ignoring all paths.");
                 ti.getVM().getSystemState().setIgnored(true);
                 return;
             }
 
         try {
             if (firstTime) {
-                System.out.println("---- CoverageMode = " + coverageMode + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS")!=null? ", STEPS "+System.getenv("MAX_STEPS"): ""));
+                System.out.println("---- CoverageMode = " + coverageMode + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS") != null ? ", STEPS " + System.getenv("MAX_STEPS") : ""));
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
                 BranchCoverage.finishedCollection();
@@ -141,13 +142,15 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         if ((uncoveredReachThenOblg == null)) //indicating an obligation that we do not care about covering, i.e., not an application code.
             return;
 
-        System.out.println("before: " + instructionToExecute);
+        if (!evaluationMode)
+            System.out.println("before: " + instructionToExecute);
 
 
         if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//EARLY PRUNING, no new obligation can be reached
             if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) { //prune only in pruning mode.
                 ti.getVM().getSystemState().setIgnored(true);
-                System.out.println("EARLY PRUNING CASE: path is ignored");
+                if (!evaluationMode)
+                    System.out.println("EARLY PRUNING CASE: path is ignored");
             }
         } else {//GUIDING HERE - this is not needed in concrete branches
             //default setting is "else" exploration then the "then" exploration. flip if needed
@@ -157,7 +160,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 if (coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE || coverageMode == CoverageMode.COLLECT_GUIDE) // GUIDE: only in guiding mode.
                     if (!ti.isFirstStepInsn()) { // first time around
                         IFInstrSymbHelper.flipBranchExploration = true;
-                        System.out.println("flipping then and else sides.");
+                        if (!evaluationMode)
+                            System.out.println("flipping then and else sides.");
                     } else IFInstrSymbHelper.flipBranchExploration = false;
             }
         }
@@ -192,7 +196,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
         if (ObligationMgr.oblgExists(oblg)) {
-            System.out.println("after: " + executedInstruction + "---- obligation is: " + oblg);
+            if (!evaluationMode)
+                System.out.println("after: " + executedInstruction + "---- obligation is: " + oblg);
 
             if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
                 coverageStatistics.recordObligationCovered(oblg);
@@ -223,14 +228,16 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     }
 
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
-        System.out.println("end of thread");
+        if (!evaluationMode)
+            System.out.println("end of thread");
         newCoverageFound = false;
         allObligationsCovered = ObligationMgr.isAllObligationCovered();
         coverageStatistics.recordCoverageForThread();
     }
 
     public void stateBacktracked(Search search) {
-        System.out.println("backtracking now");
+        if (!evaluationMode)
+            System.out.println("backtracking now");
     }
 
 
