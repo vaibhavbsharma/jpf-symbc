@@ -18,9 +18,9 @@ import gov.nasa.jpf.vm.ThreadInfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 
 import static gov.nasa.jpf.symbc.BranchListener.targetAbsPath;
-import static gov.nasa.jpf.symbc.BranchListener.targetClass;
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.CallGraphUtil.pruneForAppLoader;
 
 public class BranchCoverage {

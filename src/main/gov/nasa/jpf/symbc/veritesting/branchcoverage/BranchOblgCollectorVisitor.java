@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static gov.nasa.jpf.symbc.BranchListener.coverageExclusions;
+
 
 /**
  * used to collect obligation. There is an instance of this class for each method. It uses cha static object in BranchCoverage
@@ -60,6 +62,9 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
      * @param inst
      */
     public void visitConditionalBranch(SSAConditionalBranchInstruction inst) {
+        if (coverageExclusions.contains(constructWalaSign())) // do not look for covering these oblg if they exist in the coverageExclusion.
+            return;
+
         int instLine = CoverageUtil.getWalaInstLineNum(iMethod, inst);
         /*inst.iIndex();
         try { //no need for this to find the instruction index, it is already available in the instruction itself.
@@ -72,7 +77,11 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         HashSet<Obligation> reacheableThenOblgs = (new ObligationReachability(ir, inst, ObligationSide.THEN)).reachableObligations();
         HashSet<Obligation> reacheableElseOblgs = (new ObligationReachability(ir, inst, ObligationSide.ELSE)).reachableObligations();
 
-        ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, ir.getControlFlowGraph().getBlockForInstruction(inst.iIndex()),reacheableThenOblgs, reacheableElseOblgs);
+        ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, ir.getControlFlowGraph().getBlockForInstruction(inst.iIndex()), reacheableThenOblgs, reacheableElseOblgs);
+    }
+
+    private String constructWalaSign() {
+        return "L" + className + "." + methodSig;
     }
 
 
@@ -96,7 +105,8 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         String classUniqueName = CoverageUtil.classUniqueName(walaPackageName, className, methodSignature);
 
         //return from collecting obligations from the invoked method if we have already visited it or if it is not loaded by Application class loader.
-        if (visitedClassesMethod.contains(classUniqueName) || !(m.getDeclaringClass().getClassLoader().toString().equals("Application"))) return;
+        if (visitedClassesMethod.contains(classUniqueName) || !(m.getDeclaringClass().getClassLoader().toString().equals("Application")))
+            return;
         visitedClassesMethod.add(classUniqueName);
 
         BranchOblgCollectorVisitor branchOblgCollectorVisitor = null;
@@ -104,7 +114,8 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         for (int irInstIndex = 0; irInstIndex < ir.getInstructions().length; irInstIndex++) {
             SSAInstruction ins = ir.getInstructions()[irInstIndex];
             if (ins != null) {
-                if (branchOblgCollectorVisitor == null) branchOblgCollectorVisitor = new BranchOblgCollectorVisitor(ir, walaPackageName, className, methodSignature, m, irInstIndex);
+                if (branchOblgCollectorVisitor == null)
+                    branchOblgCollectorVisitor = new BranchOblgCollectorVisitor(ir, walaPackageName, className, methodSignature, m, irInstIndex);
                 else branchOblgCollectorVisitor.updateInstIndex(irInstIndex);
                 ins.visit(branchOblgCollectorVisitor);
             }

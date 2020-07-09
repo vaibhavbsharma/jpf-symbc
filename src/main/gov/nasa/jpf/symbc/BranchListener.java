@@ -24,11 +24,14 @@ import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.vm.*;
 
 import java.io.*;
+import java.util.HashSet;
 
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr.*;
 
 public class BranchListener extends PropertyListenerAdapter implements PublisherExtension {
 
+    // this is used to hold signature of methods that we know we do not want to cover its oblgations, like the setup for running multiple steps in WBS and TCAS
+    public static HashSet<String> coverageExclusions = new HashSet<>();
     boolean firstTime = true;
     public static boolean evaluationMode = true;
     public static String targetClass;
@@ -56,6 +59,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         targetAbsPath = conf.getString("targetAbsPath");
 
         if (conf.hasValue("evaluationMode")) evaluationMode = conf.getBoolean("evaluationMode");
+
+        if (conf.hasValue("coverageExclusions")) coverageExclusions = conf.getStringSet("coverageExclusions");
 
         if (conf.hasValue("coverageMode"))
             if (conf.getInt("coverageMode") == 1) coverageMode = CoverageMode.COLLECT_COVERAGE;
