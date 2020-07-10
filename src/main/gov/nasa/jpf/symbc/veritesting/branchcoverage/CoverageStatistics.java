@@ -3,10 +3,8 @@ package gov.nasa.jpf.symbc.veritesting.branchcoverage;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Set;
@@ -42,13 +40,24 @@ public class CoverageStatistics {
 
     public CoverageStatistics() {
         LocalDateTime time = LocalDateTime.now();
-        int evnMaxSteps = Integer.valueOf(System.getenv("MAX_STEPS"));
+        Integer evnMaxSteps = (System.getenv("MAX_STEPS") != null) ? Integer.valueOf(System.getenv("MAX_STEPS")) : null;
 
-        statisticFileName = "../logs/" + benchmarkName.toLowerCase() + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
-        executionStatFileName = "../logs/" + benchmarkName.toLowerCase() + "/" + benchmarkName + "ExecStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
-        coveragePerThreadFileName = "../logs/" + benchmarkName.toLowerCase() + "/" + benchmarkName + "ThreadStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+        String folderStr = "../logs/" + benchmarkName.toLowerCase();
+        new File(folderStr).mkdir(); //creating a folder to hold results
+
+
+        if (evnMaxSteps != null) {
+            statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+            executionStatFileName = folderStr + "/" + benchmarkName + "ExecStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+            coveragePerThreadFileName = folderStr + "/" + benchmarkName + "ThreadStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+        } else {
+            statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + ".txt";
+            executionStatFileName = folderStr + "/" + benchmarkName + "ExecStat_" + coverageMode + ".txt";
+            coveragePerThreadFileName = folderStr + "/" + benchmarkName + "ThreadStat_" + coverageMode + ".txt";
+        }
 
         try {
+
             statisticFilefw = new FileWriter(statisticFileName);
             statisticFilebw = new BufferedWriter(statisticFilefw);
             statisticFilepw = new PrintWriter(statisticFilebw);
@@ -65,7 +74,7 @@ public class CoverageStatistics {
             threadCoveragefw = new FileWriter(coveragePerThreadFileName);
             threadCoveragebw = new BufferedWriter(threadCoveragefw);
             threadCoverageout = new PrintWriter(threadCoveragebw);
-            if(!evaluationMode) threadCoverageout.println(time + "  Coverage Per Thread");
+            if (!evaluationMode) threadCoverageout.println(time + "  Coverage Per Thread");
             else threadCoverageout.println("ThreadNum , NewOblgCount");
             threadCoverageout.close();
 
@@ -104,7 +113,7 @@ public class CoverageStatistics {
             executionStatFilefw = new FileWriter(executionStatFileName, true);
             executionStatFilebw = new BufferedWriter(executionStatFilefw);
             executionStatFilepw = new PrintWriter(executionStatFilebw);
-            executionStatFilepw.println(oblg + "," + (currentTime-timeZero));
+            executionStatFilepw.println(oblg + "," + (currentTime - timeZero));
             executionStatFilepw.close();
         } catch (IOException e) {
             System.out.println("problem writing to statistics file");
