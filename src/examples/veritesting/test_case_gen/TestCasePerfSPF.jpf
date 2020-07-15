@@ -4,13 +4,15 @@ sourcepath=${jpf-symbc}/src/examples
 vm.storage.class=nil
 symbolic.debug=false
 
+symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov2(sym#sym)
+
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
 
@@ -19,9 +21,9 @@ symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
 
-symbolic.dp=z3bitvector
+#symbolic.dp=z3bitvector
 
-listener = .symbc.SymbolicListener
+#listener = .symbc.SymbolicListener
 #listener = gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 #listener = .symbc.BranchListener
 
@@ -30,4 +32,8 @@ symbolic.lazy = true
 
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
-coverageMode=4
+coverageMode=1
+
+symbolic.dp=z3bitvectorinc
+listener = .symbc.BranchListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+#symbolic.optimizechoices=false
