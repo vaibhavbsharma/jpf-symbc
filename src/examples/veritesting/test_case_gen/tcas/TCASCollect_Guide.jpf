@@ -8,10 +8,14 @@ symbolic.debug=false
 
 #listener = .symbc.SymbolicListener
 
-symbolic.dp=z3
-
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
-listener = .symbc.BranchListener
+
+#symbolic.dp=z3
+
+symbolic.dp=z3inc
+listener = .symbc.BranchListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+#symbolic.optimizechoices=false
 
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/veritesting/tcas/tcas.class

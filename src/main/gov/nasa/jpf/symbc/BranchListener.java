@@ -49,6 +49,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     public static String benchmarkName;
     public static Long timeZero;
 
+    public static String solver;
+
     public BranchListener(Config conf, JPF jpf) {
         jpf.addPublisherExtension(ConsolePublisher.class, this);
 
@@ -63,23 +65,23 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         if (conf.hasValue("coverageExclusions")) coverageExclusions = conf.getStringSet("coverageExclusions");
 
-        if (conf.hasValue("coverageMode"))
+        if (conf.hasValue("symbolic.dp")) solver = conf.getString("symbolic.dp");
+
+
+        if (conf.hasValue("coverageMode")) {
             if (conf.getInt("coverageMode") == 1) coverageMode = CoverageMode.COLLECT_COVERAGE;
             else if (conf.getInt("coverageMode") == 2) coverageMode = CoverageMode.COLLECT_PRUNE;
-            else if (conf.getInt("coverageMode") == 3) {
+            else if (conf.getInt("coverageMode") == 3)
                 coverageMode = CoverageMode.COLLECT_GUIDE;
-                BranchSymInstructionFactory.GuideBranchExploration = true;
-            } else if (conf.getInt("coverageMode") == 4) {
+            else if (conf.getInt("coverageMode") == 4)
                 coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
-                BranchSymInstructionFactory.GuideBranchExploration = true;
-            } else {
+            else {
                 System.out.println("unknown mode. Failing");
                 assert false;
             }
-
+            BranchSymInstructionFactory.GuideBranchExploration = true;
+        }
         benchmarkName = setBenchmarkName(conf.getString("target"));
-
-        System.out.println("---- CoverageMode = " + coverageMode);
 
         coverageStatistics = new CoverageStatistics();
     }
@@ -103,7 +105,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         try {
             if (firstTime) {
-                System.out.println("---- CoverageMode = " + coverageMode + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS") != null ? ", STEPS " + System.getenv("MAX_STEPS") : ""));
+                System.out.println("---- CoverageMode = " + coverageMode + ", solver = " + solver + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS") != null ? ", STEPS " + System.getenv("MAX_STEPS") : ""));
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
                 BranchCoverage.finishedCollection();

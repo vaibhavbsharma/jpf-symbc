@@ -24,10 +24,10 @@ package gov.nasa.jpf.symbc.bytecode.branchchoices.util;
 
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.symbc.numeric.*;
+import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.ThreadInfo;
-
 
 
 public class IFInstrSymbHelper {
@@ -74,8 +74,19 @@ public class IFInstrSymbHelper {
                 nePC._addDet(falseComparator, v1, sym_v2);
             }
 
-            boolean eqSat = eqPC.simplify();
-            boolean neSat = nePC.simplify();
+            boolean eqSat;
+            boolean neSat;
+            if (IncrementalListener.solver != null) {
+                IncrementalListener.solver.push();
+                eqSat = eqPC.simplify();
+                IncrementalListener.solver.pop();
+                IncrementalListener.solver.push();
+                neSat = nePC.simplify();
+                IncrementalListener.solver.pop();
+            } else {
+                eqSat = eqPC.simplify();
+                neSat = nePC.simplify();
+            }
 
             if (eqSat) {
                 if (neSat) {
@@ -137,7 +148,6 @@ public class IFInstrSymbHelper {
     }
 
 
-
     public static Instruction getNextInstructionAndSetPCChoice(ThreadInfo ti,
                                                                IfInstruction instr,
                                                                IntegerExpression sym_v,
@@ -145,16 +155,16 @@ public class IFInstrSymbHelper {
                                                                Comparator falseComparator) {
 
         //TODO: fix conditionValue
-        if(!ti.isFirstStepInsn()) { // first time around
+        if (!ti.isFirstStepInsn()) { // first time around
             PCChoiceGenerator prevPcGen;
             ChoiceGenerator<?> cg = ti.getVM().getChoiceGenerator();
-            if(cg instanceof PCChoiceGenerator)
-                prevPcGen = (PCChoiceGenerator)cg;
+            if (cg instanceof PCChoiceGenerator)
+                prevPcGen = (PCChoiceGenerator) cg;
             else
-                prevPcGen = (PCChoiceGenerator)cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+                prevPcGen = (PCChoiceGenerator) cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
             PathCondition pc;
-            if(prevPcGen!=null)
+            if (prevPcGen != null)
                 pc = prevPcGen.getCurrentPC();
             else
                 pc = new PathCondition();
@@ -164,11 +174,23 @@ public class IFInstrSymbHelper {
             eqPC._addDet(trueComparator, sym_v, 0);
             nePC._addDet(falseComparator, sym_v, 0);
 
-            boolean eqSat = eqPC.simplify();
-            boolean neSat = nePC.simplify();
+            boolean eqSat;
+            boolean neSat;
+            if (IncrementalListener.solver != null) {
+                IncrementalListener.solver.push();
+                eqSat = eqPC.simplify();
+                IncrementalListener.solver.pop();
+                IncrementalListener.solver.push();
+                neSat = nePC.simplify();
+                IncrementalListener.solver.pop();
+            } else {
+                eqSat = eqPC.simplify();
+                neSat = nePC.simplify();
+            }
 
-            if(eqSat) {
-                if(neSat) {
+
+            if (eqSat) {
+                if (neSat) {
                     BranchChoiceGenerator newPCChoice = new BranchChoiceGenerator(2, flipBranchExploration);
                     newPCChoice.setOffset(instr.getPosition());
                     newPCChoice.setMethodName(instr.getMethodInfo().getFullName());
@@ -185,19 +207,19 @@ public class IFInstrSymbHelper {
         } else {
             ti.getModifiableTopFrame().pop();
             PathCondition pc;
-            PCChoiceGenerator curCg = (PCChoiceGenerator)ti.getVM().getSystemState().getChoiceGenerator();
+            PCChoiceGenerator curCg = (PCChoiceGenerator) ti.getVM().getSystemState().getChoiceGenerator();
 
             PCChoiceGenerator prevCg = curCg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-            if(prevCg == null )
+            if (prevCg == null)
                 pc = new PathCondition();
             else
                 pc = prevCg.getCurrentPC();
-            boolean conditionValue = (Integer)curCg.getNextChoice()==1 ? true: false;
+            boolean conditionValue = (Integer) curCg.getNextChoice() == 1 ? true : false;
 
             conditionValue = ((BranchChoiceGenerator) curCg).flip ? !conditionValue : conditionValue;
 
-            if(conditionValue) {
+            if (conditionValue) {
                 pc._addDet(trueComparator, sym_v, 0);
                 ((PCChoiceGenerator) curCg).setCurrentPC(pc);
                 return instr.getTarget();
