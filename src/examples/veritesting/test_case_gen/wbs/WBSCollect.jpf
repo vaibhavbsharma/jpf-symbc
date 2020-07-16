@@ -19,4 +19,4 @@ listener = .symbc.BranchListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceLi
 branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/WBS.class
 coverageExclusions=LWBS.launch(IZZIZZIZZIZZIZZ)V
-coverageMode=3
+coverageMode=1
