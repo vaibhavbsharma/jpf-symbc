@@ -44,7 +44,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     public static boolean isSymBranchInst = false;
 
     public static boolean newCoverageFound = false;
-    private boolean allObligationsCovered = false;
+    protected boolean allObligationsCovered = false;
     private CoverageStatistics coverageStatistics;
     public static String benchmarkName;
     public static Long timeZero;
