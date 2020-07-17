@@ -1,4 +1,4 @@
-package gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation;
+package gov.nasa.jpf.symbc.branchcoverage.obligation;
 
 import com.ibm.wala.ssa.ISSABasicBlock;
 import com.ibm.wala.ssa.SSACFG;

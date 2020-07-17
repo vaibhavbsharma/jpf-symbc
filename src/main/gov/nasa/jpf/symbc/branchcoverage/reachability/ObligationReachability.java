@@ -1,11 +1,11 @@
-package gov.nasa.jpf.symbc.veritesting.branchcoverage.reachability;
+package gov.nasa.jpf.symbc.branchcoverage.reachability;
 
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.util.collections.HashSetFactory;
 import com.ibm.wala.util.graph.Graph;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationSide;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 
 import java.util.HashSet;
 import java.util.Iterator;

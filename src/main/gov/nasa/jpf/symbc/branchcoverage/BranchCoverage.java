@@ -1,4 +1,4 @@
-package gov.nasa.jpf.symbc.veritesting.branchcoverage;
+package gov.nasa.jpf.symbc.branchcoverage;
 
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.classLoader.Language;
@@ -12,16 +12,15 @@ import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.util.WalaException;
 import com.ibm.wala.util.config.AnalysisScopeReader;
 import com.ibm.wala.util.graph.Graph;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.vm.ThreadInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 
 import static gov.nasa.jpf.symbc.BranchListener.targetAbsPath;
-import static gov.nasa.jpf.symbc.veritesting.branchcoverage.CallGraphUtil.pruneForAppLoader;
+import static gov.nasa.jpf.symbc.branchcoverage.CallGraphUtil.pruneForAppLoader;
 
 public class BranchCoverage {
     public static ClassHierarchy cha;

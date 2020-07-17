@@ -14,19 +14,19 @@ import gov.nasa.jpf.report.PublisherExtension;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.BranchCoverage;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageStatistics;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageMode;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationSide;
+import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
+import gov.nasa.jpf.symbc.branchcoverage.CoverageStatistics;
+import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.vm.*;
 
 import java.io.*;
 import java.util.HashSet;
 
-import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr.*;
+import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
 
 public class BranchListener extends PropertyListenerAdapter implements PublisherExtension {
 

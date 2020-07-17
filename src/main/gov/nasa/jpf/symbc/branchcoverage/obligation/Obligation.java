@@ -1,11 +1,6 @@
-package gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation;
+package gov.nasa.jpf.symbc.branchcoverage.obligation;
 
 import com.ibm.wala.ssa.SSAInstruction;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-
-import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil.UNKNOWN_PACKAGE;
 
 public class Obligation implements Cloneable, Comparable {
     // packageName has "." qualifications like spf, but when we create them since they are in Wala's notation they have "/" instead, and so we translate them to their "." version.
@@ -33,7 +28,7 @@ public class Obligation implements Cloneable, Comparable {
 
         if (!spfPackageClassName.contains(".")) {
 //            System.out.println("WARNING: Class has no package define.");
-            this.spfPackageName = UNKNOWN_PACKAGE;
+            this.spfPackageName = CoverageUtil.UNKNOWN_PACKAGE;
             this.className = spfPackageClassName;
         } else {
             this.spfPackageName = spfPackageClassName.substring(0, spfPackageClassName.lastIndexOf("."));
@@ -53,7 +48,7 @@ public class Obligation implements Cloneable, Comparable {
      * @return
      */
     private String toSpfPackageName(String packageName) {
-        return !packageName.equals(UNKNOWN_PACKAGE) ? packageName.replaceAll("/", ".") : UNKNOWN_PACKAGE;
+        return !packageName.equals(CoverageUtil.UNKNOWN_PACKAGE) ? packageName.replaceAll("/", ".") : CoverageUtil.UNKNOWN_PACKAGE;
     }
 
     public String toString() {
