@@ -1,4 +1,4 @@
-package gov.nasa.jpf.symbc.veritesting.branchcoverage;
+package gov.nasa.jpf.symbc.branchcoverage;
 
 public enum CoverageMode {
     COLLECT_COVERAGE,

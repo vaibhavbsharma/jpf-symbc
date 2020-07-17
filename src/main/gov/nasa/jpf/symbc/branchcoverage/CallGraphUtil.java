@@ -1,4 +1,4 @@
-package gov.nasa.jpf.symbc.veritesting.branchcoverage;
+package gov.nasa.jpf.symbc.branchcoverage;
 
 import com.ibm.wala.ipa.callgraph.CGNode;
 import com.ibm.wala.ipa.callgraph.CallGraph;

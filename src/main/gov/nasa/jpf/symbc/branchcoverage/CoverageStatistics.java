@@ -1,10 +1,9 @@
-package gov.nasa.jpf.symbc.veritesting.branchcoverage;
+package gov.nasa.jpf.symbc.branchcoverage;
 
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Set;

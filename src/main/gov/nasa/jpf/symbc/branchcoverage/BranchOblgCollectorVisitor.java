@@ -1,4 +1,4 @@
-package gov.nasa.jpf.symbc.veritesting.branchcoverage;
+package gov.nasa.jpf.symbc.branchcoverage;
 
 import com.ibm.wala.classLoader.IBytecodeMethod;
 import com.ibm.wala.classLoader.IMethod;
@@ -7,31 +7,18 @@ import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.callgraph.IAnalysisCacheView;
 import com.ibm.wala.ipa.callgraph.impl.Everywhere;
 
-import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.types.MethodReference;
-import com.ibm.wala.util.CancelException;
-import com.ibm.wala.util.WalaException;
-import com.ibm.wala.util.collections.CollectionFilter;
-import com.ibm.wala.util.graph.Graph;
-import com.ibm.wala.util.graph.GraphReachability;
-import com.ibm.wala.util.graph.GraphSlicer;
-import com.ibm.wala.util.graph.traverse.DFS;
-import com.ibm.wala.util.intset.OrdinalSet;
-import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.Obligation;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationMgr;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.ObligationSide;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.reachability.ObligationReachability;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
+import gov.nasa.jpf.symbc.branchcoverage.reachability.ObligationReachability;
 
-import java.io.IOException;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Predicate;
 
 import static gov.nasa.jpf.symbc.BranchListener.coverageExclusions;
-import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CoverageUtil.UNKNOWN_PACKAGE;
+import static gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil.UNKNOWN_PACKAGE;
 
 
 /**
