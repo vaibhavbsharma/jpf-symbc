@@ -6,6 +6,7 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstMapVisitor;
+import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.Operation;
@@ -65,8 +66,7 @@ public class CollectObligationsVisitor extends AstMapVisitor {
 
 
     public static DynamicRegion execute(DynamicRegion dynRegion) {
-        IsolateObligationsExprVisitor isolateObligationsExprVisitor = new IsolateObligationsExprVisitor();
-        CollectObligationsVisitor isolateObligationsVisitor = new CollectObligationsVisitor(isolateObligationsExprVisitor, dynRegion.ir);
+        CollectObligationsVisitor isolateObligationsVisitor = new CollectObligationsVisitor(new ExprMapVisitor(), dynRegion.ir);
         Stmt dynStmt = dynRegion.dynStmt.accept(isolateObligationsVisitor);
 
 
