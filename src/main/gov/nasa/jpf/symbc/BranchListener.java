@@ -13,6 +13,7 @@ import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.PublisherExtension;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
+import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageStatistics;
@@ -34,7 +35,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     //must not have simicolon in it
     public static HashSet<String> coverageExclusions = new HashSet<>();
     boolean firstTime = true;
-    public static boolean evaluationMode = true;
+    public static boolean evaluationMode = false;
     public static String targetClass;
     public static String targetAbsPath;
     public static CoverageMode coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE; //1 for vanilla spf mode, 2 for Branch Coverage mode, 3 for guided SPF
@@ -71,10 +72,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         if (conf.hasValue("coverageMode")) {
             if (conf.getInt("coverageMode") == 1) coverageMode = CoverageMode.COLLECT_COVERAGE;
             else if (conf.getInt("coverageMode") == 2) coverageMode = CoverageMode.COLLECT_PRUNE;
-            else if (conf.getInt("coverageMode") == 3)
-                coverageMode = CoverageMode.COLLECT_GUIDE;
-            else if (conf.getInt("coverageMode") == 4)
-                coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
+            else if (conf.getInt("coverageMode") == 3) coverageMode = CoverageMode.COLLECT_GUIDE;
+            else if (conf.getInt("coverageMode") == 4) coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
             else {
                 System.out.println("unknown mode. Failing");
                 assert false;
@@ -88,17 +87,14 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     private String setBenchmarkName(String target) {
         int classIndex = target.lastIndexOf(".");
-        if (classIndex == -1)
-            return target;
-        else
-            return target.substring(classIndex + 1);
+        if (classIndex == -1) return target;
+        else return target.substring(classIndex + 1);
     }
 
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
         if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) // pruning only in pruning mode
             if (allObligationsCovered) {
-                if (!evaluationMode)
-                    System.out.println("all obligation covered, ignoring all paths.");
+                if (!evaluationMode) System.out.println("all obligation covered, ignoring all paths.");
                 ti.getVM().getSystemState().setIgnored(true);
                 return;
             }
@@ -146,15 +142,13 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         if ((uncoveredReachThenOblg == null)) //indicating an obligation that we do not care about covering, i.e., not an application code.
             return;
 
-        if (!evaluationMode)
-            System.out.println("before: " + instructionToExecute);
+        if (!evaluationMode) System.out.println("before: " + instructionToExecute);
 
 
         if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//EARLY PRUNING, no new obligation can be reached
             if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) { //prune only in pruning mode.
                 ti.getVM().getSystemState().setIgnored(true);
-                if (!evaluationMode)
-                    System.out.println("EARLY PRUNING CASE: path is ignored");
+                if (!evaluationMode) System.out.println("EARLY PRUNING CASE: path is ignored");
             }
         } else {//GUIDING HERE - this is not needed in concrete branches
             //default setting is "else" exploration then the "then" exploration. flip if needed
@@ -164,8 +158,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 if (coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE || coverageMode == CoverageMode.COLLECT_GUIDE) // GUIDE: only in guiding mode.
                     if (!ti.isFirstStepInsn()) { // first time around
                         IFInstrSymbHelper.flipBranchExploration = true;
-                        if (!evaluationMode)
-                            System.out.println("flipping then and else sides.");
+                        if (!evaluationMode) System.out.println("flipping then and else sides.");
                     } else IFInstrSymbHelper.flipBranchExploration = false;
             }
         }
@@ -200,8 +193,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) executedInstruction, oblgSide);
         if (ObligationMgr.oblgExists(oblg)) {
-            if (!evaluationMode)
-                System.out.println("after: " + executedInstruction + "---- obligation is: " + oblg);
+            if (!evaluationMode) System.out.println("after: " + executedInstruction + "---- obligation is: " + oblg);
 
             if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
                 coverageStatistics.recordObligationCovered(oblg);
@@ -232,18 +224,24 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     }
 
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
-        if (!evaluationMode)
-            System.out.println("end of thread");
+        if (!evaluationMode) System.out.println("end of thread");
         newCoverageFound = false;
         allObligationsCovered = ObligationMgr.isAllObligationCovered();
         coverageStatistics.recordCoverageForThread();
     }
 
+    @Override
     public void stateBacktracked(Search search) {
-        if (!evaluationMode)
-            System.out.println("backtracking now");
+        if (!evaluationMode) System.out.println("backtracking now");
     }
 
+    @Override
+    public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
+        if (!evaluationMode)
+            if (currentCG instanceof PCChoiceGenerator) {
+            System.out.println("choiceGeneratorAdvanced: at " + currentCG.getInsn().getMethodInfo() + "#" + currentCG.getInsn().getPosition());
+        }
+    }
 
     // -------- the publisher interface
     @Override
