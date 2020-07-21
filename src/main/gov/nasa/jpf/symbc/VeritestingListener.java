@@ -41,6 +41,8 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicReg
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.typepropagation.TypePropagationVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.IsolateObligationsVisitor;
 import gov.nasa.jpf.vm.*;
 import gov.nasa.jpf.vm.Instruction;
 import za.ac.sun.cs.green.expr.*;
@@ -116,6 +118,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     // reads in an array of Strings, each of which is the name of a method whose regions we wish to report metrics for
     public static String[] interestingClassNames;
+
+    public static CoverageCriteria coverageCriteria;
+    public static boolean veritestingSuccessful = false;
 
     public String[] regionKeys = {"replace.amatch([C[CI)I#160",
             "replace.amatch([C[CI)I#77",
@@ -223,6 +228,11 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             if (conf.hasValue("maxStaticExplorationDepth"))
                 maxStaticExplorationDepth = conf.getInt("maxStaticExplorationDepth");
 
+            if (conf.hasValue("coverageCriteria")) {
+                int modeNumber = conf.getInt("coverageCriteria");
+                coverageCriteria = modeNumber == 1 ? CoverageCriteria.BRANCHCOVERAGE : CoverageCriteria.UNDEFINED;
+            }
+
             if (conf.hasValue("goToRewriteOn")) {
                 GoToTransformer.active = conf.getBoolean("goToRewriteOn");
                 if (GoToTransformer.active)
@@ -253,6 +263,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
      * @param instructionToExecute instruction to be executed.
      */
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
+        veritestingSuccessful = false;
+
         if (timeout_mins != -1) {
             long runningTimeNsecs = System.nanoTime() - runStartTime;
             if (TimeUnit.NANOSECONDS.toSeconds(runningTimeNsecs) > ((timeout_mins * 60) - (10 * timeoutReportingCounter))) {
@@ -386,9 +398,11 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             runOnSamePath(ti, instructionToExecute, dynRegion);
 
             System.out.println("------------- Region was successfully veritested --------------- ");
+            veritestingSuccessful = true;
         } else {
             isRegionEndOk(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
+            veritestingSuccessful = true;
         }
     }
 
@@ -631,6 +645,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             /*-------------- SPFCases TRANSFORMATION 1ST PASS ---------------*/
             dynRegion = SpfCasesPass2Visitor.execute(dynRegion);
         }
+
+        if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+            dynRegion = IsolateObligationsVisitor.execute(dynRegion);
+
         /*--------------- LINEARIZATION TRANSFORMATION ---------------*/
         LinearizationTransformation linearTrans = new LinearizationTransformation();
         dynRegion = linearTrans.execute(dynRegion);

@@ -4,13 +4,18 @@ import com.ibm.wala.util.WalaException;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
+import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
+import gov.nasa.jpf.symbc.veritesting.VeritestingMain;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.VM;
+
+import com.ibm.wala.ipa.callgraph.*;
 
 import java.io.IOException;
 
@@ -54,12 +59,22 @@ public class VeriBranchListener extends BranchListener {
                     } //concrete branch will be pruned in instructionExecuted.
                 }
             }*/
-        } catch (ClassHierarchyException e) {
-            e.printStackTrace();
-            assert false;
         } catch (IOException | CallGraphBuilderCancelException | WalaException e) {
             e.printStackTrace();
         }
     }
 
+    @Override
+    public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
+        //if veritesting was not successful then we must have encountered a branch and so there is a pcDepth at that point that we need to account for.
+        if ((executedInstruction instanceof IfInstruction) && !VeritestingListener.veritestingSuccessful)
+            VeriObligationMgr.incrementPcDepth();
+    }
+
+    @Override
+    public void stateBacktracked(Search search) {
+        VeriObligationMgr.popDepth();
+        if (!evaluationMode)
+            System.out.println("backtracking now");
+    }
 }
