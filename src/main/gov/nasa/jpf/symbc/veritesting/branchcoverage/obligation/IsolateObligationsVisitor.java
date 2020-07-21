@@ -24,7 +24,6 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
 
     public IsolateObligationsVisitor(ExprVisitor<Expression> exprVisitor) {
         super(exprVisitor);
-//        ((IsolateObligationsExprVisitor) exprVisitor).newSymToExprMap = newSymToExprMap;
     }
 
 
@@ -57,8 +56,6 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
      * @return
      */
     public static DynamicRegion execute(DynamicRegion dynRegion) {
-//        IsolateObligationsExprVisitor isolateObligationsExprVisitor = new IsolateObligationsExprVisitor();
-
         IsolateObligationsVisitor isolateObligationsVisitor = new IsolateObligationsVisitor(new ExprMapVisitor());
         Stmt dynStmt = dynRegion.dynStmt.accept(isolateObligationsVisitor);
         CollectObligationsVisitor collectObligationsVisitor = new CollectObligationsVisitor(new ExprMapVisitor(), dynRegion.ir);
