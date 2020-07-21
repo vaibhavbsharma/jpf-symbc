@@ -8,9 +8,11 @@ import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
+import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.VeritestingMain;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
+import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.VM;
@@ -67,9 +69,19 @@ public class VeriBranchListener extends BranchListener {
     @Override
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
         //if veritesting was not successful then we must have encountered a branch and so there is a pcDepth at that point that we need to account for.
-        if ((executedInstruction instanceof IfInstruction) && !VeritestingListener.veritestingSuccessful)
+     /*   if ((executedInstruction instanceof IfInstruction)) {
+            isSymBranchInst = SpfUtil.isSymCond(currentThread, instructionToExecute);
+            if (isSymBranchInst && !VeritestingListener.veritestingSuccessful)
+                VeriObligationMgr.incrementPcDepth();
+        }*/
+    }
+
+    @Override
+    public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
+        if ((nextCG instanceof PCChoiceGenerator) && executedInstruction instanceof IfInstruction)
             VeriObligationMgr.incrementPcDepth();
     }
+
 
     @Override
     public void stateBacktracked(Search search) {

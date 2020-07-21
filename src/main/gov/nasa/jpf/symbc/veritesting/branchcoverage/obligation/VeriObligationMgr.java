@@ -85,7 +85,7 @@ public class VeriObligationMgr {
     public static void popDepth() {
         for (Map.Entry entry : symbolicOblgMap.entrySet()) {
             PriorityQueue<Pair<Expression, Integer>> symExprQueue = (PriorityQueue<Pair<Expression, Integer>>) entry.getValue();
-            while (symExprQueue.peek().getSecond() == pcDepth)
+            while (!symExprQueue.isEmpty() && symExprQueue.peek().getSecond() == pcDepth)
                 symExprQueue.poll();
         }
         decrementPcDepth();
