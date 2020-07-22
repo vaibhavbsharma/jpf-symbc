@@ -9,6 +9,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.IntVariable;
+import za.ac.sun.cs.green.expr.Operation;
 
 import java.util.HashMap;
 
@@ -24,19 +25,20 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
 
     public IsolateObligationsVisitor(ExprVisitor<Expression> exprVisitor) {
         super(exprVisitor);
+        ((IsolateObligationsExprVisitor) exprVisitor).newSymToExprMap = newSymToExprMap;
     }
 
 
     @Override
     public Stmt visit(IfThenElseStmt a) {
-//        ObligationVariable oblgVar = new ObligationVariable("");
 
         String varId = "o$" + obligationUniqueness++;
         IntVariable oblgVar = new IntVariable(varId, (int) MinMax.getVarMinInt(varId), (int) MinMax.getVarMaxInt(varId));
 
         AssignmentStmt oblgAssign = new AssignmentStmt(oblgVar, new GammaVarExpr(a.condition, new IntConstant(1), new IntConstant((0))));
 
-        newSymToExprMap.put(a.condition, oblgVar);
+        Operation newCondition = new Operation(Operation.Operator.EQ, oblgVar, new IntConstant(1));
+        newSymToExprMap.put(a.condition, newCondition);
 
         Stmt newThen = a.thenStmt.accept(this);
         Stmt newElse = a.elseStmt.accept(this);
@@ -56,12 +58,12 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
      * @return
      */
     public static DynamicRegion execute(DynamicRegion dynRegion) {
-        IsolateObligationsVisitor isolateObligationsVisitor = new IsolateObligationsVisitor(new ExprMapVisitor());
+        IsolateObligationsVisitor isolateObligationsVisitor = new IsolateObligationsVisitor(new IsolateObligationsExprVisitor());
+//        IsolateObligationsVisitor isolateObligationsVisitor = new IsolateObligationsVisitor(new ExprMapVisitor());
         Stmt dynStmt = dynRegion.dynStmt.accept(isolateObligationsVisitor);
         CollectObligationsVisitor collectObligationsVisitor = new CollectObligationsVisitor(new ExprMapVisitor(), dynRegion.ir);
         dynStmt.accept(collectObligationsVisitor);
-        VeriObligationMgr.addSymbolicOblgMap(collectObligationsVisitor.oblgToExprsMap);
-
+//        VeriObligationMgr.addSymbolicOblgMap(collectObligationsVisitor.oblgToExprsMap);
         return new DynamicRegion(dynRegion,
                 dynStmt,
                 dynRegion.spfCaseList, dynRegion.regionSummary, dynRegion.spfPredicateSummary, dynRegion.earlyReturnResult);

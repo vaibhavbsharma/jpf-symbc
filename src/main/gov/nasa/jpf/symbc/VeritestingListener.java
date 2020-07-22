@@ -42,7 +42,9 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.typepropagation.TypePr
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CollectObligationsVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.IsolateObligationsVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.*;
 import gov.nasa.jpf.vm.Instruction;
 import za.ac.sun.cs.green.expr.*;
@@ -228,10 +230,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             if (conf.hasValue("maxStaticExplorationDepth"))
                 maxStaticExplorationDepth = conf.getInt("maxStaticExplorationDepth");
 
-            if (conf.hasValue("coverageCriteria")) {
-                int modeNumber = conf.getInt("coverageCriteria");
-                coverageCriteria = modeNumber == 1 ? CoverageCriteria.BRANCHCOVERAGE : CoverageCriteria.UNDEFINED;
-            }
+            if (conf.hasValue("coverageMode"))
+                coverageCriteria = CoverageCriteria.BRANCHCOVERAGE;
 
             if (conf.hasValue("goToRewriteOn")) {
                 GoToTransformer.active = conf.getBoolean("goToRewriteOn");
@@ -396,14 +396,15 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
             runOnSamePath(ti, instructionToExecute, dynRegion);
-
             System.out.println("------------- Region was successfully veritested --------------- ");
-            veritestingSuccessful = true;
+
         } else {
             isRegionEndOk(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
-            veritestingSuccessful = true;
         }
+        if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+            VeriObligationMgr.addSymbolicOblgMap(CollectObligationsVisitor.oblgToExprsMap);
+        veritestingSuccessful = true;
     }
 
 

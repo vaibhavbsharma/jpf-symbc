@@ -11,6 +11,7 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.VeritestingMain;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CollectObligationsVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
@@ -27,6 +28,15 @@ public class VeriBranchListener extends BranchListener {
 
     public VeriBranchListener(Config conf, JPF jpf) {
         super(conf, jpf);
+        if (conf.hasValue("coverageMode")) {
+            int coverageNum = conf.getInt("coverageMode");
+            assert coverageNum > 4 : "coverageMode must be greater that 4 to support Veritesting";
+            if (conf.getInt("coverageMode") == 5) coverageMode = CoverageMode.JRCOLLECT_COVERAGE;
+            else {
+                System.out.println("unknown mode. Failing");
+                assert false;
+            }
+        }
     }
 
 
@@ -53,14 +63,11 @@ public class VeriBranchListener extends BranchListener {
                     printOblgToBBMap();
                 }
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
-            } /*else {
-                if (instructionToExecute instanceof IfInstruction) {
-                    isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
-                    if (isSymBranchInst) {
-                        if (coverageMode != CoverageMode.COLLECT_COVERAGE) prunOrGuideSPF(ti, instructionToExecute);
-                    } //concrete branch will be pruned in instructionExecuted.
-                }
-            }*/
+            } else {
+                /*if (instructionToExecute instanceof IfInstruction && (VeritestingListener.veritestingSuccessful)) {
+                    VeriObligationMgr.addSymbolicOblgMap(CollectObligationsVisitor.oblgToExprsMap);
+                }*/
+            }
         } catch (IOException | CallGraphBuilderCancelException | WalaException e) {
             e.printStackTrace();
         }
@@ -77,16 +84,25 @@ public class VeriBranchListener extends BranchListener {
     }
 
     @Override
-    public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
-        if ((nextCG instanceof PCChoiceGenerator) && executedInstruction instanceof IfInstruction)
+    public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
+        if (currentCG instanceof PCChoiceGenerator) {
+            if (!evaluationMode) {
+//                System.out.println("choiceGeneratorAdvanced: at " + currentCG.getInsn().getMethodInfo() + "#" + currentCG.getInsn().getPosition());
+                System.out.println("pcDepth = " + VeriObligationMgr.getPcDepth());
+            }
             VeriObligationMgr.incrementPcDepth();
+        }
     }
 
 
     @Override
     public void stateBacktracked(Search search) {
-        VeriObligationMgr.popDepth();
-        if (!evaluationMode)
-            System.out.println("backtracking now");
+        if (search.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
+            VeriObligationMgr.popDepth();
+            if (!evaluationMode) {
+//                System.out.println("backtracking now");
+                System.out.println("pcDepth = " + VeriObligationMgr.getPcDepth());
+            }
+        }
     }
 }

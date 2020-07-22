@@ -90,4 +90,8 @@ public class VeriObligationMgr {
         }
         decrementPcDepth();
     }
+
+    public static int getPcDepth() {
+        return pcDepth;
+    }
 }

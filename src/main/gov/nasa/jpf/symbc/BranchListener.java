@@ -74,10 +74,11 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             else if (conf.getInt("coverageMode") == 2) coverageMode = CoverageMode.COLLECT_PRUNE;
             else if (conf.getInt("coverageMode") == 3) coverageMode = CoverageMode.COLLECT_GUIDE;
             else if (conf.getInt("coverageMode") == 4) coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
-            else {
+            else if (!conf.hasValue("veritestingMode")) {
                 System.out.println("unknown mode. Failing");
                 assert false;
             }
+
             BranchSymInstructionFactory.GuideBranchExploration = true;
         }
         benchmarkName = setBenchmarkName(conf.getString("target"));
@@ -239,8 +240,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
         if (!evaluationMode)
             if (currentCG instanceof PCChoiceGenerator) {
-            System.out.println("choiceGeneratorAdvanced: at " + currentCG.getInsn().getMethodInfo() + "#" + currentCG.getInsn().getPosition());
-        }
+                System.out.println("choiceGeneratorAdvanced: at " + currentCG.getInsn().getMethodInfo() + "#" + currentCG.getInsn().getPosition());
+            }
     }
 
     // -------- the publisher interface
