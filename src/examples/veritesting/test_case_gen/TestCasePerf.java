@@ -6,13 +6,14 @@ public class TestCasePerf {
         /*veritesting.test_case_gen.A myA = new veritesting.test_case_gen.A();
         int myVal = myA.getIncA();
         System.out.println("my A value is = " + myVal);*/
-        singleBranchCov2(1, 1);
+//        singleBranchCov2(1, 1);
 //        doubleBranchCov(1, 1);
 //        doubleRec(1, 1);
 //        complexBranchCov(1,1);
 //        unoptimalDFS(1, 1);
 //        doubleLoopUnoptimalDFS(1, 1);
 //        doubleLoop(1, 1);
+        mixOfRegions(1, 1);
     }
 
 
@@ -34,6 +35,27 @@ public class TestCasePerf {
             else x = x + 1;
         }
         //  Debug.printPC("printing pc at the end of the path");
+        return x;
+    }
+
+    public static int mixOfRegions(int x, int y) {
+
+
+        if (x == 1)
+            x = y;
+        else x = x + 1;
+
+        if (x == y)
+            x = new A().a + y;
+        else x = new B().b + y;
+
+        if (x == 1)
+            x = y + 3;
+        else if (y > 1)
+            x = x + 1;
+        else
+            x = x + 2;
+
         return x;
     }
 

@@ -2,7 +2,7 @@ package veritesting.test_case_gen;
 
 public class A {
 
-    int a;
+    int a = 100;
     veritesting.test_case_gen.B bRef = new veritesting.test_case_gen.B();
 
     public int getIncA() {

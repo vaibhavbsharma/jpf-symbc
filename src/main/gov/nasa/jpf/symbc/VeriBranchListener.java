@@ -75,12 +75,22 @@ public class VeriBranchListener extends BranchListener {
 
     @Override
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
+
         //if veritesting was not successful then we must have encountered a branch and so there is a pcDepth at that point that we need to account for.
-     /*   if ((executedInstruction instanceof IfInstruction)) {
-            isSymBranchInst = SpfUtil.isSymCond(currentThread, instructionToExecute);
-            if (isSymBranchInst && !VeritestingListener.veritestingSuccessful)
-                VeriObligationMgr.incrementPcDepth();
-        }*/
+        if ((executedInstruction instanceof IfInstruction)) {
+//            isSymBranchInst = SpfUtil.isSymCond(currentThread, instructionToExecute);
+//            if (isSymBranchInst && !VeritestingListener.veritestingSuccessful)
+            if (!VeritestingListener.veritestingSuccessful)
+                super.instructionExecuted(vm, currentThread, nextInstruction, executedInstruction);
+        }
+    }
+
+    @Override
+    public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
+        if (!evaluationMode) System.out.println("end of thread");
+//        newCoverageFound = false;
+//        allObligationsCovered = ObligationMgr.isAllObligationCovered();
+        coverageStatistics.recordCoverageForThread();
     }
 
     @Override
