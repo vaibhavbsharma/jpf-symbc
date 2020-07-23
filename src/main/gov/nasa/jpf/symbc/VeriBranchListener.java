@@ -23,6 +23,7 @@ import com.ibm.wala.ipa.callgraph.*;
 import java.io.IOException;
 
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
+import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.collectVeritestingCoverage;
 
 public class VeriBranchListener extends BranchListener {
 
@@ -89,7 +90,8 @@ public class VeriBranchListener extends BranchListener {
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (!evaluationMode) System.out.println("end of thread");
 //        newCoverageFound = false;
-//        allObligationsCovered = ObligationMgr.isAllObligationCovered();
+        collectVeritestingCoverage(terminatedThread);
+        allObligationsCovered = ObligationMgr.isAllObligationCovered();
         coverageStatistics.recordCoverageForThread();
     }
 

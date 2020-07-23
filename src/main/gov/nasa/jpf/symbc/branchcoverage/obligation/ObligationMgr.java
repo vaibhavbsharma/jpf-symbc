@@ -65,6 +65,23 @@ public class ObligationMgr {
         }
     }
 
+
+    public static void addNewCoverage(Obligation oblg) {
+
+        Integer oblgIndex = obligationsMap.get(oblg);
+
+        if ((oblgIndex == null)) {
+            System.out.println("obligation not found in the obligation HashMap. Assumed none application/user branch. Coverage Ignored for instruction.");
+            return;
+        }
+        coveredArray[oblgIndex] = true;
+    }
+
+    public static void addNewOblgsCoverage(ArrayList<Obligation> newCoveredOblgs) {
+        for (Obligation oblg : newCoveredOblgs)
+            addNewCoverage(oblg);
+    }
+
     // SPF methods to manipulate covering at runtime. Must always be called with already existing obligation in the map.
     public static boolean isOblgCovered(Obligation oblg) {
         Integer oblgIndex = obligationsMap.get(oblg);
