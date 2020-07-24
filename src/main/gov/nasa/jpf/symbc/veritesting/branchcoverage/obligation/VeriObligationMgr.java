@@ -142,13 +142,14 @@ public class VeriObligationMgr {
             }
             cg = prev_cg;
         }
-
+        GreenConstraint greenConstraint = new GreenConstraint(disjunctiveOblgExpr);
         if ((cg instanceof PCChoiceGenerator) &&
                 ((PCChoiceGenerator) cg).getCurrentPC() != null) {
 
             PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
             PathCondition pcCopy = pc.make_copy();
-            pcCopy._addDet(new GreenConstraint(disjunctiveOblgExpr));
+
+            pcCopy._addDet(greenConstraint);
             pcCopy.solve();
         }
 

@@ -40,7 +40,6 @@ public class TestCasePerf {
 
     public static int mixOfRegions(int x, int y) {
 
-
         if (x == 1)
             x = y;
         else x = x + 1;
