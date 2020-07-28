@@ -180,19 +180,22 @@ public class VeriObligationMgr {
         Iterator<Pair<Expression, Integer>> queueItr = queue.iterator();
         while (queueItr.hasNext()) {
             Expression expr = queueItr.next().getFirst();
-            if(((Operation) expr).getOperator() == Operation.Operator.NE)
-            Expression oblgName = ((Operation) expr).getOperand(0);
-            Integer condValue = ((IntConstant) ((Operation) expr).getOperand(1)).numVar();
-            int solverVal = (int) solution.get(oblgName);
-            //if only one expression is sat then the oblg is covered.
-            return (evalExpr(((Operation) expr).getOperator(), condValue, solverVal));
+            if (((Operation) expr).getOperator() == Operation.Operator.NOT) {
+                expr = ((Operation) expr).getOperand(0);
+                if (!evalExpr(expr, solution)) return true;
+            } else if (evalExpr(expr, solution)) return true;
         }
         return false;
     }
 
-    private static boolean evalExpr(Operation.Operator operator, Integer condValue, int solverVal) {
+    private static boolean evalExpr(Expression expr, Map<String, Object> solution) {
+        Expression oblgName = ((Operation) expr).getOperand(0);
+        Integer condValue = ((IntConstant) ((Operation) expr).getOperand(1)).numVar();
+        int solverVal = (int) solution.get(oblgName);
 
+        return (condValue == solverVal);
     }
+
 
     private static Expression createDisjunctiveExpr(ArrayList<Obligation> oblgsNeedCoverage, int index) {
         assert (oblgsNeedCoverage.size() > 0) : "cannot get to this point with no obligation needed to be covered. Failing";
