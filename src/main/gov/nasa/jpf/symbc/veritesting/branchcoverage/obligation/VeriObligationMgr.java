@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation;
 
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ssa.*;
+import gov.nasa.jpf.symbc.BranchListener;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
@@ -14,6 +15,7 @@ import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.expr.Expression;
+import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.Operation;
 
 import java.util.*;
@@ -68,8 +70,7 @@ public class VeriObligationMgr {
                 });
                 addInQueue(newSymExprToPcDepthQueue, (ArrayList<Expression>) entry.getValue());
                 symbolicOblgMap.put((Obligation) entry.getKey(), newSymExprToPcDepthQueue);
-            } else
-                addInQueue(symExprToPcDepthQueue, (ArrayList<Expression>) entry.getValue());
+            } else addInQueue(symExprToPcDepthQueue, (ArrayList<Expression>) entry.getValue());
         }
     }
 
@@ -92,10 +93,8 @@ public class VeriObligationMgr {
 
         for (Map.Entry entry : symbolicOblgMap.entrySet()) {
             PriorityQueue<Pair<Expression, Integer>> symExprQueue = (PriorityQueue<Pair<Expression, Integer>>) entry.getValue();
-            while (!symExprQueue.isEmpty() && symExprQueue.peek().getSecond() == pcDepth)
-                symExprQueue.poll();
-            if (symExprQueue.size() == 0)
-                emptyOblgList.add((Obligation) entry.getKey());
+            while (!symExprQueue.isEmpty() && symExprQueue.peek().getSecond() == pcDepth) symExprQueue.poll();
+            if (symExprQueue.size() == 0) emptyOblgList.add((Obligation) entry.getKey());
         }
 
         //clearing obligations with empty expressions.
@@ -118,8 +117,8 @@ public class VeriObligationMgr {
     public static void collectVeritestingCoverage(gov.nasa.jpf.vm.ThreadInfo ti) {
         ArrayList<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
         if (oblgsNeedsCoverage.size() > 0) {
-            ArrayList<Obligation> coveredOblgs = askSolverForCoverage(ti, oblgsNeedsCoverage);
-            ObligationMgr.addNewOblgsCoverage(coveredOblgs);
+            ArrayList<Obligation> coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
+            if (!BranchListener.evaluationMode) System.out.println("newly covered obligation on the path + " + coveredOblgsOnPath);
         }
     }
 
@@ -127,39 +126,72 @@ public class VeriObligationMgr {
         ArrayList<Obligation> oblgNeedsCoverage = new ArrayList<>();
 
         for (Obligation oblg : symbolicOblgMap.keySet()) {
-            if (!ObligationMgr.isOblgCovered(oblg))
-                oblgNeedsCoverage.add(oblg);
+            if (!ObligationMgr.isOblgCovered(oblg)) oblgNeedsCoverage.add(oblg);
         }
         return oblgNeedsCoverage;
     }
 
     private static ArrayList<Obligation> askSolverForCoverage(ThreadInfo ti, ArrayList<Obligation> oblgsNeedCoverage) {
-        Expression disjunctiveOblgExpr = createDisjunctiveExpr(oblgsNeedCoverage, 0);
-        ChoiceGenerator<?> cg = ti.getVM().getChoiceGenerator();
-        if (!(cg instanceof PCChoiceGenerator)) {
-            ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
-            while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
-                prev_cg = prev_cg.getPreviousChoiceGenerator();
+        boolean sat = true;
+        ArrayList<Obligation> newCoveredOblgsOnPath = new ArrayList<>();
+        do {
+            Expression disjunctiveOblgExpr = createDisjunctiveExpr(oblgsNeedCoverage, 0);
+            ChoiceGenerator<?> cg = ti.getVM().getChoiceGenerator();
+            if (!(cg instanceof PCChoiceGenerator)) {
+                ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
+                while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
+                    prev_cg = prev_cg.getPreviousChoiceGenerator();
+                }
+                cg = prev_cg;
             }
-            cg = prev_cg;
-        }
-        GreenConstraint greenConstraint = new GreenConstraint(disjunctiveOblgExpr);
-        if ((cg instanceof PCChoiceGenerator) &&
-                ((PCChoiceGenerator) cg).getCurrentPC() != null) {
+            GreenConstraint greenConstraint = new GreenConstraint(disjunctiveOblgExpr);
+            if ((cg instanceof PCChoiceGenerator) && ((PCChoiceGenerator) cg).getCurrentPC() != null) {
 
-            PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
-            PathCondition pcCopy = pc.make_copy();
+                PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
+                PathCondition pcCopy = pc.make_copy();
 
-            pcCopy._addDet(greenConstraint);
-            boolean sat = pcCopy.solve();
-            Map<String, Object> solution = null;
-            if (sat) {
-                solution = pc.solveWithValuation(null, null);
+                pcCopy._addDet(greenConstraint);
+                sat = pcCopy.solve();
+                Map<String, Object> solution = null;
+                if (sat) {
+                    solution = pc.solveWithValuation(null, null);
+                    ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(solution);
+                    oblgsNeedCoverage.removeAll(newCoveredOblgs);
+                    ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
+                    newCoveredOblgsOnPath.addAll(newCoveredOblgs);
+                }
+                System.out.println("The solution is " + solution.toString());
             }
-            System.out.println("The solution is " + solution.toString());
-        }
+        } while (sat);
 
-        return null;
+        return newCoveredOblgsOnPath;
+    }
+
+    private static ArrayList<Obligation> checkSolutionsWithObligations(Map<String, Object> solution) {
+        ArrayList<Obligation> coveredOblg = new ArrayList<>();
+        Set<Map.Entry<Obligation, PriorityQueue<Pair<Expression, Integer>>>> oblgsQueue = symbolicOblgMap.entrySet();
+        for (Map.Entry oblgQueue : oblgsQueue)
+            if (isOblgCoveredInPath((PriorityQueue<Pair<Expression, Integer>>) oblgQueue.getValue(), solution)) coveredOblg.add((Obligation) oblgQueue.getKey());
+
+        return coveredOblg;
+    }
+
+    private static boolean isOblgCoveredInPath(PriorityQueue<Pair<Expression, Integer>> queue, Map<String, Object> solution) {
+        Iterator<Pair<Expression, Integer>> queueItr = queue.iterator();
+        while (queueItr.hasNext()) {
+            Expression expr = queueItr.next().getFirst();
+            if(((Operation) expr).getOperator() == Operation.Operator.NE)
+            Expression oblgName = ((Operation) expr).getOperand(0);
+            Integer condValue = ((IntConstant) ((Operation) expr).getOperand(1)).numVar();
+            int solverVal = (int) solution.get(oblgName);
+            //if only one expression is sat then the oblg is covered.
+            return (evalExpr(((Operation) expr).getOperator(), condValue, solverVal));
+        }
+        return false;
+    }
+
+    private static boolean evalExpr(Operation.Operator operator, Integer condValue, int solverVal) {
+
     }
 
     private static Expression createDisjunctiveExpr(ArrayList<Obligation> oblgsNeedCoverage, int index) {

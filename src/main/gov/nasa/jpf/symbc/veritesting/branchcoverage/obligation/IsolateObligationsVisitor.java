@@ -6,6 +6,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicReg
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitor;
+import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.IntVariable;
@@ -60,7 +61,14 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
     public static DynamicRegion execute(DynamicRegion dynRegion) {
         IsolateObligationsVisitor isolateObligationsVisitor = new IsolateObligationsVisitor(new IsolateObligationsExprVisitor());
 //        IsolateObligationsVisitor isolateObligationsVisitor = new IsolateObligationsVisitor(new ExprMapVisitor());
+        System.out.println("\n---------- Stmt before Isolation: " +
+                "\n" + PrettyPrintVisitor.print(dynRegion.dynStmt) + "\n");
+
         Stmt dynStmt = dynRegion.dynStmt.accept(isolateObligationsVisitor);
+
+        System.out.println("\n---------- Stmt After Isolation: " +
+                "\n" + PrettyPrintVisitor.print(dynStmt) + "\n");
+
         CollectObligationsVisitor collectObligationsVisitor = new CollectObligationsVisitor(new ExprMapVisitor(), dynRegion.ir);
         dynStmt.accept(collectObligationsVisitor);
 //        VeriObligationMgr.addSymbolicOblgMap(collectObligationsVisitor.oblgToExprsMap);
