@@ -7,6 +7,7 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.numeric.GreenConstraint;
+import gov.nasa.jpf.symbc.numeric.GreenToSPFTranslator;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
@@ -150,7 +151,12 @@ public class VeriObligationMgr {
             PathCondition pcCopy = pc.make_copy();
 
             pcCopy._addDet(greenConstraint);
-            pcCopy.solve();
+            boolean sat = pcCopy.solve();
+            Map<String, Object> solution = null;
+            if (sat) {
+                solution = pc.solveWithValuation(null, null);
+            }
+            System.out.println("The solution is " + solution.toString());
         }
 
         return null;

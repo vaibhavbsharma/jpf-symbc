@@ -1,0 +1,37 @@
+target=veritesting.test_case_gen.TestCasePerf
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+vm.storage.class=nil
+symbolic.debug=false
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoop(sym#sym)
+
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov2(sym#sym)
+
+symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions(sym#sym)
+
+jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
+
+#symbolic.dp=z3
+
+symbolic.dp=z3inc
+listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+#listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
+#listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+coverageMode=5
+veritestingMode=3

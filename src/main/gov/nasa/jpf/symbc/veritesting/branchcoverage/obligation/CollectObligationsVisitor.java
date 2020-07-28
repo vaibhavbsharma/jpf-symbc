@@ -71,9 +71,13 @@ public class CollectObligationsVisitor extends AstMapVisitor {
     }
 
     private Expression conjunctWithPc(int index, Expression condition) {
-        if (index == innerPC.size())
+        //S.H. I believe this is unnecessary.
+
+        /*if (index == innerPC.size())
             return condition;
-        return new Operation(Operation.Operator.AND, innerPC.get(index), conjunctWithPc(++index, condition));
+        return new Operation(Operation.Operator.AND, innerPC.get(index), conjunctWithPc(++index, condition));*/
+
+        return condition;
     }
 
 
