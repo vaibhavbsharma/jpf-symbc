@@ -8,7 +8,6 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.numeric.GreenConstraint;
-import gov.nasa.jpf.symbc.numeric.GreenToSPFTranslator;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
@@ -115,15 +114,16 @@ public class VeriObligationMgr {
      * 2. utilizes symbolicOblgMap, pc and the solver to ask for coverage for these obligations.
      */
     public static void collectVeritestingCoverage(gov.nasa.jpf.vm.ThreadInfo ti) {
-        ArrayList<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
+        HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
         if (oblgsNeedsCoverage.size() > 0) {
             ArrayList<Obligation> coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
-            if (!BranchListener.evaluationMode) System.out.println("newly covered obligation on the path + " + coveredOblgsOnPath);
+            if (!BranchListener.evaluationMode)
+                System.out.println("newly covered obligation on the path + " + coveredOblgsOnPath);
         }
     }
 
-    private static ArrayList<Obligation> getNeedsCoverageOblg() {
-        ArrayList<Obligation> oblgNeedsCoverage = new ArrayList<>();
+    private static HashSet<Obligation> getNeedsCoverageOblg() {
+        HashSet<Obligation> oblgNeedsCoverage = new HashSet<>();
 
         for (Obligation oblg : symbolicOblgMap.keySet()) {
             if (!ObligationMgr.isOblgCovered(oblg)) oblgNeedsCoverage.add(oblg);
@@ -131,11 +131,11 @@ public class VeriObligationMgr {
         return oblgNeedsCoverage;
     }
 
-    private static ArrayList<Obligation> askSolverForCoverage(ThreadInfo ti, ArrayList<Obligation> oblgsNeedCoverage) {
+    private static ArrayList<Obligation> askSolverForCoverage(ThreadInfo ti, HashSet<Obligation> oblgsNeedCoverage) {
         boolean sat = true;
         ArrayList<Obligation> newCoveredOblgsOnPath = new ArrayList<>();
         do {
-            Expression disjunctiveOblgExpr = createDisjunctiveExpr(oblgsNeedCoverage, 0);
+            Expression disjunctiveOblgExpr = createDisjunctiveExpr(new ArrayList(oblgsNeedCoverage), 0);
             ChoiceGenerator<?> cg = ti.getVM().getChoiceGenerator();
             if (!(cg instanceof PCChoiceGenerator)) {
                 ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
@@ -153,16 +153,17 @@ public class VeriObligationMgr {
                 pcCopy._addDet(greenConstraint);
                 sat = pcCopy.solve();
                 Map<String, Object> solution = null;
-                if (sat) {
-                    solution = pc.solveWithValuation(null, null);
+                if (sat) { //TODO: I should get rid of the double solver call for sat and only use the one below
+                    solution = pcCopy.solveWithValuation(null, null);
                     ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(solution);
                     oblgsNeedCoverage.removeAll(newCoveredOblgs);
                     ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
                     newCoveredOblgsOnPath.addAll(newCoveredOblgs);
+                    System.out.println("");
                 }
                 System.out.println("The solution is " + solution.toString());
             }
-        } while (sat);
+        } while (sat && oblgsNeedCoverage.size() != 0);
 
         return newCoveredOblgsOnPath;
     }
@@ -171,7 +172,8 @@ public class VeriObligationMgr {
         ArrayList<Obligation> coveredOblg = new ArrayList<>();
         Set<Map.Entry<Obligation, PriorityQueue<Pair<Expression, Integer>>>> oblgsQueue = symbolicOblgMap.entrySet();
         for (Map.Entry oblgQueue : oblgsQueue)
-            if (isOblgCoveredInPath((PriorityQueue<Pair<Expression, Integer>>) oblgQueue.getValue(), solution)) coveredOblg.add((Obligation) oblgQueue.getKey());
+            if (isOblgCoveredInPath((PriorityQueue<Pair<Expression, Integer>>) oblgQueue.getValue(), solution))
+                coveredOblg.add((Obligation) oblgQueue.getKey());
 
         return coveredOblg;
     }
@@ -182,23 +184,30 @@ public class VeriObligationMgr {
             Expression expr = queueItr.next().getFirst();
             if (((Operation) expr).getOperator() == Operation.Operator.NOT) {
                 expr = ((Operation) expr).getOperand(0);
-                if (!evalExpr(expr, solution)) return true;
-            } else if (evalExpr(expr, solution)) return true;
+                Boolean evalValue = evalExpr(expr, solution);
+                if ((evalValue != null) && (!evalValue)) return true;
+            } else {
+                Boolean evalValue = evalExpr(expr, solution);
+                if ((evalValue != null) && (evalValue)) return true;
+            }
         }
         return false;
     }
 
-    private static boolean evalExpr(Expression expr, Map<String, Object> solution) {
+    private static Boolean evalExpr(Expression expr, Map<String, Object> solution) {
         Expression oblgName = ((Operation) expr).getOperand(0);
-        Integer condValue = ((IntConstant) ((Operation) expr).getOperand(1)).numVar();
-        int solverVal = (int) solution.get(oblgName);
+        Integer condValue = ((IntConstant) ((Operation) expr).getOperand(1)).getValue();
+        Object solutionVal = solution.get(oblgName.toString());
+        if (solutionVal == null) return null;
 
+        int solverVal = ((Long) solutionVal).intValue();
         return (condValue == solverVal);
     }
 
 
     private static Expression createDisjunctiveExpr(ArrayList<Obligation> oblgsNeedCoverage, int index) {
         assert (oblgsNeedCoverage.size() > 0) : "cannot get to this point with no obligation needed to be covered. Failing";
+
         Expression disjunctExpr = createDisjunctExprPerOblg(symbolicOblgMap.get(oblgsNeedCoverage.get(index++)));
 
         if (index == oblgsNeedCoverage.size()) {
