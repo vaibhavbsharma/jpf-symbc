@@ -13,7 +13,8 @@ public class TestCasePerf {
 //        unoptimalDFS(1, 1);
 //        doubleLoopUnoptimalDFS(1, 1);
 //        doubleLoop(1, 1);
-        mixOfRegions(1, 1);
+//        mixOfRegions(1, 1);
+        mixOfRegions2Paths(1, 1);
     }
 
 
@@ -58,6 +59,19 @@ public class TestCasePerf {
         return x;
     }
 
+
+    public static int mixOfRegions2Paths(int x, int y) {
+        int z = 10;
+
+        if (x == y)
+            z = new A().a;
+
+        if (x == y)
+            x = y + 3 + z;
+
+
+        return x;
+    }
 
     public static int doubleBranchCov(int x, int y) {
 
