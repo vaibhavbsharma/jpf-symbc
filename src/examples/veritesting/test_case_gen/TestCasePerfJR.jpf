@@ -37,3 +37,5 @@ targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
 
 coverageMode=5
 veritestingMode=3
+# must be added to avoid redundent constraints on the path condition.
+performanceMode=true

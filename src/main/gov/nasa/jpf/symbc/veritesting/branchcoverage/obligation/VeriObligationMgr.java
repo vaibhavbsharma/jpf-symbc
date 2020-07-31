@@ -10,11 +10,14 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.numeric.GreenConstraint;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
+import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
+import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
+import za.ac.sun.cs.green.expr.IntVariable;
 import za.ac.sun.cs.green.expr.Operation;
 
 import java.util.*;
@@ -151,15 +154,19 @@ public class VeriObligationMgr {
                 PathCondition pcCopy = pc.make_copy();
 
                 pcCopy._addDet(greenConstraint);
-                sat = pcCopy.solve();
                 Map<String, Object> solution = null;
-                if (sat) { //TODO: I should get rid of the double solver call for sat and only use the one below
+                if (sat) {
+                    IncrementalListener.solver.push();
                     solution = pcCopy.solveWithValuation(null, null);
-                    ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(solution);
-                    oblgsNeedCoverage.removeAll(newCoveredOblgs);
-                    ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
-                    newCoveredOblgsOnPath.addAll(newCoveredOblgs);
-                    System.out.println("");
+                    IncrementalListener.solver.pop();
+                    if (solution.size() != 0) {
+                        ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(solution);
+                        oblgsNeedCoverage.removeAll(newCoveredOblgs);
+                        ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
+                        newCoveredOblgsOnPath.addAll(newCoveredOblgs);
+                        System.out.println("");
+                    } else
+                        sat = false;
                 }
                 System.out.println("The solution is " + solution.toString());
             }

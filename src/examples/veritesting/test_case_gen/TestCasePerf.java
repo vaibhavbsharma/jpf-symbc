@@ -69,6 +69,8 @@ public class TestCasePerf {
         if (x == y)
             x = y + 3 + z;
 
+        if (x >= y + 3)
+            x = y + 3 + z;
 
         return x;
     }
