@@ -12,9 +12,11 @@ import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
 import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
 import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
+import gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ThreadInfo;
+import gov.nasa.jpf.vm.VM;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.IntVariable;
@@ -154,10 +156,14 @@ public class VeriObligationMgr {
                 PathCondition pcCopy = pc.make_copy();
 
                 pcCopy._addDet(greenConstraint);
+
+                //this is the place we want to get the attributes of the method calls that has occured so far in SequenceListener.
+                List<SymbolicInteger> attributes = VeriSymbolicSequenceListener.getMethodAttributes(ti.getVM().getChoiceGenerators(), null);
+
                 Map<String, Object> solution = null;
                 if (sat) {
                     IncrementalListener.solver.push();
-                    solution = pcCopy.solveWithValuation(null, null);
+                    solution = pcCopy.solveWithValuations(attributes, new ArrayList<>());
                     IncrementalListener.solver.pop();
                     if (solution.size() != 0) {
                         ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(solution);
