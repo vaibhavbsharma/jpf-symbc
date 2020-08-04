@@ -7,6 +7,7 @@ import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
+import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.VeritestingMain;
@@ -37,6 +38,14 @@ public class VeriBranchListener extends BranchListener {
                 System.out.println("unknown mode. Failing");
                 assert false;
             }
+        }
+
+        if (conf.hasValue("TestCaseGenerationMode")) {
+            int coverageNum = conf.getInt("TestCaseGenerationMode");
+
+            if (conf.getInt("TestCaseGenerationMode") == 1) testCaseGenerationMode = TestCaseGenerationMode.SYSTEM_LEVEL;
+            else if(conf.getInt("TestCaseGenerationMode") ==2) testCaseGenerationMode = TestCaseGenerationMode.UNIT_LEVEL;
+            else testCaseGenerationMode = TestCaseGenerationMode.NONE;
         }
     }
 

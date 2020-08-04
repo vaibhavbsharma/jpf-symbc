@@ -37,6 +37,7 @@ package gov.nasa.jpf.symbc.sequences;
 
 // does not work well for static methods:summary not printed for errors
 // SH: Code copied from SymbolicSequenceListener with some modification for branch coverage test case generation for Veritesting.
+
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.Property;
@@ -46,7 +47,9 @@ import gov.nasa.jpf.report.ConsolePublisher;
 import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.PublisherExtension;
 import gov.nasa.jpf.search.Search;
+import gov.nasa.jpf.symbc.BranchListener;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
+import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.bytecode.BytecodeUtils;
 import gov.nasa.jpf.symbc.bytecode.INVOKESTATIC;
 import gov.nasa.jpf.symbc.concolic.PCAnalyzer;
@@ -60,32 +63,30 @@ import java.util.*;
 /**
  * @author Mithun Acharya
  * with inputs from Corina.
- *
+ * <p>
  * Note that all the methods of interest should be specified in +symbolic.method option.
  * if a method is not specified in +symbolic.method it will not be printed.
  * even if the method, foo(int i) is invoked concretely always, we should have
  * foo(con) in +symbolic.method option
- *
+ * <p>
  * Algorithm (Works independent of search order):
- *
+ * <p>
  * When instructionExecuted->JVMInvokeInstruction, remember the executed method, symbolic attributes, etc.
  * in a SequenceChoiceGenerator
- *
+ * <p>
  * The main idea is to exploit the fact that
  * "at each state, the path from start state to the current state has a
  * unique chain of choice generators"
- *
+ * <p>
  * During stateBacktracked or propertyViolated, get the chain of choice generators. In this chain look
  * for SequenceChoiceGenerators (which hold information about symbolically executed methods).
  * With the current path condition solution and the symbolic attributes
  * stored in SequenceChoiceGenerators, output the concrete method sequence.
- *
- *
+ * <p>
+ * <p>
  * KNOWN PROBLEMS:
- *
+ * <p>
  * 1) For JUnit test cases, getting class name and object name is not smart.
- *
- *
  */
 public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implements PublisherExtension {
 
@@ -107,6 +108,7 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
         jpf.addPublisherExtension(ConsolePublisher.class, this);
     }
 
+    /* SH: commenting this out for now.
     //    @Override
     public void propertyViolated(Search search, Map<String, Object> veriSolutionMap) {
         System.out.println("--------->property violated");
@@ -130,8 +132,7 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
         String error = search.getLastError().getDetails();
         error = "\"" + error.substring(0, error.indexOf("\n")) + "...\"";
 
-        if ((cg instanceof PCChoiceGenerator) &&
-                ((PCChoiceGenerator) cg).getCurrentPC() != null) {
+        if ((cg instanceof PCChoiceGenerator) && ((PCChoiceGenerator) cg).getCurrentPC() != null) {
 
             PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
             System.out.println("pc " + pc.count() + " " + pc);
@@ -141,8 +142,7 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
                 SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
                 PCAnalyzer pa = new PCAnalyzer();
                 pa.solve(pc, solver);
-            } else
-                pc.solve();
+            } else pc.solve();
 
             // get the chain of choice generators.
             ChoiceGenerator<?>[] cgs = ss.getChoiceGenerators();
@@ -150,13 +150,12 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
             // Now append the error String and then add methodSequence to methodSequences
             // prefix the exception marker to distinguish this from
             // an invoked method.
-            if (errAnn != "")
-                methodSequence.add(0, errAnn);
+            if (errAnn != "") methodSequence.add(0, errAnn);
             methodSequence.add(exceptionMarker + error);
             methodSequences.add(methodSequence);
         }
     }
-
+*/
 
     @Override
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
@@ -177,13 +176,11 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
                 StackFrame sf = ti.getTopFrame();
                 String shortName = methodName;
                 //String longName = mi.getLongName();
-                if (methodName.contains("("))
-                    shortName = methodName.substring(0, methodName.indexOf("("));
+                if (methodName.contains("(")) shortName = methodName.substring(0, methodName.indexOf("("));
                 // does not work for recursive invocations of sym methods; should compare MethodInfo instead
                 //if(!shortName.equals(sf.getMethodName()))
                 //return;
-                if (!mi.equals(sf.getMethodInfo()))
-                    return;
+                if (!mi.equals(sf.getMethodInfo())) return;
 
                 if ((BytecodeUtils.isMethodSymbolic(conf, mi.getFullName(), numberOfArgs, null))) {
 
@@ -206,13 +203,11 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
                     Object[] attributes = new Object[numberOfArgs];
 
                     int count = 1; // we do not care about this
-                    if (md instanceof INVOKESTATIC)
-                        count = 0;  //no "this" reference
+                    if (md instanceof INVOKESTATIC) count = 0;  //no "this" reference
                     for (int i = 0; i < numberOfArgs; i++) {
                         attributes[i] = sf.getLocalAttr(count);
                         count++;
-                        if (argTypes[i] == Types.T_LONG || argTypes[i] == Types.T_DOUBLE)
-                            count++;
+                        if (argTypes[i] == Types.T_LONG || argTypes[i] == Types.T_DOUBLE) count++;
                     }
 
                     // Create a new SequenceChoiceGenerator.
@@ -235,18 +230,18 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
 
 
     public static void collectVeriTests(VM vm, Map<String, Object> veriSolutionMap) {
-        Config conf = vm.getConfig();
+/*        Config conf = vm.getConfig();
 
-        Instruction insn = vm.getChoiceGenerator().getInsn();
+        Instruction insn = vm.getChoiceGenerator().getInsn();*/
         SystemState ss = vm.getSystemState();
-        //ThreadInfo ti = vm.getChoiceGenerator().getThreadInfo();
+        /*//ThreadInfo ti = vm.getChoiceGenerator().getThreadInfo();
         MethodInfo mi = insn.getMethodInfo();
         String methodName = mi.getFullName();
 
         int numberOfArgs = mi.getNumberOfArguments();//mi.getArgumentsSize()- 1;// corina: problem here? - 1;
 
         //	if (BytecodeUtils.isMethodSymbolic(conf, methodName, numberOfArgs, null)){
-
+*/
         ChoiceGenerator<?> cg = vm.getChoiceGenerator();
 
         if (!(cg instanceof PCChoiceGenerator)) {
@@ -257,10 +252,9 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
             cg = prev_cg;
         }
 
-        if ((cg instanceof PCChoiceGenerator) &&
-                ((PCChoiceGenerator) cg).getCurrentPC() != null) {
+        if ((cg instanceof PCChoiceGenerator) && ((PCChoiceGenerator) cg).getCurrentPC() != null) {
 
-            PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
+//            PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
             //solve the path condition
 				/*if (SymbolicInstructionFactory.concolicMode) { //TODO: cleaner
 					SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
@@ -289,13 +283,16 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
         // A method sequence is a vector of strings
         Vector<String> methodSequence = new Vector<String>();
         ChoiceGenerator cg = null;
-        // explore the choice generator chain - unique for a given path.
-        for (int i = 0; i < cgs.length; i++) {
-            cg = cgs[i];
-            if ((cg instanceof SequenceChoiceGenerator)) {
-                methodSequence.add(getInvokedMethod((SequenceChoiceGenerator) cg, veriSolutionMap));
+        if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.UNIT_LEVEL)
+            // explore the choice generator chain - unique for a given path.
+            for (int i = 0; i < cgs.length; i++) {
+                cg = cgs[i];
+                if ((cg instanceof SequenceChoiceGenerator)) {
+                    methodSequence.add(getInvokedMethod((SequenceChoiceGenerator) cg, veriSolutionMap));
+                }
             }
-        }
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.add(getInvokedMethod((SequenceChoiceGenerator) cgs[0], veriSolutionMap));
+
         return methodSequence;
     }
 
@@ -304,7 +301,7 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
      * A single invoked 'method' is represented as a String.
      * information about the invoked method is got from the SequenceChoiceGenerator
      */
-    private static String getInvokedMethod(SequenceChoiceGenerator cg, Map<String, Object> solutionMa) {
+    private static String getInvokedMethod(SequenceChoiceGenerator cg, Map<String, Object> solutionMap) {
         String invokedMethod = "";
 
         // get method name
@@ -333,16 +330,11 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
                 if (e instanceof IntegerExpression) {
                     // trick to print bools correctly
                     if (argValues[i].toString() == "true" || argValues[i].toString() == "false") {
-                        if (((IntegerExpression) e).solution() == 0)
-                            solution = solution + "false";
-                        else
-                            solution = solution + "true";
-                    } else
-                        solution = solution + ((IntegerExpression) e).solution();
-                } else if (e instanceof RealExpression)
-                    solution = solution + ((RealExpression) e).solution();
-                else
-                    solution = solution + ((StringSymbolic) e).solution();
+                        if ((int) solutionMap.get(e) == 0) solution = solution + "false";
+                        else solution = solution + "true";
+                    } else solution = solution + solutionMap.get(e);
+                } else assert false : "unsupported type";
+
                 invokedMethod += solution + ",";
             } else { // parameter concrete - for a concrete parameter, the symbolic attribute is null
                 invokedMethod += argValues[i] + ",";
@@ -350,8 +342,7 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
         }
 
         // remove the extra comma
-        if (invokedMethod.endsWith(","))
-            invokedMethod = invokedMethod.substring(0, invokedMethod.length() - 1);
+        if (invokedMethod.endsWith(",")) invokedMethod = invokedMethod.substring(0, invokedMethod.length() - 1);
         invokedMethod += ")";
 
         return invokedMethod;
@@ -366,18 +357,33 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
      * A single 'methodSequence' is a vector of invoked 'method's along a path
      * A single invoked 'method' is represented as a String.
      */
-    public static List<SymbolicInteger> getMethodAttributes(ChoiceGenerator[] cgs, Map<String, Object> veriSolutionMap) {
+    public static List<SymbolicInteger> getMethodAttributes(ChoiceGenerator[] cgs) {
         // A method sequence is a vector of strings
         Vector<SymbolicInteger> methodSequence = new Vector<SymbolicInteger>();
         ChoiceGenerator cg = null;
-        // explore the choice generator chain - unique for a given path.
-        for (int i = 0; i < cgs.length; i++) {
-            cg = cgs[i];
-            if ((cg instanceof SequenceChoiceGenerator))
-                methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg, veriSolutionMap));
-        }
+        if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.UNIT_LEVEL)
+            // explore the choice generator chain - unique for a given path.
+            for (int i = 0; i < cgs.length; i++) {
+                cg = cgs[i];
+                if ((cg instanceof SequenceChoiceGenerator)) methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg));
+            }
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cgs[0]));
+        else return methodSequence;
         return methodSequence;
     }
+
+    /*
+     */
+/**
+ * This gets only the attributes of the last choice.
+ * @param cg
+ * @return
+ *//*
+
+    private static Collection<? extends SymbolicInteger> getInvokedSystemMethodAttributes(SequenceChoiceGenerator cg) {
+        return Arrays.asList((SymbolicInteger) cg.getArgAttributes()[0]);
+    }
+*/
 
 
     /**
@@ -386,8 +392,7 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
      *
      * @return
      */
-    private static List<SymbolicInteger> getInvokedMethodAttributes(SequenceChoiceGenerator cg, Map<String, Object> solutionMa) {
-
+    private static List<SymbolicInteger> getInvokedMethodAttributes(SequenceChoiceGenerator cg) {
 
         SymbolicInteger[] attributeNames = new SymbolicInteger[cg.getArgAttributes().length];
 
@@ -467,8 +472,7 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
                     pw.println("	@Test"); // @Test annotation
                     it1 = methodSequence.iterator();
                 }
-            } else
-                it1 = methodSequence.iterator();
+            } else it1 = methodSequence.iterator();
 
             //pw.println("	@Test"); // @Test annotation
             pw.println("	public void test" + testIndex + "() {"); // begin test method

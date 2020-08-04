@@ -3,6 +3,7 @@ package gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ssa.*;
 import gov.nasa.jpf.symbc.BranchListener;
+import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
@@ -19,7 +20,6 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.VM;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
-import za.ac.sun.cs.green.expr.IntVariable;
 import za.ac.sun.cs.green.expr.Operation;
 
 import java.util.*;
@@ -122,8 +122,7 @@ public class VeriObligationMgr {
         HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
         if (oblgsNeedsCoverage.size() > 0) {
             ArrayList<Obligation> coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
-            if (!BranchListener.evaluationMode)
-                System.out.println("newly covered obligation on the path + " + coveredOblgsOnPath);
+            if (!BranchListener.evaluationMode) System.out.println("newly covered obligation on the path + " + coveredOblgsOnPath);
         }
     }
 
@@ -158,7 +157,8 @@ public class VeriObligationMgr {
                 pcCopy._addDet(greenConstraint);
 
                 //this is the place we want to get the attributes of the method calls that has occured so far in SequenceListener.
-                List<SymbolicInteger> attributes = VeriSymbolicSequenceListener.getMethodAttributes(ti.getVM().getChoiceGenerators(), null);
+                List<SymbolicInteger> attributes = new ArrayList<>();
+                attributes = VeriSymbolicSequenceListener.getMethodAttributes(ti.getVM().getChoiceGenerators());
 
                 Map<String, Object> solution = null;
                 if (sat) {
@@ -166,13 +166,12 @@ public class VeriObligationMgr {
                     solution = pcCopy.solveWithValuations(attributes, new ArrayList<>());
                     IncrementalListener.solver.pop();
                     if (solution.size() != 0) {
-                        ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(solution);
+                        ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), solution);
                         oblgsNeedCoverage.removeAll(newCoveredOblgs);
                         ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
                         newCoveredOblgsOnPath.addAll(newCoveredOblgs);
                         System.out.println("");
-                    } else
-                        sat = false;
+                    } else sat = false;
                 }
                 System.out.println("The solution is " + solution.toString());
             }
@@ -181,12 +180,16 @@ public class VeriObligationMgr {
         return newCoveredOblgsOnPath;
     }
 
-    private static ArrayList<Obligation> checkSolutionsWithObligations(Map<String, Object> solution) {
+    private static ArrayList<Obligation> checkSolutionsWithObligations(VM vm, Map<String, Object> solution) {
         ArrayList<Obligation> coveredOblg = new ArrayList<>();
         Set<Map.Entry<Obligation, PriorityQueue<Pair<Expression, Integer>>>> oblgsQueue = symbolicOblgMap.entrySet();
         for (Map.Entry oblgQueue : oblgsQueue)
-            if (isOblgCoveredInPath((PriorityQueue<Pair<Expression, Integer>>) oblgQueue.getValue(), solution))
+            if (isOblgCoveredInPath((PriorityQueue<Pair<Expression, Integer>>) oblgQueue.getValue(), solution)) {
                 coveredOblg.add((Obligation) oblgQueue.getKey());
+                //generate system test at this point
+                if(BranchListener.testCaseGenerationMode!=TestCaseGenerationMode.NONE)
+                    VeriSymbolicSequenceListener.collectVeriTests(vm, solution);
+            }
 
         return coveredOblg;
     }
