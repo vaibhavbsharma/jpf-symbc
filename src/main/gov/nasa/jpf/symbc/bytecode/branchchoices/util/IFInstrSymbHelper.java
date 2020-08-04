@@ -131,6 +131,8 @@ public class IFInstrSymbHelper {
                         pc._addDet(trueComparator, sym_v1, v2);
                 } else
                     pc._addDet(trueComparator, v1, sym_v2);
+                if (IncrementalListener.solver != null)
+                    pc.simplify();
                 ((PCChoiceGenerator) curCg).setCurrentPC(pc);
                 return instr.getTarget();
             } else {
@@ -141,6 +143,8 @@ public class IFInstrSymbHelper {
                         pc._addDet(falseComparator, sym_v1, v2);
                 } else
                     pc._addDet(falseComparator, v1, sym_v2);
+                if (IncrementalListener.solver != null)
+                    pc.simplify();
                 ((PCChoiceGenerator) curCg).setCurrentPC(pc);
                 return instr.getNext(ti);
             }
@@ -221,10 +225,14 @@ public class IFInstrSymbHelper {
 
             if (conditionValue) {
                 pc._addDet(trueComparator, sym_v, 0);
+                if (IncrementalListener.solver != null)
+                    pc.simplify();
                 ((PCChoiceGenerator) curCg).setCurrentPC(pc);
                 return instr.getTarget();
             } else {
                 pc._addDet(falseComparator, sym_v, 0);
+                if (IncrementalListener.solver != null)
+                    pc.simplify();
                 ((PCChoiceGenerator) curCg).setCurrentPC(pc);
                 return instr.getNext(ti);
             }
