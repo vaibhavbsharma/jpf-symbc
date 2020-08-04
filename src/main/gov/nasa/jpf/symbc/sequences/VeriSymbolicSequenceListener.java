@@ -291,7 +291,8 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
                     methodSequence.add(getInvokedMethod((SequenceChoiceGenerator) cg, veriSolutionMap));
                 }
             }
-        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.add(getInvokedMethod((SequenceChoiceGenerator) cgs[0], veriSolutionMap));
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL)
+            methodSequence.add(getInvokedMethod(getFirstSequenceCG(cgs), veriSolutionMap));
 
         return methodSequence;
     }
@@ -329,10 +330,10 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
 
                 if (e instanceof IntegerExpression) {
                     // trick to print bools correctly
-                    if (argValues[i].toString() == "true" || argValues[i].toString() == "false") {
+                    if (argValues[i].toString().equals("true") || argValues[i].toString().equals("false")) {
                         if ((int) solutionMap.get(e) == 0) solution = solution + "false";
                         else solution = solution + "true";
-                    } else solution = solution + solutionMap.get(e);
+                    } else solution = solution + solutionMap.get(((SymbolicInteger)e).getName());
                 } else assert false : "unsupported type";
 
                 invokedMethod += solution + ",";
@@ -365,11 +366,22 @@ public class VeriSymbolicSequenceListener extends PropertyListenerAdapter implem
             // explore the choice generator chain - unique for a given path.
             for (int i = 0; i < cgs.length; i++) {
                 cg = cgs[i];
-                if ((cg instanceof SequenceChoiceGenerator)) methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg));
+                if ((cg instanceof SequenceChoiceGenerator))
+                    methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg));
             }
-        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cgs[0]));
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL)
+            methodSequence.addAll(getInvokedMethodAttributes(getFirstSequenceCG(cgs)));
         else return methodSequence;
         return methodSequence;
+    }
+
+    private static SequenceChoiceGenerator getFirstSequenceCG(ChoiceGenerator[] cgs) {
+        for (int i = 0; i < cgs.length; i++)
+            if (cgs[i] instanceof SequenceChoiceGenerator)
+                return (SequenceChoiceGenerator) cgs[i];
+
+        assert false : "at least one SequenceChoiceGenerator should be in the sequence, but found zero. Something went wrong. Failing.";
+        return null;
     }
 
     /*

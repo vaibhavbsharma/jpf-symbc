@@ -122,7 +122,8 @@ public class VeriObligationMgr {
         HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
         if (oblgsNeedsCoverage.size() > 0) {
             ArrayList<Obligation> coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
-            if (!BranchListener.evaluationMode) System.out.println("newly covered obligation on the path + " + coveredOblgsOnPath);
+            if (!BranchListener.evaluationMode)
+                System.out.println("newly covered obligation on the path + " + coveredOblgsOnPath);
         }
     }
 
@@ -184,12 +185,17 @@ public class VeriObligationMgr {
         ArrayList<Obligation> coveredOblg = new ArrayList<>();
         Set<Map.Entry<Obligation, PriorityQueue<Pair<Expression, Integer>>>> oblgsQueue = symbolicOblgMap.entrySet();
         for (Map.Entry oblgQueue : oblgsQueue)
-            if (isOblgCoveredInPath((PriorityQueue<Pair<Expression, Integer>>) oblgQueue.getValue(), solution)) {
+            if (isOblgCoveredInPath((PriorityQueue<Pair<Expression, Integer>>) oblgQueue.getValue(), solution))
                 coveredOblg.add((Obligation) oblgQueue.getKey());
-                //generate system test at this point
-                if(BranchListener.testCaseGenerationMode!=TestCaseGenerationMode.NONE)
-                    VeriSymbolicSequenceListener.collectVeriTests(vm, solution);
-            }
+
+        // if we have any new coverage then
+        assert coveredOblg.size() > 0 : "unexpected zero coverage for obligations, at least one obligation coverage is expected.";
+
+        //for a single solver output there can't exists multiple valuations for the arguments.
+        if (coveredOblg.size() > 0)
+            //generate system test at this point
+            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
+                VeriSymbolicSequenceListener.collectVeriTests(vm, solution);
 
         return coveredOblg;
     }
