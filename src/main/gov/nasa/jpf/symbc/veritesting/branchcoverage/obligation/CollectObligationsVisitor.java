@@ -1,5 +1,6 @@
 package gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation;
 
+import com.ibm.wala.shrikeBT.IConditionalBranchInstruction;
 import com.ibm.wala.ssa.IR;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
@@ -47,8 +48,15 @@ public class CollectObligationsVisitor extends AstMapVisitor {
         Obligation elseOblg = VeriObligationMgr.createOblg(a.original, ObligationSide.ELSE, ir);
         innerPC.remove(innerPC.size() - 1);
 
-        putOblgExprInMap(thenOblg, a.condition);
+        /*putOblgExprInMap(thenOblg, a.condition);
         putOblgExprInMap(elseOblg, negCond);
+*/
+        //we need to flip the conditions accompanying the obligations since the obligations are mirroring the bytecode, whereas the conditions are matching the source code.
+        // and since operations of conditions are negated by the compilers, thus negating their form in the source, we consider obligations are sat by looking at the
+        // negation of the source condition. -- this is backed up by the assert statement in IsolateObligationsVisitor that checks for the negation invariant, important for maintaining sound results.
+
+        putOblgExprInMap(thenOblg, negCond);
+        putOblgExprInMap(elseOblg, a.condition);
 
         return a;
     }
@@ -86,9 +94,7 @@ public class CollectObligationsVisitor extends AstMapVisitor {
         Stmt dynStmt = dynRegion.dynStmt.accept(isolateObligationsVisitor);
 
 
-        return new DynamicRegion(dynRegion,
-                dynStmt,
-                dynRegion.spfCaseList, dynRegion.regionSummary, dynRegion.spfPredicateSummary, dynRegion.earlyReturnResult);
+        return new DynamicRegion(dynRegion, dynStmt, dynRegion.spfCaseList, dynRegion.regionSummary, dynRegion.spfPredicateSummary, dynRegion.earlyReturnResult);
 
     }
 }
