@@ -23,19 +23,24 @@ symbolic.debug=false
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths(sym#sym)
+
+symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths2(sym#sym)
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 #symbolic.dp=z3
 
 symbolic.dp=z3inc
-listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
-#listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+#listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+#listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+listener =.symbc.SymbolicListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
 targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
-#listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+#listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 coverageMode=5
 veritestingMode=3
+
 # must be added to avoid redundent constraints on the path condition.
 performanceMode=true

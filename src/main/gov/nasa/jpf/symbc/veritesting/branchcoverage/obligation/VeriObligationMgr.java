@@ -118,8 +118,8 @@ public class VeriObligationMgr {
      * 1. first it finds out which of the obligations encountered in path merging is not yet covered.
      * 2. utilizes symbolicOblgMap, pc and the solver to ask for coverage for these obligations.
      */
-    public static void collectVeritestingCoverage(gov.nasa.jpf.vm.ThreadInfo ti) {
-        HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
+    public static void collectVeritestingCoverage(ThreadInfo ti, HashSet<Obligation> oblgsNeedsCoverage) {
+//        HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
         if (oblgsNeedsCoverage.size() > 0) {
             ArrayList<Obligation> coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
             if (!BranchListener.evaluationMode)
@@ -127,7 +127,7 @@ public class VeriObligationMgr {
         }
     }
 
-    private static HashSet<Obligation> getNeedsCoverageOblg() {
+    public static HashSet<Obligation> getNeedsCoverageOblg() {
         HashSet<Obligation> oblgNeedsCoverage = new HashSet<>();
 
         for (Obligation oblg : symbolicOblgMap.keySet()) {
