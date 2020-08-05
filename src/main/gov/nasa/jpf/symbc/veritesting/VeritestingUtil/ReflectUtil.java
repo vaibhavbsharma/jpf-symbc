@@ -32,7 +32,7 @@ public class ReflectUtil
             throwException(new StaticRegionException("cannot construct method signature"), STATIC);
         return method.getName() + "("
                 + parametersAsString(method) + ")"
-                + Utility.getSignature(method.getReturnType().getCanonicalName());
+                + Utility.getSignature(method.getReturnType().getTypeName());
     }
     public static String parametersAsString ( Method method ) throws StaticRegionException {
         Class<?>[] parameterTypes = method.getParameterTypes();
