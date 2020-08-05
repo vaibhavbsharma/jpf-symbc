@@ -14,12 +14,14 @@ import gov.nasa.jpf.symbc.numeric.PathCondition;
 import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
 import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
 import gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.VM;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
+import za.ac.sun.cs.green.expr.IntVariable;
 import za.ac.sun.cs.green.expr.Operation;
 
 import java.util.*;
@@ -164,7 +166,13 @@ public class VeriObligationMgr {
                 Map<String, Object> solution = null;
                 if (sat) {
                     IncrementalListener.solver.push();
-                    solution = pcCopy.solveWithValuations(attributes, new ArrayList<>());
+                    assert (attributes.size() != 0);
+
+                    List<Expression> greenExprs = ExprUtil.spfToGreenExpr((List<gov.nasa.jpf.symbc.numeric.Expression>) (List<?>) attributes);
+                    for (Expression e : greenExprs)
+                        assert e instanceof IntVariable;
+
+                    solution = pcCopy.solveWithValuations(new ArrayList<>(), (List<IntVariable>) (List<?>) greenExprs);
                     IncrementalListener.solver.pop();
                     if (solution.size() != 0) {
                         ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), solution);

@@ -394,7 +394,7 @@ public class SymbolicConstraintsGeneral {
 
 
     /**
-     * Tries to find valuations to multiple symInts with a single solver call.
+     * Soha Hussein: Tries to find valuations to multiple symInts with a single solver call.
      *
      * @param pc
      * @param symIntList
@@ -436,14 +436,10 @@ public class SymbolicConstraintsGeneral {
                 if (symInt != null && !symIntegerVar.containsKey(symInt) && globalsymIntegerVar.containsKey(symInt)) {
                     symIntegerVar.put(symInt, globalsymIntegerVar.get(symInt));
                 }
-            for (SymbolicInteger symInt : symIntList)
-                if (symInt != null && !symIntegerVar.containsKey(symInt) && globalsymIntegerVar.containsKey(symInt)) {
-                    symIntegerVar.put(symInt, globalsymIntegerVar.get(symInt));
-                }
 
             for (IntVariable intVar : intVariableList)
-                if (!intVariableMap.containsKey(intVariableList) && globalintVariableMap.containsKey(intVariableList)) {
-                    intVariableMap.put(intVar, globalintVariableMap.get(intVariableList));
+                if (!intVariableMap.containsKey(intVariableList) && globalintVariableMap.containsKey(intVar)) {
+                    intVariableMap.put(intVar, globalintVariableMap.get(intVar));
                 }
 
 
@@ -481,5 +477,4 @@ public class SymbolicConstraintsGeneral {
             return result;
         }
     }
-
 }

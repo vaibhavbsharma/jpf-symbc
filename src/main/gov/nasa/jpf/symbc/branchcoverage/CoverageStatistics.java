@@ -42,7 +42,8 @@ public class CoverageStatistics {
         Integer evnMaxSteps = (System.getenv("MAX_STEPS") != null) ? Integer.valueOf(System.getenv("MAX_STEPS")) : null;
 
         String folderStr = "../logs/" + benchmarkName.toLowerCase();
-        new File(folderStr).mkdir(); //creating a folder to hold results
+
+        new File(folderStr).mkdirs(); //creating a folder to hold results
 
 
         if (evnMaxSteps != null) {
