@@ -58,6 +58,9 @@ public class SubstituteGetOutput {
             ClassInfo ci = null;
             try {
                 ci = ClassLoaderInfo.getCurrentResolvedClassInfo(className);
+                if (!ci.isRegistered()) {
+                    ci.registerClass(ThreadInfo.getCurrentThread());
+                }
             } catch (ClassInfoException e) {
                 exceptionalMessage = "fillFieldInputHole: class loader failed to resolve class name " +
                         className + " in FieldSSAVisitor";
