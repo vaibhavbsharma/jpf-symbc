@@ -35,7 +35,7 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
     public Stmt visit(IfThenElseStmt a) {
 
         //this lines justifies why we flip the condition for associating the obligations coverage in the oblgQueue when we do CollectObligationVisitor
-        assert negationOf(((Operation) a.condition).getOperator(), (IConditionalBranchInstruction.Operator) a.original.getOperator()) : "The assumption that the condition of the JR IR is the negation of the bytecode branch instruction is violated. Something went wrong. Failing.";
+//        assert negationOf(((Operation) a.condition).getOperator(), (IConditionalBranchInstruction.Operator) a.original.getOperator()) : "The assumption that the condition of the JR IR is the negation of the bytecode branch instruction is violated. Something went wrong. Failing.";
 
         String varId = "o$" + obligationUniqueness++;
         IntVariable oblgVar = new IntVariable(varId, (int) MinMax.getVarMinInt(varId), (int) MinMax.getVarMaxInt(varId));
@@ -54,27 +54,6 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
                 newElse));
     }
 
-
-    // the assumption is that ranger operation is always the negation of the corresponding wala operation representing the bytecode instructionn.
-    private boolean negationOf(Operation.Operator rangerOp, IConditionalBranchInstruction.Operator walaOp) {
-        switch (walaOp) {
-            case EQ:
-                return rangerOp == Operation.Operator.NE;
-            case NE:
-                return rangerOp == Operation.Operator.EQ;
-            case LT:
-                return rangerOp == Operation.Operator.GE;
-            case GE:
-                return rangerOp == Operation.Operator.LT;
-            case GT:
-                return rangerOp == Operation.Operator.LE;
-            case LE:
-                return rangerOp == Operation.Operator.GT;
-        }
-        assert false : "this should be unreachable code. Failing.";
-
-        return false;
-    }
 
 
     /**
