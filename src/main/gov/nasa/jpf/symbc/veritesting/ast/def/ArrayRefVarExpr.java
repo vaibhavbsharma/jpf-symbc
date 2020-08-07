@@ -93,16 +93,13 @@ public class ArrayRefVarExpr extends CloneableVariable {
     }
 
     @Override
-    public ArrayRefVarExpr makeUnique(int unique) throws StaticRegionException {
+    public ArrayRefVarExpr makeUnique(int unique) {
         ArrayRefVarExpr retExpr = this.clone();
-        if (retExpr.uniqueNum != -1 && unique != retExpr.uniqueNum)
-            throwException( new StaticRegionException("Attempting to make a already-unique ArrayRefVarExpr unique"), INSTANTIATION);
-        retExpr.uniqueNum = unique;
+        if (retExpr.uniqueNum == -1) {
+            retExpr.uniqueNum = unique;
+        }
         if (WalaVarExpr.class.isInstance(retExpr.arrayRef.index))
             assert ((WalaVarExpr)retExpr.arrayRef.index).getSymName().contains("$");
-//        if (WalaVarExpr.class.isInstance(arrayRef.index)) {
-//            retExpr = new ArrayRefVarExpr(new ArrayRef(arrayRef.ref, getUniqueWalaVarExpr((WalaVarExpr) arrayRef.index, uniqueNum)), subscript, uniqueNum);
-//        }
         return retExpr;
     }
 

@@ -15,7 +15,6 @@ import za.ac.sun.cs.green.expr.Expression;
 public class ExpUniqueVisitor extends ExprMapVisitor implements ExprVisitor<Expression> {
 
     int uniqueNum;
-    StaticRegionException sre = null;
 
     public ExpUniqueVisitor(int uniqueNum) {
         super();
@@ -30,24 +29,12 @@ public class ExpUniqueVisitor extends ExprMapVisitor implements ExprVisitor<Expr
      */
     @Override
     public Expression visit(WalaVarExpr expr) {
-        WalaVarExpr uniqueExpr = expr;
-        try {
-            uniqueExpr = expr.makeUnique(uniqueNum);
-        } catch (StaticRegionException e) {
-            sre = e;
-        }
-        return uniqueExpr;
+        return expr.makeUnique(uniqueNum);
     }
 
     @Override
     public Expression visit(AstVarExpr expr) {
-        AstVarExpr uniqueExpr = expr;
-        try {
-            uniqueExpr = expr.makeUnique(uniqueNum);
-        } catch (StaticRegionException e) {
-            sre = e;
-        }
-        return uniqueExpr;
+        return expr.makeUnique(uniqueNum);
     }
 
     /**
@@ -58,13 +45,7 @@ public class ExpUniqueVisitor extends ExprMapVisitor implements ExprVisitor<Expr
      */
     @Override
     public Expression visit(FieldRefVarExpr expr) {
-        FieldRefVarExpr uniqueExpr = expr;
-        try {
-            uniqueExpr = uniqueExpr.makeUnique(uniqueNum);
-        } catch (StaticRegionException e) {
-            sre = e;
-        }
-        return uniqueExpr;
+        return expr.makeUnique(uniqueNum);
     }
 
     /**
@@ -75,12 +56,6 @@ public class ExpUniqueVisitor extends ExprMapVisitor implements ExprVisitor<Expr
      */
     @Override
     public Expression visit(ArrayRefVarExpr expr) {
-        ArrayRefVarExpr uniqueExpr = expr;
-        try {
-            uniqueExpr = uniqueExpr.makeUnique(uniqueNum);
-        } catch (StaticRegionException e) {
-            sre = e;
-        }
-        return uniqueExpr;
+        return expr.makeUnique(uniqueNum);
     }
 }

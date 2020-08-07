@@ -63,10 +63,12 @@ public class AstVarExpr extends CloneableVariable {
     }
 
     @Override
-    public AstVarExpr makeUnique(int unique) throws StaticRegionException {
-        if (uniqueNum != -1 && unique != uniqueNum)
-            throw new StaticRegionException("Attempting to make a already-unique AstVarExpr unique");
-        return new AstVarExpr(this.getName(), this.type, unique);
+    public AstVarExpr makeUnique(int unique) {
+        if (uniqueNum == -1) {
+            return new AstVarExpr(this.getName(), this.type, unique);
+        } else {
+            return this.clone();
+        }
     }
     public String getSymName() {
         String ret = getName(); //"w" + Integer.toString(number);

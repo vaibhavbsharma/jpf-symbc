@@ -277,6 +277,7 @@ public class StaticRegion implements Region {
         this.isMethodRegion = staticRegion.isMethodRegion;
         this.varTypeTable = staticRegion.varTypeTable;
         this.stackOutput = staticRegion.stackOutput;
+        this.stackInput = staticRegion.stackInput;
 
         if (returnResult == null) {
             RemoveEarlyReturns o = new RemoveEarlyReturns();
