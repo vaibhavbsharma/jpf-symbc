@@ -8,7 +8,7 @@ public abstract class FixedPointAstMapVisitor extends AstMapVisitor{
      * This is used to capture the fact that there is change happening in the transformation, this is used for the
      * quick check for the fix point computation.
      */
-    protected boolean somethingChanged;
+    public abstract boolean getChange();
 
     /**
      * this is used when computing fixed point to carry the first exception that the visitor might have encountered.
@@ -17,8 +17,6 @@ public abstract class FixedPointAstMapVisitor extends AstMapVisitor{
 
 
     protected DynamicRegion instantiatedRegion;
-
-    public boolean getChange(){return somethingChanged;}
 
     public Exception getFirstException() {
         return firstException;

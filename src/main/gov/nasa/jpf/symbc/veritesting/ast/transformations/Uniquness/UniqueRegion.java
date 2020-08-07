@@ -57,11 +57,11 @@ public class UniqueRegion {
             dynRegion = new DynamicRegion(staticRegion,
                     dynStmt,
                     uniqueNum, newReturnResult);
-        }else
+        } else {
             dynRegion = new DynamicRegion(staticRegion,
                     dynStmt,
                     uniqueNum, staticRegion.earlyReturnResult);
-
+        }
 
         System.out.println("\n--------------- UNIQUENESS TRANSFORMATION ---------------");
         System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
@@ -90,6 +90,8 @@ public class UniqueRegion {
         newDynRegion.arrayOutputs = newDynRegion.arrayOutputs.makeUnique(uniqueNum);
         if (oldDynRegion.stackOutput != null)
             newDynRegion.stackOutput = oldDynRegion.stackOutput.makeUnique(uniqueNum);
+        if (oldDynRegion.stackInput != null)
+            newDynRegion.stackInput = oldDynRegion.stackInput.makeUnique(uniqueNum);
 
 
         if(VeritestingListener.simplify)

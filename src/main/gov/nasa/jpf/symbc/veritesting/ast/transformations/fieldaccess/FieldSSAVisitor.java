@@ -49,6 +49,7 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
     private ThreadInfo ti;
     static final int FIELD_SUBSCRIPT_BASE = 0;
     private GlobalSubscriptMap gsm;
+    private boolean somethingChanged;
 
     public FieldSSAVisitor(ThreadInfo ti, DynamicRegion dynRegion) {
         super(new ExprMapVisitor());
@@ -57,6 +58,11 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         this.ti = ti;
         this.gsm = new GlobalSubscriptMap();
         this.somethingChanged = false;
+    }
+
+    @Override
+    public boolean getChange() {
+        return somethingChanged;
     }
 
     private void populateException(IllegalArgumentException e) {

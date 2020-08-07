@@ -29,6 +29,7 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
     public ExprVisitorAdapter<Expression> eva;
     public DynamicTable<Expression> constantsTable;
     private DynamicRegion dynRegion;
+    private boolean somethingChanged;
 
     public SimplifyStmtVisitor(DynamicRegion dynRegion, DynamicTable<Expression> constantsTable) {
         super(new SimplifyRangerExprVisitor(constantsTable));
@@ -38,16 +39,16 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
         this.somethingChanged = false;
     }
 
-    public boolean getSomethingChanged() {
-        return ((SimplifyRangerExprVisitor) exprVisitor).somethingChanged;
-    }
-
     public IllegalArgumentException getExprException() {
         IllegalArgumentException ret = null;
         if (((SimplifyRangerExprVisitor) exprVisitor).exception != null) {
             ret = (((SimplifyRangerExprVisitor) exprVisitor).exception);
         }
         return ret;
+    }
+
+    public boolean getChange() {
+        return somethingChanged || ((SimplifyRangerExprVisitor) exprVisitor).somethingChanged;
     }
 
     @Override

@@ -29,6 +29,7 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
     private ThreadInfo ti;
     static final int ARRAY_SUBSCRIPT_BASE = 0;
     private GlobalArraySubscriptMap gsm;
+    private boolean somethingChanged;
     // maps each array to its array of expressions on a path
     public ArrayExpressions arrayExpressions;
 
@@ -39,6 +40,11 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
         this.gsm = new GlobalArraySubscriptMap();
         this.arrayExpressions = dynRegion.arrayOutputs != null ? dynRegion.arrayOutputs : new ArrayExpressions(ti);
         somethingChanged = false;
+    }
+
+    @Override
+    public boolean getChange() {
+        return somethingChanged;
     }
 
     @Override
@@ -213,7 +219,6 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
         }
         return compStmt;
     }
-
 
     public DynamicRegion execute() {
         Stmt arrayStmt = dynRegion.dynStmt.accept(this);

@@ -12,7 +12,6 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVMDirectCallStackFrame;
-import gov.nasa.jpf.jvm.bytecode.GOTO;
 import gov.nasa.jpf.report.ConsolePublisher;
 import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.PublisherExtension;
@@ -38,6 +37,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.CreateStaticR
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.substitutestackinput.SubstituteStackInput;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.typepropagation.TypePropagationVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
@@ -59,6 +59,7 @@ import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwExceptio
 import static gov.nasa.jpf.symbc.veritesting.VeritestingMain.skipRegionStrings;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingMain.skipVeriRegions;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.*;
+import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.isStackConsumingInstruction;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.isSymCond;
 
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.isStackConsumingRegionEnd;
@@ -380,15 +381,30 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     private void runVeritestingWrapper(ThreadInfo ti, VM vm, StaticRegion staticRegion, Instruction instructionToExecute) throws Exception {
         if ((runMode != VeritestingMode.SPFCASES) && (runMode != VeritestingMode.EARLYRETURNS)) {
-            isRegionEndOk(ti, staticRegion, instructionToExecute);
-
+            checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
             runOnSamePath(ti, instructionToExecute, dynRegion);
 
             System.out.println("------------- Region was successfully veritested --------------- ");
         } else {
-            isRegionEndOk(ti, staticRegion, instructionToExecute);
+            checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
+        }
+    }
+
+    private void checkRegionStackInputOutput(ThreadInfo ti, StaticRegion staticRegion, Instruction instructionToExecute)
+            throws StaticRegionException {
+        isRegionBeginOk(staticRegion, instructionToExecute);
+        isRegionEndOk(ti, staticRegion, instructionToExecute);
+    }
+
+    private void isRegionBeginOk(StaticRegion staticRegion, Instruction instructionToExecute) throws StaticRegionException {
+        boolean isBeginInsnStackConsuming = isStackConsumingInstruction(instructionToExecute);
+        // If region does not begin on a stack operand consuming instruction then the region should not have a stack input
+        if (!isBeginInsnStackConsuming && staticRegion.stackOutput != null) {
+            String ex = "Region with stack input does not begin at a stack-consuming instruction";
+            skipRegionStrings.add(ex);
+            throwException(new StaticRegionException(ex), INSTANTIATION);
         }
     }
 
@@ -575,6 +591,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         /*-------------- UNIQUENESS TRANSFORMATION ---------------*/
         DynamicRegion dynRegion = UniqueRegion.execute(staticRegion);
 
+        dynRegion = SubstituteStackInput.execute(ti, dynRegion);
+
         boolean somethingChanged = true;
         FixedPointWrapper.resetWrapper();
         do {
@@ -666,7 +684,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 pushReturnOnStack(ti.getTopFrame(), dynRegion);
             }
             if (dynRegion.stackOutput != null) {
-//                dynRegion.stackOutput = (WalaVarExpr) (new ExprVisitorAdapter(new WalaVarToSPFVarVisitor(dynRegion.varTypeTable))).accept(dynRegion.stackOutput);
                 pushExpOnStack(dynRegion, ti.getTopFrame(), (String) dynRegion.varTypeTable.lookup(dynRegion.stackOutput),
                         dynRegion.stackOutput);
             }

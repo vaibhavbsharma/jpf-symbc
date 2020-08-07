@@ -1,7 +1,5 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst;
 
-import com.ibm.wala.classLoader.IBytecodeMethod;
-import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import com.ibm.wala.ssa.*;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
@@ -11,6 +9,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Invariants.LocalOutputInvariantVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeEarlyReturns.RemoveEarlyReturns;
+import za.ac.sun.cs.green.expr.Expression;
 
 import java.util.*;
 
@@ -78,6 +77,11 @@ public class StaticRegion implements Region {
     public RemoveEarlyReturns.ReturnResult earlyReturnResult;
 
     /**
+     * Holds the expression that should be read in from the stack before the static region summary gets used
+     */
+    public WalaVarExpr stackInput = null;
+
+    /**
      * Holds the expression that should be written out to the stack
      */
     public WalaVarExpr stackOutput = null;
@@ -126,7 +130,8 @@ public class StaticRegion implements Region {
             if (noStackSlotVars.size() > 0) {
                 StaticRegionException sre = new StaticRegionException("region contains condition that cannot be instantiated");
                 SSACFG cfg = ir.getControlFlowGraph();
-                if (startingBlock == null) throwException(sre, STATIC);
+                if (startingBlock == null)
+                    throwException(sre, STATIC);
                 ISSABasicBlock bb = startingBlock;
                 boolean foundStoppingInsn = false;
                 while (noStackSlotVars.size() > 0 && !foundStoppingInsn) {
@@ -145,9 +150,7 @@ public class StaticRegion implements Region {
                     if (cfg.getPredNodeCount(bb) != 1) foundStoppingInsn = true;
                     else bb = (ISSABasicBlock) itr.next();
                 }
-                if (noStackSlotVars.size() > 0) {
-                    throwException(sre, STATIC);
-                }
+                this.stackInput = getStackInputOrThrowExceptionIfTooManyStackSlotVars(staticStmt, noStackSlotVars, sre);
             }
 //            Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> regionBoundary = computeRegionBoundary(staticStmt);
             RegionBoundaryOutput regionBoundary = computeRegionBoundary(staticStmt);
@@ -202,6 +205,35 @@ public class StaticRegion implements Region {
         }
         this.endIns = endIns;
         RegionMetricsVisitor.execute(this);
+    }
+
+    private WalaVarExpr getStackInputOrThrowExceptionIfTooManyStackSlotVars(Stmt staticStmt,
+                                                                            HashSet<WalaVarExpr> noStackSlotVars,
+                                                                            StaticRegionException sre)
+            throws StaticRegionException {
+        if (noStackSlotVars.size() > 0) {
+            if (!hasOnlyStackInputVar(staticStmt, noStackSlotVars)) {
+                throwException(sre, STATIC);
+            } else {
+                return noStackSlotVars.iterator().next(); // noStackSlotVars can only have one WalaVarExpr in it here
+            }
+        }
+        return null;
+    }
+
+    // Checks if the HashSet has a single WalaVarExpr that most likely corresponds to a stack input
+    // This method is still guessing. The check of whether the region begins at a stack-consuming instruction has to
+    // happen inside the listener where this region will be used
+    private boolean hasOnlyStackInputVar(Stmt staticStmt, HashSet<WalaVarExpr> walaVarExprHashSet) {
+        if (walaVarExprHashSet.size() != 1) {
+            return false;
+        }
+        final WalaVarExpr walaVarExpr = walaVarExprHashSet.iterator().next();
+        if (staticStmt instanceof CompositionStmt && ((CompositionStmt) staticStmt).s1 instanceof IfThenElseStmt) {
+            final Expression ifCond = ((IfThenElseStmt) ((CompositionStmt) staticStmt).s1).condition;
+            return new DoesExprReadWalaVarVisitor(walaVarExpr).eva.accept(ifCond);
+        }
+        return false;
     }
 
     private Integer findLastVar(Integer firstDef, Integer firstUse, Integer lastDef, Integer lastUse) {

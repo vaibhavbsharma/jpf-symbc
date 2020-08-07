@@ -52,6 +52,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
     public final DynamicRegion dynRegion;
     public final ThreadInfo ti;
     private boolean useVarTable = false;
+    private boolean somethingChanged;
 //    private static HashMap<MethodReference, Integer> recursiveMethods = new HashMap<>();
 
     private Pair<MethodReference, Integer> recursiveScope = null;
