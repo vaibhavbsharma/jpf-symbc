@@ -54,6 +54,7 @@ public class SimplifyGreenVisitor extends Visitor {
                     returnExp = Operation.FALSE;
                 else if (e1 == Operation.FALSE)
                     returnExp = Operation.TRUE;
+                else
                     returnExp = translateNotExpr(operation);
                 break;
             case EQ:
