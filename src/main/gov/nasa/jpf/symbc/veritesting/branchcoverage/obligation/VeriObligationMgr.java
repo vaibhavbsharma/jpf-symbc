@@ -16,13 +16,11 @@ import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
 import gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SimplifyGreenVisitor;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.VM;
-import za.ac.sun.cs.green.expr.Expression;
-import za.ac.sun.cs.green.expr.IntConstant;
-import za.ac.sun.cs.green.expr.IntVariable;
-import za.ac.sun.cs.green.expr.Operation;
+import za.ac.sun.cs.green.expr.*;
 
 import java.util.*;
 
@@ -165,7 +163,7 @@ public class VeriObligationMgr {
 
                 Map<String, Object> solution = null;
                 if (sat) {
-                    IncrementalListener.solver.push();
+                    if (IncrementalListener.solver != null) IncrementalListener.solver.push();
                     assert (attributes.size() != 0);
 
                     List<Expression> greenExprs = ExprUtil.spfToGreenExpr((List<gov.nasa.jpf.symbc.numeric.Expression>) (List<?>) attributes);
@@ -173,9 +171,9 @@ public class VeriObligationMgr {
                         assert e instanceof IntVariable;
 
                     solution = pcCopy.solveWithValuations(new ArrayList<>(), (List<IntVariable>) (List<?>) greenExprs);
-                    IncrementalListener.solver.pop();
+                    if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
                     if (solution.size() != 0) {
-                        ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), solution);
+                        ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedCoverage, solution);
                         oblgsNeedCoverage.removeAll(newCoveredOblgs);
                         ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
                         newCoveredOblgsOnPath.addAll(newCoveredOblgs);
@@ -189,21 +187,19 @@ public class VeriObligationMgr {
         return newCoveredOblgsOnPath;
     }
 
-    private static ArrayList<Obligation> checkSolutionsWithObligations(VM vm, Map<String, Object> solution) {
+    private static ArrayList<Obligation> checkSolutionsWithObligations(VM vm, HashSet<Obligation> oblgsNeedCoverage, Map<String, Object> solution) {
         ArrayList<Obligation> coveredOblg = new ArrayList<>();
-        Set<Map.Entry<Obligation, PriorityQueue<Pair<Expression, Integer>>>> oblgsQueue = symbolicOblgMap.entrySet();
-        for (Map.Entry oblgQueue : oblgsQueue)
-            if (isOblgCoveredInPath((PriorityQueue<Pair<Expression, Integer>>) oblgQueue.getValue(), solution))
-                coveredOblg.add((Obligation) oblgQueue.getKey());
-
+        for (Obligation oblg : oblgsNeedCoverage) {
+            PriorityQueue<Pair<Expression, Integer>> oblgQueue = symbolicOblgMap.get(oblg);
+            if (isOblgCoveredInPath(oblgQueue, solution)) coveredOblg.add(oblg);
+        }
         // if we have any new coverage then
         assert coveredOblg.size() > 0 : "unexpected zero coverage for obligations, at least one obligation coverage is expected.";
 
         //for a single solver output there can't exists multiple valuations for the arguments.
         if (coveredOblg.size() > 0)
             //generate system test at this point
-            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
-                VeriSymbolicSequenceListener.collectVeriTests(vm, solution);
+            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE) VeriSymbolicSequenceListener.collectVeriTests(vm, solution);
 
         return coveredOblg;
     }
@@ -212,26 +208,29 @@ public class VeriObligationMgr {
         Iterator<Pair<Expression, Integer>> queueItr = queue.iterator();
         while (queueItr.hasNext()) {
             Expression expr = queueItr.next().getFirst();
-            if (((Operation) expr).getOperator() == Operation.Operator.NOT) {
+            SolutionSubstitutionVisitor solutionSubstitutionVisitor = new SolutionSubstitutionVisitor(solution);
+            try {
+                expr.accept(solutionSubstitutionVisitor);
+                Expression substitutedExpr = solutionSubstitutionVisitor.returnExp;
+                SimplifyGreenVisitor exprEvalVisitor = new SimplifyGreenVisitor();
+                substitutedExpr.accept(exprEvalVisitor);
+                if (Operation.TRUE == exprEvalVisitor.returnExp)
+                    return true;
+            } catch (VisitorException e) {
+                e.printStackTrace();
+                assert false : "something went wrong during evaluating the green expression. Failing.";
+            }
+
+            /*if (((Operation) expr).getOperator() == Operation.Operator.NOT) {
                 expr = ((Operation) expr).getOperand(0);
                 Boolean evalValue = evalExpr(expr, solution);
                 if ((evalValue != null) && (!evalValue)) return true;
             } else {
                 Boolean evalValue = evalExpr(expr, solution);
                 if ((evalValue != null) && (evalValue)) return true;
-            }
+            }*/
         }
         return false;
-    }
-
-    private static Boolean evalExpr(Expression expr, Map<String, Object> solution) {
-        Expression oblgName = ((Operation) expr).getOperand(0);
-        Integer condValue = ((IntConstant) ((Operation) expr).getOperand(1)).getValue();
-        Object solutionVal = solution.get(oblgName.toString());
-        if (solutionVal == null) return null;
-
-        int solverVal = ((Long) solutionVal).intValue();
-        return (condValue == solverVal);
     }
 
 
@@ -246,6 +245,17 @@ public class VeriObligationMgr {
         } else {
             return new Operation(Operation.Operator.OR, disjunctExpr, createDisjunctiveExpr(oblgsNeedCoverage, index));
         }
+
+        /*List<Expression> allOblgExprs = new ArrayList<>();
+        for (Obligation oblg : oblgsNeedCoverage) {
+            PriorityQueue<Pair<Expression, Integer>> queue = symbolicOblgMap.get(oblg);
+            for (Pair<Expression, Integer> pair : queue) {
+                pair.getFirst().toString();
+                allOblgExprs.add(pair.getFirst());
+            }
+        }
+
+        return new Operation(Operation.Operator.OR, allOblgExprs.toArray(new Expression[allOblgExprs.size()]));*/
     }
 
     private static Expression createDisjunctExprPerOblg(PriorityQueue<Pair<Expression, Integer>> exprQueue) {
@@ -258,6 +268,5 @@ public class VeriObligationMgr {
         }
         return oblgDisjunctiveExpr;
     }
-
 
 }

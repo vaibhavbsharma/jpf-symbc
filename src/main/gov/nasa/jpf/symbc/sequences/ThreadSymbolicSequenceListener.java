@@ -133,8 +133,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
 
         if (IncrementalListener.solver == null) {//call super to generate test cases in case it is non-incremental mode and we do want to generate testcases.
-            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
-                super.stateBacktracked(vm.getSearch());
+            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE) super.stateBacktracked(vm.getSearch());
             return;
         }
         SystemState ss = vm.getSystemState();
@@ -149,8 +148,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
             cg = prev_cg;
         }
 
-        if ((cg instanceof PCChoiceGenerator) &&
-                ((PCChoiceGenerator) cg).getCurrentPC() != null) {
+        if ((cg instanceof PCChoiceGenerator) && ((PCChoiceGenerator) cg).getCurrentPC() != null) {
 
             PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
             //solve the path condition
@@ -165,9 +163,10 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
             attributes = getMethodAttributes(vm.getChoiceGenerators());
 
             Map<String, Object> solution = null;
-            IncrementalListener.solver.push();
+            if (IncrementalListener.solver != null) IncrementalListener.solver.push();
             solution = pc.solveWithValuations(attributes, new ArrayList<>());
-            IncrementalListener.solver.pop();
+            assert solution.size() > 0 : "At least one solution is expected. Something went wrong. Failing.";
+            if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
 
             // get the chain of choice generators.
             ChoiceGenerator<?>[] cgs = ss.getChoiceGenerators();
@@ -192,19 +191,16 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
             // explore the choice generator chain - unique for a given path.
             for (int i = 0; i < cgs.length; i++) {
                 cg = cgs[i];
-                if ((cg instanceof SequenceChoiceGenerator))
-                    methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg));
+                if ((cg instanceof SequenceChoiceGenerator)) methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg));
             }
-        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL)
-            methodSequence.addAll(getInvokedMethodAttributes(getFirstSequenceCG(cgs)));
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.addAll(getInvokedMethodAttributes(getFirstSequenceCG(cgs)));
         else return methodSequence;
         return methodSequence;
     }
 
     private static SequenceChoiceGenerator getFirstSequenceCG(ChoiceGenerator[] cgs) {
         for (int i = 0; i < cgs.length; i++)
-            if (cgs[i] instanceof SequenceChoiceGenerator)
-                return (SequenceChoiceGenerator) cgs[i];
+            if (cgs[i] instanceof SequenceChoiceGenerator) return (SequenceChoiceGenerator) cgs[i];
 
         assert false : "at least one SequenceChoiceGenerator should be in the sequence, but found zero. Something went wrong. Failing.";
         return null;
@@ -248,8 +244,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
                     methodSequence.add(getInvokedMethod((SequenceChoiceGenerator) cg, solution));
                 }
             }
-        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL)
-            methodSequence.add(getInvokedMethod(getFirstSequenceCG(cgs), solution));
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.add(getInvokedMethod(getFirstSequenceCG(cgs), solution));
 
         return methodSequence;
     }

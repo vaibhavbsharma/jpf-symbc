@@ -4,9 +4,9 @@ sourcepath=${jpf-symbc}/src/examples
 vm.storage.class=nil
 symbolic.debug=false
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov2(sym#sym)
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
+symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
 
@@ -25,19 +25,26 @@ symbolic.debug=false
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths2(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths2(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2PathsDepth3(sym#sym)
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 #symbolic.dp=z3
 
 symbolic.dp=z3inc
-#listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+## branch coverage with unit test for JR
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+## complete path exploration with unit tests.
 #listener =.symbc.SymbolicListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
-targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
+## branch execution for plain SPF with guiding and pruning features
 #listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
 
 coverageMode=5
 veritestingMode=3
