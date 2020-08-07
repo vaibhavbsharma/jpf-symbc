@@ -61,7 +61,7 @@ public class VeriSymbolicSequenceListener extends ThreadSymbolicSequenceListener
         // using the region, obligation way, or if no regions are along the path, then it can invoke the ordinary way
         // of ThreadSymbolicSequenceListener that we already use for SPF.
 
-        if (VeriBranchListener.oblgsNeedsCoverage.size() == 0)
+        if (VeriBranchListener.newCoveredOblg.size() > 0)
             return;
         else {
             super.threadTerminated(vm, terminatedThread);

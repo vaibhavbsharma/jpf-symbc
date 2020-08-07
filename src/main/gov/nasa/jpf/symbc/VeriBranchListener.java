@@ -11,7 +11,6 @@ import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
-import gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
@@ -21,14 +20,16 @@ import gov.nasa.jpf.vm.VM;
 import com.ibm.wala.ipa.callgraph.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.collectVeritestingCoverage;
-import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.getNeedsCoverageOblg;
+import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.getVeriNeedsCoverageOblg;
 
 public class VeriBranchListener extends BranchListener {
-    public static HashSet<Obligation> oblgsNeedsCoverage = new HashSet<>();
+    public static HashSet<Obligation> newCoveredOblg = new HashSet<>();
 
     public VeriBranchListener(Config conf, JPF jpf) {
         super(conf, jpf);
@@ -103,9 +104,10 @@ public class VeriBranchListener extends BranchListener {
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (!evaluationMode) System.out.println("end of thread");
 //        newCoverageFound = false;
-        HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
-        if (oblgsNeedsCoverage.size() > 0)
-            collectVeritestingCoverage(terminatedThread, oblgsNeedsCoverage);
+        newCoveredOblg.clear();
+        HashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
+        if (veriOblgsNeedsCoverage.size() > 0)
+            newCoveredOblg = new HashSet<>(collectVeritestingCoverage(terminatedThread, veriOblgsNeedsCoverage));
 
         //the case where the path contains no veriObligations, the computation of allObligationCovered might not be
         //reflective of the actual coverage, because the actually coverage by assumption is going to be checked with

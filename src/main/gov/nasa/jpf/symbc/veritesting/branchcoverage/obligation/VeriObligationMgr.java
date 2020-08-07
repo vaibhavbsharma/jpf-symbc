@@ -117,17 +117,20 @@ public class VeriObligationMgr {
      * collects new coverage by doing the following
      * 1. first it finds out which of the obligations encountered in path merging is not yet covered.
      * 2. utilizes symbolicOblgMap, pc and the solver to ask for coverage for these obligations.
+     * @return
      */
-    public static void collectVeritestingCoverage(ThreadInfo ti, HashSet<Obligation> oblgsNeedsCoverage) {
+    public static ArrayList<Obligation> collectVeritestingCoverage(ThreadInfo ti, HashSet<Obligation> oblgsNeedsCoverage) {
 //        HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
+        ArrayList<Obligation> coveredOblgsOnPath = new ArrayList<>();
         if (oblgsNeedsCoverage.size() > 0) {
-            ArrayList<Obligation> coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
+            coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
             if (!BranchListener.evaluationMode)
                 System.out.println("newly covered obligation on the path + " + coveredOblgsOnPath);
         }
+        return coveredOblgsOnPath;
     }
 
-    public static HashSet<Obligation> getNeedsCoverageOblg() {
+    public static HashSet<Obligation> getVeriNeedsCoverageOblg() {
         HashSet<Obligation> oblgNeedsCoverage = new HashSet<>();
 
         for (Obligation oblg : symbolicOblgMap.keySet()) {
@@ -188,20 +191,21 @@ public class VeriObligationMgr {
     }
 
     private static ArrayList<Obligation> checkSolutionsWithObligations(VM vm, HashSet<Obligation> oblgsNeedCoverage, Map<String, Object> solution) {
-        ArrayList<Obligation> coveredOblg = new ArrayList<>();
+        ArrayList<Obligation> coveredOblgs = new ArrayList<>();
         for (Obligation oblg : oblgsNeedCoverage) {
             PriorityQueue<Pair<Expression, Integer>> oblgQueue = symbolicOblgMap.get(oblg);
-            if (isOblgCoveredInPath(oblgQueue, solution)) coveredOblg.add(oblg);
+            if (isOblgCoveredInPath(oblgQueue, solution)) coveredOblgs.add(oblg);
         }
         // if we have any new coverage then
-        assert coveredOblg.size() > 0 : "unexpected zero coverage for obligations, at least one obligation coverage is expected.";
+        if(coveredOblgs.size()== 0)
+            System.out.println("---> useless execution for covering new JR obligations. SPF must have new branch obligation then.");
 
         //for a single solver output there can't exists multiple valuations for the arguments.
-        if (coveredOblg.size() > 0)
+        else
             //generate system test at this point
             if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE) VeriSymbolicSequenceListener.collectVeriTests(vm, solution);
 
-        return coveredOblg;
+        return coveredOblgs;
     }
 
     private static boolean isOblgCoveredInPath(PriorityQueue<Pair<Expression, Integer>> queue, Map<String, Object> solution) {
