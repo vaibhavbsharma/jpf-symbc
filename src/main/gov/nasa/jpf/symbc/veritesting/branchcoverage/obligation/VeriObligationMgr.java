@@ -161,7 +161,7 @@ public class VeriObligationMgr {
                 pcCopy._addDet(greenConstraint);
 
                 //this is the place we want to get the attributes of the method calls that has occured so far in SequenceListener.
-                List<SymbolicInteger> attributes = new ArrayList<>();
+                List<String> attributes = new ArrayList<>();
                 attributes = VeriSymbolicSequenceListener.getMethodAttributes(ti.getVM().getChoiceGenerators());
 
                 Map<String, Object> solution = null;
@@ -169,11 +169,11 @@ public class VeriObligationMgr {
                     if (IncrementalListener.solver != null) IncrementalListener.solver.push();
                     assert (attributes.size() != 0);
 
-                    List<Expression> greenExprs = ExprUtil.spfToGreenExpr((List<gov.nasa.jpf.symbc.numeric.Expression>) (List<?>) attributes);
+                    /*List<Expression> greenExprs = ExprUtil.spfToGreenExpr((List<gov.nasa.jpf.symbc.numeric.Expression>) (List<?>) attributes);
                     for (Expression e : greenExprs)
-                        assert e instanceof IntVariable;
+                        assert e instanceof IntVariable;*/
 
-                    solution = pcCopy.solveWithValuations(new ArrayList<>(), (List<IntVariable>) (List<?>) greenExprs);
+                    solution = pcCopy.solveWithValuations(attributes);
                     if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
                     if (solution.size() != 0) {
                         ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedCoverage, solution);

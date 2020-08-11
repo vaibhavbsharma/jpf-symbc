@@ -438,7 +438,7 @@ public class SymbolicConstraintsGeneral {
                 }
 
             for (IntVariable intVar : intVariableList)
-                if (!intVariableMap.containsKey(intVariableList) && globalintVariableMap.containsKey(intVar)) {
+                if (!intVariableMap.containsKey(intVar) && globalintVariableMap.containsKey(intVar)) {
                     intVariableMap.put(intVar, globalintVariableMap.get(intVar));
                 }
 
@@ -476,5 +476,102 @@ public class SymbolicConstraintsGeneral {
         } else {
             return result;
         }
+    }
+
+
+
+    public Map<String, Object> solveWithValuation(PathCondition pc, List<String> typeAgnosticVarList) {
+        Map<String, Object> result = new HashMap<String, Object>();
+
+        if (pc == null || pc.count == 0) {
+            return result;
+        }
+
+        String[] dp = SymbolicInstructionFactory.dp;
+        if (dp[0].equalsIgnoreCase("no_solver")) {
+            return result;
+        }
+
+        if (isSatisfiable(pc)) {
+
+            // compute solutions for real variables:
+            Set<Entry<SymbolicReal, Object>> sym_realvar_mappings = PCParser.symRealVar.entrySet();
+            Iterator<Entry<SymbolicReal, Object>> i_real = sym_realvar_mappings.iterator();
+
+            try {
+                sym_realvar_mappings = PCParser.symRealVar.entrySet();
+                i_real = sym_realvar_mappings.iterator();
+                while (i_real.hasNext()) {
+                    Entry<SymbolicReal, Object> e = i_real.next();
+                    SymbolicReal pcVar = e.getKey();
+                    Object dpVar = e.getValue();
+                    double e_value = pb.getRealValue(dpVar); // may be undefined: throws an exception
+                    pcVar.solution = e_value;
+                    result.put(pcVar.getName(), e_value);
+                }
+            } catch (Exception exp) {
+                this.catchBody(PCParser.symRealVar, pb, pc);
+            }
+
+            for (String typeAgnosticVar : typeAgnosticVarList) {
+
+                SymbolicInteger symVar = listStringContains(symIntegerVar.keySet(), typeAgnosticVar);
+                SymbolicInteger globalSymVar = listStringContains(globalsymIntegerVar.keySet(), typeAgnosticVar);
+                IntVariable intVar = new IntVariable(typeAgnosticVar, (int) MinMax.getVarMinInt(typeAgnosticVar), (int) MinMax.getVarMaxInt(typeAgnosticVar));
+
+                if (typeAgnosticVar != null && symVar == null && globalSymVar != null) {
+                    symIntegerVar.put(globalSymVar, globalsymIntegerVar.get(globalSymVar));
+                } else if (!intVariableMap.containsKey(intVar) && globalintVariableMap.containsKey(intVar)) {
+                    intVariableMap.put(intVar, globalintVariableMap.get(intVar));
+                }
+            }
+
+            // compute solutions for integer variables
+            Set<Entry<SymbolicInteger, Object>> sym_intvar_mappings = PCParser.symIntegerVar.entrySet();
+            Iterator<Entry<SymbolicInteger, Object>> i_int = sym_intvar_mappings.iterator();
+            // try {
+            while (i_int.hasNext()) {
+                Entry<SymbolicInteger, Object> e = i_int.next();
+                long e_value = pb.getIntValue(e.getValue());
+                e.getKey().solution = e_value;
+                result.put(e.getKey().getName(), e_value);
+
+            }
+
+// compute solutions for IntVariable objects in the model
+            final Set<Entry<IntVariable, Object>> intVariableSet = intVariableMap.entrySet();
+            final Iterator<Entry<IntVariable, Object>> intVariableItr = intVariableSet.iterator();
+            while (intVariableItr.hasNext()) {
+                final Entry<IntVariable, Object> e = intVariableItr.next();
+                long e_value = pb.getIntValue(e.getValue());
+                result.put(e.getKey().getName(), e_value);
+            }
+// compute solutions for RealVariable objects in the model
+            final Set<Entry<RealVariable, Object>> realVariableSet = PCParser.realVariableMap.entrySet();
+            final Iterator<Entry<RealVariable, Object>> realVariableItr = realVariableSet.iterator();
+            while (realVariableItr.hasNext()) {
+                final Entry<RealVariable, Object> e = realVariableItr.next();
+                double e_value = pb.getRealValue(e.getValue());
+                result.put(e.getKey().getName(), e_value);
+            }
+            cleanup();
+            return result;
+        } else {
+            return result;
+        }
+    }
+
+    /**
+     * we used this not so nice search since CompareTo of SymbolicInteger uses also unique field, but we only want to compare via the string name of the var.
+     * @param keySet
+     * @param typeAgnosticVar
+     * @return
+     */
+    private SymbolicInteger listStringContains(Set<SymbolicInteger> keySet, String typeAgnosticVar) {
+        for(SymbolicInteger symInt: keySet){
+            if(symInt.toString().equals(typeAgnosticVar))
+                return symInt;
+        }
+        return null;
     }
 }

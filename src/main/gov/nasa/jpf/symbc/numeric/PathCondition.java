@@ -611,4 +611,13 @@ public class PathCondition implements Comparable<PathCondition> {
         PathCondition.flagSolved = true;
         return result;
     }
+
+    //S.H.
+    public Map<String, Object> solveWithValuations(List<String> typeAgnosticVarList) {
+        SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
+        Map<String, Object> result = solver.solveWithValuation(this,typeAgnosticVarList);
+        solver.cleanup();
+        PathCondition.flagSolved = true;
+        return result;
+    }
 }

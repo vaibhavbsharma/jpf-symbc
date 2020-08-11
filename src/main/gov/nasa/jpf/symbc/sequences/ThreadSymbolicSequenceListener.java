@@ -159,12 +159,12 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
                 pa.solve(pc, solver);
             }
 //this is the place we want to get the attributes of the method calls that has occured so far in SequenceListener.
-            List<SymbolicInteger> attributes = new ArrayList<>();
+            List<String> attributes = new ArrayList<>();
             attributes = getMethodAttributes(vm.getChoiceGenerators());
 
             Map<String, Object> solution = null;
             if (IncrementalListener.solver != null) IncrementalListener.solver.push();
-            solution = pc.solveWithValuations(attributes, new ArrayList<>());
+            solution = pc.solveWithValuations(attributes);
             assert solution.size() > 0 : "At least one solution is expected. Something went wrong. Failing.";
             if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
 
@@ -183,9 +183,9 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
      * A single 'methodSequence' is a vector of invoked 'method's along a path
      * A single invoked 'method' is represented as a String.
      */
-    public static List<SymbolicInteger> getMethodAttributes(ChoiceGenerator[] cgs) {
+    public static List<String> getMethodAttributes(ChoiceGenerator[] cgs) {
         // A method sequence is a vector of strings
-        Vector<SymbolicInteger> methodSequence = new Vector<SymbolicInteger>();
+        ArrayList<String> methodSequence = new ArrayList<>();
         ChoiceGenerator cg = null;
         if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.UNIT_LEVEL)
             // explore the choice generator chain - unique for a given path.
@@ -212,13 +212,13 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
      *
      * @return
      */
-    private static List<SymbolicInteger> getInvokedMethodAttributes(SequenceChoiceGenerator cg) {
+    private static List<String> getInvokedMethodAttributes(SequenceChoiceGenerator cg) {
 
-        SymbolicInteger[] attributeNames = new SymbolicInteger[cg.getArgAttributes().length];
+        String[] attributeNames = new String[cg.getArgAttributes().length];
 
         for (int i = 0; i < cg.getArgAttributes().length; i++) {
             assert cg.getArgAttributes()[i] instanceof SymbolicInteger;
-            attributeNames[i] = (SymbolicInteger) cg.getArgAttributes()[i];
+            attributeNames[i] = (cg.getArgAttributes()[i]).toString();
         }
 
         return Arrays.asList(attributeNames);
