@@ -6,7 +6,7 @@
  * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -572,7 +572,7 @@ public class ProblemZ3Incremental extends ProblemGeneral implements IncrementalS
   //		}
   //	}
   //
-  //	
+  //
 
   public Object div(long value, Object exp) {
     try{
@@ -647,23 +647,26 @@ public class ProblemZ3Incremental extends ProblemGeneral implements IncrementalS
   //		}
   //	}
 
-  public long getIntValue(Object dpVar) {
-    try {
-      Model model = null;
-      if (Status.SATISFIABLE == solver.check()) {
-        model = solver.getModel();
-        return Long.parseLong((model.evaluate((IntExpr)dpVar,false)).toString());
-      }
-      else {
-        System.out.println("Error retrieving int value from Z3.");
-        assert false; // should not be reachable
-        return 0;
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException("## Error Z3: Exception caught in Z3 JNI: \n" + e);
+    public long getIntValue(Object dpVar) {
+        try {
+            Model model = null;
+            if (Status.SATISFIABLE == solver.check()) {
+                model = solver.getModel();
+                try {
+                    return Long.parseLong((model.evaluate((IntExpr) dpVar, false)).toString());
+                } catch (NumberFormatException e) {
+                    return Integer.MIN_VALUE;
+                }
+            } else {
+                System.out.println("Error retrieving int value from Z3.");
+                assert false; // should not be reachable
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("## Error Z3: Exception caught in Z3 JNI: \n" + e);
+        }
     }
-  }
 
   private Expr test(){
     Expr e = (Expr)makeIntVar("Z",-10, 10);
@@ -677,11 +680,11 @@ public class ProblemZ3Incremental extends ProblemGeneral implements IncrementalS
   public Boolean solve() {
     try {
       /* find model for the constraints above */
-      Model model = null;                
+      Model model = null;
 
-      if (Status.SATISFIABLE == solver.check()) {   
+      if (Status.SATISFIABLE == solver.check()) {
         return true;
-      } else {       
+      } else {
         return false;
       }
     } catch(Exception e){

@@ -7,7 +7,7 @@ public class TestCasePerf {
         int myVal = myA.getIncA();
         System.out.println("my A value is = " + myVal);*/
 //        singleBranchCov2(1, 1);
-//        doubleBranchCov(1, 1);
+        doubleBranchCov(1, 1);
 //        doubleRec(1, 1);
 //        complexBranchCov(1,1);
 //        unoptimalDFS(1, 1);
@@ -17,6 +17,8 @@ public class TestCasePerf {
 //        mixOfRegions2Paths(1, 1);
 //        mixOfRegions2Paths2(1, 1);
         mixOfRegions2Paths2ComplexCond(1, 1);
+//        mixOfRegions2Paths2(1,10);
+//        mixOfRegions2PathsDepth3(1, 1);
     }
 
 
@@ -100,6 +102,18 @@ public class TestCasePerf {
         return z;
     }
 
+
+    public static int mixOfRegions2PathsDepth3(int x, int y) {
+        int z = 10;
+
+        if (x == y)
+            if (x < 10)
+                z = 3 + x;
+            else
+                if(x<20)
+                    z = 3;
+        return z;
+    }
 
     public static int doubleBranchCov(int x, int y) {
 
