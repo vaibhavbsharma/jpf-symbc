@@ -13,11 +13,13 @@ import java.util.EmptyStackException;
 import java.util.List;
 
 import static gov.nasa.jpf.symbc.VeritestingListener.performanceMode;
+import static gov.nasa.jpf.symbc.VeritestingListener.recursiveDepth;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.SatResult.DONTKNOW;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.SatResult.FALSE;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.SatResult.TRUE;
+import static za.ac.sun.cs.green.expr.Operation.Operator.*;
 
 /**
  * A utility class that provides some methods from SPF to Green and vise versa.
@@ -315,12 +317,12 @@ public class ExprUtil {
         Expression e1 = op.getOperand(0);
         Expression returnExp;
         if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.NOT)) returnExp = ((Operation) e1).getOperand(0);
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.EQ)) returnExp = new Operation(Operation.Operator.NE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.NE)) returnExp = new Operation(Operation.Operator.EQ, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == EQ)) returnExp = new Operation(Operation.Operator.NE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.NE)) returnExp = new Operation(EQ, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
         else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.GT)) returnExp = new Operation(Operation.Operator.LE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.GE)) returnExp = new Operation(Operation.Operator.LT, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.GE)) returnExp = new Operation(LT, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
         else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.LE)) returnExp = new Operation(Operation.Operator.GT, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.LT)) returnExp = new Operation(Operation.Operator.GE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == LT)) returnExp = new Operation(Operation.Operator.GE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
         else returnExp = new Operation(Operation.Operator.NOT, e1);
         return returnExp;
     }
@@ -334,5 +336,4 @@ public class ExprUtil {
         else return new CompositionStmt(s1, s2);
         return null;
     }
-
 }

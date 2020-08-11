@@ -10,6 +10,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitor;
 import za.ac.sun.cs.green.expr.Expression;
+import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.Operation;
 
 import java.util.ArrayList;
@@ -42,7 +43,12 @@ public class CollectObligationsVisitor extends AstMapVisitor {
         a.thenStmt.accept(this);
         innerPC.remove(innerPC.size() - 1);
 
-        Expression negCond = new Operation(Operation.Operator.NOT, a.condition);
+        //TODO: only do that for genuine conditions.
+        assert (a.condition instanceof Operation && ((Operation) a.condition).getOperator() == Operation.Operator.EQ) : " The assumption that the if condition is of an equality form is not holding. Failing.";
+        assert (((Operation) a.condition).getOperand(1) instanceof IntConstant && ((IntConstant) ((Operation) a.condition).getOperand(1)).getValue() == 1) :
+                "The assumption that the condition of the if statement is of the form some obligation = 1 is not holding. Failing.";
+
+        Expression negCond = new Operation(Operation.Operator.EQ, ((Operation) a.condition).getOperand(0), new IntConstant(0));
         innerPC.add(negCond);
         a.elseStmt.accept(this);
         Obligation elseOblg = VeriObligationMgr.createOblg(a.original, ObligationSide.ELSE, ir);

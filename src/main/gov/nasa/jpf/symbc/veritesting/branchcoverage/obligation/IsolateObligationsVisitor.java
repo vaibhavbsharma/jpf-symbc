@@ -13,6 +13,7 @@ import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.IntVariable;
 import za.ac.sun.cs.green.expr.Operation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -22,12 +23,24 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
 
     private static int obligationUniqueness = 0;
 
+    private ArrayList<Expression> innerPC = new ArrayList<>();
+
     // this map holds the conditionExpr -> new symbolic variables. The new Symbolic variables are treated later as an obligation variant.
     HashMap<Expression, Expression> newSymToExprMap = new HashMap<>();
 
     public IsolateObligationsVisitor(ExprVisitor<Expression> exprVisitor) {
         super(exprVisitor);
         ((IsolateObligationsExprVisitor) exprVisitor).newSymToExprMap = newSymToExprMap;
+    }
+
+    private Expression conjunctWithPc(int index, Expression condition) {
+        //S.H. I believe this is unnecessary.
+
+        if (index == innerPC.size())
+            return condition;
+        return new Operation(Operation.Operator.AND, innerPC.get(index), conjunctWithPc(++index, condition));
+
+//        return condition;
     }
 
 
@@ -40,20 +53,32 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
         String varId = "o$" + obligationUniqueness++;
         IntVariable oblgVar = new IntVariable(varId, (int) MinMax.getVarMinInt(varId), (int) MinMax.getVarMaxInt(varId));
 
-        AssignmentStmt oblgAssign = new AssignmentStmt(oblgVar, new GammaVarExpr(a.condition, new IntConstant(1), new IntConstant((0))));
+        AssignmentStmt oblgAssign;
+
+        if (innerPC.size() == 0) //make sure that the Gamma is copying the inner path inside the region as well as the obligation condition, with the else side negating ONLY the
+            //current condition of the if-statement.
+            oblgAssign = new AssignmentStmt(oblgVar, new GammaVarExpr(a.condition, new IntConstant(1), new IntConstant(0)));
+        else //this case has three way choices depending on the satisfiability of the innerPC and the current condition of the if-statement. Option with const 2, is never used for checking the obligation.
+            oblgAssign = new AssignmentStmt(oblgVar, new GammaVarExpr(conjunctWithPc(0, a.condition), new IntConstant(1),
+                    new GammaVarExpr(conjunctWithPc(0, new Operation(Operation.Operator.NOT, a.condition)), new IntConstant(0), new IntConstant(2))));
 
         Operation newCondition = new Operation(Operation.Operator.EQ, oblgVar, new IntConstant(1));
         newSymToExprMap.put(a.condition, newCondition);
 
+        innerPC.add(a.condition);
         Stmt newThen = a.thenStmt.accept(this);
+        innerPC.remove(innerPC.size() - 1);
+
+        Expression negCond = new Operation(Operation.Operator.NOT, a.condition);
+        innerPC.add(negCond);
         Stmt newElse = a.elseStmt.accept(this);
+        innerPC.remove(innerPC.size() - 1);
 
         newSymToExprMap.remove(oblgVar);
 
         return new CompositionStmt(oblgAssign, new IfThenElseStmt(a.original, eva.accept(a.condition), newThen,
                 newElse));
     }
-
 
 
     /**
