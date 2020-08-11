@@ -120,7 +120,10 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                 if (instructionToExecute instanceof IfInstruction) {
                     isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
                     if (isSymBranchInst) {
-                        if (coverageMode != CoverageMode.COLLECT_COVERAGE) prunOrGuideSPF(ti, instructionToExecute);
+                        if ((coverageMode == CoverageMode.COLLECT_GUIDE) ||
+                                (coverageMode == CoverageMode.COLLECT_PRUNE) ||
+                                (coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE))
+                            prunOrGuideSPF(ti, instructionToExecute);
                     } //concrete branch will be pruned in instructionExecuted.
                 }
             }
@@ -132,7 +135,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
     }
 
-    private void prunOrGuideSPF(ThreadInfo ti, Instruction instructionToExecute) {
+    protected void prunOrGuideSPF(ThreadInfo ti, Instruction instructionToExecute) {
         Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.THEN);
         Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.ELSE);
 
@@ -149,7 +152,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
 
         if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//EARLY PRUNING, no new obligation can be reached
-            if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) { //prune only in pruning mode.
+            if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE
+                    || coverageMode == CoverageMode.JRCOLLECT_PRUNE || coverageMode == CoverageMode.JRCOLLECT_PRUNE_GUIDE) { //prune only in pruning mode.
                 ti.getVM().getSystemState().setIgnored(true);
                 if (!evaluationMode) System.out.println("EARLY PRUNING CASE: path is ignored");
             }
@@ -158,7 +162,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             if ((uncoveredReachThenOblg.length > uncoveredReachElseOblg.length) // if then has more reachable obligations
                     || ((ObligationMgr.isOblgCovered(oblgElse) && !ObligationMgr.isOblgCovered(oblgThen))) //if "else" side has been already covered but the "then" is not covered yet
             ) {
-                if (coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE || coverageMode == CoverageMode.COLLECT_GUIDE) // GUIDE: only in guiding mode.
+                if (coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE || coverageMode == CoverageMode.COLLECT_GUIDE
+                        || coverageMode == CoverageMode.JRCOLLECT_PRUNE_GUIDE || coverageMode == CoverageMode.JRCOLLECT_GUIDE) // GUIDE: only in guiding mode.
                     if (!ti.isFirstStepInsn()) { // first time around
                         IFInstrSymbHelper.flipBranchExploration = true;
                         if (!evaluationMode) System.out.println("flipping then and else sides.");

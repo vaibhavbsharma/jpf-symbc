@@ -11,6 +11,7 @@ import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
@@ -20,9 +21,7 @@ import gov.nasa.jpf.vm.VM;
 import com.ibm.wala.ipa.callgraph.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.collectVeritestingCoverage;
@@ -37,9 +36,11 @@ public class VeriBranchListener extends BranchListener {
             int coverageNum = conf.getInt("coverageMode");
             assert coverageNum > 4 : "coverageMode must be greater that 4 to support Veritesting";
             if (conf.getInt("coverageMode") == 5) coverageMode = CoverageMode.JRCOLLECT_COVERAGE;
-            else {
-                System.out.println("unknown mode. Failing");
-                assert false;
+            else if (conf.getInt("coverageMode") == 6) coverageMode = CoverageMode.JRCOLLECT_PRUNE;
+            else if (conf.getInt("coverageMode") == 7) coverageMode = CoverageMode.JRCOLLECT_GUIDE;
+            else if (conf.getInt("coverageMode") == 8) coverageMode = CoverageMode.JRCOLLECT_PRUNE_GUIDE;
+            else { //default setting for coverage
+                coverageMode = CoverageMode.JRCOLLECT_PRUNE_GUIDE;
             }
         }
 
@@ -79,9 +80,15 @@ public class VeriBranchListener extends BranchListener {
                 }
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
-                /*if (instructionToExecute instanceof IfInstruction && (VeritestingListener.veritestingSuccessful)) {
-                    VeriObligationMgr.addSymbolicOblgMap(CollectObligationsVisitor.oblgToExprsMap);
-                }*/
+                if (instructionToExecute instanceof IfInstruction && (!VeritestingListener.veritestingSuccessful)) {
+                    isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
+                    if (isSymBranchInst) {
+                        if ((coverageMode == CoverageMode.JRCOLLECT_GUIDE) ||
+                                (coverageMode == CoverageMode.JRCOLLECT_PRUNE) ||
+                                (coverageMode == CoverageMode.JRCOLLECT_PRUNE_GUIDE))
+                            prunOrGuideSPF(ti, instructionToExecute);
+                    } //concrete branch will be pruned in instructionExecuted.
+                }
             }
         } catch (IOException | CallGraphBuilderCancelException | WalaException e) {
             e.printStackTrace();
@@ -116,12 +123,14 @@ public class VeriBranchListener extends BranchListener {
         /*allObligationsCovered = ObligationMgr.isAllObligationCovered();
         coverageStatistics.recordCoverageForThread();*/
         updateCoverageEndOfPath();
+        newCoverageFound = false;
     }
 
-    public static void updateCoverageEndOfPath(){
+    public static void updateCoverageEndOfPath() {
         allObligationsCovered = ObligationMgr.isAllObligationCovered();
         coverageStatistics.recordCoverageForThread();
     }
+
     @Override
     public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
         if (currentCG instanceof PCChoiceGenerator) {
