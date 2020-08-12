@@ -133,7 +133,8 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
 
         if (IncrementalListener.solver == null) {//call super to generate test cases in case it is non-incremental mode and we do want to generate testcases.
-            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE) super.stateBacktracked(vm.getSearch());
+            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
+                super.stateBacktracked(vm.getSearch());
             return;
         }
         SystemState ss = vm.getSystemState();
@@ -191,9 +192,11 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
             // explore the choice generator chain - unique for a given path.
             for (int i = 0; i < cgs.length; i++) {
                 cg = cgs[i];
-                if ((cg instanceof SequenceChoiceGenerator)) methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg));
+                if ((cg instanceof SequenceChoiceGenerator))
+                    methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg));
             }
-        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.addAll(getInvokedMethodAttributes(getFirstSequenceCG(cgs)));
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL)
+            methodSequence.addAll(getInvokedMethodAttributes(getFirstSequenceCG(cgs)));
         else return methodSequence;
         return methodSequence;
     }
@@ -244,7 +247,8 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
                     methodSequence.add(getInvokedMethod((SequenceChoiceGenerator) cg, solution));
                 }
             }
-        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.add(getInvokedMethod(getFirstSequenceCG(cgs), solution));
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL)
+            methodSequence.add(getInvokedMethod(getFirstSequenceCG(cgs), solution));
 
         return methodSequence;
     }
@@ -281,8 +285,9 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
 
                 if (e instanceof IntegerExpression) {
                     // trick to print bools correctly
+                    assert e instanceof SymbolicInteger : "unexpected symbolic type. Failing.";
                     if (argValues[i].toString().equals("true") || argValues[i].toString().equals("false")) {
-                        if ((int) solutionMap.get(e) == 0) solution = solution + "false";
+                        if (((Long) solutionMap.get(((SymbolicInteger) e).getName())).intValue() == 0) solution = solution + "false";
                         else solution = solution + "true";
                     } else solution = solution + solutionMap.get(((SymbolicInteger) e).getName());
                 } else assert false : "unsupported type";

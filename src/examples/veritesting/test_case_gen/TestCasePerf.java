@@ -8,9 +8,9 @@ public class TestCasePerf {
         System.out.println("my A value is = " + myVal);*/
 //        singleBranchCov2(1, 1);
 //        doubleBranchCov(1, 1);
-        doubleRec(1, 1);
+//        doubleRec(1, 1);
 //        complexBranchCov(1,1);
-//        unoptimalDFS(1, 1);
+        unoptimalDFS(1, 1);
 //        doubleLoopUnoptimalDFS(1, 1);
 //        doubleLoop(1, 1);
 //        mixOfRegions(1, 1);
