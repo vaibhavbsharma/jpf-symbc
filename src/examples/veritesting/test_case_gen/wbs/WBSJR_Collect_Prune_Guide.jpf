@@ -12,11 +12,11 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 #symbolic.dp=z3
 
 symbolic.dp=z3inc
-listener = .symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+#listener = .symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 
 ## branch coverage with unit test for JR
-#listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 
 #symbolic.optimizechoices=false
@@ -25,5 +25,6 @@ branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/WBS.class
 coverageExclusions=LWBS.launch(IZZIZZIZZIZZIZZ)V
 
-coverageMode=4
+veritestingMode = 3
+coverageMode=8
 performanceMode=true
