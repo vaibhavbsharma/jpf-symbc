@@ -7,6 +7,7 @@ import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
+import gov.nasa.jpf.symbc.branchcoverage.CoverageStatistics;
 import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
@@ -53,6 +54,7 @@ public class VeriBranchListener extends BranchListener {
                 testCaseGenerationMode = TestCaseGenerationMode.UNIT_LEVEL;
             else testCaseGenerationMode = TestCaseGenerationMode.NONE;
         }
+        coverageStatistics = new CoverageStatistics();
     }
 
 
@@ -113,8 +115,11 @@ public class VeriBranchListener extends BranchListener {
 //        newCoverageFound = false;
         newCoveredOblg.clear();
         HashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
-        if (veriOblgsNeedsCoverage.size() > 0)
+        if (veriOblgsNeedsCoverage.size() > 0) {
             newCoveredOblg = new HashSet<>(collectVeritestingCoverage(terminatedThread, veriOblgsNeedsCoverage));
+            for (Obligation oblg : newCoveredOblg)
+                coverageStatistics.recordObligationCovered(oblg);
+        }
 
         //the case where the path contains no veriObligations, the computation of allObligationCovered might not be
         //reflective of the actual coverage, because the actually coverage by assumption is going to be checked with

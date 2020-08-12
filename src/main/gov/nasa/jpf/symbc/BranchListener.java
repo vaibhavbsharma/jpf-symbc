@@ -85,7 +85,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
         benchmarkName = setBenchmarkName(conf.getString("target"));
 
-        coverageStatistics = new CoverageStatistics();
+        if (coverageMode.ordinal() > 5)
+            coverageStatistics = new CoverageStatistics();
     }
 
     private String setBenchmarkName(String target) {

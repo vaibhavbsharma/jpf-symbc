@@ -104,7 +104,7 @@ public class WBS {
 	         WBS_Node_WBS_BSCU_Switch3 = 0;
 	      else
 	         WBS_Node_WBS_BSCU_Switch3 = 4;
-	      assert false;
+//	      assert false;
 	   }
 	   else {
 	      WBS_Node_WBS_BSCU_Switch3 = 4;
@@ -112,7 +112,7 @@ public class WBS {
 
 	   if (WBS_Node_WBS_BSCU_SystemModeSelCmd_Logical_Operator6) {
 	      WBS_Node_WBS_Green_Pump_IsolationValve_Switch = 0;
-	      assert false;
+//	      assert false;
 	   }  else {
 	      WBS_Node_WBS_Green_Pump_IsolationValve_Switch = 5;
 	    }
@@ -122,7 +122,7 @@ public class WBS {
 	   }
 	   else {
 	      WBS_Node_WBS_SelectorValve_Switch1 = 5;
-	      assert false;
+//	      assert false;
 	   }
 
 	   if ((!WBS_Node_WBS_BSCU_SystemModeSelCmd_Logical_Operator6)) {
@@ -134,29 +134,30 @@ public class WBS {
 		   else {
 		      WBS_Node_WBS_AccumulatorValve_Switch = 5;
 		   }
-		   assert false;
+//		   assert false;
 	   }
 
 	   if ((WBS_Node_WBS_BSCU_Switch3 == 0)) {
-	      WBS_Node_WBS_AS_MeterValve_Switch = 0;assert false;
+	      WBS_Node_WBS_AS_MeterValve_Switch = 0;
+//	      assert false;
 	   }  else {
 		   if ((WBS_Node_WBS_BSCU_Switch3 == 1))  {
 		      WBS_Node_WBS_AS_MeterValve_Switch = (WBS_Node_WBS_AccumulatorValve_Switch / 4);
-		      assert false;
+//		      assert false;
 		   }  else {
 			   if ((WBS_Node_WBS_BSCU_Switch3 == 2))  {
 			      WBS_Node_WBS_AS_MeterValve_Switch = (WBS_Node_WBS_AccumulatorValve_Switch / 2);
-				   assert false;
+//				   assert false;
 			   }  else {
 				   if ((WBS_Node_WBS_BSCU_Switch3 == 3)) {
 				      WBS_Node_WBS_AS_MeterValve_Switch = ((WBS_Node_WBS_AccumulatorValve_Switch / 4) * 3);
-					   assert false;
+//					   assert false;
 				   }  else {
 					   if ((WBS_Node_WBS_BSCU_Switch3 == 4)) {
 					      WBS_Node_WBS_AS_MeterValve_Switch = WBS_Node_WBS_AccumulatorValve_Switch;
 					   }  else {
 					      WBS_Node_WBS_AS_MeterValve_Switch = 0;
-						   assert false;
+//						   assert false;
 					   }
 				   }
 			   }
@@ -171,7 +172,7 @@ public class WBS {
 
 	   if (WBS_Node_WBS_BSCU_SystemModeSelCmd_Logical_Operator6) {
 	      Sys_Mode = 1;
-		   assert false;
+//		   assert false;
 	   }  else {
 	      Sys_Mode = 0;
 	   }
@@ -207,7 +208,7 @@ public class WBS {
 	      WBS_Node_WBS_SelectorValve_Switch = WBS_Node_WBS_Green_Pump_IsolationValve_Switch;
 	   }  else {
 	      WBS_Node_WBS_SelectorValve_Switch = 0;
-		   assert false;
+//		   assert false;
 	   }
 
 	   if ((WBS_Node_WBS_BSCU_Switch2 == 0)) {
@@ -226,7 +227,7 @@ public class WBS {
 					      Nor_Pressure = WBS_Node_WBS_SelectorValve_Switch;
 					   } else {
 					      Nor_Pressure = 0;
-						   assert false;
+//						   assert false;
 					   }
 				   }
 			   }
@@ -249,7 +250,7 @@ public class WBS {
 					      Alt_Pressure = WBS_Node_WBS_AS_MeterValve_Switch;
 					   } else {
 					      Alt_Pressure = 0;
-						   assert false;
+//						   assert false;
 					   }
 				   }
 			   }

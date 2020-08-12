@@ -1,13 +1,12 @@
 package gov.nasa.jpf.symbc;
 
 import gov.nasa.jpf.Config;
-import gov.nasa.jpf.symbc.bytecode.*;
 import gov.nasa.jpf.vm.Instruction;
 
 public class BranchSymInstructionFactory extends SymbolicInstructionFactory {
 
 
-    public static boolean GuideBranchExploration = false;
+    public static boolean GuideBranchExploration = true;
 
     public BranchSymInstructionFactory(Config conf) {
         super(conf);
