@@ -34,3 +34,8 @@ runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect.j
 runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_steps$2.log
 runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Guide_steps$2.log
 runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_Guide_steps$2.log
+
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Prune.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_Prune_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Prune_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_Prune_Guide_steps$2.log

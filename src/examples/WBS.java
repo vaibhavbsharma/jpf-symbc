@@ -179,7 +179,7 @@ public class WBS {
 
 	   if (WBS_Node_WBS_BSCU_SystemModeSelCmd_Logical_Operator6) {
 	      WBS_Node_WBS_BSCU_Switch2 = 0;
-	      assert false;
+//	      assert false;
 	   }  else {
 		   if (((WBS_Node_WBS_BSCU_Command_AntiSkidCommand_Normal_Switch >= 0) &&
 		         (WBS_Node_WBS_BSCU_Command_AntiSkidCommand_Normal_Switch < 1))) {

@@ -1,5 +1,8 @@
 package gov.nasa.jpf.symbc.veritesting.VeritestingUtil;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Base class that this used to pair any two types.
  * @param <T>
@@ -19,5 +22,9 @@ public class Pair <T,V> {
 
     public V getSecond(){
         return second;
+    }
+
+    public List<Object> toList(){
+        return Arrays.asList(first, second);
     }
 }

@@ -9,13 +9,16 @@ import com.ibm.wala.ipa.callgraph.impl.Everywhere;
 
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.types.MethodReference;
+import gov.nasa.jpf.symbc.BranchListener;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.branchcoverage.reachability.ObligationReachability;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import static gov.nasa.jpf.symbc.BranchListener.coverageExclusions;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil.UNKNOWN_PACKAGE;
@@ -66,10 +69,11 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
             e.printStackTrace();
         }*/
 
-        HashSet<Obligation> reacheableThenOblgs = (new ObligationReachability(ir, inst, ObligationSide.THEN)).reachableObligations();
-        HashSet<Obligation> reacheableElseOblgs = (new ObligationReachability(ir, inst, ObligationSide.ELSE)).reachableObligations();
+        Pair<Set<String>, HashSet<Obligation>> reacheableMethodThenOblgsPair = (new ObligationReachability(ir, inst, ObligationSide.THEN)).reachableObligations();
+        Pair<Set<String>, HashSet<Obligation>> reacheableMethodElseOblgsPair = (new ObligationReachability(ir, inst, ObligationSide.ELSE)).reachableObligations();
 
-        ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, ir.getControlFlowGraph().getBlockForInstruction(inst.iIndex()), reacheableThenOblgs, reacheableElseOblgs);
+        ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, ir.getControlFlowGraph().getBlockForInstruction(inst.iIndex()), reacheableMethodThenOblgsPair, reacheableMethodElseOblgsPair);
+
     }
 
     private String constructWalaSign() {

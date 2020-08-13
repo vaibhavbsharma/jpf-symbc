@@ -62,4 +62,12 @@ public class CoverageUtil {
     public static String getWalaPackageName(IMethod m) {
         return m.getDeclaringClass().getName().getPackage() != null ? m.getDeclaringClass().getName().getPackage().toString() : UNKNOWN_PACKAGE;
     }
+
+    public static String constructWalaMethodSign(String walaPackageName, String methodSig, String className) {
+        String refinedMethodSig = methodSig.replaceAll(";", "");
+        if (walaPackageName.equals(UNKNOWN_PACKAGE))
+            return "L" + className + "." + refinedMethodSig;
+        else
+            return "L" + walaPackageName + "/" + className + "." + refinedMethodSig;
+    }
 }

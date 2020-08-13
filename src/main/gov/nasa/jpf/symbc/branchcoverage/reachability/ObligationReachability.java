@@ -1,11 +1,20 @@
 package gov.nasa.jpf.symbc.branchcoverage.reachability;
 
+import com.ibm.wala.classLoader.IMethod;
+import com.ibm.wala.ipa.callgraph.AnalysisCacheImpl;
+import com.ibm.wala.ipa.callgraph.AnalysisOptions;
+import com.ibm.wala.ipa.callgraph.IAnalysisCacheView;
+import com.ibm.wala.ipa.callgraph.impl.Everywhere;
 import com.ibm.wala.ssa.*;
+import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.util.collections.HashSetFactory;
 import com.ibm.wala.util.graph.Graph;
+import gov.nasa.jpf.symbc.BranchListener;
+import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -159,10 +168,44 @@ public class ObligationReachability {
         return reachableBranchBB;
     }
 
-    public HashSet<Obligation> reachableObligations() {
+    /**
+     * collect local reachable method invocations names.
+     *
+     * @param reachableBlocks
+     * @return
+     */
+    public Set<String> buildReachableInteraProcInvoke(Set<ISSABasicBlock> reachableBlocks) {
+        assert BranchListener.interproceduralReachability : "method expected to run only in interprocedural reachability mode. Violation detected. Failing";
+
+        Set<String> reachableMethodsSig = new HashSet<>();
+        for (ISSABasicBlock bb : reachableBlocks)
+            for (SSAInstruction inst : ((SSACFG.BasicBlock) bb).getAllInstructions())
+                if (inst instanceof SSAInvokeInstruction) {// make the signature of the new method we found and add it to reachable methods
+                    MethodReference mr = ((SSAInvokeInstruction) inst).getDeclaredTarget();
+                    IMethod m = BranchCoverage.cha.resolveMethod(mr);
+
+                    if ((m.getDeclaringClass().getClassLoader().toString().equals("Application"))) {//only add methods that are user defined, we do not care about others.
+                        String walaPackageName = CoverageUtil.getWalaPackageName(m);
+                        String className = m.getDeclaringClass().getName().getClassName().toString();
+                        String methodSignature = m.getSelector().toString();
+
+                        reachableMethodsSig.add(CoverageUtil.constructWalaMethodSign(walaPackageName, className, methodSignature));
+                    }
+                }
+        return reachableMethodsSig;
+    }
+
+
+    public Pair<Set<String>, HashSet<Obligation>> reachableObligations() {
         Set<ISSABasicBlock> reachableBB = buildReachableBB();
         Set<ISSABasicBlock> reachableBranchBB = buildReachableBranchBB(reachableBB);
-        return getObligationsFromBB(reachableBranchBB);
+        Set<String> reachableMethods = null;
+
+        if (BranchListener.interproceduralReachability)
+            reachableMethods = buildReachableInteraProcInvoke(reachableBB);
+
+        HashSet<Obligation> reachableOblgs = getObligationsFromBB(reachableBranchBB);
+        return new Pair<Set<String>, HashSet<Obligation>>(reachableMethods, reachableOblgs);
     }
 
     private HashSet<Obligation> getObligationsFromBB(Set<ISSABasicBlock> reachableBB) {

@@ -4,6 +4,7 @@ import com.ibm.wala.ssa.ISSABasicBlock;
 import com.ibm.wala.ssa.SSACFG;
 import com.ibm.wala.ssa.SSAInstruction;
 import gov.nasa.jpf.symbc.BranchListener;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 
 import java.io.PrintWriter;
 import java.util.*;
@@ -16,6 +17,8 @@ public class ObligationMgr {
 
     private static final HashMap<Obligation, ISSABasicBlock> obligationBBMap = new HashMap<>();
 
+//    private static final HashMap<String, HashSet<Obligation>> methodObligations = new HashMap<>();
+
     private static int indexSerial = 0;
 
     private static boolean[] coveredArray;
@@ -25,17 +28,17 @@ public class ObligationMgr {
         coveredArray = new boolean[obligationsMap.size()];
     }
 
-    public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, SSACFG.BasicBlock blockForOblg, HashSet<Obligation> reacheableThenOblgs, HashSet<Obligation> reacheableElseOblgs) {
-        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN);
-        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE);
+    public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, SSACFG.BasicBlock blockForOblg, Pair<Set<String>, HashSet<Obligation>> reacheableThenOblgs, Pair<Set<String>, HashSet<Obligation>> reacheableElseOblgs) {
+        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN, reacheableThenOblgs.getFirst());
+        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE, reacheableElseOblgs.getFirst());
 
         if (oblgExists(oblgElse)) return;
 
         obligationsMap.put(oblgThen, indexSerial++);
         obligationsMap.put(oblgElse, indexSerial++);
 
-        reachabilityMap.put(oblgThen, reacheableThenOblgs);
-        reachabilityMap.put(oblgElse, reacheableElseOblgs);
+        reachabilityMap.put(oblgThen, reacheableThenOblgs.getSecond());
+        reachabilityMap.put(oblgElse, reacheableElseOblgs.getSecond());
 
         if (!BranchListener.evaluationMode)
             obligationBBMap.put(oblgThen, blockForOblg);
@@ -110,11 +113,38 @@ public class ObligationMgr {
         //add myself if I am not yet covered.
         if (!isOblgCovered(mainOblg)) uncoveredOblgList.add(mainOblg);
 
-        for (Obligation reachableOblg : reachableOblgs) {
+        for (Obligation reachableOblg : reachableOblgs)
             if (!isOblgCovered(reachableOblg)) uncoveredOblgList.add(reachableOblg);
+
+        if (uncoveredOblgList.size() == 0 && BranchListener.interproceduralReachability) { //start looking at interprocedural reachability.
+            Obligation mainOblgWithLocalMethodReach = findActualKeyInMap(obligationsMap.keySet(), mainOblg);
+            assert mainOblgWithLocalMethodReach.localReachableMethods != null;
+
+            // giving high weight to explore methods. Note that it could be the case that this is an already explored methods,
+            // we still guide to SPF to explore it further, ideally it will backtrack when it realizes that nothing can be explored.
+            // It is still debatable whether we should give high priority to method exploration without keeping track of those whose
+            //obligations have already been covered.
+            if (mainOblgWithLocalMethodReach.localReachableMethods.size() > 0) return new Obligation[100];
         }
+
         if (uncoveredOblgList.size() > 0) return uncoveredOblgList.toArray(new Obligation[uncoveredOblgList.size()]);
         else return new Obligation[]{};
+    }
+
+    /**
+     * Tries to find the actual oblg in the obligationMap, since there we will see the actual  value of "localReachableMethods" then later deciding if there are more stuff
+     * reachable or not.
+     *
+     * @param obligationKeys
+     * @param mainOblg
+     * @return
+     */
+    private static Obligation findActualKeyInMap(Set<Obligation> obligationKeys, Obligation mainOblg) {
+        for (Obligation oblg : obligationKeys)
+            if (oblg.equals(mainOblg))
+                return oblg;
+        assert false : "this cannot happen. There must be an obligation in obligationMap for this key. Something went wrong. Failing.";
+        return null;
     }
 
     public static boolean isAllObligationCovered() {
@@ -179,4 +209,14 @@ public class ObligationMgr {
 
         return ((float) numberOfCoverage / coveredArray.length) * 100;
     }
+
+    /* -- Commenting this for now but we can potientially add it if we want more accurate interreachability analysis.
+    public static void addMethOblg(String walaMethodSignature, Pair<Obligation, Obligation> oblgPair) {
+        assert BranchListener.interproceduralReachability : "methodObligations data structure should only be used with interprocedural reachability. Violation detected. Failing";
+        HashSet<Obligation> oblgs = methodObligations.get(walaMethodSignature);
+        if (oblgs == null)
+            methodObligations.put(walaMethodSignature, new HashSet<>((List<Obligation>) (List<?>) oblgPair.toList()));
+        else
+            oblgs.addAll((List<Obligation>) (List<?>) oblgPair.toList());
+    }*/
 }

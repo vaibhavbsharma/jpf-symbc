@@ -1,6 +1,10 @@
 package gov.nasa.jpf.symbc.branchcoverage.obligation;
 
 import com.ibm.wala.ssa.SSAInstruction;
+import gov.nasa.jpf.symbc.BranchListener;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class Obligation implements Cloneable, Comparable {
     // packageName has "." qualifications like spf, but when we create them since they are in Wala's notation they have "/" instead, and so we translate them to their "." version.
@@ -10,9 +14,26 @@ public class Obligation implements Cloneable, Comparable {
     int instLine;
     ObligationSide oblgSide;
     SSAInstruction inst;
+    Set<String> localReachableMethods;
 
 
-    //used by wala obligation creation
+    //used by WALA obligation creation
+    //obligations of these type of constructors are the ones that are stored in the ObligationMgr.obligationMap, since this is where localReachableMethods are defined and used
+    // later during the guiding and pruning modes.
+    public Obligation(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, ObligationSide oblgSide, Set<String> localReachableMethods) {
+        this.spfPackageName = toSpfPackageName(walaPackageName);
+        this.className = className;
+        this.methodSig = methodSig;
+        this.instLine = instLine;
+        this.oblgSide = oblgSide;
+        this.inst = inst;
+        if (BranchListener.interproceduralReachability)
+            assert localReachableMethods != null : "unexpected null value for localReachableMethods with interprocedural analysis turned on. It can be empty but not null. Failing.";
+
+        this.localReachableMethods = localReachableMethods;
+    }
+
+    //used by WALA for collecting reachable obliagtions where localReachableMethods are not needed
     public Obligation(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, ObligationSide oblgSide) {
         this.spfPackageName = toSpfPackageName(walaPackageName);
         this.className = className;
@@ -20,7 +41,6 @@ public class Obligation implements Cloneable, Comparable {
         this.instLine = instLine;
         this.oblgSide = oblgSide;
         this.inst = inst;
-//        this.reachableObl = reachableObl;
     }
 
     // SPF version of creating an obligation
@@ -38,7 +58,6 @@ public class Obligation implements Cloneable, Comparable {
         this.instLine = instLine;
         this.oblgSide = oblgSide;
         this.inst = inst;
-//        this.reachableObl = reachableObl;
     }
 
     /**
