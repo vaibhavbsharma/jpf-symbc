@@ -50,6 +50,9 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
         //this lines justifies why we flip the condition for associating the obligations coverage in the oblgQueue when we do CollectObligationVisitor
 //        assert negationOf(((Operation) a.condition).getOperator(), (IConditionalBranchInstruction.Operator) a.original.getOperator()) : "The assumption that the condition of the JR IR is the negation of the bytecode branch instruction is violated. Something went wrong. Failing.";
 
+        if(!a.genuine) // is it a if-stmt related to JR transformation, if so just return.
+            return a;
+
         String varId = "o$" + obligationUniqueness++;
         IntVariable oblgVar = new IntVariable(varId, (int) MinMax.getVarMinInt(varId), (int) MinMax.getVarMaxInt(varId));
 
@@ -77,7 +80,7 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
         newSymToExprMap.remove(oblgVar);
 
         return new CompositionStmt(oblgAssign, new IfThenElseStmt(a.original, eva.accept(a.condition), newThen,
-                newElse));
+                newElse, a.genuine, a.isByteCodeReversed));
     }
 
 

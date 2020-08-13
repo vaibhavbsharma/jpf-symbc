@@ -143,7 +143,7 @@ public class RemoveEarlyReturns {
                             null,
                             ifThenElseStmt.condition,
                             thenResult.stmt,
-                            elseResult.stmt);
+                            elseResult.stmt, false, false);
                 }
                 retPosAndType = thenResult.retPosAndType;
             } else if (thenResult.hasER()) {
@@ -155,7 +155,7 @@ public class RemoveEarlyReturns {
                         null,
                         ifThenElseStmt.condition,
                         thenResult.stmt,
-                        elseResult.stmt);
+                        elseResult.stmt, false, false);
                 retPosAndType = thenResult.retPosAndType;
             } else if (elseResult.hasER()) {
                 innerAssign = elseResult.assign;
@@ -166,7 +166,7 @@ public class RemoveEarlyReturns {
                         null,
                         ifThenElseStmt.condition,
                         thenResult.stmt,
-                        elseResult.stmt);
+                        elseResult.stmt, false, false);
                 retPosAndType = elseResult.retPosAndType;
             } else {
                 resultStmt = init.stmt;

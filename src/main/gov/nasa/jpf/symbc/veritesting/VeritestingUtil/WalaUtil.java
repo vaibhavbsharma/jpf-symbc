@@ -39,7 +39,10 @@ public class WalaUtil {
 
 
     // the assumption is that ranger operation is always the negation of the corresponding wala operation representing the bytecode instructionn.
-    public static boolean negationOf(Operation.Operator rangerOp, IConditionalBranchInstruction.Operator walaOp) {
+    public static boolean negationOfCondInst(Operation cond, IConditionalBranchInstruction.Operator walaOp) {
+        Operation.Operator rangerOp = cond.getOperator();
+        if(rangerOp == Operation.Operator.NOT)
+            rangerOp = negateRangerOp(((Operation)cond.getOperand(0)).getOperator());
         switch (walaOp) {
             case EQ:
                 return rangerOp == Operation.Operator.NE;
@@ -57,6 +60,27 @@ public class WalaUtil {
         assert false : "this should be unreachable code. Failing.";
 
         return false;
+    }
+
+    private static Operation.Operator negateRangerOp(Operation.Operator operator) {
+
+        switch (operator) {
+            case EQ:
+                return Operation.Operator.NE;
+            case NE:
+                return Operation.Operator.EQ;
+            case LT:
+                return Operation.Operator.GE;
+            case GE:
+                return Operation.Operator.LT;
+            case GT:
+                return  Operation.Operator.LE;
+            case LE:
+                return Operation.Operator.GT;
+        }
+        assert false : "this should be unreachable code. Failing.";
+
+        return null;
     }
 
 }

@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst;
 
 import com.ibm.wala.cfg.Util;
 import com.ibm.wala.classLoader.IBytecodeMethod;
+import com.ibm.wala.shrikeBT.IConditionalBranchInstruction;
 import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.util.graph.Graph;
@@ -10,6 +11,7 @@ import com.ibm.wala.util.graph.dominators.NumberedDominators;
 import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.WalaUtil;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.SSAToStatIVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
@@ -662,7 +664,8 @@ public class CreateStaticRegions {
         }
         currentCondition.removeLast();
         Stmt returnStmt = compose(this.thenConditionSetup.get(currentBlock),
-                new IfThenElseStmt(SSAUtil.getLastBranchInstruction(currentBlock), condExpr, thenStmt, elseStmt),
+                new IfThenElseStmt(SSAUtil.getLastBranchInstruction(currentBlock), condExpr, thenStmt, elseStmt, true,
+                        WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) ((SSAConditionalBranchInstruction)SSAUtil.getLastBranchInstruction(currentBlock)).getOperator())),
                 false);
 
         return returnStmt;
@@ -725,7 +728,8 @@ public class CreateStaticRegions {
         currentCondition.removeLast();
 
         Stmt returnStmt = compose(this.thenConditionSetup.get(currentBlock),
-                new IfThenElseStmt(SSAUtil.getLastBranchInstruction(currentBlock), condExpr, thenStmt, elseStmt),
+                new IfThenElseStmt(SSAUtil.getLastBranchInstruction(currentBlock), condExpr, thenStmt, elseStmt,true,
+                        WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) ((SSAConditionalBranchInstruction)SSAUtil.getLastBranchInstruction(currentBlock)).getOperator())),
                 false);
 
         if (!actualThenBlock.equals(thenBlock) &&(!actualThenBlock.equals(elseBlock)))

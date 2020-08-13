@@ -12,12 +12,16 @@ public class IfThenElseStmt implements Stmt {
     public final Stmt thenStmt;
     public final Stmt elseStmt;
     public final SSAConditionalBranchInstruction original;
+    public final boolean genuine;
+    public final boolean isByteCodeReversed;
 
-    public IfThenElseStmt(SSAConditionalBranchInstruction original, Expression condition, Stmt thenStmt, Stmt elseStmt) {
+    public IfThenElseStmt(SSAConditionalBranchInstruction original, Expression condition, Stmt thenStmt, Stmt elseStmt, boolean genuine, boolean isByteCodeReversed ) {
         this.original = original;
         this.condition = condition;
         this.thenStmt = thenStmt;
         this.elseStmt = elseStmt;
+        this.genuine = genuine;
+        this.isByteCodeReversed = isByteCodeReversed;
     }
 
     @Override

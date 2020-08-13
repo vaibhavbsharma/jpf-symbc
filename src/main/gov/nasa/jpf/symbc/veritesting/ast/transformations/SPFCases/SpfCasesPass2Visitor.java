@@ -72,7 +72,7 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
         else if (elseStmt instanceof SPFCaseStmt)
             s = thenStmt;
         else
-            s = new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt);
+            s = new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt,a.genuine, a.isByteCodeReversed);
         spfCondition = oldSPFCondition;
         return s;
     }

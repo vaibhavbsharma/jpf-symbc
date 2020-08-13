@@ -46,7 +46,7 @@ public class FlattenStmtListVisitor implements AstVisitor<Void> {
     public Void visit(IfThenElseStmt a) {
         Stmt thenL = flattenStmt(a.thenStmt);
         Stmt elseL = flattenStmt(a.elseStmt);
-        return add(new IfThenElseStmt(a.original, a.condition, thenL, elseL));
+        return add(new IfThenElseStmt(a.original, a.condition, thenL, elseL, a.genuine, a.isByteCodeReversed));
     }
 
     @Override public Void visit(AssignmentStmt a) { return add(a); }

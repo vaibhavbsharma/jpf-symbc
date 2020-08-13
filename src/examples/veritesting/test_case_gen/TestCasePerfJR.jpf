@@ -10,7 +10,7 @@ symbolic.debug=false
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
 
@@ -28,9 +28,11 @@ symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths2(sym#sym)
 
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths2ComplexCond(sym#sym)
+symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths2ComplexCond(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2PathsDepth3(sym#sym)
+
+symbolic.method=veritesting.test_case_gen.TestCasePerf.arrayLoadStore0(sym#sym)
 
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
@@ -40,10 +42,10 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 symbolic.dp=z3inc
 
 ## branch coverage with unit test for JR
-#listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 ## branch execution for plain SPF with guiding and pruning features
-listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+#listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 
 ## plain spf path exploration with unit tests, no guiding or pruning or coverage, just test cases
@@ -52,7 +54,7 @@ listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSeque
 #listener =.symbc.SymbolicListener
 targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
 
-coverageMode=4
+coverageMode=8
 veritestingMode=3
 
 # must be added to avoid redundant constraints on the path condition.

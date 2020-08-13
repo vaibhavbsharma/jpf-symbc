@@ -38,6 +38,9 @@ public class CollectObligationsVisitor extends AstMapVisitor {
     @Override
     public Stmt visit(IfThenElseStmt a) {
 
+        if(!a.genuine) // is it a if-stmt related to JR transformation, if so just return.
+            return a;
+
         innerPC.add(a.condition);
         Obligation thenOblg = VeriObligationMgr.createOblg(a.original, ObligationSide.THEN, ir);
         a.thenStmt.accept(this);
@@ -54,15 +57,17 @@ public class CollectObligationsVisitor extends AstMapVisitor {
         Obligation elseOblg = VeriObligationMgr.createOblg(a.original, ObligationSide.ELSE, ir);
         innerPC.remove(innerPC.size() - 1);
 
-        /*putOblgExprInMap(thenOblg, a.condition);
-        putOblgExprInMap(elseOblg, negCond);
-*/
-        //we need to flip the conditions accompanying the obligations since the obligations are mirroring the bytecode, whereas the conditions are matching the source code.
+        //check if we need to flip the conditions accompanying the obligations since the obligations are mirroring the bytecode, whereas the conditions might be  matching the source code.
         // and since operations of conditions are negated by the compilers, thus negating their form in the source, we consider obligations are sat by looking at the
-        // negation of the source condition. -- this is backed up by the assert statement in IsolateObligationsVisitor that checks for the negation invariant, important for maintaining sound results.
+        // negation of the source condition.
 
-        putOblgExprInMap(thenOblg, negCond);
-        putOblgExprInMap(elseOblg, a.condition);
+        if (a.isByteCodeReversed) {
+            putOblgExprInMap(thenOblg, negCond);
+            putOblgExprInMap(elseOblg, a.condition);
+        } else{
+            putOblgExprInMap(thenOblg, a.condition);
+            putOblgExprInMap(elseOblg, negCond);
+        }
 
         return a;
     }
