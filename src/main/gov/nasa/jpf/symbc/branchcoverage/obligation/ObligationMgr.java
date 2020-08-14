@@ -40,8 +40,7 @@ public class ObligationMgr {
         reachabilityMap.put(oblgThen, reacheableThenOblgs.getSecond());
         reachabilityMap.put(oblgElse, reacheableElseOblgs.getSecond());
 
-        if (!BranchListener.evaluationMode)
-            obligationBBMap.put(oblgThen, blockForOblg);
+        if (!BranchListener.evaluationMode) obligationBBMap.put(oblgThen, blockForOblg);
     }
 
 
@@ -60,8 +59,7 @@ public class ObligationMgr {
             System.out.println("obligation not found in the obligation HashMap. Assumed none application/user branch. Coverage Ignored for instruction.");
             return false; // no new obligation that we are looking for are covered in this instance
         }
-        if (isOblgCovered(oblg))
-            return false; //this is an already covered obligation, so nothing new here, returning false.
+        if (isOblgCovered(oblg)) return false; //this is an already covered obligation, so nothing new here, returning false.
         else {
             coveredArray[oblgIndex] = true;
             return true; //this is a new coverage, thus returning true
@@ -125,7 +123,10 @@ public class ObligationMgr {
             // we still guide to SPF to explore it further, ideally it will backtrack when it realizes that nothing can be explored.
             // It is still debatable whether we should give high priority to method exploration without keeping track of those whose
             //obligations have already been covered.
-            if (mainOblgWithLocalMethodReach.localReachableMethods.size() > 0) return new Obligation[100];
+            if (mainOblgWithLocalMethodReach.localReachableMethods.size() > 0) {
+                if (!BranchListener.evaluationMode) System.out.println(" ---- method found along reachable path");
+                return new Obligation[100];
+            }
         }
 
         if (uncoveredOblgList.size() > 0) return uncoveredOblgList.toArray(new Obligation[uncoveredOblgList.size()]);
@@ -142,16 +143,14 @@ public class ObligationMgr {
      */
     private static Obligation findActualKeyInMap(Set<Obligation> obligationKeys, Obligation mainOblg) {
         for (Obligation oblg : obligationKeys)
-            if (oblg.equals(mainOblg))
-                return oblg;
+            if (oblg.equals(mainOblg)) return oblg;
         assert false : "this cannot happen. There must be an obligation in obligationMap for this key. Something went wrong. Failing.";
         return null;
     }
 
     public static boolean isAllObligationCovered() {
         for (boolean coverage : coveredArray)
-            if (!coverage)
-                return false;
+            if (!coverage) return false;
 
         return true;
     }
