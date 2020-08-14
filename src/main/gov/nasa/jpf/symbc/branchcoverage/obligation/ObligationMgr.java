@@ -77,6 +77,7 @@ public class ObligationMgr {
             System.out.println("obligation not found in the obligation HashMap. Assumed none application/user branch. Coverage Ignored for instruction.");
             return;
         }
+        assert !coveredArray[oblgIndex] : "obligation is already covered, it is not a new coverage. Assumption violated. Failing.";
         coveredArray[oblgIndex] = true;
     }
 

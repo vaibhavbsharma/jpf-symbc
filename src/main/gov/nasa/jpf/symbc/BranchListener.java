@@ -208,6 +208,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             if (!evaluationMode) System.out.println("after: " + executedInstruction + "---- obligation is: " + oblg);
 
             if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
+                assert coverageStatistics!=null: "coverageStatistics cannot be null, this is probably a configuration problem. Assumption violated. Failing.";
                 coverageStatistics.recordObligationCovered(oblg);
                 if (!newCoverageFound) {
                     newCoverageFound = true;
