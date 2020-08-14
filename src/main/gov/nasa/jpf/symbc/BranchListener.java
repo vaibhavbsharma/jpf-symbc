@@ -88,7 +88,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
         benchmarkName = setBenchmarkName(conf.getString("target"));
 
-        if (coverageMode.ordinal() > 5)
+        if (coverageMode.ordinal() < 5)
             coverageStatistics = new CoverageStatistics();
     }
 
@@ -152,7 +152,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         if ((uncoveredReachThenOblg == null)) //indicating an obligation that we do not care about covering, i.e., not an application code.
             return;
 
-        if (!evaluationMode) System.out.println("before: " + instructionToExecute);
+//        if (!evaluationMode) System.out.println("before: " + instructionToExecute);
 
 
         if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//EARLY PRUNING, no new obligation can be reached
