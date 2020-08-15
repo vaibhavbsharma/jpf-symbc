@@ -125,7 +125,7 @@ public class ObligationMgr {
             //obligations have already been covered.
             if (mainOblgWithLocalMethodReach.localReachableMethods.size() > 0) {
                 if (!BranchListener.evaluationMode) System.out.println(" ---- method found along reachable path");
-                return new Obligation[100];
+                return new Obligation[1];
             }
         }
 
@@ -208,6 +208,29 @@ public class ObligationMgr {
             numberOfCoverage = coveredArray[i] ? ++numberOfCoverage : numberOfCoverage;
 
         return ((float) numberOfCoverage / coveredArray.length) * 100;
+    }
+
+    public static boolean intraproceduralInvokeReachable(Obligation mainOblg) {
+
+        if (!reachabilityMap.containsKey(mainOblg)) {  //if it can't be found in t he reachability map then it must be the that it doesn't exist in the obligationMap as well indicating that it is an obligation that we do not care about tracking its cover, for example, it is not an application users code.
+            assert !obligationsMap.containsKey(mainOblg);
+            return false;
+        }
+
+        if (BranchListener.interproceduralReachability) { //start looking at interprocedural reachability.
+            Obligation mainOblgWithLocalMethodReach = findActualKeyInMap(obligationsMap.keySet(), mainOblg);
+            assert mainOblgWithLocalMethodReach.localReachableMethods != null;
+
+            // giving high weight to explore methods. Note that it could be the case that this is an already explored methods,
+            // we still guide to SPF to explore it further, ideally it will backtrack when it realizes that nothing can be explored.
+            // It is still debatable whether we should give high priority to method exploration without keeping track of those whose
+            //obligations have already been covered.
+            if (mainOblgWithLocalMethodReach.localReachableMethods.size() > 0) {
+                if (!BranchListener.evaluationMode) System.out.println(" ---- method found along reachable path");
+                return true;
+            }
+        }
+        return false;
     }
 
     /* -- Commenting this for now but we can potientially add it if we want more accurate interreachability analysis.

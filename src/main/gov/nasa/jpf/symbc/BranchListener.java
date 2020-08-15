@@ -140,8 +140,10 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     }
 
     protected void prunOrGuideSPF(ThreadInfo ti, Instruction instructionToExecute) {
+
         Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.THEN);
         Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.ELSE);
+
 
         Obligation[] uncoveredReachThenOblg = ObligationMgr.isReachableOblgsCovered(oblgThen);
         Obligation[] uncoveredReachElseOblg = ObligationMgr.isReachableOblgsCovered(oblgElse);
@@ -154,6 +156,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
 //        if (!evaluationMode) System.out.println("before: " + instructionToExecute);
 
+        if(ObligationMgr.intraproceduralInvokeReachable(oblgThen) || ObligationMgr.intraproceduralInvokeReachable(oblgElse))// turn off pruning and guiding in case we have a method invocation reachable along the way.
+            return;
 
         if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//EARLY PRUNING, no new obligation can be reached
             if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE
