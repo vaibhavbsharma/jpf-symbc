@@ -8,13 +8,13 @@ import java.util.Set;
 
 public class Obligation implements Cloneable, Comparable {
     // packageName has "." qualifications like spf, but when we create them since they are in Wala's notation they have "/" instead, and so we translate them to their "." version.
-    String spfPackageName;
-    String className;
-    String methodSig;
-    int instLine;
-    ObligationSide oblgSide;
-    SSAInstruction inst;
-    Set<String> localReachableMethods;
+    public final String spfPackageName;
+    public final String className;
+    public final String methodSig;
+    public final int instLine;
+    public final ObligationSide oblgSide;
+    public final SSAInstruction inst;
+    public final Set<String> localReachableMethods = new HashSet<>();
 
 
     //used by WALA obligation creation
@@ -30,7 +30,7 @@ public class Obligation implements Cloneable, Comparable {
         if (BranchListener.interproceduralReachability)
             assert localReachableMethods != null : "unexpected null value for localReachableMethods with interprocedural analysis turned on. It can be empty but not null. Failing.";
 
-        this.localReachableMethods = localReachableMethods;
+        this.localReachableMethods.addAll(localReachableMethods);
     }
 
     //used by WALA for collecting reachable obliagtions where localReachableMethods are not needed

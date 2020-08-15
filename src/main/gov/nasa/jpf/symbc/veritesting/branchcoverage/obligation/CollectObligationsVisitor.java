@@ -42,7 +42,7 @@ public class CollectObligationsVisitor extends AstMapVisitor {
             return a;
 
         innerPC.add(a.condition);
-        Obligation thenOblg = VeriObligationMgr.createOblg(a.original, ObligationSide.THEN, ir);
+        Obligation thenOblg = VeriObligationMgr.createOblgFromGeneral(a, ObligationSide.THEN);
         a.thenStmt.accept(this);
         innerPC.remove(innerPC.size() - 1);
 
@@ -54,7 +54,7 @@ public class CollectObligationsVisitor extends AstMapVisitor {
         Expression negCond = new Operation(Operation.Operator.EQ, ((Operation) a.condition).getOperand(0), new IntConstant(0));
         innerPC.add(negCond);
         a.elseStmt.accept(this);
-        Obligation elseOblg = VeriObligationMgr.createOblg(a.original, ObligationSide.ELSE, ir);
+        Obligation elseOblg = VeriObligationMgr.createOblgFromGeneral(a, ObligationSide.ELSE);
         innerPC.remove(innerPC.size() - 1);
 
         //check if we need to flip the conditions accompanying the obligations since the obligations are mirroring the bytecode, whereas the conditions might be  matching the source code.

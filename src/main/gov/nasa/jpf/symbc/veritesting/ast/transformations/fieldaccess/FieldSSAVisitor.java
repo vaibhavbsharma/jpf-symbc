@@ -156,8 +156,8 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         Stmt gammaStmt = mergePSM(stmt.condition, thenMap, elseMap);
         if (gammaStmt != null) {
             somethingChanged = true;
-            return new CompositionStmt(new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse, stmt.genuine, stmt.isByteCodeReversed), gammaStmt);
-        } else return new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse, stmt.genuine, stmt.isByteCodeReversed);
+            return new CompositionStmt(new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse, stmt.genuine, stmt.isByteCodeReversed, stmt.generalOblg), gammaStmt);
+        } else return new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse, stmt.genuine, stmt.isByteCodeReversed, stmt.generalOblg);
     }
 
     private Stmt mergePSM(Expression condition, FieldSubscriptMap thenMap, FieldSubscriptMap elseMap) {

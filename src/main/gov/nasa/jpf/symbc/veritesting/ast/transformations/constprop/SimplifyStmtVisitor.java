@@ -86,7 +86,7 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
             StatisticManager.ifRemovedCount++;
             return c.thenStmt.accept(this);
         } else {
-            return new IfThenElseStmt(c.original, cond, c.thenStmt.accept(this), c.elseStmt.accept(this), c.genuine, c.isByteCodeReversed);
+            return new IfThenElseStmt(c.original, cond, c.thenStmt.accept(this), c.elseStmt.accept(this), c.genuine, c.isByteCodeReversed, c.generalOblg);
         }
     }
 

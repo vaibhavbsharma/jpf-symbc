@@ -19,7 +19,8 @@ public class TestCasePerf {
 //        mixOfRegions2Paths2ComplexCond(1, 1);
 //        mixOfRegions2Paths2(1,10);
 //        mixOfRegions2PathsDepth3(1, 1);
-        arrayLoadStore0(1, 1);
+//        arrayLoadStore0(1, 1);
+        testingSoundReach(1, 1);
     }
 
 
@@ -204,5 +205,22 @@ public class TestCasePerf {
             return x[index];
         }
         return 1;
+    }
+
+    public static int testingSoundReach(int x, int y) {
+
+        int z = 5;
+
+        for (int i = 0; i < 2; i++)
+            if (x > y) z = z + 1;
+            else z = testingSoundReach2(y) + z;
+
+
+        return z;
+    }
+
+    private static int testingSoundReach2(int y) {
+        if (y > 100) return y + 10;
+        else return y + 20;
     }
 }

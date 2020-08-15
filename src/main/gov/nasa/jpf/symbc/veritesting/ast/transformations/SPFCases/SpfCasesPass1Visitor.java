@@ -91,7 +91,7 @@ public class SpfCasesPass1Visitor implements AstVisitor<Stmt> {
         Stmt thenStmt = a.thenStmt.accept(this);
         spfCondition = new Operation(Operation.Operator.AND, oldSPFCondition, new Operation(Operation.Operator.NOT,  a.condition));
         Stmt elseStmt = a.elseStmt.accept(this);
-        s = new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt, a.genuine, a.isByteCodeReversed);
+        s = new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
         spfCondition = oldSPFCondition;
         return s;
     }

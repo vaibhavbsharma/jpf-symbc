@@ -17,6 +17,7 @@ import gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SimplifyGreenVisitor;
+import gov.nasa.jpf.symbc.veritesting.ast.def.IfThenElseStmt;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.VM;
@@ -56,6 +57,13 @@ public class VeriObligationMgr {
         return new Obligation(walaPackageName, className, methodSig, instLine, inst, oblgSide);
     }
 
+    public static Obligation createOblgFromGeneral(IfThenElseStmt s, ObligationSide side) {
+        Obligation generalOblg = s.generalOblg;
+
+        assert generalOblg.oblgSide == ObligationSide.GENERAL : "JR If statements must contain general obligations, assumption violated. Failing.";
+
+        return new Obligation(generalOblg.spfPackageName, generalOblg.className, generalOblg.methodSig, generalOblg.instLine, generalOblg.inst, side);
+    }
     /**
      * populates the symbolicOblgMap with the current map of obligations and symbolic expression, ideally obtained from veritesting
      * right before linearization.

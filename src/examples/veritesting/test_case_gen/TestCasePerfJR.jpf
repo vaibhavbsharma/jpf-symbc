@@ -32,17 +32,20 @@ symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths2Comple
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2PathsDepth3(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.arrayLoadStore0(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.arrayLoadStore0(sym#sym)
+
+symbolic.method=veritesting.test_case_gen.TestCasePerf.testingSoundReach(sym#sym)
 
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
-#symbolic.dp=z3
+symbolic.dp=z3
 
-symbolic.dp=z3inc
+#symbolic.dp=z3inc
 
 ## branch coverage with unit test for JR
-listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener
+#,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 ## branch execution for plain SPF with guiding and pruning features
 #listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener

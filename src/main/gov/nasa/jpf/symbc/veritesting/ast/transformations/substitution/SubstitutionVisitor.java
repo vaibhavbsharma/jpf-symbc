@@ -163,7 +163,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
         if (!oldSpfPath && spfCasePath)
             spfCasePath = false;
 
-        return new IfThenElseStmt(c.original, cond, thenStmt, elseStmt, c.genuine, c.isByteCodeReversed);
+        return new IfThenElseStmt(c.original, cond, thenStmt, elseStmt, c.genuine, c.isByteCodeReversed, c.generalOblg);
     }
 
     @Override

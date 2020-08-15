@@ -80,7 +80,7 @@ public class IsolateObligationsVisitor extends AstMapVisitor {
         newSymToExprMap.remove(oblgVar);
 
         return new CompositionStmt(oblgAssign, new IfThenElseStmt(a.original, eva.accept(a.condition), newThen,
-                newElse, a.genuine, a.isByteCodeReversed));
+                newElse, a.genuine, a.isByteCodeReversed, a.generalOblg));
     }
 
 
