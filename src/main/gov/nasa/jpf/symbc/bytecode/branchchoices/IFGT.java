@@ -17,42 +17,91 @@
  */
 package gov.nasa.jpf.symbc.bytecode.branchchoices;
 
-
-
-import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
+import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
+import gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.BranchChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.Comparator;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
+import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
+import gov.nasa.jpf.symbc.numeric.PathCondition;
+import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
+import static gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.IFInstrSymbHelper.flipBranchExploration;
+
 // we should factor out some of the code and put it in a parent class for all "if statements"
 
+/**
+ * YN: fixed choice selection in symcrete support (Yannic Noller <nolleryc@gmail.com>)
+ */
 public class IFGT extends gov.nasa.jpf.jvm.bytecode.IFGT {
-	public IFGT(int targetPosition){
-	    super(targetPosition);
-	  }
-	@Override
-	public Instruction execute (ThreadInfo ti) {
+    public IFGT(int targetPosition) {
+        super(targetPosition);
+    }
 
-		StackFrame sf = ti.getModifiableTopFrame();
-		IntegerExpression sym_v = (IntegerExpression) sf.getOperandAttr();
+    @Override
+    public Instruction execute(ThreadInfo ti) {
 
-		if(sym_v == null) { // the condition is concrete
-			//System.out.println("Execute IFGT: The condition is concrete");
-			return super.execute( ti);
-		}
-		else { // the condition is symbolic
-			Instruction nxtInstr = IFInstrSymbHelper.getNextInstructionAndSetPCChoice(ti, 
-																					  this, 
-																					  sym_v, 
-																					  Comparator.GT, 
-																					  Comparator.LE);
-			if(nxtInstr==getTarget())
-				conditionValue=true;
-			else 
-				conditionValue=false;
-			return nxtInstr;
-		}
-	}
+        StackFrame sf = ti.getModifiableTopFrame();
+        IntegerExpression sym_v = (IntegerExpression) sf.getOperandAttr();
+
+        if (sym_v == null) { // the condition is concrete
+            return super.execute(ti);
+        } else { // the condition is symbolic
+            ChoiceGenerator<?> cg;
+
+            if (!ti.isFirstStepInsn()) { // first time around
+                cg = new BranchChoiceGenerator(2, flipBranchExploration);
+                ((PCChoiceGenerator) cg).setOffset(this.position);
+                ((PCChoiceGenerator) cg).setMethodName(this.getMethodInfo().getFullName());
+                ti.getVM().getSystemState().setNextChoiceGenerator(cg);
+                return this;
+            } else { // this is what really returns results
+                cg = ti.getVM().getSystemState().getChoiceGenerator();
+                assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
+                conditionValue = popConditionValue(sf);
+
+                    conditionValue = (Integer) cg.getNextChoice() == 1 ? true : false;
+                conditionValue = ((BranchChoiceGenerator) cg).flip ? !conditionValue : conditionValue;
+
+            }
+
+            PathCondition pc;
+
+            // pc is updated with the pc stored in the choice generator above
+            // get the path condition from the
+            // previous choice generator of the same type
+
+            ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
+            while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
+                prev_cg = prev_cg.getPreviousChoiceGenerator();
+            }
+
+            if (prev_cg == null)
+                pc = new PathCondition();
+            else
+                pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+
+            assert pc != null;
+
+            if (conditionValue) {
+                pc._addDet(Comparator.GT, sym_v, 0);
+                if (!pc.simplify()) {// not satisfiable
+                    ti.getVM().getSystemState().setIgnored(true);
+                } else {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                }
+                return getTarget();
+            } else {
+                pc._addDet(Comparator.LE, sym_v, 0);
+                if (!pc.simplify()) {// not satisfiable
+                    ti.getVM().getSystemState().setIgnored(true);
+                } else {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                }
+                return getNext(ti);
+            }
+        }
+    }
 }

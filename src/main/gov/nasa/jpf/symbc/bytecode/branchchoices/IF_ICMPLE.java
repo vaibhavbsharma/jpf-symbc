@@ -3,74 +3,113 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-//Copyright (C) 2007 United States Government as represented by the
-//Administrator of the National Aeronautics and Space Administration
-//(NASA).  All Rights Reserved.
-
-//This software is distributed under the NASA Open Source Agreement
-//(NOSA), version 1.3.  The NOSA has been approved by the Open Source
-//Initiative.  See the file NOSA-1.3-JPF at the top of the distribution
-//directory tree for the complete NOSA document.
-
-//THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY
-//KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT
-//LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL CONFORM TO
-//SPECIFICATIONS, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
-//A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY THAT
-//THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT
-//DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
-
 package gov.nasa.jpf.symbc.bytecode.branchchoices;
 
-import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
+import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
+import gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.BranchChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.Comparator;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
+import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
+import gov.nasa.jpf.symbc.numeric.PathCondition;
+import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
+import static gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.IFInstrSymbHelper.flipBranchExploration;
+
 //we should factor out some of the code and put it in a parent class for all "if statements"
 
-public class IF_ICMPLE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLE{
-	public IF_ICMPLE(int targetPosition){
-	    super(targetPosition);
-	  }
-	@Override
-	public Instruction execute (ThreadInfo ti) {
+/**
+ * YN: fixed choice selection in symcrete support (Yannic Noller <nolleryc@gmail.com>)
+ */
+public class IF_ICMPLE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLE {
+    public IF_ICMPLE(int targetPosition) {
+        super(targetPosition);
+    }
 
-		StackFrame sf = ti.getModifiableTopFrame();
+    @Override
+    public Instruction execute(ThreadInfo ti) {
 
-		IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(1);
-		IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(0);
+        StackFrame sf = ti.getModifiableTopFrame();
 
-		if ((sym_v1 == null) && (sym_v2 == null)) { // both conditions are concrete
-			//System.out.println("Execute IF_ICMPLE: The conditions are concrete");
-			return super.execute(ti);
-		}else{ // at least one condition is symbolic
-			Instruction nxtInstr = IFInstrSymbHelper.getNextInstructionAndSetPCChoice(ti, 
-																					  this, 
-																					  sym_v1,
-																					  sym_v2,
-																					  Comparator.LE, 
-																					  Comparator.GT);
-			if(nxtInstr==getTarget())
-				conditionValue=true;
-			else 
-				conditionValue=false;
-			return nxtInstr;
-		}
-	}
+        IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(1);
+        IntegerExpression sym_v2 = (IntegerExpression) sf.getOperandAttr(0);
+
+        if ((sym_v1 == null) && (sym_v2 == null)) { // both conditions are concrete
+            // System.out.println("Execute IF_ICMPLE: The conditions are concrete");
+            return super.execute(ti);
+        } else { // at least one condition is symbolic
+            ChoiceGenerator<?> cg;
+
+            if (!ti.isFirstStepInsn()) { // first time around
+                cg = new BranchChoiceGenerator(2, flipBranchExploration);
+                ((PCChoiceGenerator) cg).setOffset(this.position);
+                ((PCChoiceGenerator) cg).setMethodName(this.getMethodInfo().getFullName());
+                ti.getVM().getSystemState().setNextChoiceGenerator(cg);
+                return this;
+            }
+            cg = ti.getVM().getSystemState().getChoiceGenerator();
+            assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
+
+            int v2 = sf.peek(0);
+            int v1 = sf.peek(1);
+            Instruction next_insn = super.execute(ti); // this also sets conditionValue
+
+            conditionValue = (Integer) cg.getNextChoice() == 1 ? true : false;
+            conditionValue = ((BranchChoiceGenerator) cg).flip ? !conditionValue : conditionValue;
+
+
+            PathCondition pc;
+
+            // pc is updated with the pc stored in the choice generator above
+            // get the path condition from the
+            // previous choice generator of the same type
+
+            ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+            if (prev_cg == null) pc = new PathCondition();
+            else pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+
+            assert pc != null;
+
+            if (conditionValue) {
+                if (sym_v1 != null) {
+                    if (sym_v2 != null) { // both are symbolic values
+                        pc._addDet(Comparator.LE, sym_v1, sym_v2);
+                    } else pc._addDet(Comparator.LE, sym_v1, v2);
+                } else pc._addDet(Comparator.LE, v1, sym_v2);
+                if (!pc.simplify()) {// not satisfiable
+                    ti.getVM().getSystemState().setIgnored(true);
+                } else {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                }
+                return getTarget();
+            } else {
+                if (sym_v1 != null) {
+                    if (sym_v2 != null) { // both are symbolic values
+                        pc._addDet(Comparator.GT, sym_v1, sym_v2);
+                    } else pc._addDet(Comparator.GT, sym_v1, v2);
+                } else pc._addDet(Comparator.GT, v1, sym_v2);
+                if (!pc.simplify()) {// not satisfiable
+                    ti.getVM().getSystemState().setIgnored(true);
+                } else {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                }
+                return getNext(ti);
+            }
+        }
+    }
 }

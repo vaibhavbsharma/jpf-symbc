@@ -15,64 +15,99 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  */
-
-
-//Copyright (C) 2006 United States Government as represented by the
-//Administrator of the National Aeronautics and Space Administration
-//(NASA).  All Rights Reserved.
-
-//This software is distributed under the NASA Open Source Agreement
-//(NOSA), version 1.3.  The NOSA has been approved by the Open Source
-//Initiative.  See the file NOSA-1.3-JPF at the top of the distribution
-//directory tree for the complete NOSA document.
-
-//THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY
-//KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT
-//LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL CONFORM TO
-//SPECIFICATIONS, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
-//A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY THAT
-//THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT
-//DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
-
 package gov.nasa.jpf.symbc.bytecode.branchchoices;
 
-
-import gov.nasa.jpf.symbc.bytecode.branchchoices.util.IFInstrSymbHelper;
+import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
+import gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.BranchChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.Comparator;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
+import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
+import gov.nasa.jpf.symbc.numeric.PathCondition;
+import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
+import static gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.IFInstrSymbHelper.flipBranchExploration;
+
 // we should factor out some of the code and put it in a parent class for all "if statements"
 
+/**
+ * YN: fixed choice selection in symcrete support (Yannic Noller <nolleryc@gmail.com>)
+ */
 public class IFLE extends gov.nasa.jpf.jvm.bytecode.IFLE {
 
-	public IFLE(int targetPosition){
-	    super(targetPosition);
-	  }
+    public IFLE(int targetPosition) {
+        super(targetPosition);
+    }
 
-	@Override
-	public Instruction execute (ThreadInfo ti) {
+    @Override
+    public Instruction execute(ThreadInfo ti) {
 
-		StackFrame sf = ti.getModifiableTopFrame();
-		IntegerExpression sym_v = (IntegerExpression) sf.getOperandAttr();
+        StackFrame sf = ti.getModifiableTopFrame();
+        IntegerExpression sym_v = (IntegerExpression) sf.getOperandAttr();
 
-		if(sym_v == null) { // the condition is concrete
-			//System.out.println("Execute IFLE: The condition is concrete");
-			return super.execute( ti);
-		}
-		else { // the condition is symbolic
-			Instruction nxtInstr = IFInstrSymbHelper.getNextInstructionAndSetPCChoice(ti, 
-																					  this, 
-																					  sym_v, 
-																					  Comparator.LE, 
-																					  Comparator.GT);
-			if(nxtInstr==getTarget())
-				conditionValue=true;
-			else 
-				conditionValue=false;
-			return nxtInstr;
-		}
-	}
+        if (sym_v == null) { // the condition is concrete
+            return super.execute(ti);
+        } else { // the condition is symbolic
+            ChoiceGenerator<?> cg;
+
+            if (!ti.isFirstStepInsn()) { // first time around
+                cg = new BranchChoiceGenerator(2, flipBranchExploration);
+                ((PCChoiceGenerator) cg).setOffset(this.position);
+                ((PCChoiceGenerator) cg).setMethodName(this.getMethodInfo().getFullName());
+                ti.getVM().getSystemState().setNextChoiceGenerator(cg);
+                return this;
+            } else { // this is what really returns results
+                cg = ti.getVM().getSystemState().getChoiceGenerator();
+                assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
+                conditionValue = popConditionValue(sf);
+                if (SymbolicInstructionFactory.collect_constraints) {
+                    // YN: reuse conditionValue written from concrete exec + set choice correctly
+                    ((PCChoiceGenerator) cg).select(conditionValue ? 1 : 0);
+                } else {
+                    conditionValue = (Integer) cg.getNextChoice() == 1 ? true : false;
+                    conditionValue = ((BranchChoiceGenerator) cg).flip ? !conditionValue : conditionValue;
+                }
+            }
+
+            PathCondition pc;
+
+            // pc is updated with the pc stored in the choice generator above
+            // get the path condition from the
+            // previous choice generator of the same type
+
+            ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
+            while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
+                prev_cg = prev_cg.getPreviousChoiceGenerator();
+            }
+
+            if (prev_cg == null) {
+
+                pc = new PathCondition();
+            } else {
+                pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+
+            }
+            assert pc != null;
+
+            if (conditionValue) {
+                pc._addDet(Comparator.LE, sym_v, 0);
+                if (!pc.simplify()) {// not satisfiable
+                    ti.getVM().getSystemState().setIgnored(true);
+                } else {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                }
+                return getTarget();
+            } else {
+                pc._addDet(Comparator.GT, sym_v, 0);
+                if (!pc.simplify()) {// not satisfiable
+                    ti.getVM().getSystemState().setIgnored(true);
+                } else {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                }
+                return getNext(ti);
+            }
+        }
+    }
 }
