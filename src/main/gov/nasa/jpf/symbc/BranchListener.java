@@ -183,6 +183,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     // after the instruction is executed we only need to collect the covered obligation.
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
+        if (currentThread.getVM().isIgnoredState()) {
+            if(!evaluationMode) System.out.println("Path UNSAT- State Ignored.");
+                return;}
         if (executedInstruction instanceof IfInstruction) collectCoverageAndPrune(executedInstruction, currentThread);
     }
 
@@ -212,14 +215,16 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             if (!evaluationMode) System.out.println("after: " + executedInstruction + "---- obligation is: " + oblg);
 
             if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
-                assert coverageStatistics!=null: "coverageStatistics cannot be null, this is probably a configuration problem. Assumption violated. Failing.";
+                assert coverageStatistics != null : "coverageStatistics cannot be null, this is probably a configuration problem. Assumption violated. Failing.";
+                if (!evaluationMode) System.out.println("New coverage found -- " + oblg);
                 coverageStatistics.recordObligationCovered(oblg);
                 if (!newCoverageFound) {
                     newCoverageFound = true;
                 }
             }
             if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE)  //prune only in pruning mode.
-                prunePath(currentThread, oblg);
+                if (ObligationMgr.intraproceduralInvokeReachable(oblg)) return;
+                else prunePath(currentThread, oblg);
 //                printCoverage();
         }
         isSymBranchInst = false;
@@ -254,10 +259,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     @Override
     public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
-        if (!evaluationMode)
-            if (currentCG instanceof PCChoiceGenerator) {
-                System.out.println("choiceGeneratorAdvanced: at " + currentCG.getInsn().getMethodInfo() + "#" + currentCG.getInsn().getPosition());
-            }
+        if (!evaluationMode) if (currentCG instanceof PCChoiceGenerator) {
+//            System.out.println("choiceGeneratorAdvanced: at " + currentCG.getInsn().getMethodInfo() + "#" + currentCG.getInsn().getPosition());
+        }
     }
 
     // -------- the publisher interface

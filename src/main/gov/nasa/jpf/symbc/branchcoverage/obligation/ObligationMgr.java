@@ -221,10 +221,6 @@ public class ObligationMgr {
             Obligation mainOblgWithLocalMethodReach = findActualKeyInMap(obligationsMap.keySet(), mainOblg);
             assert mainOblgWithLocalMethodReach.localReachableMethods != null;
 
-            // giving high weight to explore methods. Note that it could be the case that this is an already explored methods,
-            // we still guide to SPF to explore it further, ideally it will backtrack when it realizes that nothing can be explored.
-            // It is still debatable whether we should give high priority to method exploration without keeping track of those whose
-            //obligations have already been covered.
             if (mainOblgWithLocalMethodReach.localReachableMethods.size() > 0) {
                 if (!BranchListener.evaluationMode) System.out.println(" ---- method found along reachable path");
                 return true;
