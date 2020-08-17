@@ -93,8 +93,7 @@ public class CoverageStatistics {
         if (timeNormVal == null) {
             timeNormVal = currentTime;
             coverageTime = 0L;
-        } else
-            coverageTime = currentTime - timeNormVal;
+        } else coverageTime = currentTime - timeNormVal;
 
         if (!evaluationMode) {
             Long oblgCoverageTime = threadOblgMap.get(oblg);
@@ -130,13 +129,14 @@ public class CoverageStatistics {
             threadCoverageout.println(++threadCount + "," + newOblgPerThreadCount);
             if (!evaluationMode) {
                 assert newOblgPerThreadCount == threadOblgMap.size();
-                if (threadOblgMap.size() > 0)
+                if (threadOblgMap.size() > 0) {
                     threadCoverageout.println(printThreadOblgMap());
-                else {
-                    threadCoverageout.println("NONE");
                     threadOblgMap.clear();
+                } else {
+                    threadCoverageout.println("NONE");
                     threadCoverageout.close();
                 }
+                newOblgPerThreadCount = 0;
             } else {
                 newOblgPerThreadCount = 0;
             }
