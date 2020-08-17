@@ -26,5 +26,5 @@ targetAbsPath=${jpf-symbc}/build/examples/WBS.class
 coverageExclusions=LWBS.launch(IZZIZZIZZIZZIZZ)V
 
 veritestingMode = 3
-coverageMode=8
+coverageMode=7
 performanceMode=true
