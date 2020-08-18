@@ -71,7 +71,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         if (conf.hasValue("symbolic.dp")) solver = conf.getString("symbolic.dp");
 
-        if (conf.hasValue("interproceduralReachability")) interproceduralReachability = conf.getBoolean("interproceduralReachability");
+        if (conf.hasValue("interproceduralReachability"))
+            interproceduralReachability = conf.getBoolean("interproceduralReachability");
 
 
         if (conf.hasValue("coverageMode")) {
@@ -82,6 +83,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             else if (!conf.hasValue("veritestingMode")) {
                 System.out.println("unknown mode. Failing");
                 assert false;
+            } else {
+                coverageMode = CoverageMode.JRCOLLECT_PRUNE_GUIDE;
             }
 
             BranchSymInstructionFactory.GuideBranchExploration = true;
@@ -156,7 +159,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
 //        if (!evaluationMode) System.out.println("before: " + instructionToExecute);
 
-        if(ObligationMgr.intraproceduralInvokeReachable(oblgThen) || ObligationMgr.intraproceduralInvokeReachable(oblgElse))// turn off pruning and guiding in case we have a method invocation reachable along the way.
+        if (ObligationMgr.intraproceduralInvokeReachable(oblgThen) || ObligationMgr.intraproceduralInvokeReachable(oblgElse))// turn off pruning and guiding in case we have a method invocation reachable along the way.
             return;
 
         if ((uncoveredReachElseOblg.length == 0) && (uncoveredReachThenOblg.length == 0) && !newCoverageFound) {//EARLY PRUNING, no new obligation can be reached
@@ -184,8 +187,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     // after the instruction is executed we only need to collect the covered obligation.
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
         if (currentThread.getVM().isIgnoredState()) {
-            if(!evaluationMode) System.out.println("Path UNSAT- State Ignored.");
-                return;}
+            if (!evaluationMode) System.out.println("Path UNSAT- State Ignored.");
+            return;
+        }
         if (executedInstruction instanceof IfInstruction) collectCoverageAndPrune(executedInstruction, currentThread);
     }
 

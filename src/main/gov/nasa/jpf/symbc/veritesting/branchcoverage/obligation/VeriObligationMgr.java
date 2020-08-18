@@ -133,7 +133,7 @@ public class VeriObligationMgr {
         if (oblgsNeedsCoverage.size() > 0) {
             coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
             if (!BranchListener.evaluationMode)
-                System.out.println("newly covered obligation on the path + " + coveredOblgsOnPath);
+                System.out.println("newly covered obligation on the path: " + coveredOblgsOnPath);
         }
         return coveredOblgsOnPath;
     }
