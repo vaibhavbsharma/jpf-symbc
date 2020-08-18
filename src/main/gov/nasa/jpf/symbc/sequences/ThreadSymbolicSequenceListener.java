@@ -214,14 +214,18 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
      */
     private static List<String> getInvokedMethodAttributes(SequenceChoiceGenerator cg) {
 
-        String[] attributeNames = new String[cg.getArgAttributes().length];
+        List<String> attributeNames = new ArrayList<>();
 
-        for (int i = 0; i < cg.getArgAttributes().length; i++) {
-            assert cg.getArgAttributes()[i] instanceof SymbolicInteger;
-            attributeNames[i] = (cg.getArgAttributes()[i]).toString();
+        // get symbolic attributes
+        Object[] attributes = cg.getArgAttributes();
+
+        for (int i = 0; i < attributes.length; i++) {
+            if (attributes[i] != null) { // parameter symbolic
+                assert attributes[i] instanceof SymbolicInteger;
+                attributeNames.add((attributes[i]).toString());
+            }
         }
-
-        return Arrays.asList(attributeNames);
+        return attributeNames;
     }
 
     /**
