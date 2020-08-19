@@ -57,22 +57,18 @@ public class SymbolicConstraintsGeneral {
     protected Boolean result; // tells whether result is satisfiable or not
 
     public boolean isSatisfiable(PathCondition pc) {
-            long t0 = System.nanoTime();
+        long t0 = System.nanoTime();
         if (pc == null || pc.count == 0) {
-            if (SymbolicInstructionFactory.debugMode)
-                System.out.println("## Warning: empty path condition");
+            if (SymbolicInstructionFactory.debugMode) System.out.println("## Warning: empty path condition");
             return true;
         }
 
         if (pc.count() > SymbolicInstructionFactory.maxPcLength) {
-            System.out.println("## Warning: Path condition exceeds symbolic.max_pc_length="
-                    + SymbolicInstructionFactory.maxPcLength + ".  Pretending it is unsatisfiable.");
+            System.out.println("## Warning: Path condition exceeds symbolic.max_pc_length=" + SymbolicInstructionFactory.maxPcLength + ".  Pretending it is unsatisfiable.");
             return false;
         }
-        if (SymbolicInstructionFactory.maxPcMSec > 0 && System.currentTimeMillis()
-                - SymbolicInstructionFactory.startSystemMillis > SymbolicInstructionFactory.maxPcMSec) {
-            System.out.println("## Warning: Exploration time exceeds symbolic.max_pc_msec="
-                    + SymbolicInstructionFactory.maxPcMSec + ".  Pretending all paths are unsatisfiable.");
+        if (SymbolicInstructionFactory.maxPcMSec > 0 && System.currentTimeMillis() - SymbolicInstructionFactory.startSystemMillis > SymbolicInstructionFactory.maxPcMSec) {
+            System.out.println("## Warning: Exploration time exceeds symbolic.max_pc_msec=" + SymbolicInstructionFactory.maxPcMSec + ".  Pretending all paths are unsatisfiable.");
             return false;
         }
 
@@ -117,41 +113,35 @@ public class SymbolicConstraintsGeneral {
         // equivalent to a CFG analysis
         else if (dp[0].equalsIgnoreCase("no_solver")) {
             return true;
-        } else
-            throw new RuntimeException(
-                    "## Error: unknown decision procedure symbolic.dp=" + dp[0] + "\n(use choco or IAsolver or CVC3)");
+        } else throw new RuntimeException("## Error: unknown decision procedure symbolic.dp=" + dp[0] + "\n(use choco or IAsolver or CVC3)");
 
 
+        VeritestingListener.solverAllocTime += (System.nanoTime() - t0);
+        long t1 = System.nanoTime();
+        /*
+         * Parse path condition to solver. Note: do not override the actual pb
+         * variable in case the result is null. The cleanup afterwards will not
+         * work otherwise and the solver gets filled up with wrong assertions,
+         * e.g. with Z3.
+         */
+        ProblemGeneral tempPb = PCParser.parse(pc, pb);
+        VeritestingListener.parseTime += (System.nanoTime() - t1);
 
-    VeritestingListener.solverAllocTime += (System.nanoTime() - t0);
-    long t1 = System.nanoTime();
-    /*
-     * Parse path condition to solver. Note: do not override the actual pb
-     * variable in case the result is null. The cleanup afterwards will not
-     * work otherwise and the solver gets filled up with wrong assertions,
-     * e.g. with Z3.
-     */
-    ProblemGeneral tempPb = PCParser.parse(pc, pb);
-    VeritestingListener.parseTime += (System.nanoTime() - t1);
-
-        if (tempPb == null)
-            result = Boolean.FALSE;
+        if (tempPb == null) result = Boolean.FALSE;
         else {
             pb = tempPb;
 
             // YN: z3 optimize
             if (Observations.lastObservedSymbolicExpression != null) {
                 if (pb instanceof ProblemZ3Optimize) {
-                    ((ProblemZ3Optimize) pb).maximize(
-                            PCParser.getExpression((IntegerExpression) Observations.lastObservedSymbolicExpression));
+                    ((ProblemZ3Optimize) pb).maximize(PCParser.getExpression((IntegerExpression) Observations.lastObservedSymbolicExpression));
                 }
             }
 
             result = pb.solve();
         }
 
-        if (SymbolicInstructionFactory.debugMode)
-            System.out.println("numeric PC: " + pc + " -> " + result + "\n");
+        if (SymbolicInstructionFactory.debugMode) System.out.println("numeric PC: " + pc + " -> " + result + "\n");
 
         if (SymbolicInstructionFactory.regressMode) {
             String output = "##NUMERIC PC: ";
@@ -173,14 +163,12 @@ public class SymbolicConstraintsGeneral {
 
     public boolean isSatisfiableGreen(PathCondition pc) {
         if (pc == null || pc.count == 0) {
-            if (SymbolicInstructionFactory.debugMode)
-                System.out.println("## Warning: empty path condition");
+            if (SymbolicInstructionFactory.debugMode) System.out.println("## Warning: empty path condition");
             return true;
         }
         result = pc.solve();
 
-        if (SymbolicInstructionFactory.debugMode)
-            System.out.println(" --> " + pc + " -> " + result);
+        if (SymbolicInstructionFactory.debugMode) System.out.println(" --> " + pc + " -> " + result);
 
         if (result == null) {
             return false;
@@ -211,12 +199,10 @@ public class SymbolicConstraintsGeneral {
         // if (SymbolicInstructionFactory.debugMode)
         // System.out.println("solving: PC " + pc);
 
-        if (pc == null || pc.count == 0)
-            return true;
+        if (pc == null || pc.count == 0) return true;
 
         String[] dp = SymbolicInstructionFactory.dp;
-        if (dp[0].equalsIgnoreCase("no_solver"))
-            return true;
+        if (dp[0].equalsIgnoreCase("no_solver")) return true;
 
         if (isSatisfiable(pc)) {
 
@@ -269,15 +255,13 @@ public class SymbolicConstraintsGeneral {
              */
             cleanup();
             return true;
-        } else
-            return false;
+        } else return false;
     }
 
     /**
      * The "ProblemCompare" solver calls this to deal with yices and choco refinements of solution ranges.
      */
-    public Map<SymbolicReal, Object> catchBody(Map<SymbolicReal, Object> realVars, ProblemGeneral prob,
-            PathCondition pc) {
+    public Map<SymbolicReal, Object> catchBody(Map<SymbolicReal, Object> realVars, ProblemGeneral prob, PathCondition pc) {
         Set<Entry<SymbolicReal, Object>> sym_realvar_mappings;
         Iterator<Entry<SymbolicReal, Object>> i_real;
 
@@ -479,7 +463,6 @@ public class SymbolicConstraintsGeneral {
     }
 
 
-
     public Map<String, Object> solveWithValuation(PathCondition pc, List<String> typeAgnosticVarList) {
         Map<String, Object> result = new HashMap<String, Object>();
 
@@ -521,8 +504,11 @@ public class SymbolicConstraintsGeneral {
 
                 if (typeAgnosticVar != null && symVar == null && globalSymVar != null) {
                     symIntegerVar.put(globalSymVar, globalsymIntegerVar.get(globalSymVar));
-                } else if (!intVariableMap.containsKey(intVar) && globalintVariableMap.containsKey(intVar)) {
-                    intVariableMap.put(intVar, globalintVariableMap.get(intVar));
+                } else if (!intVariableMap.containsKey(intVar)) {
+                    IntVariable globalIntVar = listStringContainsGreen(globalintVariableMap.keySet(), typeAgnosticVar);
+                    if (globalIntVar != null) {
+                        intVariableMap.put(globalIntVar, globalintVariableMap.get(globalIntVar));
+                    }
                 }
             }
 
@@ -563,14 +549,32 @@ public class SymbolicConstraintsGeneral {
 
     /**
      * we used this not so nice search since CompareTo of SymbolicInteger uses also unique field, but we only want to compare via the string name of the var.
+     *
      * @param keySet
      * @param typeAgnosticVar
      * @return
      */
     private SymbolicInteger listStringContains(Set<SymbolicInteger> keySet, String typeAgnosticVar) {
-        for(SymbolicInteger symInt: keySet){
-            if(symInt.toString().equals(typeAgnosticVar))
-                return symInt;
+        for (SymbolicInteger symInt : keySet) {
+            if (symInt.toString().equals(typeAgnosticVar)) return symInt;
+        }
+        return null;
+    }
+
+
+    /**
+     * this is again very ridiculous, I needed that because the name of the IntVariable which is used in the "equals" method uses the initial value or the original value. I just need here to match the name not the value too. I am cutting away anything after "[" that indicates an initial value coming.
+     *
+     * @param keySet
+     * @param typeAgnosticVar
+     * @return
+     */
+    private IntVariable listStringContainsGreen(Set<IntVariable> keySet, String typeAgnosticVar) {
+        if (typeAgnosticVar.contains("[")) typeAgnosticVar = typeAgnosticVar.substring(0, typeAgnosticVar.indexOf("["));
+        for (IntVariable symInt : keySet) {
+            String symIntStr = symInt.toString();
+            if (symIntStr.contains("[")) symIntStr = symIntStr.substring(0, symIntStr.indexOf("["));
+            if (symIntStr.equals(typeAgnosticVar)) return symInt;
         }
         return null;
     }
