@@ -508,6 +508,10 @@ public class CreateStaticRegions {
                 Pair<Expression, Stmt> parentExprStmt = createComplexIfCondition(parent, entry);
                 Expression parentExpr = parentExprStmt.getFirst();
                 setupStmt = compose(parentExprStmt.getSecond(), setupStmt, true);
+                if (VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+                    throwException(new StaticRegionException("createComplexIfCondition is not supported with Branch coverage yet. Failing."), STATIC);
+                    return null;
+                }
                 branchExpr = condExpr != null ? new Operation(Operation.Operator.AND, parentExpr, condExpr) : parentExpr;
             }
             assert branchExpr != null;
@@ -515,6 +519,10 @@ public class CreateStaticRegions {
             if (returnExpr == null) {
                 returnExpr = branchExpr;
             } else {
+                if (VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+                    throwException(new StaticRegionException("createComplexIfCondition is not supported with Branch coverage yet. Failing."), STATIC);
+                    return null;
+                }
                 returnExpr = new Operation(Operation.Operator.OR, returnExpr, branchExpr);
             }
         }
@@ -677,7 +685,6 @@ else
     returnStmt = compose(this.thenConditionSetup.get(currentBlock), new IfThenElseStmt(ssaInst, condExpr, thenStmt, elseStmt, true, WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (ssaInst).getOperator()), null), false);
         return returnStmt;
         }
-
 
 
     // precondition: terminus is the loop join.
