@@ -91,12 +91,14 @@ public class CollectObligationsVisitor extends AstMapVisitor {
 
     private Expression conjunctWithPc(int index, Expression condition) {
         //S.H. I believe this IS Necessary.
+/*
 
         if (index == innerPC.size())
             return condition;
         return new Operation(Operation.Operator.AND, innerPC.get(index), conjunctWithPc(++index, condition));
+*/
 
-//        return condition;
+        return condition;
     }
 
 
