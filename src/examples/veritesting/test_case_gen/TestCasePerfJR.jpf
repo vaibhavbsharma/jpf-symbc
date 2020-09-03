@@ -34,7 +34,14 @@ symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths2Comple
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.arrayLoadStore0(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.testingSoundReach(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.testingSoundReach(sym#sym)
+
+symbolic.method=veritesting.test_case_gen.TestCasePerf.testingComplexConditions1(sym#sym)
+
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.testingComplexConditions2(sym#sym)
+
+
+symbolic.method=veritesting.test_case_gen.TestCasePerf.testingComplexConditions3(sym#sym#sym#sym)
 
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory

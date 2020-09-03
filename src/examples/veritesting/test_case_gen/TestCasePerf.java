@@ -20,7 +20,40 @@ public class TestCasePerf {
 //        mixOfRegions2Paths2(1,10);
 //        mixOfRegions2PathsDepth3(1, 1);
 //        arrayLoadStore0(1, 1);
-        testingSoundReach(1, 1);
+//        testingSoundReach(1, 1);
+//        testingComplexConditions2(true, true);
+        testingComplexConditions3(true, true, true, true);
+    }
+
+    private static int testingComplexConditions1(boolean a, boolean b) {
+        int z;
+        if ((a && b)) {
+            z = 1;
+        } else {
+            z = 0;
+        }
+        return z;
+    }
+
+    private static int testingComplexConditions2(boolean a, boolean b) {
+        int z;
+        if ((a || b)) {
+            z = 1;
+        } else {
+            z = 0;
+        }
+        return z;
+    }
+
+
+    private static int testingComplexConditions3(boolean a, boolean b, boolean c, boolean d) {
+        int z;
+        if ((a && c) || (b)) {
+            z = 1;
+        } else {
+            z = 0;
+        }
+        return z;
     }
 
 
