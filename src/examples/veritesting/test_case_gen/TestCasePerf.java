@@ -2,6 +2,8 @@ package veritesting.test_case_gen;
 
 public class TestCasePerf {
 
+    int sideEffect = 0;
+
     public static void main(String[] args) {
         /*veritesting.test_case_gen.A myA = new veritesting.test_case_gen.A();
         int myVal = myA.getIncA();
@@ -22,7 +24,10 @@ public class TestCasePerf {
 //        arrayLoadStore0(1, 1);
 //        testingSoundReach(1, 1);
 //        testingComplexConditions2(true, true);
-        testingComplexConditions3(true, true, true, true);
+//        testingComplexConditions3(true, true, true, true);
+
+//        (new TestCasePerf()).testingER1(true, 1);
+        (new TestCasePerf()).testERInline(true, 1);
     }
 
     private static int testingComplexConditions1(boolean a, boolean b) {
@@ -54,6 +59,33 @@ public class TestCasePerf {
             z = 0;
         }
         return z;
+    }
+
+    private int testERInline(boolean a, int x) {
+        int z = 0;
+        if (a) z = testingER1(a, x);
+        assert !(a && x > 2) || this.sideEffect == 0;
+        return z;
+    }
+
+    private int testingER1(boolean a, int x) {
+        int z = 1;
+        if (x > 2) {
+            z = x + 1;
+            return z;
+        }
+        z++;
+        this.sideEffect = 5;
+
+        return z;
+    }
+
+
+    private int testingER2(boolean a, int x) {
+        int z = 1;
+        if (a) {
+            return x + 1;
+        } else return z;
     }
 
 
