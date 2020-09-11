@@ -29,6 +29,8 @@ public class RemoveEarlyReturns {
 
     public class ReturnResult {
         public final Stmt stmt;
+
+        //holds the different return values to be later assigned to the ReturnResult
         public final Expression assign;
         public Expression condition;
         public final Pair<Integer, String> retPosAndType;
@@ -66,6 +68,7 @@ public class RemoveEarlyReturns {
             return !isNull();
         }
 
+        //checking that the condition of the earlyReturn exists and is equal to true.
         public final boolean isTrue() {
             return !isNull() && Operation.TRUE.equals(this.condition);
         }
@@ -87,10 +90,11 @@ public class RemoveEarlyReturns {
     public ReturnResult doStmt(ReturnResult init) throws InvalidClassFileException {
 
         ReturnResult newResult;
-        if (init.isTrue()) {
+        if (init.isTrue()) { //if the condition of the early return is true then return my statement to be a skip
             newResult = new ReturnResult(SkipStmt.skip, init);
             return newResult;
         } else if (init.stmt instanceof ReturnInstruction) {
+            //if the statement is a ReturnInstruction
             ReturnInstruction returnInstruction = (ReturnInstruction) init.stmt;
             int returnPosition = ((IBytecodeMethod) (region.ir.getMethod())).getBytecodeIndex(returnInstruction
                     .original.iIndex());
@@ -115,7 +119,7 @@ public class RemoveEarlyReturns {
         } else if (init.stmt instanceof IfThenElseStmt) {
             Expression innerAssign;
             Expression innerCondition;
-            Stmt resultStmt;
+            Stmt resultStmt; //the new statement that will replace the IfThenElseStmt that we came here to transform. The result statement
             Pair<Integer, String> retPosAndType;
 
             IfThenElseStmt ifThenElseStmt = (IfThenElseStmt) init.stmt;
@@ -133,7 +137,7 @@ public class RemoveEarlyReturns {
                         elseResult.assign);
                 if (thenResult.isTrue() && elseResult.isTrue()) {
                     innerCondition = Operation.TRUE;
-                    resultStmt = SkipStmt.skip;
+                    resultStmt = SkipStmt.skip; //among all the below cases here is where the result statement of me changes.
                 } else {
                     innerCondition = new IfThenElseExpr(
                             ifThenElseStmt.condition,
@@ -190,6 +194,7 @@ public class RemoveEarlyReturns {
             }
             return newResult;
         } else if (init.stmt instanceof CompositionStmt) {
+            //this is walking top down, if on the top we encounter a composition, then we first do the children then compose their results.
             CompositionStmt cStmt = (CompositionStmt) init.stmt;
             ReturnResult newResult1 = doStmt(new ReturnResult(cStmt.s1, init));
             ReturnResult newResult2 = doStmt(new ReturnResult(cStmt.s2, newResult1));
@@ -208,6 +213,7 @@ public class RemoveEarlyReturns {
             return init;
         }
     }
+
 
     /*
 Do_Stmt(stmt, assign, condition):
@@ -321,7 +327,9 @@ Similar things can be done for SPF Cases.
 
     public static StaticRegion removeEarlyReturns(StaticRegion region) throws StaticRegionException, InvalidClassFileException {
         RemoveEarlyReturns rer = new RemoveEarlyReturns(region);
-        StaticRegion result = rer.analyze(region);
+        StaticRegion condRegion = ConditionReturns.execute(region);
+        System.out.println("region after conditional returns:\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
+        StaticRegion result = rer.analyze(condRegion);
         return result;
     }
 
