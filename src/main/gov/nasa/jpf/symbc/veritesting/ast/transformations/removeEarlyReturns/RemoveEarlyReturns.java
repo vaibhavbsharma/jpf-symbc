@@ -5,8 +5,10 @@ import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeinternalvar.RemoveInternalJRVar;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprIdVisitor;
+import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
 import ia_parser.Exp;
@@ -328,8 +330,10 @@ Similar things can be done for SPF Cases.
     public static StaticRegion removeEarlyReturns(StaticRegion region) throws StaticRegionException, InvalidClassFileException {
         RemoveEarlyReturns rer = new RemoveEarlyReturns(region);
         StaticRegion condRegion = ConditionReturns.execute(region);
-        System.out.println("region after conditional returns:\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
-        StaticRegion result = rer.analyze(condRegion);
+        System.out.println("region after conditional returns addition :\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
+        StaticRegion internalJRVarRemovedRegion = RemoveInternalJRVar.execute(condRegion);
+        System.out.println("region after conditional returns removal:\n" + PrettyPrintVisitor.print(internalJRVarRemovedRegion.staticStmt));
+        StaticRegion result = rer.analyze(internalJRVarRemovedRegion);
         return result;
     }
 

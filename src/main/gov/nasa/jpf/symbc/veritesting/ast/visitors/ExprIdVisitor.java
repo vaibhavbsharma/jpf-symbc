@@ -27,6 +27,12 @@ public class ExprIdVisitor implements ExprVisitor<Expression> {
     @Override public Expression visit(WalaVarExpr expr) {
         return expr;
     }
+
+    @Override
+    public Expression visit(InternalJRVar expr) {
+        return expr;
+    }
+
     @Override public Expression visit(AstVarExpr expr) {
         return expr;
     }
