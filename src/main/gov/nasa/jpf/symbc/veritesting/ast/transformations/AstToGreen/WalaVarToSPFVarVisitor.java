@@ -14,7 +14,8 @@ import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwExceptio
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.createGreenVar;
 
 /**
- * A visitor that visits all WalaVarExp and generate the appropriate SPF symbolic variable depending on its type.
+ * A visitor that visits all WalaVarExp and InternalJRVars to generate the appropriate SPF symbolic variable depending on its type.
+ * Note that InternalJRVars are always ints, and can only be assigned to constant 1.
  */
 
 public class WalaVarToSPFVarVisitor implements ExprVisitor<Expression> {
@@ -81,6 +82,11 @@ public class WalaVarToSPFVarVisitor implements ExprVisitor<Expression> {
         else
             throwException(new IllegalArgumentException("Failed to infer type of Wala var, " + expr), INSTANTIATION);
         return expr;
+    }
+
+    @Override
+    public Expression visit(InternalJRVar expr) {
+        return createGreenVar("int", expr.toString());
     }
 
     @Override

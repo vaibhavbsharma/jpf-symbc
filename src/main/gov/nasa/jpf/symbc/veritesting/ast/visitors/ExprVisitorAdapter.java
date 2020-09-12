@@ -53,6 +53,8 @@ public class ExprVisitorAdapter<T>  {
             return theVisitor.visit((IfThenElseExpr) e);
         } else if (e instanceof AstVarExpr) {
             return theVisitor.visit((AstVarExpr)e);
+        }else if (e instanceof InternalJRVar) {
+            return theVisitor.visit((InternalJRVar) e);
         }
         else {
             throwException(new IllegalArgumentException("Unknown class in ExprVisitorAdapter!"), DONTKNOW);

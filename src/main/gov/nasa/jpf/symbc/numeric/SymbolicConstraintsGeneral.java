@@ -474,7 +474,8 @@ public class SymbolicConstraintsGeneral {
         if (dp[0].equalsIgnoreCase("no_solver")) {
             return result;
         }
-
+        if (IncrementalListener.solver != null)
+            IncrementalListener.solver.push();
         if (isSatisfiable(pc)) {
 
             // compute solutions for real variables:
@@ -518,10 +519,18 @@ public class SymbolicConstraintsGeneral {
             // try {
             while (i_int.hasNext()) {
                 Entry<SymbolicInteger, Object> e = i_int.next();
+
+                //SH: I have so far setup generation of test cases from BitVectorIncremental Solver.
+//                assert (PCParser.pb instanceof ProblemZ3BitVectorIncremental) : "Must use BitVectorIncremental solver. Assumptions violated. Failing.";
+//                if (((ProblemZ3BitVectorIncremental) PCParser.pb).checkExistsInModel(e.getValue())) {
+                // SH: the above if check seems to be needed when I turn on Z3BitVectorIncremental when the solver query does not contain the variable in e.getValue(). Here I just tried to check and avoid calling the solver if it does not exit. The interesting thing however is that similar thing is not obervable when I turn on z3inc.
                 long e_value = pb.getIntValue(e.getValue());
                 e.getKey().solution = e_value;
                 result.put(e.getKey().getName(), e_value);
-
+                /*} else {//if it is not in the PCParser then its value in the test case is irrelevant
+                    e.getKey().solution = Long.MAX_VALUE;
+                    result.put(e.getKey().getName(), Long.MAX_VALUE);
+                }*/
             }
 
 // compute solutions for IntVariable objects in the model
@@ -541,8 +550,12 @@ public class SymbolicConstraintsGeneral {
                 result.put(e.getKey().getName(), e_value);
             }
             cleanup();
+            if (IncrementalListener.solver != null)
+                IncrementalListener.solver.pop();
             return result;
         } else {
+            if (IncrementalListener.solver != null)
+                IncrementalListener.solver.pop();
             return result;
         }
     }
