@@ -33,6 +33,11 @@ public class ExprIdVisitor implements ExprVisitor<Expression> {
         return expr;
     }
 
+    @Override
+    public Expression visit(InternalJRSsaVar expr) {
+        return expr;
+    }
+
     @Override public Expression visit(AstVarExpr expr) {
         return expr;
     }

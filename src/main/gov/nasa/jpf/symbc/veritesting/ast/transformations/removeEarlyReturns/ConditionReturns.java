@@ -66,7 +66,7 @@ public class ConditionReturns extends AstMapVisitor {
     @Override
     public Stmt visit(ReturnInstruction c) {
         if (returnOccurredVar == null)
-            returnOccurredVar = new InternalJRVar();
+            returnOccurredVar = InternalJRVar.jrVar;
 
         return new CompositionStmt(new AssignmentStmt(returnOccurredVar, new IntConstant(1)), c);
     }

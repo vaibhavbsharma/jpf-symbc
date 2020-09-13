@@ -122,6 +122,12 @@ public class EquationExprVisitor implements ExprVisitor<jkind.lustre.Ast> {
     }
 
     @Override
+    public jkind.lustre.Ast visit(InternalJRSsaVar expr) {
+        assert false;
+        return null;
+    }
+
+    @Override
     public Ast visit(FieldRefVarExpr expr) {
         String type = dynRegion.fieldRefTypeTable.lookup(expr);
         assert (type != null);

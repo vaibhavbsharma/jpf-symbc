@@ -203,6 +203,12 @@ public class PrettyPrintVisitor implements AstVisitor<Void> {
         }
 
         @Override
+        public Void visit(InternalJRSsaVar expr) {
+            write(expr.toString());
+            return null;
+        }
+
+        @Override
         public Void visit(FieldRefVarExpr expr) {
             write(expr.toString());
             return null;

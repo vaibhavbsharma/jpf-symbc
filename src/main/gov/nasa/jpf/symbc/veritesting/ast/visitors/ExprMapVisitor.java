@@ -67,6 +67,11 @@ public class ExprMapVisitor implements ExprVisitor<Expression> {
     }
 
     @Override
+    public Expression visit(InternalJRSsaVar expr) {
+        return expr;
+    }
+
+    @Override
     public Expression visit(FieldRefVarExpr expr) {
         return expr;
     }

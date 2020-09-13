@@ -90,6 +90,11 @@ public class WalaVarToSPFVarVisitor implements ExprVisitor<Expression> {
     }
 
     @Override
+    public Expression visit(InternalJRSsaVar expr) {
+        return createGreenVar("int", expr.toString());
+    }
+
+    @Override
     public Expression visit(FieldRefVarExpr expr) {
         return expr;
     }

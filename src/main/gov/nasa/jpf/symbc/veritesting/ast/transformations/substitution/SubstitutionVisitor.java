@@ -262,7 +262,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                     System.out.println("\n---------- STARTING Inlining Transformation for region: ---------------\n" + StmtPrintVisitor.print(hgOrdStaticRegion.staticStmt) + "\n");
                     DynamicRegion uniqueHgOrdDynRegion = null;
                     try {
-                        if (VeritestingListener.coverageCriteria != CoverageCriteria.BRANCHCOVERAGE)
+//                        if (VeritestingListener.coverageCriteria != CoverageCriteria.BRANCHCOVERAGE)
                             hgOrdStaticRegion = RemoveEarlyReturns.removeEarlyReturns(hgOrdStaticRegion);
                         uniqueHgOrdDynRegion = UniqueRegion.execute(hgOrdStaticRegion);
                     } catch (Exception e) {

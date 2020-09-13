@@ -7,22 +7,25 @@ import za.ac.sun.cs.green.expr.VisitorException;
 import java.util.List;
 
 /**
- * This defines a single variable for Internal JavaRanger Variable.
+ * This defines a type of internal variables for JavaRanger
  */
-public class InternalJRVar extends CloneableVariable {
+public final class InternalJRSsaVar extends CloneableVariable {
+    /**
+     * This number matches the number defined for a specific Wala Variable.
+     */
+    private static int ssaIndex = 0;
+    int mySsaIndex;
 
-    //main internal JR variable to be used.
-    public static InternalJRVar jrVar = new InternalJRVar();
-
-    //only a single variable is allowed to be used.
-    private InternalJRVar() {
-        super("jrVar");
+    public InternalJRSsaVar() {
+        super("jrVar_" + ssaIndex);
+        mySsaIndex = ssaIndex++;
     }
 
     //used only for cloning
-    private InternalJRVar(int myIndex) {
-        super("jrVar" + myIndex);
+    private InternalJRSsaVar(int mySsaIndex) {
+        super("jrVar" + "_" + mySsaIndex);
     }
+
 
     @Override
     public void accept(Visitor visitor) throws VisitorException {
@@ -32,16 +35,16 @@ public class InternalJRVar extends CloneableVariable {
 
     @Override
     public boolean equals(Object o) {
-        if (o != null && o instanceof InternalJRVar) {
-            InternalJRVar other = (InternalJRVar) o;
-            return (this.toString().equals(other.toString()));
+        if (o != null && o instanceof InternalJRSsaVar) {
+            InternalJRSsaVar other = (InternalJRSsaVar) o;
+            return (this.mySsaIndex == other.mySsaIndex);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return "jrVar";
+        return "jrVar" + "_" + mySsaIndex;
     }
 
     @Override
@@ -69,12 +72,12 @@ public class InternalJRVar extends CloneableVariable {
         return null;
     }
 
-    public InternalJRVar clone() {
-        return new InternalJRVar();
+    public InternalJRSsaVar clone() {
+        return new InternalJRSsaVar(mySsaIndex);
     }
 
     @Override
-    public InternalJRVar makeUnique(int unique) throws StaticRegionException {
+    public InternalJRSsaVar makeUnique(int unique) throws StaticRegionException {
         /*if (uniqueNum != -1 && unique != uniqueNum)
             throw new StaticRegionException("Attempting to make a already-unique WalaVarExpr unique");
         return new InternalJRVar(number, unique);*/

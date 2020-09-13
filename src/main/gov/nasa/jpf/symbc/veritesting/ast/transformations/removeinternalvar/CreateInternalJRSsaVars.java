@@ -19,28 +19,21 @@ import java.util.*;
  * region a gamma that reflects possible valuations of this same variable.
  */
 
-public class RemoveInternalJRVar extends AstMapVisitor {
+public class CreateInternalJRSsaVars extends AstMapVisitor {
 
-    //carries the list of assignments, all assignments must be setting the variable to 1.
-    HashMap<InternalJRVar, List<Expression>> internalJRVarPCMap = new HashMap<>();
+    InternalJRSsaVar lastInternalSsaVar = null;
 
     Expression innerPC;
 
-    public RemoveInternalJRVar(ExprVisitor<Expression> exprVisitor) {
+    public CreateInternalJRSsaVars(ExprVisitor<Expression> exprVisitor) {
         super(exprVisitor);
     }
 
     @Override
     public Stmt visit(AssignmentStmt a) {
         if (a.lhs instanceof InternalJRVar) {
-            assert a.rhs instanceof IntConstant && ((IntConstant) a.rhs).getValue() == 1 : "assignments to InternalJRVars must always assign to true. Assumption violated for assignment stmt. Failing";
-            List<Expression> internalVarConds = internalJRVarPCMap.get(a.lhs);
-            if (internalVarConds == null) {
-                if (innerPC != null)
-                    internalJRVarPCMap.put((InternalJRVar) a.lhs, new ArrayList<>(Arrays.asList(new Expression[]{innerPC})));
-            } else if (innerPC != null)
-                internalVarConds.add(innerPC);
-            return SkipStmt.skip;
+            lastInternalSsaVar = new InternalJRSsaVar();
+            return new AssignmentStmt(lastInternalSsaVar, a.rhs);
         }
         return new AssignmentStmt(eva.accept(a.lhs), eva.accept(a.rhs));
     }
@@ -49,26 +42,59 @@ public class RemoveInternalJRVar extends AstMapVisitor {
     @Override
     public Stmt visit(IfThenElseStmt a) {
         if ((((Operation) a.condition).getOperand(0) instanceof InternalJRVar)) {
-            return new IfThenElseStmt(a.original, eva.accept(a.condition), a.thenStmt.accept(this), a.elseStmt.accept(this), a.genuine, a.isByteCodeReversed, a.generalOblg);
+            return new IfThenElseStmt(a.original, new Operation(((Operation) a.condition).getOperator(), lastInternalSsaVar, ((Operation) a.condition).getOperand(1)), a.thenStmt.accept(this), a.elseStmt.accept(this), a.genuine, a.isByteCodeReversed, a.generalOblg);
         }
 
         Expression oldInnerPC = innerPC;
+        InternalJRSsaVar oldlastInternalSsaVar = lastInternalSsaVar;
+        lastInternalSsaVar = null;
         Expression thenCond = innerPC == null ? a.condition : new Operation(Operation.Operator.AND, innerPC, a.condition);
         innerPC = thenCond;
 
         Stmt thenStmt = a.thenStmt.accept(this);
 
+        InternalJRSsaVar thenInternalSsaVar = lastInternalSsaVar;
+
+        lastInternalSsaVar = null;
         Expression elseCond = innerPC == null ? a.condition : new Operation(Operation.Operator.AND, new Operation(Operation.Operator.NOT, innerPC), a.condition);
 
         innerPC = elseCond;
         Stmt elseStmt = a.elseStmt.accept(this);
 
+        InternalJRSsaVar elseInternalSsaVar = lastInternalSsaVar;
+
         innerPC = oldInnerPC;
-        return new IfThenElseStmt(a.original, eva.accept(a.condition), thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
+
+        Expression oldlastInternalSsaVarValue = oldlastInternalSsaVar == null ? new IntConstant(0) : oldlastInternalSsaVar;
+        IfThenElseStmt newIfStmt = new IfThenElseStmt(a.original, eva.accept(a.condition), thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
+        if ((thenInternalSsaVar == null) && (elseInternalSsaVar == null)) {
+            lastInternalSsaVar = oldlastInternalSsaVar;
+            return newIfStmt;
+        } else if ((thenInternalSsaVar != null) && (elseInternalSsaVar != null)) {
+            InternalJRSsaVar newSsaVar = new InternalJRSsaVar();
+            lastInternalSsaVar = newSsaVar;
+            AssignmentStmt assignmentStmt = new AssignmentStmt(newSsaVar, new GammaVarExpr(thenCond, thenInternalSsaVar, elseInternalSsaVar));
+            return new CompositionStmt(newIfStmt, assignmentStmt);
+        } else if (thenInternalSsaVar != null) {
+            InternalJRSsaVar newSsaVar = new InternalJRSsaVar();
+            lastInternalSsaVar = newSsaVar;
+            AssignmentStmt assignmentStmt = new AssignmentStmt(newSsaVar, new GammaVarExpr(thenCond, thenInternalSsaVar, oldlastInternalSsaVarValue));
+            return new CompositionStmt(newIfStmt, assignmentStmt);
+        } else { //if (elseInternalSsaVar != null)
+            InternalJRSsaVar newSsaVar = new InternalJRSsaVar();
+            lastInternalSsaVar = newSsaVar;
+            AssignmentStmt assignmentStmt = new AssignmentStmt(newSsaVar, new GammaVarExpr(elseCond, elseInternalSsaVar, oldlastInternalSsaVarValue));
+            return new CompositionStmt(newIfStmt, assignmentStmt);
+        }
     }
 
+    @Override
+    public Stmt visit(CompositionStmt a) {
+        return new CompositionStmt(a.s1.accept(this), a.s2.accept(this));
 
-    private Stmt createJRVarAssignStmts() {
+    }
+
+   /* private Stmt createJRVarAssignStmts() {
         assert (internalJRVarPCMap.size() > 0) : "size of the internalJRVarPCMap cannot be zero. Assumption Violated. Failing.";
 
         ArrayList<InternalJRVar> keys = new ArrayList<>(internalJRVarPCMap.keySet());
@@ -99,13 +125,10 @@ public class RemoveInternalJRVar extends AstMapVisitor {
     public Stmt composeInternalJRVarGamma(Stmt stmt) {
         return new CompositionStmt(stmt, createJRVarAssignStmts());
     }
-
+*/
     public static StaticRegion execute(StaticRegion region) throws StaticRegionException {
-        RemoveInternalJRVar conditionReturns = new RemoveInternalJRVar(new ExprMapVisitor());
+        CreateInternalJRSsaVars conditionReturns = new CreateInternalJRSsaVars(new ExprMapVisitor());
         Stmt stmt = region.staticStmt.accept(conditionReturns);
-
-        if (conditionReturns.internalJRVarPCMap.size() > 0)
-            stmt = conditionReturns.composeInternalJRVarGamma(stmt);
 
         return new StaticRegion(stmt, region, null);
 

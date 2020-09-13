@@ -66,6 +66,11 @@ public class ExprIterVisitor<T> implements ExprVisitor<T> {
         return defaultVal;
     }
 
+    @Override
+    public T visit(InternalJRSsaVar expr) {
+        return defaultVal;
+    }
+
     @Override public T visit(AstVarExpr expr) {
         return defaultVal;
     }
