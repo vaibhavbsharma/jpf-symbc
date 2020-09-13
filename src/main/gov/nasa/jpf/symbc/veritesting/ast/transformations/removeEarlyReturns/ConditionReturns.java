@@ -20,8 +20,8 @@ import java.util.ArrayList;
  */
 
 public class ConditionReturns extends AstMapVisitor {
-    static InternalJRVar returnOccurredVar = null;
-    static Expression innerPC;
+    InternalJRVar returnOccurredVar = null;
+    Expression innerPC;
 
     public ConditionReturns(ExprVisitor<Expression> exprVisitor) {
         super(exprVisitor);

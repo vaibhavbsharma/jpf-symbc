@@ -42,6 +42,7 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
     @Override
     public Stmt visit(IfThenElseStmt a) {
         if ((((Operation) a.condition).getOperand(0) instanceof InternalJRVar)) {
+            assert lastInternalSsaVar != null : "lastInternalSsaVar cannot be null. Assumptions Violated. Failing.";
             return new IfThenElseStmt(a.original, new Operation(((Operation) a.condition).getOperator(), lastInternalSsaVar, ((Operation) a.condition).getOperand(1)), a.thenStmt.accept(this), a.elseStmt.accept(this), a.genuine, a.isByteCodeReversed, a.generalOblg);
         }
 
@@ -94,38 +95,38 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
 
     }
 
-   /* private Stmt createJRVarAssignStmts() {
-        assert (internalJRVarPCMap.size() > 0) : "size of the internalJRVarPCMap cannot be zero. Assumption Violated. Failing.";
+    /* private Stmt createJRVarAssignStmts() {
+         assert (internalJRVarPCMap.size() > 0) : "size of the internalJRVarPCMap cannot be zero. Assumption Violated. Failing.";
 
-        ArrayList<InternalJRVar> keys = new ArrayList<>(internalJRVarPCMap.keySet());
-        Stmt stmt = createJRVarAssignStmt(keys.get(0));
+         ArrayList<InternalJRVar> keys = new ArrayList<>(internalJRVarPCMap.keySet());
+         Stmt stmt = createJRVarAssignStmt(keys.get(0));
 
-        if (keys.size() == 1)
-            return stmt;
+         if (keys.size() == 1)
+             return stmt;
 
-        for (int i = 1; i < keys.size(); i++)
-            stmt = new CompositionStmt(stmt, createJRVarAssignStmt(keys.get(i)));
+         for (int i = 1; i < keys.size(); i++)
+             stmt = new CompositionStmt(stmt, createJRVarAssignStmt(keys.get(i)));
 
-        return stmt;
-    }
+         return stmt;
+     }
 
-    private Stmt createJRVarAssignStmt(InternalJRVar internalJRVar) {
-        List<Expression> condList = internalJRVarPCMap.get(internalJRVar);
-        assert condList != null && condList.size() > 0 : "internalJRVar not found in map or is empty. Assumptions violated. Failing.";
+     private Stmt createJRVarAssignStmt(InternalJRVar internalJRVar) {
+         List<Expression> condList = internalJRVarPCMap.get(internalJRVar);
+         assert condList != null && condList.size() > 0 : "internalJRVar not found in map or is empty. Assumptions violated. Failing.";
 
-        Expression gammaCond = condList.get(0);
+         Expression gammaCond = condList.get(0);
 
-        for (int i = 1; i < condList.size(); i++)
-            gammaCond = new Operation(Operation.Operator.OR, gammaCond, condList.get(i));
+         for (int i = 1; i < condList.size(); i++)
+             gammaCond = new Operation(Operation.Operator.OR, gammaCond, condList.get(i));
 
 
-        return new AssignmentStmt(internalJRVar, new GammaVarExpr(gammaCond, new IntConstant(1), new IntConstant(0)));
-    }
+         return new AssignmentStmt(internalJRVar, new GammaVarExpr(gammaCond, new IntConstant(1), new IntConstant(0)));
+     }
 
-    public Stmt composeInternalJRVarGamma(Stmt stmt) {
-        return new CompositionStmt(stmt, createJRVarAssignStmts());
-    }
-*/
+     public Stmt composeInternalJRVarGamma(Stmt stmt) {
+         return new CompositionStmt(stmt, createJRVarAssignStmts());
+     }
+ */
     public static StaticRegion execute(StaticRegion region) throws StaticRegionException {
         CreateInternalJRSsaVars conditionReturns = new CreateInternalJRSsaVars(new ExprMapVisitor());
         Stmt stmt = region.staticStmt.accept(conditionReturns);
