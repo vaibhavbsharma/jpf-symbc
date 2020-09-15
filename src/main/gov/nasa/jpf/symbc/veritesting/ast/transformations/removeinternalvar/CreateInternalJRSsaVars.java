@@ -41,15 +41,19 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
 
     @Override
     public Stmt visit(IfThenElseStmt a) {
-        if ((((Operation) a.condition).getOperand(0) instanceof InternalJRVar)) {
+        /*if ((((Operation) a.condition).getOperand(0) instanceof InternalJRVar)) {
             assert lastInternalSsaVar != null : "lastInternalSsaVar cannot be null. Assumptions Violated. Failing.";
             return new IfThenElseStmt(a.original, new Operation(((Operation) a.condition).getOperator(), lastInternalSsaVar, ((Operation) a.condition).getOperand(1)), a.thenStmt.accept(this), a.elseStmt.accept(this), a.genuine, a.isByteCodeReversed, a.generalOblg);
         }
+*/
+        Expression newCondition = a.condition;
+        if ((((Operation) a.condition).getOperand(0) instanceof InternalJRVar))
+            newCondition = new Operation(((Operation) a.condition).getOperator(), lastInternalSsaVar, ((Operation) a.condition).getOperand(1));
 
         Expression oldInnerPC = innerPC;
         InternalJRSsaVar oldlastInternalSsaVar = lastInternalSsaVar;
         lastInternalSsaVar = null;
-        Expression thenCond = innerPC == null ? a.condition : new Operation(Operation.Operator.AND, innerPC, a.condition);
+        Expression thenCond = innerPC == null ? newCondition : new Operation(Operation.Operator.AND, innerPC, newCondition);
         innerPC = thenCond;
 
         Stmt thenStmt = a.thenStmt.accept(this);
@@ -57,7 +61,7 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
         InternalJRSsaVar thenInternalSsaVar = lastInternalSsaVar;
 
         lastInternalSsaVar = null;
-        Expression elseCond = innerPC == null ? a.condition : new Operation(Operation.Operator.AND, new Operation(Operation.Operator.NOT, innerPC), a.condition);
+        Expression elseCond = innerPC == null ? newCondition : new Operation(Operation.Operator.AND, new Operation(Operation.Operator.NOT, innerPC), newCondition);
 
         innerPC = elseCond;
         Stmt elseStmt = a.elseStmt.accept(this);
@@ -67,7 +71,7 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
         innerPC = oldInnerPC;
 
         Expression oldlastInternalSsaVarValue = oldlastInternalSsaVar == null ? new IntConstant(0) : oldlastInternalSsaVar;
-        IfThenElseStmt newIfStmt = new IfThenElseStmt(a.original, eva.accept(a.condition), thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
+        IfThenElseStmt newIfStmt = new IfThenElseStmt(a.original, newCondition, thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
         if ((thenInternalSsaVar == null) && (elseInternalSsaVar == null)) {
             lastInternalSsaVar = oldlastInternalSsaVar;
             return newIfStmt;
