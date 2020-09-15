@@ -43,6 +43,6 @@ public class RunWBS_vt {
         if (maxSteps-- > 0) wbs_vt.sym8(0, false, false);
         if (maxSteps-- > 0) wbs_vt.sym9(0, false, false);
         if (maxSteps-- > 0) wbs_vt.sym10(0, false, false);
-        assert wbs_vt.checkProp1();
+//        assert wbs_vt.checkProp1();
     }
 }

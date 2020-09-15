@@ -139,10 +139,8 @@ public class ArrayUtil {
                     throwException(new StaticRegionException("unknown array type given to ArraySSAVisitor.doArrayStore"), INSTANTIATION);
                 if (newExpr instanceof CloneableVariable)
                     newExpr = createGreenVar(type, newExpr.toString());
-                if (!(newExpr instanceof IntConstant)) {
                     eiArray.setElementAttr(i, greenToSPFExpression(newExpr));
                     assert (greenToSPFExpression(newExpr) != null);
-                }
             }
         }
     }

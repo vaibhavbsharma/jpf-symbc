@@ -1,9 +1,9 @@
 target=veritesting.replace.replace
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-#symbolic.method = veritesting.replace.veritesting.replace.replace.mainProcess(sym#sym#sym#sym#sym)
-symbolic.method = veritesting.replace.veritesting.replace.replace.mainProcess(sym#sym#sym#sym#sym)
-#symbolic.method = veritesting.replace.veritesting.replace.replace.mainProcess(sym#con#con#con#con)
+#symbolic.method = veritesting.replace.replace.mainProcess(sym#sym#sym#sym#sym)
+symbolic.method = veritesting.replace.replace.mainProcess(sym#sym#sym#sym#sym)
+#symbolic.method = veritesting.replace.replace.mainProcess(sym#con#con#con#con)
 symbolic.minint=-100
 symbolic.maxint=100
 vm.storage.class=nil
