@@ -32,6 +32,6 @@ public class A {
     public int fibA(int n) {
         if (n <= 1)
             return n;
-        return bRef.fibB(n - 1) + fib(n - 2);
+        return fibA(n - 1) + fibA(n - 2);
     }
 }

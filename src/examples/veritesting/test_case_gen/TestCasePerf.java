@@ -1,5 +1,7 @@
 package veritesting.test_case_gen;
 
+import veritesting.Outputs;
+
 public class TestCasePerf {
 
     int sideEffect = 0;
@@ -10,7 +12,7 @@ public class TestCasePerf {
         System.out.println("my A value is = " + myVal);*/
 //        singleBranchCov2(1, 1);
 //        doubleBranchCov(1, 1);
-//        doubleRec(1, 1);
+        doubleRec(1, 1);
 //        complexBranchCov(1,1);
 //        unoptimalDFS(1, 1);
 //        doubleLoopUnoptimalDFS(1, 1);
@@ -27,8 +29,38 @@ public class TestCasePerf {
 //        testingComplexConditions3(true, true, true, true);
 
 //        (new TestCasePerf()).testingER1(true, 1);
-        (new TestCasePerf()).testERInline(true, 1);
+//        (new TestCasePerf()).testERInline(true, 1);
+//        simpleRegion(1);
     }
+
+
+    public static int staticMethod2(int x) {
+        int myCount = 0;
+        if (x > 100) {
+            myCount = 1;
+        } else {
+            myCount = 3;
+        }
+        return myCount;
+    }
+    public static int staticMethod1(int x) {
+        int myCount = 0;
+        if (x > 10) {
+            myCount = staticMethod2(x);
+        } else {
+            myCount = 2;
+        }
+        return myCount;
+    }
+
+    public static int simpleRegion(int y) {
+        int methodCount = 0;
+        if (y > 0)
+            methodCount = staticMethod1(y);
+
+        return methodCount;
+    }
+
 
     private static int testingComplexConditions1(boolean a, boolean b) {
         int z;
@@ -64,8 +96,8 @@ public class TestCasePerf {
     private int testERInline(boolean a, int x) {
         int z = 0;
         if (a)
-            z = testingER1(a, x);
-        assert !(a && x > 2) || this.sideEffect == 0;
+            z = testingER2(a, true, x);
+//        assert !(a && x > 2) || this.sideEffect == 0;
         return z;
     }
 
@@ -293,7 +325,7 @@ public class TestCasePerf {
         return x;
     }
 
-    public static int singleRec(int x, int y) {
+    public static int c(int x, int y) {
 
         veritesting.test_case_gen.A a = new veritesting.test_case_gen.A();
         for (int i = 0; i < 2; i++) {
