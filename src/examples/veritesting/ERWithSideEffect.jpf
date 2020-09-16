@@ -15,7 +15,7 @@ performanceMode = false
 symbolic.lazy = true
 
 symbolic.dp=z3bitvectorinc
-listener = .symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+#listener =.symbc.SymbolicListener,,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 symbolic.optimizechoices=false
 
 jitAnalysis = true

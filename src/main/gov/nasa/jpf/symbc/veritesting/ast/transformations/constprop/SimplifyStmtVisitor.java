@@ -53,6 +53,7 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
     @Override
     public Stmt visit(AssignmentStmt a) {
         Expression rhs = eva.accept(a.rhs);
+        if(a.lhs instanceof InternalJRSsaVar) return a;
         if (isConstant(rhs) || isVariable(rhs)) {
             constantsTable.add((Variable) a.lhs, rhs);
             if (isVariable(rhs)) {
