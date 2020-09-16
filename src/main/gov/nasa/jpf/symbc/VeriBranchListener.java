@@ -43,6 +43,7 @@ public class VeriBranchListener extends BranchListener {
             else { //default setting for coverage
                 coverageMode = CoverageMode.JRCOLLECT_PRUNE_GUIDE;
             }
+            VeritestingListener.simplify = false;
         }
 
         if (conf.hasValue("TestCaseGenerationMode")) {
