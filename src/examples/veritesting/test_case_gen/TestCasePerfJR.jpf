@@ -17,7 +17,7 @@ symbolic.debug=false
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoop(sym#sym)
 
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
+#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov2(sym#sym)
 
@@ -43,7 +43,7 @@ symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleRec(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.testingComplexConditions3(sym#sym#sym#sym)
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.testERInline(sym#sym)
+symbolic.method=veritesting.test_case_gen.TestCasePerf.testERInline(sym#sym)
 
 #symbolic.method=veritesting.test_case_gen.TestCasePerf.simpleRegion(sym)
 
