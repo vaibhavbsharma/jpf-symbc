@@ -1,33 +1,34 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Eq-checks" type="CompoundRunConfigurationType">
-    <toRun name="TestNestedIfBranch" type="JarApplication" />
     <toRun name="CGTest" type="JarApplication" />
-    <toRun name="ArrayTest1" type="JarApplication" />
-    <toRun name="FieldTest5" type="JarApplication" />
-    <toRun name="FieldTest3" type="JarApplication" />
-    <toRun name="FieldTest6" type="JarApplication" />
-    <toRun name="FieldTest1" type="JarApplication" />
-    <toRun name="ArrayTest5" type="JarApplication" />
-    <toRun name="TestComplexCondition1" type="JarApplication" />
-    <toRun name="ArrayTest3" type="JarApplication" />
-    <toRun name="EqSPFCasesTest2" type="JarApplication" />
-    <toRun name="FieldTest4" type="JarApplication" />
-    <toRun name="TestAndIte" type="JarApplication" />
     <toRun name="ArrayTest2" type="JarApplication" />
-    <toRun name="HigherOrder3" type="JarApplication" />
-    <toRun name="HigherOrder1" type="JarApplication" />
-    <toRun name="HigherOrder2" type="JarApplication" />
-    <toRun name="TestOrIte" type="JarApplication" />
-    <toRun name="Simple1" type="JarApplication" />
-    <toRun name="EqSPFCasesTest1" type="JarApplication" />
+    <toRun name="ArrayTest3" type="JarApplication" />
     <toRun name="TestLocalOutputs1" type="JarApplication" />
-    <toRun name="TestLocalOutputs" type="JarApplication" />
-    <toRun name="EarlyReturnsTest1" type="JarApplication" />
     <toRun name="ArrayTest7" type="JarApplication" />
-    <toRun name="SymbolicStackInput" type="JarApplication" />
-    <toRun name="ArrayTest6" type="JarApplication" />
+    <toRun name="FieldTest6" type="JarApplication" />
     <toRun name="ArrayTest4" type="JarApplication" />
+    <toRun name="TestComplexCondition1" type="JarApplication" />
+    <toRun name="TestNestedIfBranch" type="JarApplication" />
+    <toRun name="HigherOrder1" type="JarApplication" />
+    <toRun name="HigherOrder3" type="JarApplication" />
+    <toRun name="FieldTest5" type="JarApplication" />
+    <toRun name="EqSPFCasesTest1" type="JarApplication" />
+    <toRun name="FieldTest3" type="JarApplication" />
+    <toRun name="FieldTest4" type="JarApplication" />
+    <toRun name="ArrayTest1" type="JarApplication" />
+    <toRun name="TestLocalOutputs" type="JarApplication" />
+    <toRun name="HigherOrder2" type="JarApplication" />
+    <toRun name="TestERWithSideEffect" type="JarApplication" />
+    <toRun name="FieldTest1" type="JarApplication" />
+    <toRun name="ArrayTest6" type="JarApplication" />
+    <toRun name="EqSPFCasesTest2" type="JarApplication" />
     <toRun name="FieldTest2" type="JarApplication" />
+    <toRun name="Simple1" type="JarApplication" />
+    <toRun name="TestAndIte" type="JarApplication" />
+    <toRun name="ArrayTest5" type="JarApplication" />
+    <toRun name="TestOrIte" type="JarApplication" />
+    <toRun name="EarlyReturnsTest1" type="JarApplication" />
+>>>>>>> JRBranchCoverage
     <method v="2" />
   </configuration>
 </component>

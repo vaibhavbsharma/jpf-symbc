@@ -140,7 +140,19 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
     }
   }
 
-  @Override
+    public boolean checkExistsInModel(Object dpVar) {
+            Model model = null;
+            if (Status.SATISFIABLE == solver.check()) {
+                model = solver.getModel();
+                for(FuncDecl f:model.getDecls())
+                    if(f.getName().toString().equals(dpVar.toString()))
+                        return true;
+            }
+            return false;
+  }
+
+
+    @Override
   public Boolean solve() {
     try {
       boolean result = false;

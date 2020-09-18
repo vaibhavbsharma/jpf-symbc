@@ -24,6 +24,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.FixedPointAstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.expr.Expression;
@@ -164,7 +165,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
         if (!oldSpfPath && spfCasePath)
             spfCasePath = false;
 
-        return new IfThenElseStmt(c.original, cond, thenStmt, elseStmt);
+        return new IfThenElseStmt(c.original, cond, thenStmt, elseStmt, c.genuine, c.isByteCodeReversed, c.generalOblg);
     }
 
     @Override
@@ -201,7 +202,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
         if ((FixedPointWrapper.iterationNumber > 1) && (noFurtherInlines.contains(((SSAInvokeInstruction) c.original)
                 .getCallSite()
                 .getDeclaredTarget()))
-                ) {   //if the method invocation was previously discovered to be recursive in a previous fix point iteration then just
+        ) {   //if the method invocation was previously discovered to be recursive in a previous fix point iteration then just
             // return, i.e., do not attempt to inline it.
             System.out.println("Encountering an already discovered recursive method. Returning.");
             return c;
@@ -262,7 +263,8 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                     System.out.println("\n---------- STARTING Inlining Transformation for region: ---------------\n" + StmtPrintVisitor.print(hgOrdStaticRegion.staticStmt) + "\n");
                     DynamicRegion uniqueHgOrdDynRegion = null;
                     try {
-                        hgOrdStaticRegion = RemoveEarlyReturns.removeEarlyReturns(hgOrdStaticRegion);
+//                        if (VeritestingListener.coverageCriteria != CoverageCriteria.BRANCHCOVERAGE)
+                            hgOrdStaticRegion = RemoveEarlyReturns.removeEarlyReturns(hgOrdStaticRegion);
                         uniqueHgOrdDynRegion = UniqueRegion.execute(hgOrdStaticRegion);
                     } catch (Exception e) {
                         if (firstException == null)
@@ -397,7 +399,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
         String currClassName = null;
         if (!instruction.isStatic() && !instruction.isSpecial()) {
             if (c.params[0] instanceof IntConstant) { //if the first param is a constant, then it is already a reference and it isn't in the varTypeTable, instead we need to ask SPF for it.
-                if (((IntConstant)c.params[0]).getValue() == 0) {
+                if (((IntConstant) c.params[0]).getValue() == 0) {
                     ti.requestSUTException("java.lang.NullPointerException", "found a null pointer reference");
                     throwException(new IllegalArgumentException("cannot instantiate region with null pointer derefernece"),
                             StaticRegionException.ExceptionPhase.INSTANTIATION);

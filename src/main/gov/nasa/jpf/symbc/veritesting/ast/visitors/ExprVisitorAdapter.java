@@ -10,9 +10,10 @@ import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwExceptio
 
 /**
  * An adaptor that pushes the visitor to the right visit for a Green expression.
+ *
  * @param <T>
  */
-public class ExprVisitorAdapter<T>  {
+public class ExprVisitorAdapter<T> {
 
     public ExprVisitor<T> theVisitor;
 
@@ -52,9 +53,12 @@ public class ExprVisitorAdapter<T>  {
         } else if (e instanceof IfThenElseExpr) {
             return theVisitor.visit((IfThenElseExpr) e);
         } else if (e instanceof AstVarExpr) {
-            return theVisitor.visit((AstVarExpr)e);
-        }
-        else {
+            return theVisitor.visit((AstVarExpr) e);
+        } else if (e instanceof InternalJRVar) {
+            return theVisitor.visit((InternalJRVar) e);
+        } else if (e instanceof InternalJRSsaVar) {
+            return theVisitor.visit((InternalJRSsaVar) e);
+        } else {
             throwException(new IllegalArgumentException("Unknown class in ExprVisitorAdapter!"), DONTKNOW);
             return (T) e;
         }

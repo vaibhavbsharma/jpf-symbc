@@ -2,17 +2,23 @@ package gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst;
 
 import com.ibm.wala.cfg.Util;
 import com.ibm.wala.classLoader.IBytecodeMethod;
+import com.ibm.wala.shrikeBT.IConditionalBranchInstruction;
 import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.util.graph.Graph;
 import com.ibm.wala.util.graph.dominators.Dominators;
 import com.ibm.wala.util.graph.dominators.NumberedDominators;
 import gov.nasa.jpf.symbc.VeritestingListener;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.WalaUtil;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.SSAToStatIVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import x10.wala.util.NatLoop;
 import za.ac.sun.cs.green.expr.*;
 
@@ -502,6 +508,10 @@ public class CreateStaticRegions {
                 Pair<Expression, Stmt> parentExprStmt = createComplexIfCondition(parent, entry);
                 Expression parentExpr = parentExprStmt.getFirst();
                 setupStmt = compose(parentExprStmt.getSecond(), setupStmt, true);
+                if (VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+                    throwException(new StaticRegionException("createComplexIfCondition is not supported with Branch coverage yet. Failing."), STATIC);
+                    return null;
+                }
                 branchExpr = condExpr != null ? new Operation(Operation.Operator.AND, parentExpr, condExpr) : parentExpr;
             }
             assert branchExpr != null;
@@ -509,6 +519,10 @@ public class CreateStaticRegions {
             if (returnExpr == null) {
                 returnExpr = branchExpr;
             } else {
+                if (VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+                    throwException(new StaticRegionException("createComplexIfCondition is not supported with Branch coverage yet. Failing."), STATIC);
+                    return null;
+                }
                 returnExpr = new Operation(Operation.Operator.OR, returnExpr, branchExpr);
             }
         }
@@ -661,12 +675,16 @@ public class CreateStaticRegions {
             elseStmt = SkipStmt.skip;
         }
         currentCondition.removeLast();
-        Stmt returnStmt = compose(this.thenConditionSetup.get(currentBlock),
-                new IfThenElseStmt(SSAUtil.getLastBranchInstruction(currentBlock), condExpr, thenStmt, elseStmt),
-                false);
-
+        SSAConditionalBranchInstruction ssaInst = SSAUtil.getLastBranchInstruction(currentBlock);
+        Stmt returnStmt;
+        if (VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+            Obligation generalOblg = VeriObligationMgr.createOblg(ssaInst, ObligationSide.GENERAL, ir);
+            returnStmt = compose(this.thenConditionSetup.get(currentBlock), new IfThenElseStmt(ssaInst, condExpr, thenStmt, elseStmt, true, WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (ssaInst).getOperator()), generalOblg), false);
+        }
+else
+    returnStmt = compose(this.thenConditionSetup.get(currentBlock), new IfThenElseStmt(ssaInst, condExpr, thenStmt, elseStmt, true, WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (ssaInst).getOperator()), null), false);
         return returnStmt;
-    }
+        }
 
 
     // precondition: terminus is the loop join.
@@ -724,10 +742,19 @@ public class CreateStaticRegions {
         }
         currentCondition.removeLast();
 
-        Stmt returnStmt = compose(this.thenConditionSetup.get(currentBlock),
-                new IfThenElseStmt(SSAUtil.getLastBranchInstruction(currentBlock), condExpr, thenStmt, elseStmt),
+        SSAConditionalBranchInstruction ssaInst = SSAUtil.getLastBranchInstruction(currentBlock);
+        Stmt returnStmt;
+        Obligation generalOblg = VeriObligationMgr.createOblg(ssaInst, ObligationSide.GENERAL, ir);
+        if(VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+        returnStmt = compose(this.thenConditionSetup.get(currentBlock),
+                new IfThenElseStmt(ssaInst, condExpr, thenStmt, elseStmt,true,
+                        WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (ssaInst).getOperator()), generalOblg),
                 false);
-
+        else
+            returnStmt = compose(this.thenConditionSetup.get(currentBlock),
+                    new IfThenElseStmt(ssaInst, condExpr, thenStmt, elseStmt,true,
+                            WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (ssaInst).getOperator()), null),
+                    false);
         if (!actualThenBlock.equals(thenBlock) &&(!actualThenBlock.equals(elseBlock)))
             populateMissedRegions(cfg, actualThenBlock, terminus);
 

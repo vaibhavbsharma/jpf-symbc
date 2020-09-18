@@ -62,6 +62,16 @@ public class SymbCondVisitor implements ExprVisitor<Expression> {
     }
 
     @Override
+    public Expression visit(InternalJRVar expr) {
+        return null;
+    }
+
+    @Override
+    public Expression visit(InternalJRSsaVar expr) {
+        return null;
+    }
+
+    @Override
     public Expression visit(FieldRefVarExpr expr) {
         return null;
     }

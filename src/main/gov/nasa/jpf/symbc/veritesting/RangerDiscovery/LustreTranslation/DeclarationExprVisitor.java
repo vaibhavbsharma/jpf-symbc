@@ -104,6 +104,16 @@ public class DeclarationExprVisitor implements ExprVisitor {
     }
 
     @Override
+    public Object visit(InternalJRVar expr) {
+        return null;
+    }
+
+    @Override
+    public Object visit(InternalJRSsaVar expr) {
+        return null;
+    }
+
+    @Override
     public Object visit(FieldRefVarExpr expr) {
         String rangerType = dynRegion.fieldRefTypeTable.lookupByName(expr.toString());
         if(rangerType.equals("boolean")) //converting boolean to spf presentation as int

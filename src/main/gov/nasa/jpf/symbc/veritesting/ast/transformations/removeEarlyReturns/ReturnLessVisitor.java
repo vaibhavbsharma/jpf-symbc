@@ -26,7 +26,7 @@ public class ReturnLessVisitor implements AstVisitor<Stmt> {
     public Stmt visit(IfThenElseStmt a) {
         Stmt thenStmt = a.thenStmt.accept(this);
         Stmt elseStmt = a.elseStmt.accept(this);
-        return new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt);
+        return new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ReturnLessVisitor implements AstVisitor<Stmt> {
 
     @Override
     public Stmt visit(ArrayLoadInstruction c) {
-        return new ArrayLoadInstruction((SSAArrayLoadInstruction) c.original,c.arrayref, c.index, c.elementType, c.def);
+        return new ArrayLoadInstruction((SSAArrayLoadInstruction) c.original, c.arrayref, c.index, c.elementType, c.def);
     }
 
     @Override

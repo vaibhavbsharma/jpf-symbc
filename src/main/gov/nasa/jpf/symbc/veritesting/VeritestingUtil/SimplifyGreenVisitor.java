@@ -5,11 +5,6 @@ import za.ac.sun.cs.green.expr.*;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.translateNotExpr;
 
 
-/*
-Vaibhav: The functionality currently implemented by this class is made redundant by the SimplifyRangerExprVisitor.
-Since we're doing simplification at the Ranger IR level, this class can be removed unless we need a simplification
-visitor for Green expressions.
- */
 public class SimplifyGreenVisitor extends Visitor {
 
     public Expression returnExp;
@@ -57,7 +52,19 @@ public class SimplifyGreenVisitor extends Visitor {
 
                 if (e1 == Operation.TRUE)
                     returnExp = Operation.FALSE;
-                else returnExp = translateNotExpr(operation);
+                else if (e1 == Operation.FALSE)
+                    returnExp = Operation.TRUE;
+                else
+                    returnExp = translateNotExpr(operation);
+                break;
+            case EQ:
+                e1 = operation.getOperand(0);
+                e2 = operation.getOperand(1);
+                if (e1 instanceof IntConstant && e2 instanceof IntConstant) returnExp = ((IntConstant) e1).getValue() == ((IntConstant) e2).getValue() ? Operation.TRUE : Operation.FALSE;
+                else {
+                    //EQ is currently unsupported for other types than constants
+                    returnExp = operation;
+                }
                 break;
             default:
                 returnExp = operation;

@@ -106,7 +106,7 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
                 new Operation(LT, arrayRef.index, new IntConstant(len)),
                 new Operation(GE, arrayRef.index, new IntConstant(0)));
         StatisticManager.ArraySPFCaseCount++;
-        return new IfThenElseStmt(null, arrayInBoundsCond, assignStmt, getThrowInstruction());
+        return new IfThenElseStmt(null, arrayInBoundsCond, assignStmt, getThrowInstruction(), false, false, null);
     }
 
     public static Stmt getThrowInstruction() {
@@ -166,8 +166,8 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
         gammaStmt = mergeArrayExpressions(stmt.condition, thenExps, elseExps);
         if (gammaStmt != null) {
             somethingChanged = true;
-            return new CompositionStmt(new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse), gammaStmt);
-        } else return new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse);
+            return new CompositionStmt(new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse, stmt.genuine, stmt.isByteCodeReversed, stmt.generalOblg), gammaStmt);
+        } else return new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse, stmt.genuine, stmt.isByteCodeReversed, stmt.generalOblg);
     }
 
     private Stmt mergeArrayExpressions(Expression condition, ArrayExpressions thenExps, ArrayExpressions elseExps) {

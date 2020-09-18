@@ -43,7 +43,7 @@ expression visitor that replaces FieldRefVarExpr objects that have subscript 1 w
 
 
 public class FieldSSAVisitor extends FixedPointAstMapVisitor {
-    private static int fieldExceptionNumber=42424242;
+    private static int fieldExceptionNumber = 42424242;
     private DynamicRegion dynRegion;
     public FieldSubscriptMap psm;
     private ThreadInfo ti;
@@ -73,9 +73,8 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         String name = obj.getClass().getCanonicalName();
 //        throwException(new IllegalArgumentException("Unsupported class: " + name +
 //                " value: " + obj.toString() + " seen in FieldSSAVisitor"), INSTANTIATION);
-        firstException = new IllegalArgumentException("Unsupported class: " + name +
-                " value: " + obj.toString() + " seen in FieldSSAVisitor");
-        return (Stmt)obj;
+        firstException = new IllegalArgumentException("Unsupported class: " + name + " value: " + obj.toString() + " seen in FieldSSAVisitor");
+        return (Stmt) obj;
     }
 
     /*public static DynamicRegion execute(ThreadInfo ti, DynamicRegion dynRegion) {
@@ -87,7 +86,10 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
     }*/
 
     @Override
-    public Stmt visit(ReturnInstruction ret) { bad(ret); return ret; }
+    public Stmt visit(ReturnInstruction ret) {
+        bad(ret);
+        return ret;
+    }
 
 
     @Override
@@ -95,8 +97,7 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         if (!IntConstant.class.isInstance(putIns.def) && !putIns.getOriginal().isStatic()) {
             populateException(new IllegalArgumentException("Cannot handle symbolic object references in FieldSSAVisitor"));
             return putIns;
-        }
-        else {
+        } else {
             FieldRef fieldRef;
             try {
                 fieldRef = FieldRef.makePutFieldRef(ti, putIns);
@@ -108,7 +109,7 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
             String type = null;
             if (WalaVarExpr.class.isInstance(putIns.assignExpr)) {
                 if (dynRegion.varTypeTable.lookup(putIns.assignExpr) != null) {
-                    type = (String)dynRegion.varTypeTable.lookup(putIns.assignExpr);
+                    type = (String) dynRegion.varTypeTable.lookup(putIns.assignExpr);
                 } else {
                     type = new SubstituteGetOutput(ti, fieldRef, true, null).invoke().type;
                 }
@@ -119,15 +120,15 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
             } else if (RealVariable.class.isInstance(putIns.assignExpr)) {
                 type = "float";
             }
-            if (type != null)
-                dynRegion.fieldRefTypeTable.add(fieldRefVarExpr.clone(), type);
+            if (type != null) dynRegion.fieldRefTypeTable.add(fieldRefVarExpr.clone(), type);
             somethingChanged = true;
             return assignStmt;
         }
     }
 
     public static Stmt getThrowInstruction() {
-        return new ThrowInstruction(new SSAThrowInstruction(-1, nextFieldExceptionNumber()) {});
+        return new ThrowInstruction(new SSAThrowInstruction(-1, nextFieldExceptionNumber()) {
+        });
     }
 
     public static int nextFieldExceptionNumber() {
@@ -139,10 +140,10 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
     private SubscriptPair createSubscript(FieldRef fieldRef) {
         SubscriptPair subscript = psm.lookup(fieldRef);
         if (subscript == null) {
-            subscript = new SubscriptPair(FIELD_SUBSCRIPT_BASE+1, gsm.createSubscript(fieldRef));
+            subscript = new SubscriptPair(FIELD_SUBSCRIPT_BASE + 1, gsm.createSubscript(fieldRef));
             psm.add(fieldRef, subscript);
         } else {
-            subscript = new SubscriptPair(subscript.pathSubscript+1, gsm.createSubscript(fieldRef));
+            subscript = new SubscriptPair(subscript.pathSubscript + 1, gsm.createSubscript(fieldRef));
             psm.updateValue(fieldRef, subscript);
         }
         return subscript;
@@ -161,9 +162,8 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         Stmt gammaStmt = mergePSM(stmt.condition, thenMap, elseMap);
         if (gammaStmt != null) {
             somethingChanged = true;
-            return new CompositionStmt(new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse), gammaStmt);
-        }
-        else return new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse);
+            return new CompositionStmt(new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse, stmt.genuine, stmt.isByteCodeReversed, stmt.generalOblg), gammaStmt);
+        } else return new IfThenElseStmt(stmt.original, stmt.condition, newThen, newElse, stmt.genuine, stmt.isByteCodeReversed, stmt.generalOblg);
     }
 
     private Stmt mergePSM(Expression condition, FieldSubscriptMap thenMap, FieldSubscriptMap elseMap) {
@@ -172,14 +172,11 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
             FieldRef thenFieldRef = entry.getKey();
             SubscriptPair thenSubscript = entry.getValue();
             SubscriptPair elseSubscript = elseMap.lookup(thenFieldRef);
-            if (elseSubscript != null ) {
-                if (!thenSubscript.equals(elseSubscript))
-                    compStmt = compose(compStmt, createGammaStmt(condition, thenFieldRef, thenSubscript,
-                            elseMap.lookup(thenFieldRef)), false);
+            if (elseSubscript != null) {
+                if (!thenSubscript.equals(elseSubscript)) compStmt = compose(compStmt, createGammaStmt(condition, thenFieldRef, thenSubscript, elseMap.lookup(thenFieldRef)), false);
                 elseMap.remove(thenFieldRef);
             } else {
-                compStmt = compose(compStmt, createGammaStmt(condition, thenFieldRef, thenSubscript,
-                        new SubscriptPair(FIELD_SUBSCRIPT_BASE, gsm.createSubscript(thenFieldRef))), false);
+                compStmt = compose(compStmt, createGammaStmt(condition, thenFieldRef, thenSubscript, new SubscriptPair(FIELD_SUBSCRIPT_BASE, gsm.createSubscript(thenFieldRef))), false);
             }
         }
 
@@ -189,9 +186,7 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
             if (thenMap.lookup(elseFieldRef) != null) {
                 throwException(new IllegalArgumentException("invariant failure: something in elseMap should not be in thenMap at this point in FieldSSAVisitor"), INSTANTIATION);
             } else {
-                compStmt = compose(compStmt, createGammaStmt(condition, elseFieldRef,
-                        new SubscriptPair(FIELD_SUBSCRIPT_BASE, gsm.createSubscript(elseFieldRef)), elseSubscript),
-                        false);
+                compStmt = compose(compStmt, createGammaStmt(condition, elseFieldRef, new SubscriptPair(FIELD_SUBSCRIPT_BASE, gsm.createSubscript(elseFieldRef)), elseSubscript), false);
             }
         }
 
@@ -199,8 +194,7 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
     }
 
 
-    private Stmt createGammaStmt(Expression condition, FieldRef fieldRef, SubscriptPair thenSubscript,
-                                 SubscriptPair elseSubscript) {
+    private Stmt createGammaStmt(Expression condition, FieldRef fieldRef, SubscriptPair thenSubscript, SubscriptPair elseSubscript) {
         if (thenSubscript.pathSubscript == FIELD_SUBSCRIPT_BASE && elseSubscript.pathSubscript == FIELD_SUBSCRIPT_BASE) {
             throwException(new IllegalArgumentException("invariant failure: ran into a gamma between subscripts that are both base subscripts in FieldSSAVisitor"), INSTANTIATION);
         }
@@ -210,10 +204,8 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         if (output.type != null) {
             dynRegion.fieldRefTypeTable.add(fieldRefVarExpr.clone(), output.type);
         }
-        Expression thenExpr = thenSubscript.pathSubscript != FIELD_SUBSCRIPT_BASE ?
-                new FieldRefVarExpr(fieldRef, thenSubscript) : output.def;
-        Expression elseExpr = elseSubscript.pathSubscript != FIELD_SUBSCRIPT_BASE ?
-                new FieldRefVarExpr(fieldRef, elseSubscript) : output.def;
+        Expression thenExpr = thenSubscript.pathSubscript != FIELD_SUBSCRIPT_BASE ? new FieldRefVarExpr(fieldRef, thenSubscript) : output.def;
+        Expression elseExpr = elseSubscript.pathSubscript != FIELD_SUBSCRIPT_BASE ? new FieldRefVarExpr(fieldRef, elseSubscript) : output.def;
         return new AssignmentStmt(fieldRefVarExpr, new GammaVarExpr(condition, thenExpr, elseExpr));
     }
 
@@ -230,7 +222,7 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         String type = null;
         // If we are doing a get field from a constant object reference or if this field access is a static access,
         // we can fill this input in
-        if ((c.ref instanceof IntConstant || ((SSAGetInstruction)c.original).isStatic())) {
+        if ((c.ref instanceof IntConstant || ((SSAGetInstruction) c.original).isStatic())) {
             FieldRef fieldRef = null;
             try {
                 fieldRef = FieldRef.makeGetFieldRef(ti, c);
@@ -239,10 +231,8 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
             }
             if (psm.lookup(fieldRef) != null) {
                 rhs = new FieldRefVarExpr(fieldRef, psm.lookup(fieldRef));
-                if (dynRegion.fieldRefTypeTable.lookup(rhs) != null)
-                    type = dynRegion.fieldRefTypeTable.lookup(rhs);
-            }
-            else {
+                if (dynRegion.fieldRefTypeTable.lookup(rhs) != null) type = dynRegion.fieldRefTypeTable.lookup(rhs);
+            } else {
                 try {
                     SubstituteGetOutput output = substituteGet(c, fieldRef);
                     type = output.type;
@@ -252,28 +242,23 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
                 }
 
             }
-        } else
-            exceptionalMessage = "encountered obj-ref in GetInstruction that is not a constant in FieldSSAVisitor";
+        } else exceptionalMessage = "encountered obj-ref in GetInstruction that is not a constant in FieldSSAVisitor";
         // only one of rhs and exceptionalMessage should be non-null
         assert (rhs == null) ^ (exceptionalMessage == null);
         if (c.def instanceof WalaVarExpr) {
             if (type != null) dynRegion.varTypeTable.add(((WalaVarExpr) c.def).number, type);
-        }
-        else exceptionalMessage = "def not instance of WalaVarExpr in GetInstruction: " + c + " in FieldSSAVisitor";
+        } else exceptionalMessage = "def not instance of WalaVarExpr in GetInstruction: " + c + " in FieldSSAVisitor";
         if (exceptionalMessage != null) {
             populateException(new IllegalArgumentException(exceptionalMessage));
             return c;
-        }
-        else {
+        } else {
             somethingChanged = true;
             return new AssignmentStmt(c.def, rhs);
         }
     }
 
-    private SubstituteGetOutput substituteGet(GetInstruction getIns, FieldRef fieldRef)
-            throws StaticRegionException {
-        SubstituteGetOutput substituteGetOutput =
-                new SubstituteGetOutput(ti, fieldRef, true, null).invoke();
+    private SubstituteGetOutput substituteGet(GetInstruction getIns, FieldRef fieldRef) throws StaticRegionException {
+        SubstituteGetOutput substituteGetOutput = new SubstituteGetOutput(ti, fieldRef, true, null).invoke();
         String exceptionalMessage = substituteGetOutput.getExceptionalMessage();
         Expression def = substituteGetOutput.getDef();
         // only one of def and exceptionalMessage should be non-null
@@ -282,7 +267,7 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         return substituteGetOutput;
     }
 
-    public DynamicRegion execute(){
+    public DynamicRegion execute() {
         Stmt fieldStmt = dynRegion.dynStmt.accept(this);
 
         instantiatedRegion = new DynamicRegion(dynRegion, fieldStmt, new SPFCaseList(), null, null, dynRegion.earlyReturnResult);

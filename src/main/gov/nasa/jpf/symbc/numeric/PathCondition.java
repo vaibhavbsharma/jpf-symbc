@@ -40,6 +40,7 @@ package gov.nasa.jpf.symbc.numeric;
 import za.ac.sun.cs.green.Instance;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
@@ -601,4 +602,22 @@ public class PathCondition implements Comparable<PathCondition> {
         return result;
     }
 
+
+    //S.H.
+    public Map<String, Object> solveWithValuations(List<SymbolicInteger> symInts, List<IntVariable> intVars) {
+        SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
+        Map<String, Object> result = solver.solveWithValuation(this,symInts, intVars);
+        solver.cleanup();
+        PathCondition.flagSolved = true;
+        return result;
+    }
+
+    //S.H.
+    public Map<String, Object> solveWithValuations(List<String> typeAgnosticVarList) {
+        SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
+        Map<String, Object> result = solver.solveWithValuation(this,typeAgnosticVarList);
+        solver.cleanup();
+        PathCondition.flagSolved = true;
+        return result;
+    }
 }

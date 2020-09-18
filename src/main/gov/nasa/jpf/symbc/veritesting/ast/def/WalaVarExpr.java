@@ -20,6 +20,14 @@ public final class WalaVarExpr extends CloneableVariable {
         this.number = var;
     }
 
+    /**
+     * local IR vars are treated as WalaVarExpr, but given a name. They are considered intermediate vars.
+     * @param irVarName
+     */
+    public WalaVarExpr(String irVarName) {
+        super(irVarName);
+        this.number = 0;
+    }
 
     private WalaVarExpr(int var, int uniqueNum) {
         super("w" + var);

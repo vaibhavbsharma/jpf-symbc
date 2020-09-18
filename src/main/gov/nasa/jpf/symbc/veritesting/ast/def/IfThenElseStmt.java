@@ -1,6 +1,8 @@
 package gov.nasa.jpf.symbc.veritesting.ast.def;
 
+import com.ibm.wala.ssa.IR;
 import com.ibm.wala.ssa.SSAConditionalBranchInstruction;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 
@@ -12,12 +14,18 @@ public class IfThenElseStmt implements Stmt {
     public final Stmt thenStmt;
     public final Stmt elseStmt;
     public final SSAConditionalBranchInstruction original;
+    public final boolean genuine;
+    public final boolean isByteCodeReversed;
+    public final Obligation generalOblg;
 
-    public IfThenElseStmt(SSAConditionalBranchInstruction original, Expression condition, Stmt thenStmt, Stmt elseStmt) {
+    public IfThenElseStmt(SSAConditionalBranchInstruction original, Expression condition, Stmt thenStmt, Stmt elseStmt, boolean genuine, boolean isByteCodeReversed, Obligation generalOblg ) {
         this.original = original;
         this.condition = condition;
         this.thenStmt = thenStmt;
         this.elseStmt = elseStmt;
+        this.genuine = genuine;
+        this.isByteCodeReversed = isByteCodeReversed;
+        this.generalOblg = generalOblg;
     }
 
     @Override

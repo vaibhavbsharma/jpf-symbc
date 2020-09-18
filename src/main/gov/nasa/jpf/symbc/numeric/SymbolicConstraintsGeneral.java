@@ -44,10 +44,7 @@ import gov.nasa.jpf.symbc.numeric.solvers.*;
 import za.ac.sun.cs.green.expr.IntVariable;
 import za.ac.sun.cs.green.expr.RealVariable;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 
 import static gov.nasa.jpf.symbc.numeric.PCParser.*;
@@ -60,22 +57,18 @@ public class SymbolicConstraintsGeneral {
     protected Boolean result; // tells whether result is satisfiable or not
 
     public boolean isSatisfiable(PathCondition pc) {
-            long t0 = System.nanoTime();
+        long t0 = System.nanoTime();
         if (pc == null || pc.count == 0) {
-            if (SymbolicInstructionFactory.debugMode)
-                System.out.println("## Warning: empty path condition");
+            if (SymbolicInstructionFactory.debugMode) System.out.println("## Warning: empty path condition");
             return true;
         }
 
         if (pc.count() > SymbolicInstructionFactory.maxPcLength) {
-            System.out.println("## Warning: Path condition exceeds symbolic.max_pc_length="
-                    + SymbolicInstructionFactory.maxPcLength + ".  Pretending it is unsatisfiable.");
+            System.out.println("## Warning: Path condition exceeds symbolic.max_pc_length=" + SymbolicInstructionFactory.maxPcLength + ".  Pretending it is unsatisfiable.");
             return false;
         }
-        if (SymbolicInstructionFactory.maxPcMSec > 0 && System.currentTimeMillis()
-                - SymbolicInstructionFactory.startSystemMillis > SymbolicInstructionFactory.maxPcMSec) {
-            System.out.println("## Warning: Exploration time exceeds symbolic.max_pc_msec="
-                    + SymbolicInstructionFactory.maxPcMSec + ".  Pretending all paths are unsatisfiable.");
+        if (SymbolicInstructionFactory.maxPcMSec > 0 && System.currentTimeMillis() - SymbolicInstructionFactory.startSystemMillis > SymbolicInstructionFactory.maxPcMSec) {
+            System.out.println("## Warning: Exploration time exceeds symbolic.max_pc_msec=" + SymbolicInstructionFactory.maxPcMSec + ".  Pretending all paths are unsatisfiable.");
             return false;
         }
 
@@ -120,41 +113,35 @@ public class SymbolicConstraintsGeneral {
         // equivalent to a CFG analysis
         else if (dp[0].equalsIgnoreCase("no_solver")) {
             return true;
-        } else
-            throw new RuntimeException(
-                    "## Error: unknown decision procedure symbolic.dp=" + dp[0] + "\n(use choco or IAsolver or CVC3)");
+        } else throw new RuntimeException("## Error: unknown decision procedure symbolic.dp=" + dp[0] + "\n(use choco or IAsolver or CVC3)");
 
 
+        VeritestingListener.solverAllocTime += (System.nanoTime() - t0);
+        long t1 = System.nanoTime();
+        /*
+         * Parse path condition to solver. Note: do not override the actual pb
+         * variable in case the result is null. The cleanup afterwards will not
+         * work otherwise and the solver gets filled up with wrong assertions,
+         * e.g. with Z3.
+         */
+        ProblemGeneral tempPb = PCParser.parse(pc, pb);
+        VeritestingListener.parseTime += (System.nanoTime() - t1);
 
-    VeritestingListener.solverAllocTime += (System.nanoTime() - t0);
-    long t1 = System.nanoTime();
-    /*
-     * Parse path condition to solver. Note: do not override the actual pb
-     * variable in case the result is null. The cleanup afterwards will not
-     * work otherwise and the solver gets filled up with wrong assertions,
-     * e.g. with Z3.
-     */
-    ProblemGeneral tempPb = PCParser.parse(pc, pb);
-    VeritestingListener.parseTime += (System.nanoTime() - t1);
-
-        if (tempPb == null)
-            result = Boolean.FALSE;
+        if (tempPb == null) result = Boolean.FALSE;
         else {
             pb = tempPb;
 
             // YN: z3 optimize
             if (Observations.lastObservedSymbolicExpression != null) {
                 if (pb instanceof ProblemZ3Optimize) {
-                    ((ProblemZ3Optimize) pb).maximize(
-                            PCParser.getExpression((IntegerExpression) Observations.lastObservedSymbolicExpression));
+                    ((ProblemZ3Optimize) pb).maximize(PCParser.getExpression((IntegerExpression) Observations.lastObservedSymbolicExpression));
                 }
             }
 
             result = pb.solve();
         }
 
-        if (SymbolicInstructionFactory.debugMode)
-            System.out.println("numeric PC: " + pc + " -> " + result + "\n");
+        if (SymbolicInstructionFactory.debugMode) System.out.println("numeric PC: " + pc + " -> " + result + "\n");
 
         if (SymbolicInstructionFactory.regressMode) {
             String output = "##NUMERIC PC: ";
@@ -176,14 +163,12 @@ public class SymbolicConstraintsGeneral {
 
     public boolean isSatisfiableGreen(PathCondition pc) {
         if (pc == null || pc.count == 0) {
-            if (SymbolicInstructionFactory.debugMode)
-                System.out.println("## Warning: empty path condition");
+            if (SymbolicInstructionFactory.debugMode) System.out.println("## Warning: empty path condition");
             return true;
         }
         result = pc.solve();
 
-        if (SymbolicInstructionFactory.debugMode)
-            System.out.println(" --> " + pc + " -> " + result);
+        if (SymbolicInstructionFactory.debugMode) System.out.println(" --> " + pc + " -> " + result);
 
         if (result == null) {
             return false;
@@ -214,12 +199,10 @@ public class SymbolicConstraintsGeneral {
         // if (SymbolicInstructionFactory.debugMode)
         // System.out.println("solving: PC " + pc);
 
-        if (pc == null || pc.count == 0)
-            return true;
+        if (pc == null || pc.count == 0) return true;
 
         String[] dp = SymbolicInstructionFactory.dp;
-        if (dp[0].equalsIgnoreCase("no_solver"))
-            return true;
+        if (dp[0].equalsIgnoreCase("no_solver")) return true;
 
         if (isSatisfiable(pc)) {
 
@@ -272,15 +255,13 @@ public class SymbolicConstraintsGeneral {
              */
             cleanup();
             return true;
-        } else
-            return false;
+        } else return false;
     }
 
     /**
      * The "ProblemCompare" solver calls this to deal with yices and choco refinements of solution ranges.
      */
-    public Map<SymbolicReal, Object> catchBody(Map<SymbolicReal, Object> realVars, ProblemGeneral prob,
-            PathCondition pc) {
+    public Map<SymbolicReal, Object> catchBody(Map<SymbolicReal, Object> realVars, ProblemGeneral prob, PathCondition pc) {
         Set<Entry<SymbolicReal, Object>> sym_realvar_mappings;
         Iterator<Entry<SymbolicReal, Object>> i_real;
 
@@ -348,7 +329,7 @@ public class SymbolicConstraintsGeneral {
                     SymbolicReal pcVar = e.getKey();
                     Object dpVar = e.getValue();
                     double e_value = pb.getRealValue(dpVar); // may be undefined: throws an exception
-                    pcVar.solution = e_value; 
+                    pcVar.solution = e_value;
                     result.put(pcVar.getName(), e_value);
                 }
             } catch (Exception exp) {
@@ -395,4 +376,219 @@ public class SymbolicConstraintsGeneral {
         }
     }
 
+
+    /**
+     * Soha Hussein: Tries to find valuations to multiple symInts with a single solver call.
+     *
+     * @param pc
+     * @param symIntList
+     * @return
+     */
+    public Map<String, Object> solveWithValuation(PathCondition pc, List<SymbolicInteger> symIntList, List<IntVariable> intVariableList) {
+        Map<String, Object> result = new HashMap<String, Object>();
+
+        if (pc == null || pc.count == 0) {
+            return result;
+        }
+
+        String[] dp = SymbolicInstructionFactory.dp;
+        if (dp[0].equalsIgnoreCase("no_solver")) {
+            return result;
+        }
+
+        if (isSatisfiable(pc)) {
+
+            // compute solutions for real variables:
+            Set<Entry<SymbolicReal, Object>> sym_realvar_mappings = PCParser.symRealVar.entrySet();
+            Iterator<Entry<SymbolicReal, Object>> i_real = sym_realvar_mappings.iterator();
+
+            try {
+                sym_realvar_mappings = PCParser.symRealVar.entrySet();
+                i_real = sym_realvar_mappings.iterator();
+                while (i_real.hasNext()) {
+                    Entry<SymbolicReal, Object> e = i_real.next();
+                    SymbolicReal pcVar = e.getKey();
+                    Object dpVar = e.getValue();
+                    double e_value = pb.getRealValue(dpVar); // may be undefined: throws an exception
+                    pcVar.solution = e_value;
+                    result.put(pcVar.getName(), e_value);
+                }
+            } catch (Exception exp) {
+                this.catchBody(PCParser.symRealVar, pb, pc);
+            }
+            for (SymbolicInteger symInt : symIntList)
+                if (symInt != null && !symIntegerVar.containsKey(symInt) && globalsymIntegerVar.containsKey(symInt)) {
+                    symIntegerVar.put(symInt, globalsymIntegerVar.get(symInt));
+                }
+
+            for (IntVariable intVar : intVariableList)
+                if (!intVariableMap.containsKey(intVar) && globalintVariableMap.containsKey(intVar)) {
+                    intVariableMap.put(intVar, globalintVariableMap.get(intVar));
+                }
+
+
+            // compute solutions for integer variables
+            Set<Entry<SymbolicInteger, Object>> sym_intvar_mappings = PCParser.symIntegerVar.entrySet();
+            Iterator<Entry<SymbolicInteger, Object>> i_int = sym_intvar_mappings.iterator();
+            // try {
+            while (i_int.hasNext()) {
+                Entry<SymbolicInteger, Object> e = i_int.next();
+                long e_value = pb.getIntValue(e.getValue());
+                e.getKey().solution = e_value;
+                result.put(e.getKey().getName(), e_value);
+
+            }
+
+// compute solutions for IntVariable objects in the model
+            final Set<Entry<IntVariable, Object>> intVariableSet = intVariableMap.entrySet();
+            final Iterator<Entry<IntVariable, Object>> intVariableItr = intVariableSet.iterator();
+            while (intVariableItr.hasNext()) {
+                final Entry<IntVariable, Object> e = intVariableItr.next();
+                long e_value = pb.getIntValue(e.getValue());
+                result.put(e.getKey().getName(), e_value);
+            }
+// compute solutions for RealVariable objects in the model
+            final Set<Entry<RealVariable, Object>> realVariableSet = PCParser.realVariableMap.entrySet();
+            final Iterator<Entry<RealVariable, Object>> realVariableItr = realVariableSet.iterator();
+            while (realVariableItr.hasNext()) {
+                final Entry<RealVariable, Object> e = realVariableItr.next();
+                double e_value = pb.getRealValue(e.getValue());
+                result.put(e.getKey().getName(), e_value);
+            }
+            cleanup();
+            return result;
+        } else {
+            return result;
+        }
+    }
+
+
+    public Map<String, Object> solveWithValuation(PathCondition pc, List<String> typeAgnosticVarList) {
+        Map<String, Object> result = new HashMap<String, Object>();
+
+        if (pc == null || pc.count == 0) {
+            return result;
+        }
+
+        String[] dp = SymbolicInstructionFactory.dp;
+        if (dp[0].equalsIgnoreCase("no_solver")) {
+            return result;
+        }
+        if (IncrementalListener.solver != null)
+            IncrementalListener.solver.push();
+        if (isSatisfiable(pc)) {
+
+            // compute solutions for real variables:
+            Set<Entry<SymbolicReal, Object>> sym_realvar_mappings = PCParser.symRealVar.entrySet();
+            Iterator<Entry<SymbolicReal, Object>> i_real = sym_realvar_mappings.iterator();
+
+            try {
+                sym_realvar_mappings = PCParser.symRealVar.entrySet();
+                i_real = sym_realvar_mappings.iterator();
+                while (i_real.hasNext()) {
+                    Entry<SymbolicReal, Object> e = i_real.next();
+                    SymbolicReal pcVar = e.getKey();
+                    Object dpVar = e.getValue();
+                    double e_value = pb.getRealValue(dpVar); // may be undefined: throws an exception
+                    pcVar.solution = e_value;
+                    result.put(pcVar.getName(), e_value);
+                }
+            } catch (Exception exp) {
+                this.catchBody(PCParser.symRealVar, pb, pc);
+            }
+
+            for (String typeAgnosticVar : typeAgnosticVarList) {
+
+                SymbolicInteger symVar = listStringContains(symIntegerVar.keySet(), typeAgnosticVar);
+                SymbolicInteger globalSymVar = listStringContains(globalsymIntegerVar.keySet(), typeAgnosticVar);
+                IntVariable intVar = new IntVariable(typeAgnosticVar, (int) MinMax.getVarMinInt(typeAgnosticVar), (int) MinMax.getVarMaxInt(typeAgnosticVar));
+
+                if (typeAgnosticVar != null && symVar == null && globalSymVar != null) {
+                    symIntegerVar.put(globalSymVar, globalsymIntegerVar.get(globalSymVar));
+                } else if (!intVariableMap.containsKey(intVar)) {
+                    IntVariable globalIntVar = listStringContainsGreen(globalintVariableMap.keySet(), typeAgnosticVar);
+                    if (globalIntVar != null) {
+                        intVariableMap.put(globalIntVar, globalintVariableMap.get(globalIntVar));
+                    }
+                }
+            }
+
+            // compute solutions for integer variables
+            Set<Entry<SymbolicInteger, Object>> sym_intvar_mappings = PCParser.symIntegerVar.entrySet();
+            Iterator<Entry<SymbolicInteger, Object>> i_int = sym_intvar_mappings.iterator();
+            // try {
+            while (i_int.hasNext()) {
+                Entry<SymbolicInteger, Object> e = i_int.next();
+
+                //SH: I have so far setup generation of test cases from BitVectorIncremental Solver.
+//                assert (PCParser.pb instanceof ProblemZ3BitVectorIncremental) : "Must use BitVectorIncremental solver. Assumptions violated. Failing.";
+//                if (((ProblemZ3BitVectorIncremental) PCParser.pb).checkExistsInModel(e.getValue())) {
+                // SH: the above if check seems to be needed when I turn on Z3BitVectorIncremental when the solver query does not contain the variable in e.getValue(). Here I just tried to check and avoid calling the solver if it does not exit. The interesting thing however is that similar thing is not obervable when I turn on z3inc.
+                long e_value = pb.getIntValue(e.getValue());
+                e.getKey().solution = e_value;
+                result.put(e.getKey().getName(), e_value);
+                /*} else {//if it is not in the PCParser then its value in the test case is irrelevant
+                    e.getKey().solution = Long.MAX_VALUE;
+                    result.put(e.getKey().getName(), Long.MAX_VALUE);
+                }*/
+            }
+
+// compute solutions for IntVariable objects in the model
+            final Set<Entry<IntVariable, Object>> intVariableSet = intVariableMap.entrySet();
+            final Iterator<Entry<IntVariable, Object>> intVariableItr = intVariableSet.iterator();
+            while (intVariableItr.hasNext()) {
+                final Entry<IntVariable, Object> e = intVariableItr.next();
+                long e_value = pb.getIntValue(e.getValue());
+                result.put(e.getKey().getName(), e_value);
+            }
+// compute solutions for RealVariable objects in the model
+            final Set<Entry<RealVariable, Object>> realVariableSet = PCParser.realVariableMap.entrySet();
+            final Iterator<Entry<RealVariable, Object>> realVariableItr = realVariableSet.iterator();
+            while (realVariableItr.hasNext()) {
+                final Entry<RealVariable, Object> e = realVariableItr.next();
+                double e_value = pb.getRealValue(e.getValue());
+                result.put(e.getKey().getName(), e_value);
+            }
+            cleanup();
+            if (IncrementalListener.solver != null)
+                IncrementalListener.solver.pop();
+            return result;
+        } else {
+            if (IncrementalListener.solver != null)
+                IncrementalListener.solver.pop();
+            return result;
+        }
+    }
+
+    /**
+     * we used this not so nice search since CompareTo of SymbolicInteger uses also unique field, but we only want to compare via the string name of the var.
+     *
+     * @param keySet
+     * @param typeAgnosticVar
+     * @return
+     */
+    private SymbolicInteger listStringContains(Set<SymbolicInteger> keySet, String typeAgnosticVar) {
+        for (SymbolicInteger symInt : keySet) {
+            if (symInt.toString().equals(typeAgnosticVar)) return symInt;
+        }
+        return null;
+    }
+
+
+    /**
+     * this is again very ridiculous, I needed that because the name of the IntVariable which is used in the "equals" method uses the initial value or the original value. I just need here to match the name not the value too. I am cutting away anything after "[" that indicates an initial value coming.
+     *
+     * @param keySet
+     * @param typeAgnosticVar
+     * @return
+     */
+    private IntVariable listStringContainsGreen(Set<IntVariable> keySet, String typeAgnosticVar) {
+        if (typeAgnosticVar.contains("[")) typeAgnosticVar = typeAgnosticVar.substring(0, typeAgnosticVar.indexOf("["));
+        for (IntVariable symInt : keySet) {
+            String symIntStr = symInt.toString();
+            if (symIntStr.contains("[")) symIntStr = symIntStr.substring(0, symIntStr.indexOf("["));
+            if (symIntStr.equals(typeAgnosticVar)) return symInt;
+        }
+        return null;
+    }
 }

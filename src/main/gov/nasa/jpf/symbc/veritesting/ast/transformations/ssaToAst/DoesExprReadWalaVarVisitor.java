@@ -1,11 +1,6 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst;
 
-import gov.nasa.jpf.symbc.veritesting.ast.def.ArrayRefVarExpr;
-import gov.nasa.jpf.symbc.veritesting.ast.def.AstVarExpr;
-import gov.nasa.jpf.symbc.veritesting.ast.def.FieldRefVarExpr;
-import gov.nasa.jpf.symbc.veritesting.ast.def.GammaVarExpr;
-import gov.nasa.jpf.symbc.veritesting.ast.def.IfThenElseExpr;
-import gov.nasa.jpf.symbc.veritesting.ast.def.WalaVarExpr;
+import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.InputTable;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.SlotParamTable;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprMapVisitor;
@@ -88,6 +83,16 @@ public class DoesExprReadWalaVarVisitor implements ExprVisitor<Boolean> {
     @Override
     public Boolean visit(WalaVarExpr expr) {
         return expr.equals(walaVarExpr);
+    }
+
+    @Override
+    public Boolean visit(InternalJRVar expr) {
+        return false;
+    }
+
+    @Override
+    public Boolean visit(InternalJRSsaVar expr) {
+        return false;
     }
 
     @Override

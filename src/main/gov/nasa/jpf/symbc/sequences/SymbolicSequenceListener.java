@@ -116,7 +116,7 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
 	// 'methodSequences' is a set of 'methodSequence's
 	// A single 'methodSequence' is a vector of invoked 'method's along a path
 	// A single invoked 'method' is represented as a String.
- 	Set<Vector> methodSequences = new LinkedHashSet<Vector>();
+ 	static  Set<Vector> methodSequences = new LinkedHashSet<Vector>();
 
  	// Name of the class under test
  	String className ="";

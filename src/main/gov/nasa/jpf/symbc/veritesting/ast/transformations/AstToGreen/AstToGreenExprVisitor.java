@@ -121,6 +121,16 @@ public class AstToGreenExprVisitor implements ExprVisitor<Expression> {
     }
 
     @Override
+    public Expression visit(InternalJRVar expr) {
+        return bad(expr);
+    }
+
+    @Override
+    public Expression visit(InternalJRSsaVar expr) {
+        return bad(expr);
+    }
+
+    @Override
     public Expression visit(FieldRefVarExpr expr) {
         return bad(expr);
     }
