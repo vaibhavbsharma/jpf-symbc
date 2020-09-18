@@ -40,6 +40,11 @@ public class SimplifyRangerExprVisitor extends ExprMapVisitor implements ExprVis
     }
 
     @Override
+    public Expression visit(InternalJRSsaVar expr) {
+        return lookup(expr);
+    }
+
+    @Override
     public Expression visit(FieldRefVarExpr expr) {
         return lookup(expr);
     }
