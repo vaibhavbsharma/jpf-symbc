@@ -1,4 +1,4 @@
-package alarm;
+package examples.veritesting.alarm;
 
 /* Block signals for model 'ALARM_Functional' */
 

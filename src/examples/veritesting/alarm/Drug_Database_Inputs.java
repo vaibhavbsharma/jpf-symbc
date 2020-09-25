@@ -1,4 +1,4 @@
-package alarm;
+package examples.veritesting.alarm;
 
 public class Drug_Database_Inputs {
 

@@ -1,4 +1,4 @@
-package alarm;
+package examples.veritesting.alarm;
 
 public class Infusion_Manager_Outputs {
     public int Commanded_Flow_Rate;

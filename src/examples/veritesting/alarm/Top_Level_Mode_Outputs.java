@@ -1,4 +1,4 @@
-package alarm;
+package examples.veritesting.alarm;
 
 public class Top_Level_Mode_Outputs {
     boolean System_On;

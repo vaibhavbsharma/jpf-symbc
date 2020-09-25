@@ -1,4 +1,4 @@
-package alarm;
+package examples.veritesting.alarm;
 
 public class Device_Sensor_Inputs {
 

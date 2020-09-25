@@ -1,4 +1,4 @@
-package alarm;
+package examples.veritesting.alarm;
 
 
 import static alarm.Div_s32.div_s32;

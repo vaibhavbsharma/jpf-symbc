@@ -1,4 +1,4 @@
-package alarm;
+package examples.veritesting.alarm;
 
 /* Block states (auto storage) for model 'ALARM_Functional' */
 public class DW_ALARM_Functional_f_T {

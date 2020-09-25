@@ -1,4 +1,4 @@
-package alarm;
+package examples.veritesting.alarm;
 
 public class Config_Outputs {
     int Patient_ID;

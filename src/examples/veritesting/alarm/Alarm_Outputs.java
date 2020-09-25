@@ -1,4 +1,4 @@
-package alarm;
+package examples.veritesting.alarm;
 
 public class Alarm_Outputs {
     int Is_Audio_Disabled;
