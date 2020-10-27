@@ -21,8 +21,10 @@ public class WalaUtil {
 
         if (symbolTable.isBooleanConstant(walaId) || symbolTable.isIntegerConstant(walaId))
             return new IntConstant((Integer) symbolTable.getConstantValue(walaId));
-        else if (symbolTable.isFloatConstant(walaId) || symbolTable.isDoubleConstant(walaId))
+        else if (symbolTable.isDoubleConstant(walaId))
             return new RealConstant((Double) symbolTable.getConstantValue(walaId));
+        else if (symbolTable.isFloatConstant(walaId))
+            return new RealConstant(((Float) symbolTable.getConstantValue(walaId)).doubleValue());
         else if (symbolTable.isTrue(walaId))
             return new IntConstant(1);
         else if (symbolTable.isFalse(walaId))
