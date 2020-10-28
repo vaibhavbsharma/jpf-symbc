@@ -1,7 +1,9 @@
 #target=svcomp.CWE369_Divide_by_Zero__float_connect_tcp_divide_01_good.Main
 #target=svcomp.StringContains02.Main
 #target=svcomp.BellmanFordFunUnsat01.Main
-target=svcomp.CWE369_Divide_by_Zero__float_console_readLine_divide_54_bad.Main
+#target=svcomp.CWE369_Divide_by_Zero__float_console_readLine_divide_54_bad.Main
+target=svcomp.replace5_eqchk.MainProp1
+#target=svcomp.replace5_eqchk.MainProp2
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
 symbolic.dp=z3bitvector 
 symbolic.min_int=-10000 
