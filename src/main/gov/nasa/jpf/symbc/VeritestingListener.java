@@ -113,6 +113,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public enum VeritestingMode {VANILLASPF, VERITESTING, HIGHORDER, SPFCASES, EARLYRETURNS}
 
+    public static StaticBranchChoiceGenerator advancedSBCG = null;
+
 
     public static boolean performanceMode = false;
     // reads in a exclusionsFile configuration option, set to ${jpf-symbc}/MyJava60RegressionExclusions.txt by default
@@ -331,7 +333,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 // SH: I am commenting the skipping out because it needs to pass replace_eqk check first. The main problem is that we think that we
                 // are skipping a non useful region, when in fact we are in the process of executing the then-side of a StaticBranchChoiceGenerator.
                 // this condition results in skipping the veritesting code, including the execution of the if-bytecode, a soundness problem.
-                if (isAllowedRegion(key)) { //!skipVeriRegions.contains(key) &&
+                if (!skipVeriRegion(vm) && isAllowedRegion(key)) { //!skipVeriRegions.contains(key) &&
                     if (isSymCond(ti, instructionToExecute)) {
                         thisHighOrdCount = 0;
                         staticRegion = JITAnalysis.discoverRegions(ti, instructionToExecute, key); // Just-In-Time static analysis to discover regions
@@ -352,7 +354,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                     // SH: I am commenting the skipping out because it needs to pass replace_eqk check first. The main problem is that we think that we
                     // are skipping a non useful region, when in fact we are in the process of executing the then-side of a StaticBranchChoiceGenerator.
                     // this condition results in skipping the veritesting code, including the execution of the if-bytecode.
-                    if ((staticRegion != null) && !(staticRegion.isMethodRegion) && isAllowedRegion(key)) { // && !skipVeriRegions.contains(key)
+                    if ((staticRegion != null) && !(staticRegion.isMethodRegion) && !skipVeriRegion(vm) && isAllowedRegion(key)) { // && !skipVeriRegions.contains(key)
                         thisHighOrdCount = 0;
                         //if (SpfUtil.isSymCond(staticRegion.staticStmt)) {
                         if (SpfUtil.isSymCond(ti, staticRegion.staticStmt, (SlotParamTable) staticRegion.slotParamTable, instructionToExecute)) {
@@ -393,6 +395,17 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             updateSkipRegions(e.getMessage(), key);
             writeRegionDigest();
         }
+    }
+
+    /**
+     * skipping a region is only allowed if it has been identified as not beneficial and if we are not hitting this region because the choice generator is trying to execute on of it spfcases choices,
+     * because if it is trying to execute a choice of spf case we should not ignore the region at that point, we should however delegate the execute to the if-bytecode in java ranger.
+     *
+     * @param vm
+     * @return
+     */
+    private boolean skipVeriRegion(VM vm) {
+        return (skipVeriRegions.contains(key) && advancedSBCG != null && advancedSBCG != vm.getChoiceGenerator());
     }
 
 
@@ -578,11 +591,14 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     @Override
     public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
+        if (currentCG instanceof StaticBranchChoiceGenerator)
+            advancedSBCG = (StaticBranchChoiceGenerator) currentCG;
         System.out.println("choiceGeneratorAdvanced(" + currentCG.getClass() + ")");
     }
 
     @Override
     public void stateAdvanced(Search search) {
+        advancedSBCG = null;
         System.out.println("stateAdvanced");
 
     }
