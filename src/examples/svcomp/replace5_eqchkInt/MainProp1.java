@@ -1,15 +1,12 @@
-package svcomp.replace5_eqchk;
+package svcomp.replace5_eqchkInt;
 
 import org.sosy_lab.sv_benchmarks.Verifier;
 
 public class MainProp1 {
 
   public static void main(String[] args) {
-    char c0 = Verifier.nondetChar();
-    char c1 = Verifier.nondetChar();
-    char c2 = Verifier.nondetChar();
-    char c3 = Verifier.nondetChar();
-    char c4 = Verifier.nondetChar();
+    int c0 = Verifier.nondetInt();
+    int c1 = Verifier.nondetInt();
     Replace r = new Replace();
     r.mainProcess(c0, c1);
 //    Replace.reset(); // not resetting the internal state of replace causes a verification failure

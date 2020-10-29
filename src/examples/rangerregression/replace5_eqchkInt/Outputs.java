@@ -1,4 +1,4 @@
-package svcomp.replace5_eqchk;
+package rangerregression.replace5_eqchkInt;
 
 public class Outputs {
   public int[] intOutputs;
