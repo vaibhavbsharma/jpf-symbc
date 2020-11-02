@@ -333,7 +333,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 // SH: I am commenting the skipping out because it needs to pass replace_eqk check first. The main problem is that we think that we
                 // are skipping a non useful region, when in fact we are in the process of executing the then-side of a StaticBranchChoiceGenerator.
                 // this condition results in skipping the veritesting code, including the execution of the if-bytecode, a soundness problem.
-                if (!skipVeriRegion(vm) && isAllowedRegion(key)) { //!skipVeriRegions.contains(key) &&
+                if (isAllowedRegion(key)) { //!skipVeriRegions.contains(key) &&
                     if (isSymCond(ti, instructionToExecute)) {
                         thisHighOrdCount = 0;
                         staticRegion = JITAnalysis.discoverRegions(ti, instructionToExecute, key); // Just-In-Time static analysis to discover regions
@@ -354,7 +354,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                     // SH: I am commenting the skipping out because it needs to pass replace_eqk check first. The main problem is that we think that we
                     // are skipping a non useful region, when in fact we are in the process of executing the then-side of a StaticBranchChoiceGenerator.
                     // this condition results in skipping the veritesting code, including the execution of the if-bytecode.
-                    if ((staticRegion != null) && !(staticRegion.isMethodRegion) && !skipVeriRegion(vm) && isAllowedRegion(key)) { // && !skipVeriRegions.contains(key)
+                    if ((staticRegion != null) && !(staticRegion.isMethodRegion) && isAllowedRegion(key)) { // && !skipVeriRegions.contains(key)
                         thisHighOrdCount = 0;
                         //if (SpfUtil.isSymCond(staticRegion.staticStmt)) {
                         if (SpfUtil.isSymCond(ti, staticRegion.staticStmt, (SlotParamTable) staticRegion.slotParamTable, instructionToExecute)) {
