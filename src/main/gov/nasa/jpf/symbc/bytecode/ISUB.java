@@ -58,6 +58,12 @@ public class ISUB extends gov.nasa.jpf.jvm.bytecode.ISUB {
             int v1 = sf.pop();
             int v2 = sf.pop();
 
+            // Java Ranger change: this change is required to get NanoXML to not crash because it ends up being used in
+            // the JPF model of charAt in JPF_java_lang_String (using executeNative). This should not matter because
+            // we're setting up the parameter to charAt to be a symbolic expression but somehow JPF_java_lang_String's
+            // charAt still ends up being used. TODO figure out why this happens and configure NanoXML correctly
+            sf.push(0, false); // for symbolic expressions, the concrete value does not matter
+
             IntegerExpression result = null;
             if (sym_v2 != null) {
                 if (sym_v1 != null)
@@ -70,16 +76,13 @@ public class ISUB extends gov.nasa.jpf.jvm.bytecode.ISUB {
             if (result instanceof IntegerConstant) { // SH: if the output of the subtraction is constant, like subtracting a symbolic variable from itself produces zero, then just propagate the concerte value of the computation
                 long resultVal = ((IntegerConstant) result).value;
                 assert resultVal<MinMax.getVarMaxInt("") && resultVal > MinMax.getVarMinInt(""): "unexpected constant value to be pushed on the frame";
-                sf.push((int) resultVal);
+                sf.pop();
+                sf.push((int) resultVal, false);
                 return getNext(th);
             } else
+
                 sf.setOperandAttr(result);
 
-            // Java Ranger change: this change is required to get NanoXML to not crash because it ends up being used in
-            // the JPF model of charAt in JPF_java_lang_String (using executeNative). This should not matter because
-            // we're setting up the parameter to charAt to be a symbolic expression but somehow JPF_java_lang_String's
-            // charAt still ends up being used. TODO figure out why this happens and configure NanoXML correctly
-            sf.push(0, false); // for symbolic expressions, the concrete value does not matter
 
             return getNext(th);
         }
