@@ -96,6 +96,8 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         AnalysisOptions options = new AnalysisOptions();
         options.getSSAOptions().setPiNodePolicy(SSAOptions.getAllBuiltInPiNodes());
         IAnalysisCacheView cache = new AnalysisCacheImpl(options.getSSAOptions());
+        if(m == null) // a constructor TODO: look for the case when this turned off for NanoXML
+            return;
         IR ir = cache.getIR(m, Everywhere.EVERYWHERE);
 
         String walaPackageName = CoverageUtil.getWalaPackageName(m);

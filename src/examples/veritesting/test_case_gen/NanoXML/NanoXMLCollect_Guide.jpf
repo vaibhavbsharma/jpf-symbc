@@ -1,0 +1,25 @@
+target=veritesting.nanoxmlTCG.DumpXML
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+symbolic.method = veritesting.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
+
+vm.storage.class=nil
+symbolic.debug=false
+
+#listener = .symbc.SymbolicListener
+
+jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
+
+#symbolic.dp=z3
+
+symbolic.dp=z3inc
+listener = .symbc.BranchListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+#symbolic.optimizechoices=false
+
+branchCoverageOn=true
+targetAbsPath=${jpf-symbc}/build/examples/veritesting/nanoxmlTCG/DumpXML.class
+#coverageExclusions=Lveritesting/nanoxmlTCG/DumpXML.main([Ljava/lang/String)V
+
+coverageMode=3
+
