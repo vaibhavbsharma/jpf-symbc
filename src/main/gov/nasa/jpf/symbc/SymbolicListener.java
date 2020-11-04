@@ -123,7 +123,7 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
     public void propertyViolated(Search search) {
 
         VM vm = search.getVM();
-
+        System.out.println("the depth of violation is" + search.getDepth());
         ChoiceGenerator<?> cg = vm.getChoiceGenerator();
         if (!(cg instanceof PCChoiceGenerator)) {
             ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();

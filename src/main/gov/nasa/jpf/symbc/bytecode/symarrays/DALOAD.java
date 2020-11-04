@@ -104,7 +104,14 @@ public class DALOAD extends gov.nasa.jpf.jvm.bytecode.DALOAD {
               arrayAttr = ArrayExpression.create(arrayInfo.toString(), arrayInfo.arrayLength());
               for (int i = 0; i < arrayInfo.arrayLength(); i++) {
                   double arrValue = arrayInfo.getDoubleElement(i);
-                  pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), new RealConstant(arrValue));
+                  //SH: added a case to handle when the elements of the array are symbolic, before doing the first arrayload
+                  if(arrayInfo.getElementAttr(i) == null)
+                      pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), new RealConstant(arrValue));
+                  else
+                      if(arrayInfo.getElementAttr(i) instanceof IntegerExpression)
+                          pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), (IntegerExpression) arrayInfo.getElementAttr(i));
+                      else
+                          assert false : "unexpected expression type for array element. Failing.";
               }
           } else {
               arrayAttr = (ArrayExpression)peekArrayAttr(ti);

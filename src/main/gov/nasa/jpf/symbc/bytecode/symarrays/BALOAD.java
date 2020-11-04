@@ -6,13 +6,13 @@
  * The Java Pathfinder core (jpf-core) platform is licensed under the
  * Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -65,7 +65,7 @@ public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
 
           if (peekArrayAttr(ti)==null || !(peekArrayAttr(ti) instanceof ArrayExpression)) {
               // In this case, the array isn't symbolic
-              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) { 
+              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) {
                  // In this case, the index isn't symbolic either
                  return super.execute(ti);
               }
@@ -97,7 +97,7 @@ public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
 
           if (peekArrayAttr(ti)==null || !(peekArrayAttr(ti) instanceof ArrayExpression)) {
               // In this case, the array isn't symbolic
-              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) { 
+              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) {
                   // In this case, the index isn't symbolic either
                   return super.execute(ti);
               }
@@ -106,10 +106,17 @@ public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
               arrayAttr = ArrayExpression.create(arrayInfo.toString(), arrayInfo.arrayLength());
               for (int i = 0; i < arrayInfo.arrayLength(); i++) {
                 byte arrValue = arrayInfo.getByteElement(i);
-                pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), new IntegerConstant(arrValue));
+                  //SH: added a case to handle when the elements of the array are symbolic, before doing the first arrayload
+                  if(arrayInfo.getElementAttr(i) == null)
+                      pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), new IntegerConstant(arrValue));
+                  else
+                  if(arrayInfo.getElementAttr(i) instanceof IntegerExpression)
+                      pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), (IntegerExpression) arrayInfo.getElementAttr(i));
+                  else
+                      assert false : "unexpected expression type for array element. Failing.";
               }
           } else {
-              arrayAttr = (ArrayExpression)peekArrayAttr(ti); 
+              arrayAttr = (ArrayExpression)peekArrayAttr(ti);
           }
           IntegerExpression indexAttr = null;
           SelectExpression se = null;
@@ -118,7 +125,7 @@ public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
               // In this case, the index isn't symbolic.
               index = frame.peek();
               indexAttr = new IntegerConstant(index);
-          } else {          
+          } else {
               indexAttr = (IntegerExpression)peekIndexAttr(ti);
           }
 
@@ -167,6 +174,6 @@ public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
                   ti.getVM().getSystemState().setIgnored(true);
                   return getNext(ti);
               }
-          }	 
+          }
       }
 }
