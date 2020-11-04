@@ -6,13 +6,13 @@
  * The Java Pathfinder core (jpf-core) platform is licensed under the
  * Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -43,7 +43,7 @@ import gov.nasa.jpf.vm.ThreadInfo;
  * ..., arrayref, index => ..., value
  */
 public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
-	 
+
 	 @Override
 	  public Instruction execute (ThreadInfo ti) {
           StackFrame frame = ti.getModifiableTopFrame();
@@ -63,7 +63,7 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
 
           if (peekArrayAttr(ti)==null || !(peekArrayAttr(ti) instanceof ArrayExpression)) {
               // In this case, the array isn't symbolic
-              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) { 
+              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) {
                  // In this case, the index isn't symbolic either
                  return super.execute(ti);
               }
@@ -95,7 +95,7 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
 
           if (peekArrayAttr(ti)==null || !(peekArrayAttr(ti) instanceof ArrayExpression)) {
               // In this case, the array isn't symbolic
-              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) { 
+              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) {
                   // In this case, the index isn't symbolic either
                   return super.execute(ti);
               }
@@ -104,10 +104,16 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
               arrayAttr = ArrayExpression.create(arrayInfo.toString(), arrayInfo.arrayLength());
               for (int i = 0; i < arrayInfo.arrayLength(); i++) {
                 int arrValue = arrayInfo.getIntElement(i);
-                pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), new IntegerConstant(arrValue));
+                if(arrayInfo.getElementAttr(i) == null)
+                    pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), new IntegerConstant(arrValue));
+                else
+                    if(arrayInfo.getElementAttr(i) instanceof IntegerExpression)
+                        pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), (IntegerExpression) arrayInfo.getElementAttr(i));
+                    else
+                        assert false;
               }
           } else {
-              arrayAttr = (ArrayExpression)peekArrayAttr(ti); 
+              arrayAttr = (ArrayExpression)peekArrayAttr(ti);
           }
           IntegerExpression indexAttr = null;
           SelectExpression se = null;
@@ -117,7 +123,7 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
               index = frame.peek();
               indexAttr = new IntegerConstant(index);
 
-          } else {          
+          } else {
               indexAttr = (IntegerExpression)peekIndexAttr(ti);
           }
 
@@ -163,12 +169,12 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
                   // We add the select instruction in the PathCondition
                   pc._addDet(Comparator.EQ,se, val);
                   pc.arrayExpressions.put(arrayAttr.getRootName(), arrayAttr);
-		          return getNext(ti); 
+		          return getNext(ti);
               }
               else {
                   ti.getVM().getSystemState().setIgnored(true);
                   return getNext(ti);
               }
-          }	 
+          }
       }
 }

@@ -58,10 +58,67 @@ public class Replace {
     patPara[2] = '\0';
     char[] pat = new char[patLen];
     int patResult = makepat(patPara, pat);
+    if (patResult <= 0) {
+      System.out.println("Challege: illegal pattern!");
+      return new char[] {};
+    }
 
-    return new char[]{};
+    char[] subPara = new char[subParaLen];
+    subPara[0] = i2;
+    subPara[1] = i3;
+    subPara[2] = '\0';
+    char[] sub = new char[subLen];
+    int subResult = makesub(subPara, sub);
+    if (subResult <= 0) {
+      System.out.println("Challege: illegal sub");
+    }
+
+    char[] str = new char[strLen];
+    str[0] = i4;
+
+    str[1] = '\0';
+
+    change(str, pat, sub);
+    for (int i = 0; i < printBuf.length; i++) printBuf[i] = '0';
+    char[] retChar = new char[pat.length + sub.length + str.length + printBuf.length];
+    for (int i = 0; i < printBuf.length; i++) printBuf[i] = '0';
+    int outIndex = 0;
+    for (int i = 0; i < pat.length; i++) retChar[outIndex++] = pat[i];
+    for (int i = 0; i < sub.length; i++) retChar[outIndex++] = sub[i];
+    for (int i = 0; i < str.length; i++) retChar[outIndex++] = str[i];
+    for (int i = 0; i < printBufLen; i++) retChar[outIndex++] = printBuf[i];
+
+    return retChar;
   }
 
+  private static void change(char[] lin, char[] pat, char[] sub) {
+
+    int lastm = -1;
+    int i = 0;
+
+    while (lin[i] != ENDSTR) {
+      strIndex = i;
+
+      int m = amatch(lin, pat, 0);
+      if (m >= 0) {
+        if (lastm != m) {
+          putsub(lin, i, m, sub);
+          lastm = m;
+        }
+      }
+      if (m == -1) {
+        System.out.print(lin[i]);
+        if (printBufIdx < printBuf.length) printBuf[printBufIdx++] = lin[i];
+        i = i + 1;
+      } else if (m == i) {
+        System.out.print(lin[i]);
+        if (printBufIdx < printBuf.length) printBuf[printBufIdx++] = lin[i];
+        i = i + 1;
+      } else {
+        i = m;
+      }
+    }
+  }
 
   private static void putsub(char[] lin, int s1, int s2, char[] sub) {
     int i = 0;

@@ -1,3 +1,4 @@
+package svcomp.SatFibonacci01;
 /*
  * Origin of the benchmark:
  *     license: MIT (see /java/jayhorn-recursive/LICENSE)

@@ -3,10 +3,13 @@
 #target=svcomp.BellmanFordFunUnsat01.Main
 #target=svcomp.CWE369_Divide_by_Zero__float_console_readLine_divide_54_bad.Main
 #target=svcomp.replace5_eqchkReduced.MainProp1
-target=svcomp.replace5_eqchk.MainProp1
+target=svcomp.replace5_eqchk.MainProp2
 #target=svcomp.replace5_eqchkInt.MainProp1
 #target=svcomp.replace5_eqchkChar.MainProp1
 #target=svcomp.nanoxml_eqchk.MainProp2
+#target=svcomp.SatFibonacci01.Main
+#target=svcomp.VeritestingPerf.Main
+#target=svcomp.array1.Main
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
 symbolic.dp=z3bitvector 
@@ -15,15 +18,19 @@ symbolic.max_int=10000
 symbolic.min_double=-10000.0 
 symbolic.max_double=10000.0 
 symbolic.bvlength=64 
-search.depth_limit=46
+search.depth_limit=13
 symbolic.strings=false 
 symbolic.string_dp=z3str
 symbolic.lazy=on 
-symbolic.arrays=true 
-veritestingMode = 3
+symbolic.arrays=true
+veritestingMode = 5
 recursiveDepth= 12 
 listener = .symbc.VeritestingListener
 #,.symbc.SymbolicListener
 #listener = .symbc.SymbolicListener
+#,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 singlePathOptimization=true
 symbolic.optimizechoices=false
+
+
+#symbolic.debug=true

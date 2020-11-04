@@ -24,17 +24,17 @@ public class Replace {
         boolean done = false;
         boolean continueIndex = false;
 
-        if (patPara[patParaIndex] != ENDSTR)
+        if (patPara[patParaIndex] != ENDSTR) //T
             continueIndex = true;
 
-        while (continueIndex) {
+        while (continueIndex) { //T
             //main region
-            if (patPara[patParaIndex] == CCL) {
+            if (patPara[patParaIndex] == CCL) { //T
                 patParaIndex = patParaIndex + 1;
-                if (patPara[patParaIndex] == NEGATE)
+//                assert patParaIndex < 3;
+                if (patPara[patParaIndex] == NEGATE) //JR
                     patParaIndex = patParaIndex + 1; //field output patParaIndex
-                assert patParaIndex < 3;
-                boolean getres = patPara[patParaIndex] == CCLEND;
+                boolean getres = patPara[patParaIndex] == CCLEND; //F
                 done = (!getres); //local output done
             }
 
