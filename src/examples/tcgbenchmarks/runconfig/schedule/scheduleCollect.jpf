@@ -1,7 +1,7 @@
 target=tcgbenchmarks.schedule2_3.Schedule2
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.schedule2_3.Schedule2.mainProcess(sym#sym#sym)
+symbolic.method = tcgbenchmarks.schedule2_3.Schedule2.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
 
 vm.storage.class=nil
 symbolic.debug=false

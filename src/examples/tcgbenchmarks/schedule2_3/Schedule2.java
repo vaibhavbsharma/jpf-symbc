@@ -28,8 +28,25 @@ public class Schedule2 {
 	public static int block_out;
 
 	public static void main(String[] args) {
-		mainProcess(5, 3, 2);
+		launch(5, 3, 2,5, 3, 2,5, 3, 2,5, 3, 2,5, 3, 2);
 	}
+
+
+	public static void launch(int pedal1, int auto1, int skid1,
+							  int pedal2, int auto2, int skid2,
+							  int pedal3, int auto3, int skid3,
+							  int pedal4, int auto4, int skid4,
+							  int pedal5, int auto5, int skid5) {
+
+		int maxSteps = Integer.parseInt(System.getenv("MAX_STEPS"));
+
+		if (maxSteps-- > 0) Schedule2.mainProcess(pedal1, auto1, skid1);
+		if (maxSteps-- > 0) Schedule2.mainProcess(pedal2, auto2, skid2);
+		if (maxSteps-- > 0) Schedule2.mainProcess(pedal3, auto3, skid3);
+		if (maxSteps-- > 0) Schedule2.mainProcess(pedal4, auto4, skid4);
+		if (maxSteps-- > 0) Schedule2.mainProcess(pedal5, auto5, skid5);
+	}
+
 
 	public static void mainProcess(int a1, int a2, int a3){
 		next_pid = 0; // not having this line causes inequivalence
