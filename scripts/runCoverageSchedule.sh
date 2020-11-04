@@ -29,10 +29,10 @@ MAX_STEPS=$2 && export MAX_STEPS
 echo "maxsteps is $MAX_STEPS"
 
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_steps$2.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect_Prune.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect_Guide.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_Guide_steps$2.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_Prune_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect.jpf >& $COVERAGEDIR/logs/schedule/scheduleCollect_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Prune.jpf >& $COVERAGEDIR/logs/schedule/scheduleCollect_Prune_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Guide.jpf >& $COVERAGEDIR/logs/schedule/scheduleCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/schedule/scheduleCollect_Prune_Guide_steps$2.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLJR_Collect.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLJRCollect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLJR_Collect_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.jpf >& $COVERAGEDIR/logs/schedule/scheduleJRCollect_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/schedule/scheduleJR_Collect_Guide_steps$2.log
