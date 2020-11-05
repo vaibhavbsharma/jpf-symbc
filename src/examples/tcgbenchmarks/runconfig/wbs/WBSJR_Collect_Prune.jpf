@@ -28,3 +28,5 @@ coverageExclusions=Ltcgbenchmarks/wbs/WBS.launch(IZZIZZIZZIZZIZZ)V
 veritestingMode = 3
 coverageMode=6
 performanceMode=true
+
+evaluationMode=true

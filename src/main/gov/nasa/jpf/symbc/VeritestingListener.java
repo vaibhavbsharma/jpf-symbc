@@ -112,6 +112,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public enum VeritestingMode {VANILLASPF, VERITESTING, HIGHORDER, SPFCASES, EARLYRETURNS}
 
+    public static boolean printState = true;
 
     public static boolean performanceMode = false;
     // reads in a exclusionsFile configuration option, set to ${jpf-symbc}/MyJava60RegressionExclusions.txt by default
@@ -199,6 +200,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (conf.hasValue("veritestRegionExpectedCount"))
                 veritestRegionExpectedCount = conf.getInt("veritestRegionExpectedCount");
+
+            if (conf.hasValue("printState"))
+                printState = conf.getBoolean("printState");
 
             if (conf.hasValue("instantiationLimit"))
                 instantiationLimit = conf.getInt("instantiationLimit");
@@ -539,37 +543,43 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
-        System.out.println("threadTerminated");
+        if (printState && !performanceMode)
+            System.out.println("threadTerminated");
         npaths++;
         super.threadTerminated(vm, terminatedThread);
     }
 
     @Override
     public void threadStarted(VM vm, ThreadInfo startedThread) {
-        System.out.println("threadStarted");
+        if (printState && !performanceMode)
+            System.out.println("threadStarted");
         //super.threadTerminated(vm, terminatedThread);
     }
 
     @Override
     public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
-        System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
+        if (printState && !performanceMode)
+            System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
     }
 
     @Override
     public void stateAdvanced(Search search) {
-        System.out.println("stateAdvanced");
+        if (printState && !performanceMode)
+            System.out.println("stateAdvanced");
 
     }
 
     @Override
     public void stateBacktracked(Search search) {
-        System.out.println("stateBacktracked");
+        if (printState && !performanceMode)
+            System.out.println("stateBacktracked");
 
     }
 
     @Override
     public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
-        System.out.println("choiceGeneratorProcessed: at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+        if (printState && !performanceMode)
+            System.out.println("choiceGeneratorProcessed: at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
     }
 
     private DynamicRegion runVeritesting(ThreadInfo ti, Instruction instructionToExecute, StaticRegion staticRegion,

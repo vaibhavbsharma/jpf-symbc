@@ -21,3 +21,4 @@ targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/wbs/WBS.class
 coverageExclusions=Ltcgbenchmarks/wbs/WBS.launch(IZZIZZIZZIZZIZZ)V
 
 coverageMode=4
+evaluationMode=true

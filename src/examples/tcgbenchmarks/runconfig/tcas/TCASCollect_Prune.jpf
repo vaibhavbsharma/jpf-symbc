@@ -24,3 +24,4 @@ coverageExclusions=Ltcgbenchmarks/tcas/tcas.main([Ljava/lang/String)V
 
 coverageMode=2
 
+evaluationMode=true

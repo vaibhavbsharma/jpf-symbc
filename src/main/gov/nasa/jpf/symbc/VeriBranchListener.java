@@ -28,7 +28,7 @@ import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.collectVeritestingCoverage;
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.getVeriNeedsCoverageOblg;
 
-public class VeriBranchListener extends BranchListener {
+public class VeriBranchListener extends gov.nasa.jpf.symbc.BranchListener {
     public static HashSet<Obligation> newCoveredOblg = new HashSet<>();
 
     public VeriBranchListener(Config conf, JPF jpf) {
@@ -43,7 +43,7 @@ public class VeriBranchListener extends BranchListener {
             else { //default setting for coverage
                 coverageMode = CoverageMode.JRCOLLECT_PRUNE_GUIDE;
             }
-            VeritestingListener.simplify = false;
+            gov.nasa.jpf.symbc.VeritestingListener.simplify = false;
         }
 
         if (conf.hasValue("TestCaseGenerationMode")) {
@@ -83,7 +83,7 @@ public class VeriBranchListener extends BranchListener {
                 }
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
-                if (instructionToExecute instanceof IfInstruction && (!VeritestingListener.veritestingSuccessful)) {
+                if (instructionToExecute instanceof IfInstruction && (!gov.nasa.jpf.symbc.VeritestingListener.veritestingSuccessful)) {
                     isSymBranchInst = SpfUtil.isSymCond(ti, instructionToExecute);
                     if (isSymBranchInst) {
                         if ((coverageMode == CoverageMode.JRCOLLECT_GUIDE) ||
@@ -105,7 +105,7 @@ public class VeriBranchListener extends BranchListener {
         if ((executedInstruction instanceof IfInstruction)) {
 //            isSymBranchInst = SpfUtil.isSymCond(currentThread, instructionToExecute);
 //            if (isSymBranchInst && !VeritestingListener.veritestingSuccessful)
-            if (!VeritestingListener.veritestingSuccessful)
+            if (!gov.nasa.jpf.symbc.VeritestingListener.veritestingSuccessful)
                 super.instructionExecuted(vm, currentThread, nextInstruction, executedInstruction);
         }
     }

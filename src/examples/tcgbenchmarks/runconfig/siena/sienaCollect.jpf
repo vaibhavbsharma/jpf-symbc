@@ -1,7 +1,7 @@
-target=tcgbenchmarks.schedule2_3.Schedule2
+target=tcgbenchmarks.siena.SENPDriver
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.schedule2_3.Schedule2.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+symbolic.method = tcgbenchmarks.siena.SENPDriver.mainProcess(sym#sym#sym#sym#sym#sym#con#con#con)
 
 vm.storage.class=nil
 symbolic.debug=false
@@ -18,7 +18,8 @@ listener = .symbc.BranchListener,gov.nasa.jpf.symbc.sequences.SymbolicSequenceLi
 #symbolic.optimizechoices=false
 
 #branchCoverageOn=true
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/schedule2_3/Schedule2.class
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/siena/SENPDriver.class
 
 coverageMode=1
+
 evaluationMode=true

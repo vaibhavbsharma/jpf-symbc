@@ -20,3 +20,4 @@ branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/wbs/WBS.class
 coverageExclusions=Ltcgbenchmarks/wbs/WBS.launch(IZZIZZIZZIZZIZZ)V
 coverageMode=1
+evaluationMode=true
