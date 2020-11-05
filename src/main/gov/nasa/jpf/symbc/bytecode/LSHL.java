@@ -49,7 +49,8 @@ public class LSHL extends gov.nasa.jpf.jvm.bytecode.LSHL {
 	    	if (sym_v1 != null) {
 	    		if (sym_v2 != null) {
 					//result = sym_v1._shiftL(sym_v2);
-					result = sym_v2._shiftL(sym_v1);
+					BinaryLinearIntegerExpression sym_shift_val = new BinaryLinearIntegerExpression((IntegerExpression) sym_v1, Operator.AND, new IntegerConstant(63));
+					result = sym_v2._shiftL(sym_shift_val);
 				}
 	    		else { // v2 is concrete
 					//result = sym_v1._shiftL(v2);

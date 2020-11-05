@@ -19,8 +19,10 @@
 package gov.nasa.jpf.symbc.bytecode;
 
 
+import gov.nasa.jpf.symbc.numeric.BinaryLinearIntegerExpression;
 import gov.nasa.jpf.symbc.numeric.IntegerConstant;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
+import gov.nasa.jpf.symbc.numeric.Operator;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
@@ -42,11 +44,13 @@ public class ISHL extends gov.nasa.jpf.jvm.bytecode.ISHL {
 			if(sym_v1!=null) {
 				if (sym_v2!=null) {
 					//result = sym_v1._shiftL(sym_v2);
-					result = sym_v2._shiftL(sym_v1);
+					BinaryLinearIntegerExpression sym_shift_val = new BinaryLinearIntegerExpression((IntegerExpression) sym_v1, Operator.AND, new IntegerConstant(31));
+					result = sym_v2._shiftL(sym_shift_val);
 				}
 				else { // v2 is concrete
 					//result = sym_v1._shiftL(v2);
-					result = (new IntegerConstant((int) v2))._shiftL(sym_v1);
+					BinaryLinearIntegerExpression sym_shift_val = new BinaryLinearIntegerExpression((IntegerExpression) sym_v1, Operator.AND, new IntegerConstant(31));
+					result = (new IntegerConstant((int) v2))._shiftL(sym_shift_val);
 				}
 			}
 			else if (sym_v2 != null) {
