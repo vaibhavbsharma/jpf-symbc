@@ -87,6 +87,7 @@ public class LCMP extends gov.nasa.jpf.jvm.bytecode.LCMP {
             assert pc != null;
 
             if (conditionValue == -1) {
+                sf.push(-1);
                 if (sym_v1 != null) {
                     if (sym_v2 != null) { // both are symbolic values
                         pc._addDet(Comparator.LT, sym_v2, sym_v1);
@@ -101,6 +102,7 @@ public class LCMP extends gov.nasa.jpf.jvm.bytecode.LCMP {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                 }
             } else if (conditionValue == 0) {
+                sf.push(0);
                 if (sym_v1 != null) {
                     if (sym_v2 != null) { // both are symbolic values
                         pc._addDet(Comparator.EQ, sym_v1, sym_v2);
@@ -114,6 +116,7 @@ public class LCMP extends gov.nasa.jpf.jvm.bytecode.LCMP {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                 }
             } else { // 1
+                sf.push(1);
                 if (sym_v1 != null) {
                     if (sym_v2 != null) { // both are symbolic values
                         pc._addDet(Comparator.GT, sym_v2, sym_v1);

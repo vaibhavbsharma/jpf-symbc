@@ -1,4 +1,4 @@
-/*
+package svcomp.StringBuilderChars03;/*
  * Origin of the benchmark:
  *     license: 4-clause BSD (see /java/jbmc-regression/LICENSE)
  *     repo: https://github.com/diffblue/cbmc.git

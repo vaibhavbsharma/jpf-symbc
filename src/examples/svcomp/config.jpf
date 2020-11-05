@@ -10,17 +10,21 @@
 #target=svcomp.SatFibonacci01.Main
 #target=svcomp.VeritestingPerf.Main
 #target=svcomp.array1.Main
-target=svcomp.nanoxml_eqchk.MainProp2
+#target=svcomp.nanoxml_eqchk.MainProp2
+#target=svcomp.StringBuilderChars03.Main
+#target=svcomp.shifting2.Main
+target=svcomp.shifting.Main
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
-symbolic.dp=z3bitvector 
+symbolic.dp=z3bitvector
+#symbolic.dp=z3bitvectorinc
 symbolic.min_int=-10000 
 symbolic.max_int=10000 
-symbolic.min_double=-10000.0 
-symbolic.max_double=10000.0 
+#symbolic.min_double=-10000.0
+#symbolic.max_double=10000.0
 symbolic.bvlength=64 
 search.depth_limit=13
-symbolic.strings=false 
+symbolic.strings=false
 symbolic.string_dp=z3str
 symbolic.lazy=on 
 symbolic.arrays=true
@@ -34,4 +38,4 @@ singlePathOptimization=true
 symbolic.optimizechoices=false
 
 
-#symbolic.debug=true
+symbolic.debug=true
