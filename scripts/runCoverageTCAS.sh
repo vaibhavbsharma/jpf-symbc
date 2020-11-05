@@ -9,9 +9,9 @@ then
 fi
 
 if [ "$1" = "mac" ]; then
-  alias runCoverage='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/Users/sohahussein/git/java-ranger/lib TARGET_CLASSPATH_WALA=/Users/sohahussein/git/java-ranger/build/examples/ java -Djava.library.path=/Users/sohahussein/git/java-ranger/lib  -ea -Xmx2000m -Dfile.encoding=UTF-8 -jar /Users/sohahussein/git/jpf-core/build/RunJPF.jar '
+  alias runCoverage='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/Users/sohahussein/git/rangerCopy/java-ranger/lib TARGET_CLASSPATH_WALA=/Users/sohahussein/git/rangerCopy/java-ranger/build/examples/ java -Djava.library.path=/Users/sohahussein/git/rangerCopy/java-ranger/lib  -ea -Xmx2000m -Dfile.encoding=UTF-8 -jar /Users/sohahussein/git/jpf-core/build/RunJPF.jar '
 else
-  alias runCoverage='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/soha/git/java-ranger/lib TARGET_CLASSPATH_WALA=/home/soha/git/java-ranger/build/examples/ java -Djava.library.path=/home/soha/git/java-ranger/lib  -ea -Xmx2000m -Dfile.encoding=UTF-8 -jar /home/soha/git/jpf-core/build/RunJPF.jar '
+  alias runCoverage='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/soha/git/rangerCopy/java-ranger/lib TARGET_CLASSPATH_WALA=/home/soha/git/rangerCopy/java-ranger/build/examples/ java -Djava.library.path=/home/soha/git/rangerCopy/java-ranger/lib  -ea -Xmx2000m -Dfile.encoding=UTF-8 -jar /home/soha/git/jpf-core/build/RunJPF.jar '
 fi
 
 #-Xmx1024m
@@ -19,9 +19,9 @@ fi
 shopt -s expand_aliases
 
 if [ "$1" = "mac" ]; then
-  COVERAGEDIR=/Users/sohahussein/git/java-ranger
+  COVERAGEDIR=/Users/sohahussein/git/rangerCopy/java-ranger
 else
-  COVERAGEDIR=/home/soha/git/java-ranger
+  COVERAGEDIR=/home/soha/git/rangerCopy/java-ranger
 fi
 
 MAX_STEPS=$2 && export MAX_STEPS

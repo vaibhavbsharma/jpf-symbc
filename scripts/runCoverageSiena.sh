@@ -29,10 +29,10 @@ MAX_STEPS=$2 && export MAX_STEPS
 echo "maxsteps is $MAX_STEPS"
 
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_steps$2.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect_Prune.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect_Guide.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_Guide_steps$2.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_Prune_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaCollect.jpf >& $COVERAGEDIR/logs/siena/sienaCollect_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaCollect_Prune.jpf >& $COVERAGEDIR/logs/siena/sienaCollect_Prune_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaCollect_Guide.jpf >& $COVERAGEDIR/logs/siena/sienaCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/siena/sienaCollect_Prune_Guide_steps$2.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLJR_Collect.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLJRCollect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLJR_Collect_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.jpf >& $COVERAGEDIR/logs/siena/sienaJRCollect_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/siena/sienaJR_Collect_Guide_steps$2.log

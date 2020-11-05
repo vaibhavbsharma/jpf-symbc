@@ -29,10 +29,10 @@ MAX_STEPS=$2 && export MAX_STEPS
 echo "maxsteps is $MAX_STEPS"
 
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_steps$2.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect_Prune.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect_Guide.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_Guide_steps$2.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLCollect_Prune_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Prune.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Prune_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Prune_Guide_steps$2.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLJR_Collect.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLJRCollect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/NanoXML/NanoXMLJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/NanoXML/NanoXMLJR_Collect_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJR_Collect_Guide_steps$2.log
