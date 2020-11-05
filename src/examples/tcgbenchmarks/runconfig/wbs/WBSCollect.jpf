@@ -1,7 +1,7 @@
 target=tcgbenchmarks.wbs.WBS
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.wbsWBS.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+symbolic.method = tcgbenchmarks.wbs.WBS.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
 vm.storage.class=nil
 symbolic.debug=false
 
