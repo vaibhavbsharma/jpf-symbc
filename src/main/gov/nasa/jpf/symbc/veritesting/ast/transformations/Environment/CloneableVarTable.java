@@ -5,6 +5,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.def.CloneableVariable;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.DONTKNOW;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 
@@ -68,8 +69,10 @@ public class CloneableVarTable<T> {
      * */
 
     public void print() {
-        System.out.println("\nprinting " + tableName+" ("+ label1 + "->" + label2 +")");
-        table.forEach((v1, v2) -> System.out.println(v1 + " --------- " + v2));
+        if(verboseVeritesting){
+            System.out.println("\nprinting " + tableName+" ("+ label1 + "->" + label2 +")");
+            table.forEach((v1, v2) -> System.out.println(v1 + " --------- " + v2));
+        }
     }
 
     /**

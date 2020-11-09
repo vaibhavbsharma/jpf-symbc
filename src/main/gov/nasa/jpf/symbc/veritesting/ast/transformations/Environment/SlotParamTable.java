@@ -3,9 +3,10 @@ package gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment;
 import com.ibm.wala.ssa.*;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.Stmt;
-import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.ExprBoundaryVisitor;
 
 import java.util.*;
+
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 /**
  * This is the basic table, on which the input and output of the region are defined.
@@ -203,8 +204,9 @@ public class SlotParamTable extends StaticTable<int[]> {
 
     @Override
     public void print() {
-        System.out.println("\nRegion Stack Slot Map (var -> " + (isMethodRegion ? "param" : "slot") + ")");
-        table.forEach((var, stackSlots) -> System.out.println("@w" + var + " --------- " + Arrays.toString(stackSlots)));
-    }
+        if(verboseVeritesting) {
+            System.out.println("\nRegion Stack Slot Map (var -> " + (isMethodRegion ? "param" : "slot") + ")");
+            table.forEach((var, stackSlots) -> System.out.println("@w" + var + " --------- " + Arrays.toString(stackSlots)));
+        }}
 
 }

@@ -7,15 +7,13 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicReg
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeEarlyReturns.RemoveEarlyReturns;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.*;
 import za.ac.sun.cs.green.expr.Expression;
-import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.Operation;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeEarlyReturns.RemoveEarlyReturns.ReturnResult;
 import za.ac.sun.cs.green.expr.Variable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.isConstant;
@@ -204,9 +202,10 @@ public class SpfToGreenVisitor implements AstVisitor<Expression> {
         }
 
 
-        System.out.println("\n--------------- SPFCases GREEN PREDICATE ---------------");
-        System.out.println(StmtPrintVisitor.print(spfPredicateSummary));
-
+        if(verboseVeritesting) {
+            System.out.println("\n--------------- SPFCases GREEN PREDICATE ---------------");
+            System.out.println(StmtPrintVisitor.print(spfPredicateSummary));
+        }
         DynamicRegion greenDynRegion = new DynamicRegion(dynRegion,
                 dynRegion.dynStmt,
                 dynRegion.spfCaseList,

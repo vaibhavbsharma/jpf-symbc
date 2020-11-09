@@ -11,6 +11,7 @@ import za.ac.sun.cs.green.expr.*;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.STATIC;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 
@@ -49,15 +50,18 @@ public class SSAUtil {
     }
 
     public static void printBlock(ISSABasicBlock block) {
-        System.out.println("Basic block: " + block);
-        for (SSAInstruction ins: block) {
-            System.out.println("  Instruction: " + ins);
-        }
-        System.out.println("End of block: " + block);
+        if(verboseVeritesting){
+            System.out.println("Basic block: " + block);
+            for (SSAInstruction ins: block) {
+                 System.out.println("  Instruction: " + ins);
+            }
+            System.out.println("End of block: " + block);
+         }
     }
 
     public static void printBlocksUpTo(SSACFG cfg, int blockNum) {
-        for (int i = 1; i <= blockNum; i++) {
+        if(verboseVeritesting)
+            for (int i = 1; i <= blockNum; i++) {
             printBlock(cfg.getNode(i));
         }
     }

@@ -7,7 +7,6 @@ import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases.SPFCaseList;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess.SubscriptPair;
-import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.FixedPointAstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
@@ -17,7 +16,7 @@ import za.ac.sun.cs.green.expr.*;
 import java.util.Arrays;
 import java.util.Map;
 
-import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.compose;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.getInitialArrayValues;
@@ -224,9 +223,10 @@ public class ArraySSAVisitor extends FixedPointAstMapVisitor {
         Stmt arrayStmt = dynRegion.dynStmt.accept(this);
         instantiatedRegion = new DynamicRegion(dynRegion, arrayStmt, new SPFCaseList(), null, null, dynRegion.earlyReturnResult);
         instantiatedRegion.arrayOutputs = this.arrayExpressions;
-        System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
-        System.out.println(instantiatedRegion.arrayOutputs);
-
+        if(verboseVeritesting) {
+            System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
+            System.out.println(instantiatedRegion.arrayOutputs);
+        }
         return instantiatedRegion;
     }
 }

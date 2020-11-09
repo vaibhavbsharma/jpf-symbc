@@ -11,6 +11,8 @@ import gov.nasa.jpf.symbc.veritesting.ast.visitors.FixedPointAstMapVisitor;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
+
 /**
  * This class is called multiple times over different transformations. What it does is that it keeps a common state among all
  * transformations, that is was called on.
@@ -141,7 +143,8 @@ public class FixedPointWrapper {
         FixedPointWrapper.regionBefore = dynRegion;
         DynamicRegion intermediateRegion;
 
-        System.out.println("========================================= RUNNING FIXED POINT ITERATION # " + FixedPointWrapper.iterationNumber + "=========================================");
+        if(verboseVeritesting)
+            System.out.println("========================================= RUNNING FIXED POINT ITERATION # " + FixedPointWrapper.iterationNumber + "=========================================");
         if (FixedPointWrapper.iterationNumber > 1)
             FixedPointWrapper.resetIteration();
 
@@ -152,14 +155,16 @@ public class FixedPointWrapper {
         collectTransformationState(substitutionVisitor);
 
 
-        System.out.println("\n--------------- FIELD REFERENCE TRANSFORMATION ---------------\n");
+        if(verboseVeritesting)
+            System.out.println("\n--------------- FIELD REFERENCE TRANSFORMATION ---------------\n");
         FieldSSAVisitor fieldSSAVisitor = new FieldSSAVisitor(ti, intermediateRegion);
         intermediateRegion = fieldSSAVisitor.execute();
         collectTransformationState(fieldSSAVisitor);
 
 
         /* Array substitution iteration */
-        System.out.println("\n--------------- ARRAY TRANSFORMATION ---------------\n");
+        if(verboseVeritesting)
+            System.out.println("\n--------------- ARRAY TRANSFORMATION ---------------\n");
         ArraySSAVisitor arraySSAVisitor = new ArraySSAVisitor(ti, intermediateRegion);
         intermediateRegion = arraySSAVisitor.execute();
         collectTransformationState(arraySSAVisitor);
@@ -186,7 +191,8 @@ public class FixedPointWrapper {
         FixedPointWrapper.regionBefore = dynRegion;
         DynamicRegion intermediateRegion;
 
-        System.out.println("========================================= RUNNING HIGH-ORDER ONE EXTRA TIME AFTER FIXED POINT ITERATION# " + FixedPointWrapper.iterationNumber + "=========================================");
+        if(verboseVeritesting)
+            System.out.println("========================================= RUNNING HIGH-ORDER ONE EXTRA TIME AFTER FIXED POINT ITERATION# " + FixedPointWrapper.iterationNumber + "=========================================");
         FixedPointWrapper.resetChange();
 
         SubstitutionVisitor highOrderVisitor = SubstitutionVisitor.create(ti, dynRegion, 0, true);

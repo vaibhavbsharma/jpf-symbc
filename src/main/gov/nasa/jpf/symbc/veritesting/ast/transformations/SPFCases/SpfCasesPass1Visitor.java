@@ -1,8 +1,6 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases;
 
-import com.ibm.wala.ssa.*;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
-import gov.nasa.jpf.symbc.veritesting.ast.transformations.AstToGreen.NoSkipVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
@@ -15,7 +13,8 @@ import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.Operation;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 
 public class SpfCasesPass1Visitor implements AstVisitor<Stmt> {
@@ -211,9 +210,10 @@ public class SpfCasesPass1Visitor implements AstVisitor<Stmt> {
         Stmt dynStmt = dynRegion.dynStmt.accept(visitor);
 
 
-        System.out.println("--------------- SPFCases TRANSFORMATION 1ST PASS ---------------");
-        System.out.println(StmtPrintVisitor.print(dynStmt));
-
+        if(verboseVeritesting) {
+            System.out.println("--------------- SPFCases TRANSFORMATION 1ST PASS ---------------");
+            System.out.println(StmtPrintVisitor.print(dynStmt));
+        }
         return new DynamicRegion(dynRegion,
                 dynStmt,
                 new SPFCaseList(), null, null, dynRegion.earlyReturnResult);

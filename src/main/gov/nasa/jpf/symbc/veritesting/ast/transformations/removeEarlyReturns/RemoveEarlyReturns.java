@@ -16,6 +16,8 @@ import za.ac.sun.cs.green.expr.Operation;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
+
 /**
  * This class removes early return statements.
  * <p>
@@ -282,7 +284,8 @@ Similar things can be done for SPF Cases.
  */
 
     public StaticRegion analyze(StaticRegion region) throws StaticRegionException, InvalidClassFileException {
-        System.out.println("\nRegion prior to removeEarlyReturns: " +
+        if(verboseVeritesting)
+            System.out.println("\nRegion prior to removeEarlyReturns: " +
                 PrettyPrintVisitor.print(region.staticStmt));
         ReturnResult stmtResult = doStmt(new ReturnResult(region.staticStmt));
         Stmt resultStmt;
@@ -314,7 +317,8 @@ Similar things can be done for SPF Cases.
             resultStmt = stmtResult.stmt;
 
 
-        System.out.println("\nRegion after removeEarlyReturns: " +
+        if(verboseVeritesting)
+            System.out.println("\nRegion after removeEarlyReturns: " +
                 StmtPrintVisitor.print(resultStmt));
         // VarTypeTable varTypeTable = new VarTypeTable(region.varTypeTable);
 
@@ -328,9 +332,11 @@ Similar things can be done for SPF Cases.
     public static StaticRegion removeEarlyReturns(StaticRegion region) throws StaticRegionException, InvalidClassFileException {
         RemoveEarlyReturns rer = new RemoveEarlyReturns(region);
         StaticRegion condRegion = ConditionReturns.execute(region);
-        System.out.println("region after conditional returns addition :\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
+        if(verboseVeritesting)
+            System.out.println("region after conditional returns addition :\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
         StaticRegion internalJRVarRemovedRegion = CreateInternalJRSsaVars.execute(condRegion);
-        System.out.println("region after conditional returns removal:\n" + PrettyPrintVisitor.print(internalJRVarRemovedRegion.staticStmt));
+        if(verboseVeritesting)
+            System.out.println("region after conditional returns removal:\n" + PrettyPrintVisitor.print(internalJRVarRemovedRegion.staticStmt));
         StaticRegion result = rer.analyze(internalJRVarRemovedRegion);
         return result;
     }

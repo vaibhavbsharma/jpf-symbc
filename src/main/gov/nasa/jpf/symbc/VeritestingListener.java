@@ -126,6 +126,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public static CoverageCriteria coverageCriteria;
     public static boolean veritestingSuccessful = false;
+    public static boolean verboseVeritesting = false;
 
     public String[] regionKeys = {"replace.amatch([C[CI)I#160",
             "replace.amatch([C[CI)I#77",
@@ -183,12 +184,18 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (conf.hasValue("performanceMode"))
                 performanceMode = conf.getBoolean("performanceMode");
+
             if (conf.hasValue("jpf-symbc")) {
                 exclusionsFile = conf.getString("jpf-symbc") + "/MyJava60RegressionExclusions.txt";
             }
             if (conf.hasValue("jitAnalysis")) {
                 jitAnalysis = conf.getBoolean("jitAnalysis");
             }
+
+            if (conf.hasValue("verboseVeritesting")) {
+                verboseVeritesting = conf.getBoolean("verboseVeritesting");
+            }
+
             if (conf.hasValue("exclusionsFile")) {
                 exclusionsFile = conf.getString("exclusionsFile");
                 if (jitAnalysis) {
@@ -416,10 +423,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
             runOnSamePath(ti, instructionToExecute, dynRegion);
             System.out.println("------------- Region was successfully veritested --------------- ");
-
         } else {
             checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
+            System.out.println("------------- Region was successfully veritested --------------- ");
         }
         if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
             VeriObligationMgr.addSymbolicOblgMap(CollectObligationsVisitor.oblgToExprsMap);
@@ -574,20 +581,22 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
-        System.out.println("threadTerminated");
+        if (verboseVeritesting)
+            System.out.println("threadTerminated");
         npaths++;
         super.threadTerminated(vm, terminatedThread);
     }
 
     @Override
     public void threadStarted(VM vm, ThreadInfo startedThread) {
-        System.out.println("threadStarted");
+        if (verboseVeritesting)
+            System.out.println("threadStarted");
         //super.threadTerminated(vm, terminatedThread);
     }
 
     @Override
     public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
-        if (nextCG instanceof PCChoiceGenerator)
+        if (nextCG instanceof PCChoiceGenerator && verboseVeritesting)
             System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
     }
 
@@ -595,25 +604,29 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
         if (currentCG instanceof StaticBranchChoiceGenerator)
             advancedSBCG = (StaticBranchChoiceGenerator) currentCG;
-        System.out.println("choiceGeneratorAdvanced(" + currentCG.getClass() + ")");
+        if (verboseVeritesting)
+            System.out.println("choiceGeneratorAdvanced(" + currentCG.getClass() + ")");
     }
 
     @Override
     public void stateAdvanced(Search search) {
         advancedSBCG = null;
-        System.out.println("stateAdvanced");
+        if (verboseVeritesting)
+            System.out.println("stateAdvanced");
 
     }
 
     @Override
     public void stateBacktracked(Search search) {
-        System.out.println("stateBacktracked");
+        if (verboseVeritesting)
+            System.out.println("stateBacktracked");
 
     }
 
     @Override
     public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
-        System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+        if (verboseVeritesting)
+            System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
     }
 
     private DynamicRegion runVeritesting(ThreadInfo ti, Instruction instructionToExecute, StaticRegion staticRegion,

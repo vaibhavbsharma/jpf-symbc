@@ -7,23 +7,20 @@ import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.StatisticManager;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicTable;
-import gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayExpressions;
-import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.FixedPointAstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
 import za.ac.sun.cs.green.expr.Expression;
-import za.ac.sun.cs.green.expr.Operation;
 import za.ac.sun.cs.green.expr.Variable;
 
 import java.util.Iterator;
 import java.util.Map;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ClassUtils.getType;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.*;
-import static za.ac.sun.cs.green.expr.Operation.Operator.EQ;
 
 public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
     public ExprVisitorAdapter<Expression> eva;
@@ -167,14 +164,19 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
             instantiatedRegion.constantsTable = this.constantsTable;
         else dynRegion.constantsTable.addAll(this.constantsTable);
 //            simplifyArrayOutputs(dynRegion);
-        System.out.println("\n--------------- AFTER SIMPLIFICATION ---------------\n");
-        System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
-        Iterator<Map.Entry<Variable, Expression>> itr = instantiatedRegion.constantsTable.table.entrySet().iterator();
-        System.out.println("Constants Table:");
-        while (itr.hasNext()) {
-            Map.Entry<Variable, Expression> entry = itr.next();
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+        if(verboseVeritesting) {
+            System.out.println("\n--------------- AFTER SIMPLIFICATION ---------------\n");
+            System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
         }
+        Iterator<Map.Entry<Variable, Expression>> itr = instantiatedRegion.constantsTable.table.entrySet().iterator();
+        if(verboseVeritesting){
+            System.out.println("Constants Table:");
+            while (itr.hasNext()) {
+                Map.Entry<Variable, Expression> entry = itr.next();
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+        }
+
         return instantiatedRegion;
     }
 }
