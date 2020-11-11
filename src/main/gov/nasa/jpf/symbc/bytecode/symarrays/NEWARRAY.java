@@ -108,6 +108,9 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 		ArrayExpression arrayAttr = null;
         PathCondition pc = null;;
 
+        if(attr instanceof SymbolicLengthInteger || attr instanceof IntegerExpression)
+            return ti.createAndThrowException("java.lang.NegativeArraySizeException");
+
 		if(attr instanceof SymbolicLengthInteger) {
 			long l = ((SymbolicLengthInteger) attr).solution;
 //			assert(l>=0 && l<=Integer.MAX_VALUE) : "Array length must be positive integer";
@@ -116,7 +119,7 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 			arrayLength = (int) l;
 			sf.pop();
 		} else 	if(attr instanceof IntegerExpression) {
-
+//            return ti.createAndThrowException("unsupported creation of symbolic array length.");
             ChoiceGenerator<?> cg = null;
             if (!ti.isFirstStepInsn()) {
                 /* These changes are introduced by Java Ranger's path-merging in SPF */

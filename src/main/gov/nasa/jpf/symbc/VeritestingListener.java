@@ -182,7 +182,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                     break;
             }
 
-            if(conf.hasValue("search.depth_limit"))
+            if (conf.hasValue("search.depth_limit"))
                 System.out.println("search depth = " + conf.getInt("search.depth_limit"));
 
             if (conf.hasValue("performanceMode"))
@@ -630,6 +630,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
         if (verboseVeritesting)
             System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+    }
+
+    public void propertyViolated(Search search) {
+        System.out.println("the depth of violation is" + search.getDepth());
     }
 
     private DynamicRegion runVeritesting(ThreadInfo ti, Instruction instructionToExecute, StaticRegion staticRegion,
