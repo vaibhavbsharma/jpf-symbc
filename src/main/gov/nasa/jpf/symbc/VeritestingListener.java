@@ -182,6 +182,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                     break;
             }
 
+            if(conf.hasValue("search.depth_limit"))
+                System.out.println("search depth = " + conf.getInt("search.depth_limit"));
+
             if (conf.hasValue("performanceMode"))
                 performanceMode = conf.getBoolean("performanceMode");
 
