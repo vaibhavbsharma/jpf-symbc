@@ -197,7 +197,7 @@ public class IFInstrSymbHelper {
 			if(prevPcGen!=null)
 				pc = prevPcGen.getCurrentPC();
 			else
-				pc = new PathCondition();
+				pc = new PathCondition();//				secPC._addDet(Comparator.NE,v1,sym_v2);
 			
 			PathCondition firstPC = pc.make_copy();
 			PathCondition secPC = pc.make_copy();
@@ -360,8 +360,16 @@ public class IFInstrSymbHelper {
 				}
 			} else {
 				firstPC._addDet(firstComparator,sym_v2,v1);
+
+//				firstPC._addDet(firstComparator, sym_v2, v1+4.9E-324D);
 				secPC._addDet(secondComparator,v1,sym_v2);
+//				secPC._addDet(thirdComparator,v1+4.9E-324D,sym_v2);
+//				secPC._addDet(firstComparator,v1-4.9E-324D,sym_v2);
+
+
 				thirdPC._addDet(thirdComparator,sym_v2,v1);
+//				thirdPC._addDet(thirdComparator, sym_v2,v1-4.9E-324D);
+				return ti.createAndThrowException("unhandled operation on double comparison.");
 			}
 			
 			boolean firstSat = firstPC.simplify();
