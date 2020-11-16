@@ -429,7 +429,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         } else {
             checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
-            System.out.println("------------- Region was successfully veritested --------------- ");
         }
         if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
             VeriObligationMgr.addSymbolicOblgMap(CollectObligationsVisitor.oblgToExprsMap);
@@ -563,6 +562,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             ti.setNextPC(instructionToExecute);
             statisticManager.updateVeriSuccForRegion(key);
             ++VeritestingListener.veritestRegionCount;
+            System.out.println("------------- Region was successfully veritested --------------- ");
+
         } else {
 
             ChoiceGenerator<?> cg = ti.getVM().getSystemState().getChoiceGenerator();

@@ -63,6 +63,7 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
         InternalJRSsaVar thenInternalSsaVar = lastInternalSsaVar!=null && lastInternalSsaVar.equals(oldlastInternalSsaVar)? null: lastInternalSsaVar;
 
 //        lastInternalSsaVar = null;
+        lastInternalSsaVar = oldlastInternalSsaVar;
         Expression elseCond = innerPC == null ? newCondition : new Operation(Operation.Operator.AND, new Operation(Operation.Operator.NOT, innerPC), newCondition);
 
         innerPC = elseCond;
