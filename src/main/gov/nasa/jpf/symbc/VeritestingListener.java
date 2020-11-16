@@ -415,7 +415,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
      * @return
      */
     private boolean skipVeriRegion(VM vm) {
-        return (skipVeriRegions.contains(key) && advancedSBCG != null && advancedSBCG != vm.getChoiceGenerator());
+        return skipVeriRegions.contains(key) && (advancedSBCG == null || advancedSBCG == vm.getChoiceGenerator());
 //        return false;
     }
 
@@ -608,6 +608,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
         if (currentCG instanceof StaticBranchChoiceGenerator)
             advancedSBCG = (StaticBranchChoiceGenerator) currentCG;
+        else advancedSBCG = null;
+
         if (verboseVeritesting)
             System.out.println("choiceGeneratorAdvanced(" + currentCG.getClass() + ")");
     }
