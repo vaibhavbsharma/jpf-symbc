@@ -583,7 +583,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         }
     }
 
-    @Override
+   /* @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (verboseVeritesting)
             System.out.println("threadTerminated");
@@ -633,7 +633,51 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
         if (verboseVeritesting)
             System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+    }*/
+
+/*
+
+
+    @Override
+    public void threadStarted(VM vm, ThreadInfo startedThread) {
+        System.out.println("threadStarted");
+        //super.threadTerminated(vm, terminatedThread);
+        System.out.println("depth = " + vm.getSearch().getDepth());
     }
+
+    @Override
+    public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
+        System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
+        System.out.println("depth = " + vm.getSearch().getDepth());
+    }
+
+    @Override
+    public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
+
+        System.out.println("choiceGeneratorAdvanced(" + currentCG.getClass() + ")");
+        System.out.println("depth = " + vm.getSearch().getDepth());
+    }
+
+    @Override
+    public void stateAdvanced(Search search) {
+
+        System.out.println("stateAdvanced");
+        System.out.println("depth = " + search.getDepth());
+    }
+
+    @Override
+    public void stateBacktracked(Search search) {
+        System.out.println("stateBacktracked");
+        System.out.println("depth = " + search.getDepth());
+
+    }
+
+    @Override
+    public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
+        System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+        System.out.println("depth = " + vm.getSearch().getDepth());
+    }
+*/
 
     public void propertyViolated(Search search) {
         System.out.println("the depth of violation is" + search.getDepth());
