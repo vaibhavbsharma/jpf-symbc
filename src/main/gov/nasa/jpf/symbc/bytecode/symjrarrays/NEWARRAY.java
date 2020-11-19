@@ -16,23 +16,14 @@
  * limitations under the License.
  */
 
-package gov.nasa.jpf.symbc.bytecode.symarrays;
+package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 
 
 import gov.nasa.jpf.symbc.arrays.ArrayExpression;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.string.SymbolicLengthInteger;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
-import gov.nasa.jpf.symbc.string.SymbolicLengthInteger;
-import gov.nasa.jpf.vm.ChoiceGenerator;
-import gov.nasa.jpf.vm.ClassInfo;
-import gov.nasa.jpf.vm.ClassLoaderInfo;
-import gov.nasa.jpf.vm.ElementInfo;
-import gov.nasa.jpf.vm.Heap;
-import gov.nasa.jpf.vm.Instruction;
-import gov.nasa.jpf.vm.StackFrame;
-import gov.nasa.jpf.vm.ThreadInfo;
-import za.ac.sun.cs.green.expr.IntVariable;
+import gov.nasa.jpf.vm.*;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -54,7 +45,7 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
     private static final int c = 0;//TODO make this into a configuration option
     private static final boolean stopIfCExceeded = false; //TODO make this into a configuration option
-    private static final int[] smallValues = {3};//,3,4,5}; //, 10};
+    private static final int[] smallValues = {4};//,3,4,5}; //, 10};
     ArrayList<Long> values;
 
     public NEWARRAY(int typeCode) {
@@ -68,7 +59,6 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
         Object attr = sf.getOperandAttr();
         ArrayExpression arrayAttr = null;
         PathCondition pc = null;
-        ;
 
       /*  if(attr instanceof SymbolicLengthInteger || attr instanceof IntegerExpression)
             return ti.createAndThrowException("java.lang.NegativeArraySizeException");
@@ -214,7 +204,7 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
         sf.pushRef(arrayRef);
 
-        if (attr instanceof IntegerExpression) {
+       /* if (attr instanceof IntegerExpression) {
             arrayAttr = new ArrayExpression(eiArray.toString());
             pc._addDet(Comparator.EQ, arrayAttr.length, (IntegerExpression) attr);
             pc.arrayExpressions.put(arrayAttr.getRootName(), arrayAttr);
@@ -225,7 +215,7 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
             }
         }
         sf.setOperandAttr(arrayAttr);
-
+*/
         ti.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
 
         return getNext(ti);

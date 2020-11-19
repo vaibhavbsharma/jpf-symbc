@@ -443,7 +443,7 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
 
 	  // array ops
       public Instruction arraylength() {
-          return (symArrays ? new gov.nasa.jpf.symbc.bytecode.symarrays.ARRAYLENGTH() : super.arraylength());
+          return (symArrays ? new gov.nasa.jpf.symbc.bytecode.symarrays.ARRAYLENGTH() :  super.arraylength());
       }
 
 	  public Instruction aaload() {
@@ -487,11 +487,11 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
 		  }
 	  
 	  public Instruction iaload() {
-		    return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.IALOAD() : new IALOAD(): super.iaload());
+		    return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.IALOAD() : (symJrArrays? new gov.nasa.jpf.symbc.bytecode.symjrarrays.IALOAD(): new IALOAD()): super.iaload());
 		  }
 
 	  public Instruction iastore() {
-		    return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.IASTORE() : new IASTORE(): super.iastore());
+		    return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.IASTORE() : (symJrArrays? new gov.nasa.jpf.symbc.bytecode.symjrarrays.IASTORE() : new IASTORE()): super.iastore());
 		  }
 	  
 	  public Instruction laload() {
@@ -527,7 +527,7 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
 		  }
 
 	  public Instruction newarray(int typeCode) {
-		  return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.NEWARRAY(typeCode) : new NEWARRAY(typeCode) : super.newarray(typeCode));
+		  return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.NEWARRAY(typeCode) : (symJrArrays? new gov.nasa.jpf.symbc.bytecode.symjrarrays.NEWARRAY(typeCode) : new NEWARRAY(typeCode)) : super.newarray(typeCode));
 	      }
 
 	  public Instruction anewarray(String typeDescriptor) {
@@ -591,7 +591,10 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
      * With this setting, symbolic arrays rely on 
      * array theory in Z3
      */
-    private final boolean symArrays;  
+    private final boolean symArrays;
+
+    //symbolic arrays based on disjunctive constraints similar to what JR does. It does not use array theory in the solver
+	private final boolean symJrArrays;
 
 	static public boolean concolicMode;
 	static public boolean heuristicRandomMode;
@@ -729,7 +732,9 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
 		
 		this.pcChoiceOptimization = conf.getBoolean("symbolic.optimizechoices", true);
 
-        	this.symArrays = conf.getBoolean("symbolic.arrays", false);
+		this.symArrays = conf.getBoolean("symbolic.arrays", false);
+
+		 this.symJrArrays = !symArrays && conf.getBoolean("symbolic.jrarrays", false); //ensure exclusive or between the two symbolic array packages
 
 		/* load bitvector length, default to 32 */
 		bvlength = conf.getInt("symbolic.bvlength", 32);
