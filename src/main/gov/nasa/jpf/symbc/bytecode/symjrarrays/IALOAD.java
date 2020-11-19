@@ -18,25 +18,25 @@
 
 // author Aymeric Fromherz aymeric.fromherz@ens.fr 
 
-package gov.nasa.jpf.symbc.bytecode.symarrays;
+package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 
-import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
 import gov.nasa.jpf.symbc.arrays.ArrayExpression;
 import gov.nasa.jpf.symbc.arrays.SelectExpression;
-import gov.nasa.jpf.symbc.numeric.Comparator;
-import gov.nasa.jpf.symbc.numeric.IntegerConstant;
-import gov.nasa.jpf.symbc.numeric.IntegerExpression;
-import gov.nasa.jpf.symbc.numeric.PathCondition;
-import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
-import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
+import gov.nasa.jpf.symbc.numeric.*;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
+import gov.nasa.jpf.symbc.veritesting.ast.def.AssignmentStmt;
+import gov.nasa.jpf.symbc.veritesting.ast.def.GammaVarExpr;
+import gov.nasa.jpf.symbc.veritesting.ast.def.WalaVarExpr;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.AstToGreen.AstToGreenVisitor;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil;
+import gov.nasa.jpf.vm.*;
+import za.ac.sun.cs.green.expr.Expression;
+import za.ac.sun.cs.green.expr.IntConstant;
+import za.ac.sun.cs.green.expr.Operation;
 
-import gov.nasa.jpf.vm.ArrayIndexOutOfBoundsExecutiveException;
-import gov.nasa.jpf.vm.ChoiceGenerator;
-import gov.nasa.jpf.vm.ElementInfo;
-import gov.nasa.jpf.vm.Instruction;
-import gov.nasa.jpf.vm.MJIEnv;
-import gov.nasa.jpf.vm.StackFrame;
-import gov.nasa.jpf.vm.ThreadInfo;
+import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.createGreenVar;
+import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.greenToSPFExpression;
 
 /**
  * Load int from array
@@ -44,138 +44,110 @@ import gov.nasa.jpf.vm.ThreadInfo;
  */
 public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
 
-	 @Override
-	  public Instruction execute (ThreadInfo ti) {
-          StackFrame frame = ti.getModifiableTopFrame();
-          arrayRef = frame.peek(1); // ..., arrayRef, idx
+    private static int loadVarIndex = 0;
 
-		  if (arrayRef == MJIEnv.NULL) {
-		    return ti.createAndThrowException("java.lang.NullPointerException");
-		  }
+    @Override
+    public Instruction execute(ThreadInfo ti) {
+        StackFrame frame = ti.getModifiableTopFrame();
+        arrayRef = frame.peek(1); // ..., arrayRef, idx
 
-          // Retrieve the array expression if it was previously in the pathcondition
-          PCChoiceGenerator temp_cg = (PCChoiceGenerator)ti.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class);
-          if (temp_cg != null) {
-              if (temp_cg.getCurrentPC().arrayExpressions.containsKey(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString())) {
-                  ti.getModifiableTopFrame().setOperandAttr(1, temp_cg.getCurrentPC().arrayExpressions.get(ti.getElementInfo(ti.getModifiableTopFrame().peek(1)).toString()));
-              }
-          }
+        if (arrayRef == MJIEnv.NULL) {
+            return ti.createAndThrowException("java.lang.NullPointerException");
+        }
 
-          if (peekArrayAttr(ti)==null || !(peekArrayAttr(ti) instanceof ArrayExpression)) {
-              // In this case, the array isn't symbolic
-              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) {
-                 // In this case, the index isn't symbolic either
-                 return super.execute(ti);
-              }
-          }
+        Object symIndex = peekIndexAttr(ti);
+        boolean isSymbolicIndex = symIndex != null && symIndex instanceof IntegerExpression;
 
-          ArrayExpression arrayAttr = null;
-          ChoiceGenerator<?> cg;
+        assert (peekArrayAttr(ti) == null || !(peekArrayAttr(ti) instanceof ArrayExpression)) : "unsupported symbolic array object. Failing.";
 
-          if (!ti.isFirstStepInsn()) { // first time around
-              cg = new PCChoiceGenerator(3);
-              ((PCChoiceGenerator)cg).setOffset(this.position);
-              ((PCChoiceGenerator)cg).setMethodName(this.getMethodInfo().getFullName());
-              ti.getVM().setNextChoiceGenerator(cg);
-              return this;
-          } else { // this is what really returns results
+        //if the value to store is not symbolic and neither is the index, then execute concretely
+        if (!isSymbolicIndex)
+            return super.execute(ti);
+
+
+        ArrayExpression arrayAttr = null;
+        ChoiceGenerator<?> cg;
+
+        if (!ti.isFirstStepInsn()) { // first time around
+            cg = new PCChoiceGenerator(3);
+            ((PCChoiceGenerator) cg).setOffset(this.position);
+            ((PCChoiceGenerator) cg).setMethodName(this.getMethodInfo().getFullName());
+            ti.getVM().setNextChoiceGenerator(cg);
+            return this;
+        } else { // this is what really returns results
             cg = ti.getVM().getChoiceGenerator();
             assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-          }
+        }
 
-          PathCondition pc;
-          ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+        PathCondition pc;
+        ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-          if (prev_cg == null)
-              pc = new PathCondition();
-          else
-              pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+        if (prev_cg == null)
+            pc = new PathCondition();
+        else
+            pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
 
-          assert pc != null;
-
-          if (peekArrayAttr(ti)==null || !(peekArrayAttr(ti) instanceof ArrayExpression)) {
-              // In this case, the array isn't symbolic
-              if (peekIndexAttr(ti) == null || !(peekIndexAttr(ti) instanceof IntegerExpression)) {
-                  // In this case, the index isn't symbolic either
-                  return super.execute(ti);
-              }
-              // We have a concrete array, but a symbolic index. We add all the constraints about the elements of the array, and perform the select
-              ElementInfo arrayInfo = ti.getElementInfo(arrayRef);
-              arrayAttr = ArrayExpression.create(arrayInfo.toString(), arrayInfo.arrayLength());
-              for (int i = 0; i < arrayInfo.arrayLength(); i++) {
-                int arrValue = arrayInfo.getIntElement(i);
-                  //SH: added a case to handle when the elements of the array are symbolic, before doing the first arrayload
-                  if(arrayInfo.getElementAttr(i) == null)
-                    pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), new IntegerConstant(arrValue));
-                else
-                    if(arrayInfo.getElementAttr(i) instanceof IntegerExpression)
-                        pc._addDet(Comparator.EQ, new SelectExpression(arrayAttr, new IntegerConstant(i)), (IntegerExpression) arrayInfo.getElementAttr(i));
-                    else
-                        assert false : "unexpected expression type for array element. Failing.";
-              }
-          } else {
-              arrayAttr = (ArrayExpression)peekArrayAttr(ti);
-          }
-          IntegerExpression indexAttr = null;
-          SelectExpression se = null;
-
-		  if (peekIndexAttr(ti)==null || !(peekIndexAttr(ti) instanceof IntegerExpression)) {
-              // In this case, the index isn't symbolic.
-              index = frame.peek();
-              indexAttr = new IntegerConstant(index);
-
-          } else {
-              indexAttr = (IntegerExpression)peekIndexAttr(ti);
-          }
-
-          SymbolicInteger val = new SymbolicInteger(arrayAttr.getName() + "[" + indexAttr.hashCode() + "]");
-          se = new SelectExpression(arrayAttr, indexAttr);
-          assert arrayAttr != null;
-          assert indexAttr != null;
-          assert se != null;
+        assert pc != null;
+        // We have a concrete array, but a symbolic index. We add all the constraints about the elements of the array, and perform the select
+        ElementInfo arrayInfo = ti.getElementInfo(arrayRef);
 
 
+        if ((Integer) cg.getNextChoice() == 1) { // check bounds of the index
+            pc._addDet(Comparator.GE, (IntegerExpression) symIndex, arrayInfo.arrayLength());
+            if (pc.simplify()) { // satisfiable
+                ((PCChoiceGenerator) cg).setCurrentPC(pc);
 
-          if ((Integer)cg.getNextChoice()==1) { // check bounds of the index
-              pc._addDet(Comparator.GE, se.indexExpression, se.arrayExpression.length);
-              if (pc.simplify()) { // satisfiable
-                  ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                return ti.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException", "index greater than array bounds");
+            } else {
+                ti.getVM().getSystemState().setIgnored(true);
+                return getNext(ti);
+            }
+        } else if ((Integer) cg.getNextChoice() == 2) {
+            pc._addDet(Comparator.LT, (IntegerExpression) symIndex, new IntegerConstant(0));
+            if (pc.simplify()) { // satisfiable
+                ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                return ti.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException", "index smaller than array bounds");
+            } else {
+                ti.getVM().getSystemState().setIgnored(true);
+                return getNext(ti);
+            }
+        } else {
+            pc._addDet(Comparator.LT, (IntegerExpression) symIndex, arrayInfo.arrayLength());
+            pc._addDet(Comparator.GE, (IntegerExpression) symIndex, new IntegerConstant(0));
+            if (pc.simplify()) { //satisfiable
+                ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                frame.pop(2); // We pop the array and the index
+                frame.push(0, false);         // For symbolic expressions, the concrete value does not matter
 
-                  return ti.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException", "index greater than array bounds");
-              }
-              else {
-                  ti.getVM().getSystemState().setIgnored(true);
-                  return getNext(ti);
-              }
-          }
-          else if ((Integer)cg.getNextChoice()==2) {
-              pc._addDet(Comparator.LT, se.indexExpression, new IntegerConstant(0));
-              if (pc.simplify()) { // satisfiable
-                  ((PCChoiceGenerator) cg).setCurrentPC(pc);
-                  return ti.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException", "index smaller than array bounds");
-              } else {
-                  ti.getVM().getSystemState().setIgnored(true);
-                  return getNext(ti);
-              }
-          }
-          else {
-              pc._addDet(Comparator.LT, se.indexExpression, se.arrayExpression.length);
-              pc._addDet(Comparator.GE, se.indexExpression, new IntegerConstant(0));
-              if (pc.simplify()) { //satisfiable
-                  ((PCChoiceGenerator) cg).setCurrentPC(pc);
-                  frame.pop(2); // We pop the array and the index
-                  frame.push(0, false);         // For symbolic expressions, the concrete value does not matter
-                  // set the result
-                  frame.setOperandAttr(val);
-                  // We add the select instruction in the PathCondition
-                  pc._addDet(Comparator.EQ,se, val);
-                  pc.arrayExpressions.put(arrayAttr.getRootName(), arrayAttr);
-		          return getNext(ti);
-              }
-              else {
-                  ti.getVM().getSystemState().setIgnored(true);
-                  return getNext(ti);
-              }
-          }
-      }
+                WalaVarExpr loadVar = new WalaVarExpr("lvar" + loadVarIndex);
+                AssignmentStmt stmt = new AssignmentStmt(loadVar, createNestedGamma(0, ExprUtil.SPFToGreenExpr((IntegerExpression)symIndex), arrayInfo));
+
+                pc._addDet(new GreenConstraint(stmt.accept(new AstToGreenVisitor())));
+                Expression greenVar = createGreenVar(arrayInfo.getType(), loadVar.toString());
+                // set the result
+                frame.setOperandAttr(greenToSPFExpression(greenVar));
+                // We add the select instruction in the PathCondition
+
+                return getNext(ti);
+            } else {
+                ti.getVM().getSystemState().setIgnored(true);
+                return getNext(ti);
+            }
+        }
+    }
+
+    Expression createNestedGamma(int index, Expression indexAttr, ElementInfo arrayInfo) {
+        Pair<Expression, String> arrayElementAttrOrVal = ArrayUtil.getArrayElement(arrayInfo, index);
+        assert arrayElementAttrOrVal != null : "array element attribute or value cannot be null, something is wrong. Failing.";
+
+        if (index + 1 == arrayInfo.arrayLength()){ // last element
+            return arrayElementAttrOrVal.getFirst();
+        } else{
+            return new GammaVarExpr(new Operation(Operation.Operator.EQ, indexAttr, new IntConstant(index)), arrayElementAttrOrVal.getFirst(),
+                    createNestedGamma(index+1, indexAttr, arrayInfo));
+
+        }
+
+    }
+
 }
