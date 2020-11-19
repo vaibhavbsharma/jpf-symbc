@@ -80,31 +80,32 @@ public class IASTORE extends gov.nasa.jpf.jvm.bytecode.IASTORE {
         ChoiceGenerator<?> cg;
 
         if (!ti.isFirstStepInsn()) { // first time around
-            cg = new PCChoiceGenerator(3);
-            ((PCChoiceGenerator) cg).setOffset(this.position);
-            ((PCChoiceGenerator) cg).setMethodName(this.getMethodInfo().getFullName());
-            ti.getVM().setNextChoiceGenerator(cg);
-            return this;
+            if (isSymbolicIndex) {
+                cg = new PCChoiceGenerator(3);
+                ((PCChoiceGenerator) cg).setOffset(this.position);
+                ((PCChoiceGenerator) cg).setMethodName(this.getMethodInfo().getFullName());
+                ti.getVM().setNextChoiceGenerator(cg);
+                return this;
+            }
         }
 
 
-        // this is what really returns results
-        cg = ti.getVM().getChoiceGenerator();
-        assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
-
-
-        PathCondition pc;
-        ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
-
-        if (prev_cg == null)
-            pc = new PathCondition();
-        else
-            pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
-
-        assert pc != null;
-
-
         if (isSymbolicIndex) {
+
+            // this is what really returns results
+            cg = ti.getVM().getChoiceGenerator();
+            assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
+
+
+            PathCondition pc;
+            ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+            if (prev_cg == null)
+                pc = new PathCondition();
+            else
+                pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+
+            assert pc != null;
 
             if ((Integer) cg.getNextChoice() == 0) { // check bounds of the index
                 pc._addDet(Comparator.GE, (IntegerExpression) symIndex, arrayLen);
