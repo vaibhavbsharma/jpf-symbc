@@ -118,7 +118,6 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
                 frame.pop(2); // We pop the array and the index
                 frame.push(0, false);         // For symbolic expressions, the concrete value does not matter
 
-//                WalaVarExpr loadVar = new WalaVarExpr("lvar" + loadVarIndex);
                 Expression greenVar = createGreenVar(arrayInfo.getType(), "lvar"+loadVarIndex++);
 
                 AssignmentStmt stmt = new AssignmentStmt(greenVar, createNestedGamma(0, ExprUtil.SPFToGreenExpr((IntegerExpression)symIndex), arrayInfo));

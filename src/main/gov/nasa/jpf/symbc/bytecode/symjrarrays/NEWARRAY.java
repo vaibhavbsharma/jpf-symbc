@@ -45,7 +45,7 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
     private static final int c = 0;//TODO make this into a configuration option
     private static final boolean stopIfCExceeded = false; //TODO make this into a configuration option
-    private static final int[] smallValues = {4};//,3,4,5}; //, 10};
+    private static final int[] smallValues = {2, 3, 4, 5, 10}; //, 10};
     ArrayList<Long> values;
 
     public NEWARRAY(int typeCode) {
@@ -137,7 +137,8 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
             assert pc != null;
 
             if ((Integer) cg.getNextChoice() == 0) {
-                pc._addDet(Comparator.LT, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
+//                pc._addDet(Comparator.LT, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
+                pc._addDet(Comparator.LT, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                     return ti.createAndThrowException("java.lang.NegativeArraySizeException");
@@ -149,18 +150,7 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                 }
             } else { // exploring smallValues choices.
 //                if ((Integer) cg.getNextChoice() < cg.getTotalNumberOfChoices() - 1) {
-                pc._addDet(Comparator.GE, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
-                if (pc.simplify()) {
-                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
-                    arrayLength = sf.pop();
-                } else {
-                    ti.getVM().getSystemState().setIgnored(true);
-                    return getNext(ti);
-                }
-                arrayLength = Math.toIntExact(values.get((Integer) cg.getNextChoice() - 1));
-                pc._addDet(Comparator.EQ, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(arrayLength));
-            }
-            /*else if ((Integer) cg.getNextChoice() == cg.getTotalNumberOfChoices() - 1) {
+//                pc._addDet(Comparator.GE, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
                 pc._addDet(Comparator.GE, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -169,7 +159,11 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
-            }*/
+                arrayLength = Math.toIntExact(values.get((Integer) cg.getNextChoice() - 1));
+//                pc._addDet(Comparator.EQ, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(arrayLength));
+                pc._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(arrayLength));
+            }
+
         } else {
             arrayLength = sf.pop();
         }
@@ -204,18 +198,6 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
         sf.pushRef(arrayRef);
 
-       /* if (attr instanceof IntegerExpression) {
-            arrayAttr = new ArrayExpression(eiArray.toString());
-            pc._addDet(Comparator.EQ, arrayAttr.length, (IntegerExpression) attr);
-            pc.arrayExpressions.put(arrayAttr.getRootName(), arrayAttr);
-            try {
-                maybeParseConstraint(pc);
-            } catch (StaticRegionException e) {
-                return ti.createAndThrowException("Failed to send arrayAttr.length constraint to solver");
-            }
-        }
-        sf.setOperandAttr(arrayAttr);
-*/
         ti.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
 
         return getNext(ti);

@@ -158,7 +158,7 @@ public class IASTORE extends gov.nasa.jpf.jvm.bytecode.IASTORE {
             }
         } else { //isSymbolicValue & !isSymbolicIndex
             int concreteIndex = ti.getTopFrame().peek(1);
-            if (concreteIndex < 0 || concreteIndex > arrayLen)
+            if (concreteIndex < 0 || concreteIndex >= arrayLen)
                 return ti.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException", "index less/greater than array bounds");
 
             arrayInfo.setElementAttr(concreteIndex, symStoreVal);
