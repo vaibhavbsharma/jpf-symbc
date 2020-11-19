@@ -43,9 +43,7 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.maybeParseC
 
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
-    private static final int c = 0;//TODO make this into a configuration option
-    private static final boolean stopIfCExceeded = false; //TODO make this into a configuration option
-    private static final int[] smallValues = {2, 3, 4, 5, 10}; //, 10};
+    private static final int[] smallValues = {2, 3, 4, 5}; //, 10};
     ArrayList<Long> values;
 
     public NEWARRAY(int typeCode) {
@@ -57,7 +55,6 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
         StackFrame sf = ti.getModifiableTopFrame();
         Object attr = sf.getOperandAttr();
-        ArrayExpression arrayAttr = null;
         PathCondition pc = null;
 
       /*  if(attr instanceof SymbolicLengthInteger || attr instanceof IntegerExpression)
@@ -65,7 +62,6 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 */
         if (attr instanceof SymbolicLengthInteger) {
             long l = ((SymbolicLengthInteger) attr).solution;
-//			assert(l>=0 && l<=Integer.MAX_VALUE) : "Array length must be positive integer";
             if (!(l >= 0 && l <= Integer.MAX_VALUE))
                 return ti.createAndThrowException("java.lang.NegativeArraySizeException");
             arrayLength = (int) l;

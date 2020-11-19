@@ -531,7 +531,7 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
 	      }
 
 	  public Instruction anewarray(String typeDescriptor) {
-		  return (filter.isPassing(ci) && (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.ANEWARRAY(typeDescriptor) : super.anewarray(typeDescriptor));
+		  return (filter.isPassing(ci) && (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.ANEWARRAY(typeDescriptor) :(symJrArrays? new gov.nasa.jpf.symbc.bytecode.symjrarrays.ANEWARRAY(typeDescriptor) : super.anewarray(typeDescriptor)));
 	      }
 
 	  public Instruction multianewarray(String clsName, int dimensions){
