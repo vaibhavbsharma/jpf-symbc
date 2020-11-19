@@ -22,15 +22,11 @@
 package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 
 import gov.nasa.jpf.symbc.arrays.ArrayExpression;
-import gov.nasa.jpf.symbc.arrays.SelectExpression;
-import gov.nasa.jpf.symbc.arrays.StoreExpression;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.AssignmentStmt;
 import gov.nasa.jpf.symbc.veritesting.ast.def.GammaVarExpr;
-import gov.nasa.jpf.symbc.veritesting.ast.def.WalaVarExpr;
-import gov.nasa.jpf.symbc.veritesting.ast.transformations.AstToGreen.AstToGreenExprVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.AstToGreen.AstToGreenVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil;
 import gov.nasa.jpf.vm.*;
@@ -38,6 +34,7 @@ import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.Operation;
 
+import static gov.nasa.jpf.symbc.bytecode.symjrarrays.ArrayUtil.getNewElementVarName;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.SPFToGreenExpr;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.createGreenVar;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.greenToSPFExpression;
@@ -48,9 +45,6 @@ import static za.ac.sun.cs.green.expr.Operation.Operator.EQ;
  * ..., arrayref, index, value => ...
  */
 public class IASTORE extends gov.nasa.jpf.jvm.bytecode.IASTORE {
-
-
-    private static int elementIndexVar = 0;
 
 
     @Override
@@ -142,7 +136,7 @@ public class IASTORE extends gov.nasa.jpf.jvm.bytecode.IASTORE {
                         assert spfSymStoreVal != null : "spf symbolic value cannot be null if was converted, something is wrong. Failing.";
                         assert arrayElementAttrOrVal != null : "array element attribute or value cannot be null, something is wrong. Failing.";
 
-                        Expression greenVar = createGreenVar(arrayInfo.getType(), "e" + elementIndexVar++);
+                        Expression greenVar = createGreenVar(arrayInfo.getType(), getNewElementVarName());
                         AssignmentStmt stmt = new AssignmentStmt(greenVar, new GammaVarExpr(new Operation(EQ, ExprUtil.SPFToGreenExpr((IntegerExpression) symIndex), new IntConstant(i)), spfSymStoreVal, arrayElementAttrOrVal.getFirst()));
                         pc._addDet(new GreenConstraint(stmt.accept(new AstToGreenVisitor())));
                         arrayInfo.setElementAttr(i, greenToSPFExpression(greenVar));

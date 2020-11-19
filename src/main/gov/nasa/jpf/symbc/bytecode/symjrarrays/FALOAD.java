@@ -27,7 +27,6 @@ import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.AssignmentStmt;
 import gov.nasa.jpf.symbc.veritesting.ast.def.GammaVarExpr;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.AstToGreen.AstToGreenVisitor;
-import gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil;
 import gov.nasa.jpf.vm.*;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
@@ -37,13 +36,12 @@ import static gov.nasa.jpf.symbc.bytecode.symjrarrays.ArrayUtil.getNewArrLoadVar
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.createGreenVar;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.greenToSPFExpression;
 
+
 /**
- * Load int from array
+ * Load byte or boolean from array
  * ..., arrayref, index => ..., value
  */
-public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
-
-
+public class FALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
     @Override
     public Instruction execute(ThreadInfo ti) {
         StackFrame frame = ti.getModifiableTopFrame();
@@ -136,7 +134,7 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
     }
 
     Expression createNestedGamma(int index, Expression indexAttr, ElementInfo arrayInfo) {
-        Pair<Expression, String> arrayElementAttrOrVal = ArrayUtil.getArrayElement(arrayInfo, index);
+        Pair<Expression, String> arrayElementAttrOrVal = gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.getArrayElement(arrayInfo, index);
         assert arrayElementAttrOrVal != null : "array element attribute or value cannot be null, something is wrong. Failing.";
 
         if (index + 1 == arrayInfo.arrayLength()){ // last element

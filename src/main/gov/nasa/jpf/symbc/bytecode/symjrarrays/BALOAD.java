@@ -21,13 +21,13 @@
 package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 
 import gov.nasa.jpf.symbc.arrays.ArrayExpression;
+import gov.nasa.jpf.symbc.arrays.SelectExpression;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.AssignmentStmt;
 import gov.nasa.jpf.symbc.veritesting.ast.def.GammaVarExpr;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.AstToGreen.AstToGreenVisitor;
-import gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil;
 import gov.nasa.jpf.vm.*;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
@@ -37,13 +37,12 @@ import static gov.nasa.jpf.symbc.bytecode.symjrarrays.ArrayUtil.getNewArrLoadVar
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.createGreenVar;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.greenToSPFExpression;
 
+
 /**
- * Load int from array
+ * Load byte or boolean from array
  * ..., arrayref, index => ..., value
  */
-public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
-
-
+public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
     @Override
     public Instruction execute(ThreadInfo ti) {
         StackFrame frame = ti.getModifiableTopFrame();
@@ -116,7 +115,7 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
                 frame.pop(2); // We pop the array and the index
                 frame.push(0, false);         // For symbolic expressions, the concrete value does not matter
 
-                Expression greenVar = createGreenVar(arrayInfo.getType(), getNewArrLoadVarName());
+                za.ac.sun.cs.green.expr.Expression greenVar = createGreenVar(arrayInfo.getType(), getNewArrLoadVarName());
 
                 AssignmentStmt stmt = new AssignmentStmt(greenVar, createNestedGamma(0, ExprUtil.SPFToGreenExpr((IntegerExpression)symIndex), arrayInfo));
 
@@ -135,8 +134,8 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
         }
     }
 
-    Expression createNestedGamma(int index, Expression indexAttr, ElementInfo arrayInfo) {
-        Pair<Expression, String> arrayElementAttrOrVal = ArrayUtil.getArrayElement(arrayInfo, index);
+    za.ac.sun.cs.green.expr.Expression createNestedGamma(int index, za.ac.sun.cs.green.expr.Expression indexAttr, ElementInfo arrayInfo) {
+        Pair<Expression, String> arrayElementAttrOrVal = gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.getArrayElement(arrayInfo, index);
         assert arrayElementAttrOrVal != null : "array element attribute or value cannot be null, something is wrong. Failing.";
 
         if (index + 1 == arrayInfo.arrayLength()){ // last element
