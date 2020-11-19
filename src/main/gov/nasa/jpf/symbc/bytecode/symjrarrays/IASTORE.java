@@ -142,10 +142,9 @@ public class IASTORE extends gov.nasa.jpf.jvm.bytecode.IASTORE {
                         assert spfSymStoreVal != null : "spf symbolic value cannot be null if was converted, something is wrong. Failing.";
                         assert arrayElementAttrOrVal != null : "array element attribute or value cannot be null, something is wrong. Failing.";
 
-                        WalaVarExpr elementNewName = new WalaVarExpr("e" + elementIndexVar++);
-                        AssignmentStmt stmt = new AssignmentStmt(elementNewName, new GammaVarExpr(new Operation(EQ, ExprUtil.SPFToGreenExpr((IntegerExpression) symIndex), new IntConstant(i)), spfSymStoreVal, arrayElementAttrOrVal.getFirst()));
+                        Expression greenVar = createGreenVar(arrayInfo.getType(), "e" + elementIndexVar++);
+                        AssignmentStmt stmt = new AssignmentStmt(greenVar, new GammaVarExpr(new Operation(EQ, ExprUtil.SPFToGreenExpr((IntegerExpression) symIndex), new IntConstant(i)), spfSymStoreVal, arrayElementAttrOrVal.getFirst()));
                         pc._addDet(new GreenConstraint(stmt.accept(new AstToGreenVisitor())));
-                        Expression greenVar = createGreenVar(arrayInfo.getType(), elementNewName.toString());
                         arrayInfo.setElementAttr(i, greenToSPFExpression(greenVar));
                     }
                     // We create a new arrayAttr, and inherits information from the previous attribute

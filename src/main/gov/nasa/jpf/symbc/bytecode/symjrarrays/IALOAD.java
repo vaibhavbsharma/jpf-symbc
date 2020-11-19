@@ -65,7 +65,6 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
             return super.execute(ti);
 
 
-        ArrayExpression arrayAttr = null;
         ChoiceGenerator<?> cg;
 
         if (!ti.isFirstStepInsn()) { // first time around
@@ -119,11 +118,14 @@ public class IALOAD extends gov.nasa.jpf.jvm.bytecode.IALOAD {
                 frame.pop(2); // We pop the array and the index
                 frame.push(0, false);         // For symbolic expressions, the concrete value does not matter
 
-                WalaVarExpr loadVar = new WalaVarExpr("lvar" + loadVarIndex);
-                AssignmentStmt stmt = new AssignmentStmt(loadVar, createNestedGamma(0, ExprUtil.SPFToGreenExpr((IntegerExpression)symIndex), arrayInfo));
+//                WalaVarExpr loadVar = new WalaVarExpr("lvar" + loadVarIndex);
+                Expression greenVar = createGreenVar(arrayInfo.getType(), "lvar"+loadVarIndex++);
+
+                AssignmentStmt stmt = new AssignmentStmt(greenVar, createNestedGamma(0, ExprUtil.SPFToGreenExpr((IntegerExpression)symIndex), arrayInfo));
 
                 pc._addDet(new GreenConstraint(stmt.accept(new AstToGreenVisitor())));
-                Expression greenVar = createGreenVar(arrayInfo.getType(), loadVar.toString());
+                pc.simplify();
+
                 // set the result
                 frame.setOperandAttr(greenToSPFExpression(greenVar));
                 // We add the select instruction in the PathCondition
