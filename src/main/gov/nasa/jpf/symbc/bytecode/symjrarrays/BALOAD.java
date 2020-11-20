@@ -16,7 +16,11 @@
  * limitations under the License.
  */
 
-// author Aymeric Fromherz aymeric.fromherz@ens.fr 
+/**
+ * Soha Hussein: This package handles only symbolic index arrays, and concertize creation of symbolic size array
+ * to a set of small values. This package creates a disjunctive formula to represent arrayloads and stores, it does not
+ * use the solver's array theory.
+ */
 
 package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 
@@ -117,7 +121,7 @@ public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
 
                 za.ac.sun.cs.green.expr.Expression greenVar = createGreenVar(arrayInfo.getType(), getNewArrLoadVarName());
 
-                AssignmentStmt stmt = new AssignmentStmt(greenVar, createNestedGamma(0, ExprUtil.SPFToGreenExpr((IntegerExpression)symIndex), arrayInfo));
+                AssignmentStmt stmt = new AssignmentStmt(greenVar, createNestedGamma(0, ExprUtil.SPFToGreenExpr((IntegerExpression) symIndex), arrayInfo));
 
                 pc._addDet(new GreenConstraint(stmt.accept(new AstToGreenVisitor())));
                 pc.simplify();
@@ -138,11 +142,11 @@ public class BALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
         Pair<Expression, String> arrayElementAttrOrVal = gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.getArrayElement(arrayInfo, index);
         assert arrayElementAttrOrVal != null : "array element attribute or value cannot be null, something is wrong. Failing.";
 
-        if (index + 1 == arrayInfo.arrayLength()){ // last element
+        if (index + 1 == arrayInfo.arrayLength()) { // last element
             return arrayElementAttrOrVal.getFirst();
-        } else{
+        } else {
             return new GammaVarExpr(new Operation(Operation.Operator.EQ, indexAttr, new IntConstant(index)), arrayElementAttrOrVal.getFirst(),
-                    createNestedGamma(index+1, indexAttr, arrayInfo));
+                    createNestedGamma(index + 1, indexAttr, arrayInfo));
 
         }
 

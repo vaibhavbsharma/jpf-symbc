@@ -16,7 +16,12 @@
  * limitations under the License.
  */
 
-// author Aymeric Fromherz aymeric.fromherz@ens.fr 
+/**
+ * Soha Hussein: This package handles only symbolic index arrays, and concertize creation of symbolic size array
+ * to a set of small values. This package creates a disjunctive formula to represent arrayloads and stores, it does not
+ * use the solver's array theory.
+ */
+
 
 package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 

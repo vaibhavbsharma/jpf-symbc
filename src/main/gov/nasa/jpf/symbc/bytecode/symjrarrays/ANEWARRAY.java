@@ -16,6 +16,13 @@
  * limitations under the License.
  */
 
+/**
+ * Soha Hussein: This package handles only symbolic index arrays, and concertize creation of symbolic size array
+ * to a set of small values. This package creates a disjunctive formula to represent arrayloads and stores, it does not
+ * use the solver's array theory.
+ */
+
+
 package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 
 
@@ -41,7 +48,7 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
     public Instruction execute(ThreadInfo ti) {
         StackFrame sf = ti.getModifiableTopFrame();
         Object attr = sf.getOperandAttr();
-        PathCondition pc = null;
+        PathCondition pc;
 
 
         if (attr == null)
@@ -54,10 +61,8 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
             arrayLength = (int) l;
             sf.pop();
         } else if (attr instanceof IntegerExpression) {
-//            return ti.createAndThrowException("unsupported creation of symbolic array length.");
             ChoiceGenerator<?> cg = null;
             if (!ti.isFirstStepInsn()) {
-                /* These changes are introduced by Java Ranger's path-merging in SPF */
                 if (ti.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
                     pc = ((PCChoiceGenerator) (ti.getVM().getSystemState().getChoiceGenerator())).getCurrentPC();
                 } else {
@@ -91,24 +96,17 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
                     if (map == null || map.size() == 0 || lastValue == null) continue;
                     else if (lastValue == smallValues[i]) values.add(lastValue);
                 }
-                //SH: for now do not support any symbolic length array, that is outside the range of smallValues. TODO: extend that to support symbolic array length.
                 if (values.size() == 0)
                     return ti.createAndThrowException("unsupported symbolic size of array length.");
 
                 // First choice is to explore negative array length
-                // Last choice is to explore unconstrained symbolic array length
-                // All the choices in the middle explore small array lengths -- SH: commenting this option out as of now, since it is broken. TODO
-                cg = new PCChoiceGenerator(values.size() + 1); // only one choice in addition to the values to be explored setup as of now
-                /* End of Java Ranger changes */
-
-//                cg = new PCChoiceGenerator(2);
+                // All the choices in the middle explore small array lengths
+                cg = new PCChoiceGenerator(values.size() + 1);
                 ti.getVM().setNextChoiceGenerator(cg);
                 return this;
             }
             cg = ti.getVM().getSystemState().getChoiceGenerator();
             assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got:" + cg;
-//                sf.pop();
-//                arrayLength = Math.toIntExact(values.get((Integer)cg.getNextChoice()));
 
 
             ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
@@ -120,21 +118,16 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
             assert pc != null;
 
             if ((Integer) cg.getNextChoice() == 0) {
-//                pc._addDet(Comparator.LT, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
                 pc._addDet(Comparator.LT, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                     return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-//                    sf.pop();
-//                    arrayLength = 1;
-                } else {
+              } else {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
             } else { // exploring smallValues choices.
-//                if ((Integer) cg.getNextChoice() < cg.getTotalNumberOfChoices() - 1) {
-//                pc._addDet(Comparator.GE, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
-                pc._addDet(Comparator.GE, (IntegerExpression) attr, new IntegerConstant(0));
+               pc._addDet(Comparator.GE, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                     arrayLength = sf.pop();
@@ -143,7 +136,6 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
                     return getNext(ti);
                 }
                 arrayLength = Math.toIntExact(values.get((Integer) cg.getNextChoice() - 1));
-//                pc._addDet(Comparator.EQ, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(arrayLength));
                 pc._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(arrayLength));
             }
 

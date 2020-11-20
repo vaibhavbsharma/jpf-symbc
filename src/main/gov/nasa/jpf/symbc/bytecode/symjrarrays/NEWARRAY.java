@@ -16,30 +16,25 @@
  * limitations under the License.
  */
 
+/**
+ * Soha Hussein: This package handles only symbolic index arrays, and concertize creation of symbolic size array
+ * to a set of small values. This package creates a disjunctive formula to represent arrayloads and stores, it does not
+ * use the solver's array theory.
+ */
+
+
 package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 
 
-import gov.nasa.jpf.symbc.arrays.ArrayExpression;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.string.SymbolicLengthInteger;
-import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.vm.*;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 import static gov.nasa.jpf.symbc.veritesting.AdapterSynth.SPFAdapterSynth.getVal;
-import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.maybeParseConstraint;
 
-/**
- * Symbolic version of the NEWARRAY class from jpf-core. Has some extra code to
- * detect if a symbolic variable is being used as the size of the new array, and
- * treat it accordingly.
- * <p>
- * Someone with more experience should review this :)
- * TODO: to review; Corina: this code does not make too much sense: for now I will comment it out
- * who wrote it?
- */
 
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
@@ -58,7 +53,7 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
         PathCondition pc = null;
 
 
-        if(attr == null)
+        if (attr == null)
             return super.execute(ti);
 
         if (attr instanceof SymbolicLengthInteger) {
@@ -68,10 +63,8 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
             arrayLength = (int) l;
             sf.pop();
         } else if (attr instanceof IntegerExpression) {
-//            return ti.createAndThrowException("unsupported creation of symbolic array length.");
             ChoiceGenerator<?> cg = null;
             if (!ti.isFirstStepInsn()) {
-                /* These changes are introduced by Java Ranger's path-merging in SPF */
                 if (ti.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
                     pc = ((PCChoiceGenerator) (ti.getVM().getSystemState().getChoiceGenerator())).getCurrentPC();
                 } else {
@@ -105,24 +98,18 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                     if (map == null || map.size() == 0 || lastValue == null) continue;
                     else if (lastValue == smallValues[i]) values.add(lastValue);
                 }
-                //SH: for now do not support any symbolic length array, that is outside the range of smallValues. TODO: extend that to support symbolic array length.
                 if (values.size() == 0)
                     return ti.createAndThrowException("unsupported symbolic size of array length.");
 
                 // First choice is to explore negative array length
-                // Last choice is to explore unconstrained symbolic array length
-                // All the choices in the middle explore small array lengths -- SH: commenting this option out as of now, since it is broken. TODO
-                cg = new PCChoiceGenerator(values.size() + 1); // only one choice in addition to the values to be explored setup as of now
-                /* End of Java Ranger changes */
+                // All the choices in the middle explore small array lengths
+                cg = new PCChoiceGenerator(values.size() + 1);
 
-//                cg = new PCChoiceGenerator(2);
                 ti.getVM().setNextChoiceGenerator(cg);
                 return this;
             }
             cg = ti.getVM().getSystemState().getChoiceGenerator();
             assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got:" + cg;
-//                sf.pop();
-//                arrayLength = Math.toIntExact(values.get((Integer)cg.getNextChoice()));
 
 
             ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
@@ -134,20 +121,15 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
             assert pc != null;
 
             if ((Integer) cg.getNextChoice() == 0) {
-//                pc._addDet(Comparator.LT, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
                 pc._addDet(Comparator.LT, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                     return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-//                    sf.pop();
-//                    arrayLength = 1;
                 } else {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
             } else { // exploring smallValues choices.
-//                if ((Integer) cg.getNextChoice() < cg.getTotalNumberOfChoices() - 1) {
-//                pc._addDet(Comparator.GE, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
                 pc._addDet(Comparator.GE, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -157,7 +139,6 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                     return getNext(ti);
                 }
                 arrayLength = Math.toIntExact(values.get((Integer) cg.getNextChoice() - 1));
-//                pc._addDet(Comparator.EQ, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(arrayLength));
                 pc._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(arrayLength));
             }
 
@@ -200,56 +181,4 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
         return getNext(ti);
 
     }
-
-    private Instruction executeConcretely(ThreadInfo ti) {
-        //the remainder of the code is identical to the parent class
-        StackFrame sf = ti.getModifiableTopFrame();
-
-        Heap heap = ti.getHeap();
-        arrayLength = sf.pop();
-
-        if (arrayLength < 0){
-            return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-        }
-
-        // there is no clinit for array classes, but we still have  to create a class object
-        // since its a builtin class, we also don't have to bother with NoClassDefFoundErrors
-        String clsName = "[" + type;
-
-        ClassInfo ci = ClassLoaderInfo.getCurrentResolvedClassInfo(clsName);
-        if (!ci.isRegistered()) {
-            ci.registerClass(ti);
-            ci.setInitialized();
-        }
-
-        if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
-            return ti.createAndThrowException("java.lang.OutOfMemoryError",
-                    "trying to allocate new " +
-                            getTypeName() +
-                            "[" + arrayLength + "]");
-        }
-
-        ElementInfo eiArray = heap.newArray(type, arrayLength, ti);
-        int arrayRef = eiArray.getObjectRef();
-
-        sf.pushRef(arrayRef);
-
-
-        ti.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
-
-        return getNext(ti);
-    }
-
-
-    private IntegerExpression getBNLIEOperand(IntegerExpression attr) {
-        if (!(attr instanceof BinaryNonLinearIntegerExpression)) return attr;
-        BinaryNonLinearIntegerExpression attrBNLIE = (BinaryNonLinearIntegerExpression) attr;
-        if (attrBNLIE.left instanceof SymbolicInteger && attrBNLIE.right instanceof SymbolicInteger
-                && attrBNLIE.left.equals(attrBNLIE.right)) {
-            return attrBNLIE.left;
-        }
-        assert (false);
-        return null;
-    }
-
 }

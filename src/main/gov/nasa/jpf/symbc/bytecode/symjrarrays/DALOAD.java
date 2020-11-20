@@ -16,7 +16,11 @@
  * limitations under the License.
  */
 
-// author Aymeric Fromherz aymeric.fromherz@ens.fr 
+/**
+ * Soha Hussein: This package handles only symbolic index arrays, and concertize creation of symbolic size array
+ * to a set of small values. This package creates a disjunctive formula to represent arrayloads and stores, it does not
+ * use the solver's array theory.
+ */
 
 package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 
@@ -59,7 +63,6 @@ public class DALOAD extends gov.nasa.jpf.jvm.bytecode.DALOAD {
         //if the value to store is not symbolic and neither is the index, then execute concretely
         if (!isSymbolicIndex)
             return super.execute(ti);
-//            return executeConcretely(ti);
 
 
         ChoiceGenerator<?> cg;
