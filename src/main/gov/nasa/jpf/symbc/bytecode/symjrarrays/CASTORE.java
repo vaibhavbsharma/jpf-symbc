@@ -40,7 +40,7 @@ import static za.ac.sun.cs.green.expr.Operation.Operator.EQ;
  * Store into byte or boolean array
  * ..., arrayref, index, value  => ...
  */
-public class CASTORE extends gov.nasa.jpf.jvm.bytecode.BASTORE {
+public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
 
 	 @Override
 	  public Instruction execute (ThreadInfo ti) {
@@ -63,6 +63,7 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.BASTORE {
          //if the value to store is not symbolic and neither is the index, then execute concretely
          if (!isSymbolicValue && (!isSymbolicIndex))
              return super.execute(ti);
+//             return executeConcretely(ti, arrayInfo);
 
 
          ChoiceGenerator<?> cg;
@@ -154,5 +155,48 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.BASTORE {
              return getNext(ti);
          }
      }
-	 
+
+    private Instruction executeConcretely(ThreadInfo ti, ElementInfo arrayInfo) {
+
+        StackFrame frame = ti.getModifiableTopFrame();
+        index = peekIndex(ti);
+
+        // original code for concrete execution
+
+        // int idx = peekIndex(ti);
+        int aref = peekArrayRef(ti); // need to be polymorphic, could be LongArrayStore
+
+        arrayOperandAttr = peekArrayAttr(ti);
+        indexOperandAttr = peekIndexAttr(ti);
+
+        // --- shared access CG
+        /*
+         * ignore POR for now TODO Scheduler scheduler = ti.getScheduler(); if
+         * (scheduler.canHaveSharedArrayCG(ti, this, eiArray, idx)){ eiArray =
+         * scheduler.updateArraySharedness(ti, eiArray, idx); if
+         * (scheduler.setsSharedArrayCG(ti, this, eiArray, idx)){ return this; } } }
+         */
+        // System.out.println("len "+len+" index "+index);
+        try {
+            // setArrayElement(ti, frame, eiArray); // this pops operands
+            int esize = getElementSize();
+            Object attr = esize == 1 ? frame.getOperandAttr() : frame.getLongOperandAttr();
+
+            popValue(frame);
+            frame.pop();
+            // don't set 'arrayRef' before we do the CG checks (would kill loop
+            // optimization)
+            arrayRef = frame.pop();
+
+            arrayInfo = arrayInfo.getModifiableInstance();
+            setField(arrayInfo, index);
+            arrayInfo.setElementAttrNoClone(index, attr); // <2do> what if the value is the same but not the attr?
+
+        } catch (ArrayIndexOutOfBoundsExecutiveException ex) { // at this point, the AIOBX is already processed
+            return ex.getInstruction();
+        }
+
+        return getNext(ti);
+    }
+
 }

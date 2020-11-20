@@ -40,7 +40,7 @@ import static za.ac.sun.cs.green.expr.Operation.Operator.EQ;
  * Store into byte or boolean array
  * ..., arrayref, index, value  => ...
  */
-public class FASTORE extends gov.nasa.jpf.jvm.bytecode.BASTORE {
+public class FASTORE extends gov.nasa.jpf.jvm.bytecode.FASTORE {
 
 	 @Override
 	  public Instruction execute (ThreadInfo ti) {

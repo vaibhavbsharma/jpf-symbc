@@ -41,7 +41,7 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.greenToSPF
  * Load byte or boolean from array
  * ..., arrayref, index => ..., value
  */
-public class LALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
+public class LALOAD extends gov.nasa.jpf.jvm.bytecode.LALOAD {
     @Override
     public Instruction execute(ThreadInfo ti) {
         StackFrame frame = ti.getModifiableTopFrame();

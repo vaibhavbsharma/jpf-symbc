@@ -41,7 +41,7 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.greenToSPF
  * Load byte or boolean from array
  * ..., arrayref, index => ..., value
  */
-public class DALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
+public class DALOAD extends gov.nasa.jpf.jvm.bytecode.DALOAD {
     @Override
     public Instruction execute(ThreadInfo ti) {
         StackFrame frame = ti.getModifiableTopFrame();
@@ -58,7 +58,8 @@ public class DALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
 
         //if the value to store is not symbolic and neither is the index, then execute concretely
         if (!isSymbolicIndex)
-            return super.execute(ti);
+            super.execute(ti);
+//            return executeConcretely(ti);
 
 
         ChoiceGenerator<?> cg;
@@ -130,6 +131,44 @@ public class DALOAD extends gov.nasa.jpf.jvm.bytecode.BALOAD {
                 ti.getVM().getSystemState().setIgnored(true);
                 return getNext(ti);
             }
+        }
+    }
+
+    private Instruction executeConcretely(ThreadInfo ti) {
+        StackFrame frame = ti.getModifiableTopFrame();
+        ElementInfo eiArray = ti.getElementInfo(arrayRef);
+
+        // original code for concrete execution
+        arrayOperandAttr = peekArrayAttr(ti);
+        indexOperandAttr = peekIndexAttr(ti);
+
+        // corina: Ignore POR for now
+        /*
+         * Scheduler scheduler = ti.getScheduler(); if (scheduler.canHaveSharedArrayCG(
+         * ti, this, eiArray, index)){ // don't modify the frame before this eiArray =
+         * scheduler.updateArraySharedness(ti, eiArray, index); if
+         * (scheduler.setsSharedArrayCG( ti, this, eiArray, index)){ return this; } }
+         */
+
+        frame.pop(2); // now we can pop index and array reference
+        // assign to index any value between 0 and array length
+
+        try {
+            push(frame, eiArray, index);
+
+            Object elementAttr = eiArray.getElementAttr(index);
+            if (elementAttr != null) {
+                if (getElementSize() == 1) {
+                    frame.setOperandAttr(elementAttr);
+                } else {
+                    frame.setLongOperandAttr(elementAttr);
+                }
+            }
+
+            return getNext(ti);
+
+        } catch (ArrayIndexOutOfBoundsExecutiveException ex) {
+            return ex.getInstruction();
         }
     }
 
