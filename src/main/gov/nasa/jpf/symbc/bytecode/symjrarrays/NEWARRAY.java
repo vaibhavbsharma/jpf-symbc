@@ -43,7 +43,7 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.maybeParseC
 
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
-    private static final int[] smallValues = {2, 3, 4, 5}; //, 10};
+    private static final int[] smallValues = {2, 3, 4}; //, 10};
     ArrayList<Long> values;
 
     public NEWARRAY(int typeCode) {
@@ -57,9 +57,10 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
         Object attr = sf.getOperandAttr();
         PathCondition pc = null;
 
-      /*  if(attr instanceof SymbolicLengthInteger || attr instanceof IntegerExpression)
-            return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-*/
+
+        if(attr == null)
+            return super.execute(ti);
+
         if (attr instanceof SymbolicLengthInteger) {
             long l = ((SymbolicLengthInteger) attr).solution;
             if (!(l >= 0 && l <= Integer.MAX_VALUE))
@@ -199,6 +200,46 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
         return getNext(ti);
 
     }
+
+    private Instruction executeConcretely(ThreadInfo ti) {
+        //the remainder of the code is identical to the parent class
+        StackFrame sf = ti.getModifiableTopFrame();
+
+        Heap heap = ti.getHeap();
+        arrayLength = sf.pop();
+
+        if (arrayLength < 0){
+            return ti.createAndThrowException("java.lang.NegativeArraySizeException");
+        }
+
+        // there is no clinit for array classes, but we still have  to create a class object
+        // since its a builtin class, we also don't have to bother with NoClassDefFoundErrors
+        String clsName = "[" + type;
+
+        ClassInfo ci = ClassLoaderInfo.getCurrentResolvedClassInfo(clsName);
+        if (!ci.isRegistered()) {
+            ci.registerClass(ti);
+            ci.setInitialized();
+        }
+
+        if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
+            return ti.createAndThrowException("java.lang.OutOfMemoryError",
+                    "trying to allocate new " +
+                            getTypeName() +
+                            "[" + arrayLength + "]");
+        }
+
+        ElementInfo eiArray = heap.newArray(type, arrayLength, ti);
+        int arrayRef = eiArray.getObjectRef();
+
+        sf.pushRef(arrayRef);
+
+
+        ti.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
+
+        return getNext(ti);
+    }
+
 
     private IntegerExpression getBNLIEOperand(IntegerExpression attr) {
         if (!(attr instanceof BinaryNonLinearIntegerExpression)) return attr;

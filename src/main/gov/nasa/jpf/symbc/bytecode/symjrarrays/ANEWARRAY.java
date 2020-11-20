@@ -19,8 +19,6 @@
 package gov.nasa.jpf.symbc.bytecode.symjrarrays;
 
 
-import gov.nasa.jpf.symbc.arrays.ArrayExpression;
-import gov.nasa.jpf.symbc.arrays.InitExpression;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.string.SymbolicLengthInteger;
 import gov.nasa.jpf.vm.*;
@@ -32,9 +30,7 @@ import static gov.nasa.jpf.symbc.veritesting.AdapterSynth.SPFAdapterSynth.getVal
 
 
 public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
-
-
-    private static final int[] smallValues = {2, 3, 4, 5}; //, 10};
+    private static final int[] smallValues = {2, 3, 4}; //, 10};
     ArrayList<Long> values;
 
     public ANEWARRAY(String typeDescriptor) {
@@ -43,70 +39,114 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
 
     @Override
     public Instruction execute(ThreadInfo ti) {
-        String compType = Types.getTypeName(type);
-        if (Types.isReferenceSignature(type)) {
-            try {
-                ti.resolveReferencedClass(compType);
-            } catch (LoadOnJPFRequired lre) {
-                return ti.getPC();
-            }
-        }
-
         StackFrame sf = ti.getModifiableTopFrame();
         Object attr = sf.getOperandAttr();
         PathCondition pc = null;
 
+
+        if (attr == null)
+            return super.execute(ti);
+
         if (attr instanceof SymbolicLengthInteger) {
             long l = ((SymbolicLengthInteger) attr).solution;
+            if (!(l >= 0 && l <= Integer.MAX_VALUE))
+                return ti.createAndThrowException("java.lang.NegativeArraySizeException");
             arrayLength = (int) l;
             sf.pop();
         } else if (attr instanceof IntegerExpression) {
-
+//            return ti.createAndThrowException("unsupported creation of symbolic array length.");
             ChoiceGenerator<?> cg = null;
+            if (!ti.isFirstStepInsn()) {
+                /* These changes are introduced by Java Ranger's path-merging in SPF */
+                if (ti.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
+                    pc = ((PCChoiceGenerator) (ti.getVM().getSystemState().getChoiceGenerator())).getCurrentPC();
+                } else {
+                    pc = new PathCondition();
+                    pc._addDet(Comparator.EQ, new IntegerConstant(0), new IntegerConstant(0));
+                }
+                assert pc != null;
 
-            if (ti.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
-                pc = ((PCChoiceGenerator) (ti.getVM().getSystemState().getChoiceGenerator())).getCurrentPC();
-            } else {
-                pc = new PathCondition();
-                pc._addDet(Comparator.EQ, new IntegerConstant(0), new IntegerConstant(0));
+                String name = attr instanceof SymbolicInteger ? ((SymbolicInteger) attr).getName() : null;
+                if (attr instanceof BinaryNonLinearIntegerExpression) {
+                    // if attr is BNLIE with same operands, concretize the operand to avoid reasoning over the non-linear arithmetic
+                    BinaryNonLinearIntegerExpression attrBNLIE = (BinaryNonLinearIntegerExpression) attr;
+                    if (attrBNLIE.left instanceof SymbolicInteger && attrBNLIE.right instanceof SymbolicInteger
+                            && attrBNLIE.left.equals(attrBNLIE.right)) {
+                        name = ((SymbolicInteger) attrBNLIE.left).getName();
+                        attr = attrBNLIE.left;
+                    }
+                }
+                if (name == null) {
+                    ti.getVM().getSystemState().setIgnored(true);
+                    return getNext(ti);
+                }
+
+                values = new ArrayList<>();
+
+                for (int i = 0; i < smallValues.length; i++) {
+                    PathCondition newPC = pc.make_copy();
+                    newPC._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(smallValues[i]));
+                    Map<String, Object> map = newPC.solveWithValuation((SymbolicInteger) attr, null);
+                    Long lastValue = getVal(map, name);
+                    if (map == null || map.size() == 0 || lastValue == null) continue;
+                    else if (lastValue == smallValues[i]) values.add(lastValue);
+                }
+                //SH: for now do not support any symbolic length array, that is outside the range of smallValues. TODO: extend that to support symbolic array length.
+                if (values.size() == 0)
+                    return ti.createAndThrowException("unsupported symbolic size of array length.");
+
+                // First choice is to explore negative array length
+                // Last choice is to explore unconstrained symbolic array length
+                // All the choices in the middle explore small array lengths -- SH: commenting this option out as of now, since it is broken. TODO
+                cg = new PCChoiceGenerator(values.size() + 1); // only one choice in addition to the values to be explored setup as of now
+                /* End of Java Ranger changes */
+
+//                cg = new PCChoiceGenerator(2);
+                ti.getVM().setNextChoiceGenerator(cg);
+                return this;
             }
+            cg = ti.getVM().getSystemState().getChoiceGenerator();
+            assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got:" + cg;
+//                sf.pop();
+//                arrayLength = Math.toIntExact(values.get((Integer)cg.getNextChoice()));
+
+
+            ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+            if (prev_cg == null)
+                pc = new PathCondition();
+            else
+                pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
             assert pc != null;
 
-            String name = attr instanceof SymbolicInteger ? ((SymbolicInteger) attr).getName() : null;
-            if (attr instanceof BinaryNonLinearIntegerExpression) {
-                // if attr is BNLIE with same operands, concretize the operand to avoid reasoning over the non-linear arithmetic
-                BinaryNonLinearIntegerExpression attrBNLIE = (BinaryNonLinearIntegerExpression) attr;
-                if (attrBNLIE.left instanceof SymbolicInteger && attrBNLIE.right instanceof SymbolicInteger
-                        && attrBNLIE.left.equals(attrBNLIE.right)) {
-                    name = ((SymbolicInteger) attrBNLIE.left).getName();
-                    attr = attrBNLIE.left;
+            if ((Integer) cg.getNextChoice() == 0) {
+//                pc._addDet(Comparator.LT, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
+                pc._addDet(Comparator.LT, (IntegerExpression) attr, new IntegerConstant(0));
+                if (pc.simplify()) {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                    return ti.createAndThrowException("java.lang.NegativeArraySizeException");
+//                    sf.pop();
+//                    arrayLength = 1;
+                } else {
+                    ti.getVM().getSystemState().setIgnored(true);
+                    return getNext(ti);
                 }
+            } else { // exploring smallValues choices.
+//                if ((Integer) cg.getNextChoice() < cg.getTotalNumberOfChoices() - 1) {
+//                pc._addDet(Comparator.GE, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
+                pc._addDet(Comparator.GE, (IntegerExpression) attr, new IntegerConstant(0));
+                if (pc.simplify()) {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                    arrayLength = sf.pop();
+                } else {
+                    ti.getVM().getSystemState().setIgnored(true);
+                    return getNext(ti);
+                }
+                arrayLength = Math.toIntExact(values.get((Integer) cg.getNextChoice() - 1));
+//                pc._addDet(Comparator.EQ, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(arrayLength));
+                pc._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(arrayLength));
             }
-            if (name == null) {
-                ti.getVM().getSystemState().setIgnored(true);
-                return getNext(ti);
-            }
 
-            values = new ArrayList<>();
-
-            for (int i = 0; i < smallValues.length; i++) {
-                PathCondition newPC = pc.make_copy();
-                newPC._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(smallValues[i]));
-                Map<String, Object> map = newPC.solveWithValuation((SymbolicInteger) attr, null);
-                Long lastValue = getVal(map, name);
-                if (map == null || map.size() == 0 || lastValue == null) continue;
-                else if (lastValue == smallValues[i]) values.add(lastValue);
-            }
-            //SH: for now do not support any symbolic length array, that is outside the range of smallValues. TODO: extend that to support symbolic array length.
-            if (values.size() == 0)
-                return ti.createAndThrowException("unsupported symbolic size of array length.");
-
-            // First choice is to explore negative array length
-            // All the choices in the middle explore small array lengths
-            cg = new PCChoiceGenerator(values.size() + 1); // only one choice in addition to the values to be explored setup as of now
-
-            ti.getVM().setNextChoiceGenerator(cg);
-            return this;
         } else {
             arrayLength = sf.pop();
         }
@@ -141,10 +181,8 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
 
         sf.pushRef(arrayRef);
 
-
         ti.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
 
         return getNext(ti);
-
     }
 }
