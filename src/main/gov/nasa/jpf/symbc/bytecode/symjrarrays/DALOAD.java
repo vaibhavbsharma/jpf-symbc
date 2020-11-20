@@ -58,7 +58,7 @@ public class DALOAD extends gov.nasa.jpf.jvm.bytecode.DALOAD {
 
         //if the value to store is not symbolic and neither is the index, then execute concretely
         if (!isSymbolicIndex)
-            super.execute(ti);
+            return super.execute(ti);
 //            return executeConcretely(ti);
 
 
