@@ -1,4 +1,4 @@
-/*
+package svcomp.Addition;/*
  * Origin of the benchmark:
  *     license: MIT (see /java/jayhorn-recursive/LICENSE)
  *     repo: https://github.com/jayhorn/cav_experiments.git

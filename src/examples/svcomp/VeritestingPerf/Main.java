@@ -2,7 +2,7 @@ package svcomp.VeritestingPerf;
 
 public class Main {
     public static void main(String[] args) {
-
+/*
         int[] a = new int[2];
 
         int a0 = org.sosy_lab.sv_benchmarks.Verifier.nondetInt();
@@ -15,6 +15,20 @@ public class Main {
 
         if (a0 > 0 && a1 > 0 && i > 0 && i < 2)
             if (a[i] == 0)
-                assert false;
+                assert false;*/
+
+
+        int size = org.sosy_lab.sv_benchmarks.Verifier.nondetInt();
+        if (size < 3 ) return;
+
+        int int_array[] = new int[size];
+
+
+        for (int i = 0; i < size; i++) int_array[i] = i;
+
+        if(int_array[2] != 2)
+            assert false;
+      return;
     }
 }
+

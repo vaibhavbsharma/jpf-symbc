@@ -13,5 +13,8 @@ public class Main {
     float a = Verifier.nondetFloat();
     float b = Verifier.nondetFloat();
     assert (a + b != a || b == 0.0);
+
+    Float z;
+    Double x;
   }
 }

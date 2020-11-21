@@ -1,4 +1,4 @@
-/* Copyright, TU Dortmund 2020 Malte Mues
+package svcomp.addition01;/* Copyright, TU Dortmund 2020 Malte Mues
  * contributed-by: Malte Mues (mail.mues@gmail.com)
  *
  * This benchmark task is a modificaiton of the following original Benchmark:

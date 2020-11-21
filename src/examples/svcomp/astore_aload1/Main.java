@@ -1,3 +1,5 @@
+package svcomp.astore_aload1;
+
 /*
  * Origin of the benchmark:
  *     license: 4-clause BSD (see /java/jbmc-regression/LICENSE)

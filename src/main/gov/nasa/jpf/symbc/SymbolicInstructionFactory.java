@@ -447,11 +447,11 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
       }
 
 	  public Instruction aaload() {
-		    return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.AALOAD() : new AALOAD(): super.aaload());
+		    return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.AALOAD() : (symJrArrays? new gov.nasa.jpf.symbc.bytecode.symjrarrays.AALOAD() : new AALOAD()) : super.aaload());
 		  }
 
 	  public Instruction aastore() {
-		    return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.AASTORE() : new AASTORE(): super.aastore());
+		    return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.AASTORE() : (symJrArrays? new gov.nasa.jpf.symbc.bytecode.symjrarrays.AASTORE() : new AASTORE()) : super.aastore());
 		  }
 
 	  public Instruction baload() {

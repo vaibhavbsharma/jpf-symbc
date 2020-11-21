@@ -1,3 +1,5 @@
+package svcomp.BellmanFord_FunUnsat01;
+
 import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**

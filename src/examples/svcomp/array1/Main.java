@@ -17,7 +17,7 @@ class Main {
 
     for (int i = 0; i < size; i++) int_array[i] = i;
 
-    if(int_array[2] != 2)
+    if(int_array[2] != (int)2)
       assert false;
 
     what_not what_not_array[] = new what_not[size];

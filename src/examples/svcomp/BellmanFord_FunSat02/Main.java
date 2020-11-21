@@ -1,4 +1,4 @@
-package svcomp.Tsp_FunSat01;
+package svcomp.BellmanFord_FunSat02;
 
 import org.sosy_lab.sv_benchmarks.Verifier;
 
@@ -42,72 +42,71 @@ import org.sosy_lab.sv_benchmarks.Verifier;
  */
 public class Main {
 
-  private static class TspSolver {
-    private final int N;
-    private int D[][];
-    private boolean visited[];
-    private int best;
+  static final int INFINITY = Integer.MAX_VALUE;
 
-    public int nCalls;
-
-    public TspSolver(int N, int D[][]) {
-      this.N = N;
-      this.D = D;
-      this.visited = new boolean[N];
-      this.nCalls = 0;
+  static int[] runBellmanFord(int N, int D[][], int src) {
+    // Initialize distances.
+    int dist[] = new int[N];
+    boolean infinite[] = new boolean[N];
+    for (int i = 0; i < N; i++) { // V+1 branches
+      dist[i] = INFINITY;
+      infinite[i] = true;
     }
+    dist[src] = 0;
+    infinite[src] = false;
 
-    public int solve() {
-      best = Integer.MAX_VALUE;
-
-      for (int i = 0; i < N; i++) visited[i] = false;
-
-      visited[0] = true;
-      search(0, 0, N - 1);
-
-      return best;
-    }
-
-    private int bound(int src, int length, int nLeft) {
-      return length;
-    }
-
-    private void search(int src, int length, int nLeft) {
-      nCalls++;
-
-      if (nLeft == 0) {
-        if (length + D[src][0] < best) best = length + D[src][0];
-        return;
+    // Keep relaxing edges until either:
+    //  (1) No more edges need to be updated.
+    //  (2) We have passed through the edges N times.
+    int k;
+    for (k = 0; k < N; k++) { // V+1 branches
+      boolean relaxed = false;
+      for (int i = 0; i < N; i++) { // V(V+1) branches
+        for (int j = 0; j < N; j++) { // V^2(V+1) branches
+          if (i == j) continue; // V^3 branches
+          if (!infinite[i]) { // V^2(V-1) branches
+            if (dist[j] > dist[i] + D[i][j]) { // V^2(V-1) branches
+              dist[j] = dist[i] + D[i][j];
+              infinite[j] = false;
+              relaxed = true;
+            }
+          }
+        }
       }
-
-      if (bound(src, length, nLeft) >= best) return;
-
-      for (int i = 0; i < N; i++) {
-        if (visited[i]) continue;
-
-        visited[i] = true;
-        search(i, length + D[src][i], nLeft - 1);
-        visited[i] = false;
-      }
+      if (!relaxed) // V branches
+      break;
     }
+
+    // Check for negative-weight egdes.
+    if (k == N) { // 1 branch
+      // We relaxed during the N-th iteration, so there must be
+      // a negative-weight cycle.
+    }
+
+    // Return the computed distances.
+    return dist;
   }
 
-  public static void main(String args[]) {
-    final int N = Verifier.nondetInt();
-    Verifier.assume(N ==2);
+  public static void main(String[] args) {
+    final int V = Verifier.nondetInt();
+    Verifier.assume(V ==2 );
 
-    int D[][] = new int[2][2];
+    final int D[][] = new int[2][2];
 
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-        int next = Verifier.nondetInt();
-        Verifier.assume(next >= 0);
-        D[i][j] = next;
+    for (int i = 0; i < V; i++) {
+      for (int j = 0; j < V; j++) {
+        if (i == j) continue;
+        int tmp = Verifier.nondetInt();
+        Verifier.assume(tmp >= 0 && tmp < 1000000);
+        D[i][j] = tmp;
       }
     }
 
-    TspSolver tspSolver = new TspSolver(N, D);
-    int sln = tspSolver.solve();
-    assert (sln >= 0);
+    int dist[] = runBellmanFord(V, D, 0);
+    for (int d : dist) {
+      // either there is no path to d from the source,
+      // or it goes through at most V nodes
+      assert (d == INFINITY || d <= V);
+    }
   }
 }

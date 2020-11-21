@@ -1,4 +1,4 @@
-/*
+package svcomp.boundcheck200;/*
  * Contributed to SV-COMP by Falk Howar
  * License: MIT (see /java/jdart-regression/LICENSE-MIT)
  *

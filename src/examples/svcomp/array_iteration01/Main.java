@@ -1,4 +1,4 @@
-/* Copyright, TU Dortmund 2020 Malte Mues
+package svcomp.array_iteration01;/* Copyright, TU Dortmund 2020 Malte Mues
  * contributed-by: Malte Mues (mail.mues@gmail.com)
  *
  * Origin of the benchmark:

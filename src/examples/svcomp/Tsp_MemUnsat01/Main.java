@@ -1,10 +1,10 @@
-package svcomp.Tsp_FunSat01;
+package svcomp.Tsp_MemUnsat01;
 
 import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
- * Type : Functional Safety Expected Verdict : True Last modified by : Zafer Esen
- * <zafer.esen@it.uu.se> Date : 9 October 2019
+ * Type : Memory Safety Expected Verdict : False Last modified by : Zafer Esen <zafer.esen@it.uu.se>
+ * Date : 9 October 2019
  *
  * <p>Original license follows.
  */
@@ -86,7 +86,7 @@ public class Main {
         if (visited[i]) continue;
 
         visited[i] = true;
-        search(i, length + D[src][i], nLeft - 1);
+        search(i + 1, length + D[src][i], nLeft - 1); // error, must be "i" instead of "i + 1"
         visited[i] = false;
       }
     }
@@ -94,7 +94,7 @@ public class Main {
 
   public static void main(String args[]) {
     final int N = Verifier.nondetInt();
-    Verifier.assume(N ==2);
+    Verifier.assume(N == 2);
 
     int D[][] = new int[2][2];
 
@@ -106,8 +106,12 @@ public class Main {
       }
     }
 
-    TspSolver tspSolver = new TspSolver(N, D);
-    int sln = tspSolver.solve();
-    assert (sln >= 0);
+    try {
+      TspSolver tspSolver = new TspSolver(N, D);
+      tspSolver.solve();
+    } catch (Exception e) {
+      assert false;
+    }
   }
 }
+;

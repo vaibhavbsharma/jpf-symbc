@@ -1,10 +1,10 @@
-package svcomp.Tsp_FunSat01;
+package svcomp.BinaryTreeSearch_MemUnsat02;
 
 import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
- * Type : Functional Safety Expected Verdict : True Last modified by : Zafer Esen
- * <zafer.esen@it.uu.se> Date : 9 October 2019
+ * Type : Memory Safety Expected Verdict : False Last modified by : Zafer Esen <zafer.esen@it.uu.se>
+ * Date : 9 October 2019
  *
  * <p>Original license follows.
  */
@@ -42,72 +42,83 @@ import org.sosy_lab.sv_benchmarks.Verifier;
  */
 public class Main {
 
-  private static class TspSolver {
-    private final int N;
-    private int D[][];
-    private boolean visited[];
-    private int best;
+  private static class BinaryTree {
+    /** Internal class representing a Node in the tree. */
+    private static class Node {
+      int value;
+      Node left;
+      Node right;
 
-    public int nCalls;
-
-    public TspSolver(int N, int D[][]) {
-      this.N = N;
-      this.D = D;
-      this.visited = new boolean[N];
-      this.nCalls = 0;
+      Node(int v, Node l, Node r) {
+        value = v;
+        left = l;
+        right = r;
+      }
     }
 
-    public int solve() {
-      best = Integer.MAX_VALUE;
+    private Node root = null;
 
-      for (int i = 0; i < N; i++) visited[i] = false;
+    /** Inserts a value in to the tree. */
+    public void insert(int v) {
 
-      visited[0] = true;
-      search(0, 0, N - 1);
-
-      return best;
-    }
-
-    private int bound(int src, int length, int nLeft) {
-      return length;
-    }
-
-    private void search(int src, int length, int nLeft) {
-      nCalls++;
-
-      if (nLeft == 0) {
-        if (length + D[src][0] < best) best = length + D[src][0];
+      if (root == null) {
+        root = new Node(v, null, null);
         return;
       }
 
-      if (bound(src, length, nLeft) >= best) return;
-
-      for (int i = 0; i < N; i++) {
-        if (visited[i]) continue;
-
-        visited[i] = true;
-        search(i, length + D[src][i], nLeft - 1);
-        visited[i] = false;
+      Node curr = null; // error, should be "root"
+      while (true) {
+        if (curr.value < v) {
+          if (curr.right != null) {
+            curr = curr.right;
+          } else {
+            curr.right = new Node(v, null, null);
+            break;
+          }
+        } else if (curr.value > v) {
+          if (curr.left != null) {
+            curr = curr.left;
+          } else {
+            curr.left = new Node(v, null, null);
+            break;
+          }
+        } else {
+          break;
+        }
       }
+    }
+
+    /** Searches for a value in the tree. */
+    public boolean search(int v) {
+      Node curr = root;
+      while (curr != null) { // N branches
+        if (curr.value == v) { // N-1 branches
+          return true;
+        } else if (curr.value < v) { // N-1 branches
+          curr = curr.right;
+        } else {
+          curr = curr.left;
+        }
+      }
+      return false;
     }
   }
 
   public static void main(String args[]) {
     final int N = Verifier.nondetInt();
-    Verifier.assume(N ==2);
 
-    int D[][] = new int[2][2];
+    try {
+      BinaryTree b = new BinaryTree();
+      for (int i = 1; i < N; i++) b.insert(Verifier.nondetInt());
 
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-        int next = Verifier.nondetInt();
-        Verifier.assume(next >= 0);
-        D[i][j] = next;
-      }
+      // We only measure the complexity (i.e. path length) of the
+      // final search operation.  That is, we count branches only
+      // from this point forward in the execution.
+      // Concolic.ResetBranchCounting();
+
+      b.search(Verifier.nondetInt());
+    } catch (Exception e) {
+      assert false;
     }
-
-    TspSolver tspSolver = new TspSolver(N, D);
-    int sln = tspSolver.solve();
-    assert (sln >= 0);
   }
 }

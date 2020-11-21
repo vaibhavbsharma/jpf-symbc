@@ -1,4 +1,4 @@
-package svcomp.Tsp_FunSat01;
+package svcomp.InsertionSort_FunSat01;
 
 import org.sosy_lab.sv_benchmarks.Verifier;
 
@@ -36,78 +36,34 @@ import org.sosy_lab.sv_benchmarks.Verifier;
  * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * @author Sudeep Juvekar <sjuvekar@cs.berkeley.edu>
- * @author Jacob Burnim <jburnim@cs.berkeley.edu>
- */
+/** @author Jacob Burnim <jburnim@cs.berkeley.edu> */
 public class Main {
 
-  private static class TspSolver {
-    private final int N;
-    private int D[][];
-    private boolean visited[];
-    private int best;
-
-    public int nCalls;
-
-    public TspSolver(int N, int D[][]) {
-      this.N = N;
-      this.D = D;
-      this.visited = new boolean[N];
-      this.nCalls = 0;
-    }
-
-    public int solve() {
-      best = Integer.MAX_VALUE;
-
-      for (int i = 0; i < N; i++) visited[i] = false;
-
-      visited[0] = true;
-      search(0, 0, N - 1);
-
-      return best;
-    }
-
-    private int bound(int src, int length, int nLeft) {
-      return length;
-    }
-
-    private void search(int src, int length, int nLeft) {
-      nCalls++;
-
-      if (nLeft == 0) {
-        if (length + D[src][0] < best) best = length + D[src][0];
-        return;
+  public static void sort(int[] a) {
+    final int N = a.length;
+    for (int i = 1; i < N; i++) { // N branches
+      int j = i - 1;
+      int x = a[i];
+      // First branch (j >= 0):  2 + 3 + ... + N = N(N+1)/2 - 1 branches
+      // Second branch (a[j] > x):  1 + 2 + ... + N-1 = (N-1)N/2 branches
+      while ((j >= 0) && (a[j] > x)) {
+        a[j + 1] = a[j];
+        j--;
       }
-
-      if (bound(src, length, nLeft) >= best) return;
-
-      for (int i = 0; i < N; i++) {
-        if (visited[i]) continue;
-
-        visited[i] = true;
-        search(i, length + D[src][i], nLeft - 1);
-        visited[i] = false;
-      }
+      a[j + 1] = x;
     }
   }
 
-  public static void main(String args[]) {
-    final int N = Verifier.nondetInt();
-    Verifier.assume(N ==2);
+  public static void main(String[] args) {
+    int N = Verifier.nondetInt();
+    Verifier.assume(N > 0 && N < 4);
 
-    int D[][] = new int[2][2];
-
+    int a[] = new int[N];
     for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-        int next = Verifier.nondetInt();
-        Verifier.assume(next >= 0);
-        D[i][j] = next;
-      }
+      a[i] = N - i;
     }
 
-    TspSolver tspSolver = new TspSolver(N, D);
-    int sln = tspSolver.solve();
-    assert (sln >= 0);
+    sort(a);
+    assert (N < 2 || a[0] < a[1]);
   }
 }

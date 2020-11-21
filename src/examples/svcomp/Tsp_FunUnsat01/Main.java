@@ -1,9 +1,9 @@
-package svcomp.Tsp_FunSat01;
+package svcomp.Tsp_FunUnsat01;
 
 import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
- * Type : Functional Safety Expected Verdict : True Last modified by : Zafer Esen
+ * Type : Functional Safety Expected Verdict : False Last modified by : Zafer Esen
  * <zafer.esen@it.uu.se> Date : 9 October 2019
  *
  * <p>Original license follows.
@@ -108,6 +108,6 @@ public class Main {
 
     TspSolver tspSolver = new TspSolver(N, D);
     int sln = tspSolver.solve();
-    assert (sln >= 0);
+    assert (sln == 42);
   }
 }

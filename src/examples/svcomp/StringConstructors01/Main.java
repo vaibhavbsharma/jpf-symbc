@@ -1,3 +1,5 @@
+package svcomp.StringConstructors01;
+
 /*
  * Origin of the benchmark:
  *     license: 4-clause BSD (see /java/jbmc-regression/LICENSE)
