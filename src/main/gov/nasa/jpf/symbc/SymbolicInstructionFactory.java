@@ -535,7 +535,7 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
 	      }
 
 	  public Instruction multianewarray(String clsName, int dimensions){
-		  return (filter.isPassing(ci) ? new MULTIANEWARRAY(clsName,dimensions) : super.multianewarray(clsName,dimensions));
+		  return (filter.isPassing(ci) ? ( symJrArrays? new gov.nasa.jpf.symbc.bytecode.symjrarrays.MULTIANEWARRAY(clsName,dimensions) : new MULTIANEWARRAY(clsName,dimensions)) : super.multianewarray(clsName,dimensions));
 	      }
 
 	static public String[] dp;

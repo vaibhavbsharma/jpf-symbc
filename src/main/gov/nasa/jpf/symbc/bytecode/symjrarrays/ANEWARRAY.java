@@ -37,7 +37,7 @@ import static gov.nasa.jpf.symbc.veritesting.AdapterSynth.SPFAdapterSynth.getVal
 
 
 public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
-    private static final int[] smallValues = {1, 2, 3, 4}; //, 10};
+    private static final int[] smallValues = {1, 2, 3, 4, 5, 10};
     ArrayList<Long> values;
 
     public ANEWARRAY(String typeDescriptor) {
