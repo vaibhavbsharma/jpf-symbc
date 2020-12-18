@@ -18,16 +18,12 @@ public class Main {
                 assert false;*/
 
 
-        int size = org.sosy_lab.sv_benchmarks.Verifier.nondetInt();
-        if (size < 3 ) return;
-
-        int int_array[] = new int[size];
+        int i = org.sosy_lab.sv_benchmarks.Verifier.nondetInt();
+        int j = org.sosy_lab.sv_benchmarks.Verifier.nondetInt();
 
 
-        for (int i = 0; i < size; i++) int_array[i] = i;
+        assert(i+j >= 0);
 
-        if(int_array[2] != 2)
-            assert false;
       return;
     }
 }

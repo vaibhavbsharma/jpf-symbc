@@ -94,9 +94,9 @@ public class Main {
 
   public static void main(String args[]) {
     final int N = Verifier.nondetInt();
-    Verifier.assume(N == 2);
+    Verifier.assume(N > 0);
 
-    int D[][] = new int[2][2];
+    int D[][] = new int[N][N];
 
     for (int i = 0; i < N; i++) {
       for (int j = 0; j < N; j++) {

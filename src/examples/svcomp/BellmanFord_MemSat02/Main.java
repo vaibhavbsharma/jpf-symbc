@@ -1,10 +1,10 @@
-package svcomp.BellmanFord_FunSat02;
+package svcomp.BellmanFord_MemSat02;
 
 import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
- * Type : Functional Safety Expected Verdict : True Last modified by : Zafer Esen
- * <zafer.esen@it.uu.se> Date : 9 October 2019
+ * Type : Memory Safety Expected Verdict : True Last modified by : Zafer Esen <zafer.esen@it.uu.se>
+ * Date : 9 October 2019
  *
  * <p>Original license follows.
  */

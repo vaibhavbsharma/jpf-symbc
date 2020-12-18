@@ -1,10 +1,10 @@
-package svcomp.Tsp_FunUnsat01;
+package svcomp.Tsp_MemSat01;
 
 import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
- * Type : Functional Safety Expected Verdict : False Last modified by : Zafer Esen
- * <zafer.esen@it.uu.se> Date : 9 October 2019
+ * Type : Memory Safety Expected Verdict : True Last modified by : Zafer Esen <zafer.esen@it.uu.se>
+ * Date : 9 October 2019
  *
  * <p>Original license follows.
  */
@@ -106,8 +106,12 @@ public class Main {
       }
     }
 
-    TspSolver tspSolver = new TspSolver(N, D);
-    int sln = tspSolver.solve();
-    assert (sln == 42);
+    try {
+      TspSolver tspSolver = new TspSolver(N, D);
+      tspSolver.solve();
+    } catch (Exception e) {
+      assert false;
+    }
   }
 }
+;
