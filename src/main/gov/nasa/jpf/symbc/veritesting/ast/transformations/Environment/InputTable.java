@@ -1,12 +1,12 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment;
 
 import com.ibm.wala.ssa.IR;
-import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.Stmt;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.ExprRegionInputVisitor;
 
 import java.util.Iterator;
-import java.util.Set;
+
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 /**
  * This class populates the input variables for the region, it does so by computing the first var use for every slot in case of non-method region, or computing the parameters of a method as the input table in case of a method region.
@@ -27,7 +27,7 @@ public class InputTable extends StaticTable<Integer> {
         }
     }
 
-    private InputTable(boolean isMethodRegion, IR ir){
+    private InputTable(boolean isMethodRegion, IR ir) {
         super("Region Input Table", "var", isMethodRegion ? "param" : "slot");
         this.isMethodRegion = isMethodRegion;
         this.ir = ir;
@@ -35,6 +35,7 @@ public class InputTable extends StaticTable<Integer> {
 
     /**
      * This populates the InputTable for a methodRegion using the SlotParamTable since the InputTable for methodRegions is contains the same elements of the SlotParamTable.
+     *
      * @param slotParamTable Parameter table for a methodRegion.
      */
     private void computeMethodInputVars(SlotParamTable slotParamTable) {
@@ -45,28 +46,31 @@ public class InputTable extends StaticTable<Integer> {
 
     /**
      * Computes inputs by visiting statement of the region and figuring out the first use of every stack slot that has no def as its first use.
+     *
      * @param slotParamTable Table of vars to stack slots.
-     * @param stmt Statement of the region.
+     * @param stmt           Statement of the region.
      */
     private void computeRegionInput(SlotParamTable slotParamTable, Stmt stmt) {
         ExprRegionInputVisitor exprRegionInputVisitor = new ExprRegionInputVisitor(this, slotParamTable);
         RegionInputVisitor regionInputVisitor = new RegionInputVisitor(exprRegionInputVisitor);
         stmt.accept(regionInputVisitor);
         Iterator itr = exprRegionInputVisitor.usedWalaVars.iterator();
-        while(itr.hasNext()) {
+        while (itr.hasNext()) {
             int usedWalaVar = (int) itr.next();
             if (exprRegionInputVisitor.defWalaVars.contains(usedWalaVar)) itr.remove();
         }
-        for (int usedWalaVar: exprRegionInputVisitor.usedWalaVars) {
+        for (int usedWalaVar : exprRegionInputVisitor.usedWalaVars) {
             int varSlots[] = slotParamTable.lookup(usedWalaVar);
-            int lastValidSlotInd = (varSlots.length == 1 ? 0 : varSlots.length-2);
+            int lastValidSlotInd = (varSlots.length == 1 ? 0 : varSlots.length - 2);
             this.add(usedWalaVar, varSlots[lastValidSlotInd]);
         }
     }
 
     @Override
     public void print() {
-        System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
-        table.forEach((v1, v2) -> System.out.println("@w" + v1 + " --------- " + v2));
+        if (verboseVeritesting) {
+            System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
+            table.forEach((v1, v2) -> System.out.println("@w" + v1 + " --------- " + v2));
+        }
     }
 }

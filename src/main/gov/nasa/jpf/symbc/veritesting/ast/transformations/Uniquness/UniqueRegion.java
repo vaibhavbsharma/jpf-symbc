@@ -11,6 +11,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.constprop.SimplifyStmtVisitor.makeConstantsTableUnique;
 
 /**
@@ -53,14 +54,15 @@ public class UniqueRegion {
                     uniqueNum, staticRegion.earlyReturnResult);
         }
 
-        System.out.println("\n--------------- UNIQUENESS TRANSFORMATION ---------------");
-        System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
-        dynRegion.slotParamTable.print();
-        dynRegion.inputTable.print();
-        dynRegion.varTypeTable.print();
-        dynRegion.outputTable.print();
-        System.out.println("Stack output: " + dynRegion.stackOutput);
-
+        if(verboseVeritesting) {
+            System.out.println("\n--------------- UNIQUENESS TRANSFORMATION ---------------");
+            System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
+            dynRegion.slotParamTable.print();
+            dynRegion.inputTable.print();
+            dynRegion.varTypeTable.print();
+            dynRegion.outputTable.print();
+            System.out.println("Stack output: " + dynRegion.stackOutput);
+        }
         return dynRegion;
     }
 

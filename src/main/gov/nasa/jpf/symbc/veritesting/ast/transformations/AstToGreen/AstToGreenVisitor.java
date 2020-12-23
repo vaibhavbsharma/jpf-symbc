@@ -1,7 +1,6 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.AstToGreen;
 
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
-import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SimplifyGreenVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstMapVisitor;
@@ -12,6 +11,7 @@ import za.ac.sun.cs.green.expr.*;
 
 import java.util.ArrayList;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 
@@ -50,13 +50,13 @@ public class AstToGreenVisitor implements AstVisitor<Expression> {
         String name = obj.getClass().getCanonicalName();
         throwException(new IllegalArgumentException("Unsupported class: " + name +
                 " value: " + obj.toString() + " seen in AstToGreenVisitor"), INSTANTIATION);
-        return (Expression)obj;
+        return (Expression) obj;
     }
 
 
     public Expression assignStmt(AssignmentStmt stmt) {
         exprVisitor.setAssign(stmt.lhs);
-        Expression rhsExp=  eva.accept(stmt.rhs);
+        Expression rhsExp = eva.accept(stmt.rhs);
         greenList.add(rhsExp);
         stmtList.add(stmt);
         return rhsExp;
@@ -186,29 +186,33 @@ public class AstToGreenVisitor implements AstVisitor<Expression> {
         Stmt noRangerVarStmt = noWalaVarStmt.accept(astMapVisitor);
         NoSkipVisitor noSkipVisitor = new NoSkipVisitor();
 
-        System.out.println("\n--------------- NO-SKIP OPTIMIZATION ---------------");
+        if (verboseVeritesting)
+            System.out.println("\n--------------- NO-SKIP OPTIMIZATION ---------------");
+
         Stmt noSkipStmt = noRangerVarStmt.accept(noSkipVisitor);
 //        if (noSkipStmt instanceof SkipStmt)
 //            throwException(new IllegalArgumentException("concrete region"), INSTANTIATION);
-        System.out.println(PrettyPrintVisitor.print(noSkipStmt));
+        if (verboseVeritesting)
+            System.out.println(PrettyPrintVisitor.print(noSkipStmt));
 
-        System.out.println("\n--------------- TO GREEN TRANSFORMATION ---------------");
+        if (verboseVeritesting)
+            System.out.println("\n--------------- TO GREEN TRANSFORMATION ---------------");
         AstToGreenVisitor toGreenVisitor = new AstToGreenVisitor();
         Expression regionSummary = noSkipStmt.accept(toGreenVisitor);
 
+        if (verboseVeritesting) {
+            System.out.format("%1$-70s %2$-100s\n", "|Stmt", "|Green Expression");
+            System.out.format("%1$-70s %2$-100s\n", "|-----------------------------------------------------------",
+                    "|------------------------------------------------------");
 
-        System.out.format("%1$-70s %2$-100s\n", "|Stmt", "|Green Expression");
-        System.out.format("%1$-70s %2$-100s\n", "|-----------------------------------------------------------",
-                "|------------------------------------------------------");
+            for (int i = 0; i < toGreenVisitor.stmtList.size(); i++) {
+                System.out.format("%1$-70s %2$-100s\n", toGreenVisitor.stmtList.get(i), ExprUtil.AstToString(toGreenVisitor.greenList.get(i)));
+            }
 
-        for (int i = 0; i < toGreenVisitor.stmtList.size(); i++) {
-            System.out.format("%1$-70s %2$-100s\n", toGreenVisitor.stmtList.get(i), ExprUtil.AstToString(toGreenVisitor.greenList.get(i)));
+            System.out.println("\nGreen Expression pushed on the Path Condition:");
+            System.out.println(ExprUtil.AstToString(regionSummary));
+            System.out.println("Stack output: " + dynRegion.stackOutput);
         }
-
-        System.out.println("\nGreen Expression pushed on the Path Condition:");
-        System.out.println(ExprUtil.AstToString(regionSummary));
-        System.out.println("Stack output: " + dynRegion.stackOutput);
-
 /*
 
 

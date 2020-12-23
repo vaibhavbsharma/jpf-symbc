@@ -6,6 +6,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.def.FieldRefVarExpr;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 
@@ -52,10 +53,11 @@ public final class FieldSubscriptMap {
     }
 
     public void print() {
-        System.out.println("\nprinting " + tableName+" ("+ label1 + "->" + label2 +")");
-        table.forEach((v1, v2) -> System.out.println("!w"+v1 + " --------- " + v2));
+        if (verboseVeritesting) {
+            System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
+            table.forEach((v1, v2) -> System.out.println("!w" + v1 + " --------- " + v2));
+        }
     }
-
     public void updateKeys(FieldRef oldKey, FieldRef newKey){
         for(FieldRef key: table.keySet()) {
             SubscriptPair value = table.get(key);

@@ -3,16 +3,16 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package gov.nasa.jpf.symbc.bytecode;
@@ -29,7 +29,7 @@ import gov.nasa.jpf.vm.ThreadInfo;
 
 /**
  * Compare long ..., value1, value2 => ..., result
- * 
+ * <p>
  * YN: fixed choice selection in symcrete support (Yannic Noller <nolleryc@gmail.com>)
  */
 public class LCMP extends gov.nasa.jpf.jvm.bytecode.LCMP {
@@ -57,18 +57,21 @@ public class LCMP extends gov.nasa.jpf.jvm.bytecode.LCMP {
             long v1 = sf.popLong();
             long v2 = sf.popLong();
 
-            int conditionValue = conditionValue(v1, v2);
+            int conditionValue;
 
-            sf.push(conditionValue);
 
             cg = th.getVM().getSystemState().getChoiceGenerator();
             assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
             if (SymbolicInstructionFactory.collect_constraints) {
                 // YN: reuse conditionValue written from concrete exec + set choice correctly
+                conditionValue = conditionValue(v1, v2);
+
                 ((PCChoiceGenerator) cg).select(conditionValue + 1);
             } else {
                 conditionValue = ((PCChoiceGenerator) cg).getNextChoice() - 1;
             }
+
+            sf.push(conditionValue);
 
             PathCondition pc;
 
@@ -87,6 +90,7 @@ public class LCMP extends gov.nasa.jpf.jvm.bytecode.LCMP {
             assert pc != null;
 
             if (conditionValue == -1) {
+//                sf.push(-1);
                 if (sym_v1 != null) {
                     if (sym_v2 != null) { // both are symbolic values
                         pc._addDet(Comparator.LT, sym_v2, sym_v1);
@@ -101,6 +105,7 @@ public class LCMP extends gov.nasa.jpf.jvm.bytecode.LCMP {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                 }
             } else if (conditionValue == 0) {
+//                sf.push(0);
                 if (sym_v1 != null) {
                     if (sym_v2 != null) { // both are symbolic values
                         pc._addDet(Comparator.EQ, sym_v1, sym_v2);
@@ -114,6 +119,7 @@ public class LCMP extends gov.nasa.jpf.jvm.bytecode.LCMP {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                 }
             } else { // 1
+//                sf.push(1);
                 if (sym_v1 != null) {
                     if (sym_v2 != null) { // both are symbolic values
                         pc._addDet(Comparator.GT, sym_v2, sym_v1);

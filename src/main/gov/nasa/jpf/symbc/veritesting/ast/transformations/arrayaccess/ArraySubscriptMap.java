@@ -4,11 +4,10 @@ import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.ArrayRef;
 import gov.nasa.jpf.symbc.veritesting.ast.def.ArrayRefVarExpr;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess.SubscriptPair;
-import za.ac.sun.cs.green.expr.Expression;
-import za.ac.sun.cs.green.expr.IntConstant;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 import static gov.nasa.jpf.symbc.veritesting.ast.def.ArrayRef.looseArrayRefEquals;
@@ -74,10 +73,11 @@ public class ArraySubscriptMap {
     }
 
     public void print() {
-        System.out.println("\nprinting " + tableName+" ("+ label1 + "->" + label2 +")");
-        table.forEach((v1, v2) -> System.out.println("!w"+v1 + " --------- " + v2));
+        if (verboseVeritesting) {
+            System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
+            table.forEach((v1, v2) -> System.out.println("!w" + v1 + " --------- " + v2));
+        }
     }
-
     public void updateKeys(ArrayRef oldKey, ArrayRef newKey){
         for(ArrayRef key: table.keySet()) {
             SubscriptPair value = table.get(key);

@@ -24,6 +24,7 @@ import za.ac.sun.cs.green.expr.*;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.DONTKNOW;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.STATIC;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
@@ -811,12 +812,12 @@ else
                 endIns = ((IBytecodeMethod) (ir.getMethod())).getBytecodeIndex(terminus.getFirstInstructionIndex());
                 Stmt s = conjoin(stmt, partialGammaStmt);
                 veritestingRegions.put(CreateStaticRegions.constructRegionIdentifier(ir, currentBlock), new StaticRegion(s, ir, false, endIns, currentBlock, terminus, null));
-                System.out.println("Subregion" + System.lineSeparator() + PrettyPrintVisitor.print(s));
+                if(verboseVeritesting)
+                    System.out.println("Subregion" + System.lineSeparator() + PrettyPrintVisitor.print(s));
 
-            } catch (InvalidClassFileException e) {
-                System.out.println("Unable to create subregion.  Reason: " + e.toString());
-            } catch (StaticRegionException e) {
-                System.out.println("Unable to create subregion.  Reason: " + e.toString());
+            } catch (InvalidClassFileException | StaticRegionException e) {
+                if(verboseVeritesting)
+                    System.out.println("Unable to create subregion.  Reason: " + e.toString());
             }
             Pair<Stmt, Map<PhiEdge, List<PhiCondition>>> stmtMapPair = jitAttemptSubregionRec(cfg, terminus, endingBlock);
             Stmt subRegStmt = stmtMapPair.getFirst();
@@ -924,15 +925,16 @@ else
 
                 endIns = ((IBytecodeMethod) (ir.getMethod())).getBytecodeIndex(terminus.getFirstInstructionIndex());
                 veritestingRegions.put(CreateStaticRegions.constructRegionIdentifier(ir, currentBlock), new StaticRegion(s, ir, false, endIns, currentBlock, terminus, null));
-                System.out.println("Subregion: " + System.lineSeparator() + PrettyPrintVisitor.print(s));
+                if(verboseVeritesting)
+                    System.out.println("Subregion: " + System.lineSeparator() + PrettyPrintVisitor.print(s));
 
-            } catch (StaticRegionException e) {
+            } catch (StaticRegionException | InvalidClassFileException e) {
                 //SSAUtil.printBlocksUpTo(cfg, endingBlock.getNumber());
-                System.out.println("Unable to create subregion.  Reason: " + e.toString());
-            } catch (InvalidClassFileException e) {
-                System.out.println("Unable to create subregion.  Reason: " + e.toString());
+                if(verboseVeritesting)
+                    System.out.println("Unable to create subregion.  Reason: " + e.toString());
             } catch (IllegalArgumentException e) {
-                System.out.println("Unable to create subregion.  Serious error. Reason: " + e.toString());
+                if(verboseVeritesting)
+                    System.out.println("Unable to create subregion.  Serious error. Reason: " + e.toString());
                 throwException(e, STATIC);
             }
         }
@@ -957,10 +959,12 @@ else
 
         try {
             Stmt s = attemptMethodSubregion(cfg, cfg.entry(), cfg.exit());
-            System.out.println("Method" + System.lineSeparator() + PrettyPrintVisitor.print(s));
+            if(verboseVeritesting)
+                System.out.println("Method" + System.lineSeparator() + PrettyPrintVisitor.print(s));
             veritestingRegions.put(CreateStaticRegions.constructMethodIdentifier(cfg.entry()), new StaticRegion(s, ir, true, 0, null, null, null));
         } catch (StaticRegionException sre) {
-            System.out.println("Unable to create a method summary region for: " + cfg.getMethod().getName().toString());
+            if(verboseVeritesting)
+                System.out.println("Unable to create a method summary region for: " + cfg.getMethod().getName().toString());
         }
     }
 
@@ -992,10 +996,9 @@ else
             try {
                 endIns = ((IBytecodeMethod) (ir.getMethod())).getBytecodeIndex(terminus.getFirstInstructionIndex());
                 veritestingRegions.put(CreateStaticRegions.constructRegionIdentifier(ir, currentBlock), new StaticRegion(condStmt, ir, false, endIns, currentBlock, terminus, null));
-            } catch (InvalidClassFileException e) {
-                System.out.println("unable to create static region:" + e.getMessage());
-            } catch (StaticRegionException sre) {
-                System.out.println("unable to create static region:" + sre.getMessage());
+            } catch (InvalidClassFileException | StaticRegionException e) {
+                if(verboseVeritesting)
+                    System.out.println("unable to create static region:" + e.getMessage());
             }
             stmt = conjoin(stmt, condStmt);
 
@@ -1056,11 +1059,9 @@ else
                 try {
                     endIns = ((IBytecodeMethod) (ir.getMethod())).getBytecodeIndex(terminus.getFirstInstructionIndex());
                     veritestingRegions.put(CreateStaticRegions.constructRegionIdentifier(ir, currentBlock), new StaticRegion(stmt, ir, false, endIns, currentBlock, terminus, null));
-                } catch (InvalidClassFileException e) {
-                    System.out.println("unable to create static region:" + e.getMessage());
-                } catch (StaticRegionException sre) {
-                    System.out.println("unable to create static region:" + sre.getMessage());
-
+                } catch (InvalidClassFileException | StaticRegionException e) {
+                    if(verboseVeritesting)
+                        System.out.println("unable to create static region:" + e.getMessage());
                 }
             }
             else
@@ -1090,7 +1091,8 @@ else
 
         try {
             Stmt s = attemptMethodAndMultiPathRegions(cfg, cfg.entry(), cfg.exit());
-            System.out.println("Method" + System.lineSeparator() + PrettyPrintVisitor.print(s));
+            if(verboseVeritesting)
+                System.out.println("Method" + System.lineSeparator() + PrettyPrintVisitor.print(s));
             SSAInstruction[] insns = ir.getInstructions();
             veritestingRegions.put(CreateStaticRegions.constructMethodIdentifier(cfg.entry()), new StaticRegion(s, ir, true, 0, null, null, null));
         } catch (StaticRegionException sre) { //TODO: check if we need that for method regions.

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.VeritestingListener.statisticManager;
 
 
@@ -96,7 +97,8 @@ public class JITAnalysis {
 
         if (staticRegion == null) {
             //throw new StaticRegionException("Region " + key + " has no recovered static region");
-            System.out.println("Region " + key + " has no recovered static region");
+            if(verboseVeritesting)
+                System.out.println("Region " + key + " has no recovered static region");
             return null;
         } else
             return staticRegion;

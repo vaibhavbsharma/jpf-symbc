@@ -1,7 +1,6 @@
 package gov.nasa.jpf.symbc.veritesting.VeritestingUtil;
 
 import gov.nasa.jpf.JPFException;
-import gov.nasa.jpf.jvm.bytecode.GOTO;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.numeric.solvers.ProblemGeneral;
@@ -21,6 +20,7 @@ import za.ac.sun.cs.green.expr.Operation;
 
 import java.io.File;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 
@@ -201,7 +201,8 @@ public class SpfUtil {
                     return new IntegerConstant(variable);
             }
         } else {
-            System.out.println("SPF does not know the type, type is assumed int.");
+            if(verboseVeritesting)
+                System.out.println("SPF does not know the type, type is assumed int.");
             return new IntegerConstant(variable);
         }
     }

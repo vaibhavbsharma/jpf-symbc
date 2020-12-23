@@ -18,10 +18,7 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.Operation;
 
-import static gov.nasa.jpf.symbc.VeritestingListener.VeritestingMode.SPFCASES;
-import static gov.nasa.jpf.symbc.VeritestingListener.runMode;
-import static gov.nasa.jpf.symbc.VeritestingListener.statisticManager;
-import static gov.nasa.jpf.symbc.VeritestingListener.veritestingMode;
+import static gov.nasa.jpf.symbc.VeritestingListener.*;
 import static gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager.regionHeuristicFinished;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
@@ -67,7 +64,8 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
     public StaticBranchChoiceGenerator(DynamicRegion region, Instruction instruction, boolean heuristicsOn) {
         super(5, region, instruction);
         if (!heuristicsOn) {
-            System.out.println("heuristics must be on to be able to use the heuristics choice generator!");
+            if(verboseVeritesting)
+                System.out.println("heuristics must be on to be able to use the heuristics choice generator!");
             assert false;
         }
 
@@ -110,7 +108,8 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
                 RegionHitExactHeuristic regionHitExactHeuristic = HeuristicManager.getRegionHeuristic();
                 assert !regionHitExactHeuristic.getRegionStatus();
                 if (region.totalNumPaths != regionHitExactHeuristic.getPathCount()) {
-                    System.out.println("** warning: our estimated path count (" + region.totalNumPaths +
+                    if(verboseVeritesting)
+                        System.out.println("** warning: our estimated path count (" + region.totalNumPaths +
                             ") does not match exact path count (" + regionHitExactHeuristic.getPathCount());
                 }
                 regionHitExactHeuristic.setEstimatedPathCount(region.totalNumPaths);

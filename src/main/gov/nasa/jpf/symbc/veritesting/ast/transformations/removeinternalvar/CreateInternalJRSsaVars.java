@@ -52,21 +52,24 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
 
         Expression oldInnerPC = innerPC;
         InternalJRSsaVar oldlastInternalSsaVar = lastInternalSsaVar;
-        lastInternalSsaVar = null;
+
+//        lastInternalSsaVar = null; It is important to visit both sides of the if-statement with the lastInternalSsaVar so we are able to create he newCondition for subsequent if-statments,
+        // however, we need to know if the subsequent sides, i.e., then, or else, have created new lastInternalSsaVar, in which case we want to have the new one.
         Expression thenCond = innerPC == null ? newCondition : new Operation(Operation.Operator.AND, innerPC, newCondition);
         innerPC = thenCond;
 
         Stmt thenStmt = a.thenStmt.accept(this);
 
-        InternalJRSsaVar thenInternalSsaVar = lastInternalSsaVar;
+        InternalJRSsaVar thenInternalSsaVar = lastInternalSsaVar!=null && lastInternalSsaVar.equals(oldlastInternalSsaVar)? null: lastInternalSsaVar;
 
-        lastInternalSsaVar = null;
+//        lastInternalSsaVar = null;
+        lastInternalSsaVar = oldlastInternalSsaVar;
         Expression elseCond = innerPC == null ? newCondition : new Operation(Operation.Operator.AND, new Operation(Operation.Operator.NOT, innerPC), newCondition);
 
         innerPC = elseCond;
         Stmt elseStmt = a.elseStmt.accept(this);
 
-        InternalJRSsaVar elseInternalSsaVar = lastInternalSsaVar;
+        InternalJRSsaVar elseInternalSsaVar = lastInternalSsaVar!=null && lastInternalSsaVar.equals(oldlastInternalSsaVar)? null: lastInternalSsaVar;
 
         innerPC = oldInnerPC;
 

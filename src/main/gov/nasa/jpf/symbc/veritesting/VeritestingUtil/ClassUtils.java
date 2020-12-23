@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ReflectUtil.getSignature;
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 /**
  * A utility class used during discovering of static regions.
@@ -74,7 +74,8 @@ public class ClassUtils {
         MethodReference mr = StringStuff.makeMethodReference(methodSummaryClassName + "." + signature);
         IMethod iMethod = cha.resolveMethod(mr);
         if (iMethod == null) {
-            System.out.println("could not resolve " + mr);
+            if(verboseVeritesting)
+                System.out.println("could not resolve " + mr);
             return;
         }
         IClass iClass = iMethod.getDeclaringClass();

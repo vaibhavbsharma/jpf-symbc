@@ -3,9 +3,10 @@ package gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment;
 import com.ibm.wala.ssa.*;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.Stmt;
-import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.ExprBoundaryVisitor;
 
 import java.util.*;
+
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 /**
  * An Environment table that holds all slots that needs to be populated after successful symmetrization of the region. Vars associated with the slot are the last instance discovered for the slots.
@@ -84,10 +85,11 @@ public class OutputTable extends StaticTable<Integer> {
 
     @Override
     public void print() {
-        System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
-        table.forEach((v1, v2) -> System.out.println(v1 + " --------- @w" + v2));
+        if (verboseVeritesting) {
+            System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
+            table.forEach((v1, v2) -> System.out.println(v1 + " --------- @w" + v2));
+        }
     }
-
     public boolean isOutputVar(int var) {
         return table.containsValue(var);
     }

@@ -1,18 +1,15 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases;
 
-import com.ibm.wala.ssa.*;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
-import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeEarlyReturns.RemoveEarlyReturns;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.Operation;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 
-import static za.ac.sun.cs.green.expr.Operation.Operator.AND;
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static za.ac.sun.cs.green.expr.Operation.Operator.OR;
 
 
@@ -192,14 +189,19 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
         SpfCasesPass2Visitor visitor = new SpfCasesPass2Visitor();
         Stmt dynStmt = dynRegion.dynStmt.accept(visitor);
 
-        System.out.println("--------------- SPFCases TRANSFORMATION 2ND PASS ---------------");
-        System.out.println(StmtPrintVisitor.print(dynStmt));
+        if(verboseVeritesting){
+            System.out.println("--------------- SPFCases TRANSFORMATION 2ND PASS ---------------");
+            System.out.println(StmtPrintVisitor.print(dynStmt));
+        }
+
         SPFCaseList detectedCases = new SPFCaseList(visitor.spfCaseSet);
-        detectedCases.print();
+        if(verboseVeritesting)
+            detectedCases.print();
 
         dynRegion.earlyReturnResult.condition = visitor.earlyReturnCondition;
 
-        System.out.println("printing early return result condition after spfcases2: " + visitor.earlyReturnCondition);
+        if(verboseVeritesting)
+            System.out.println("printing early return result condition after spfcases2: " + visitor.earlyReturnCondition);
         return new DynamicRegion(dynRegion,
                 dynStmt,
                 detectedCases, null, null, dynRegion.earlyReturnResult);

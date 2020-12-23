@@ -3,22 +3,20 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 package gov.nasa.jpf.symbc.bytecode.symarrays;
-
-
 
 
 import gov.nasa.jpf.symbc.arrays.ArrayExpression;
@@ -46,77 +44,44 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.maybeParseC
  * Symbolic version of the NEWARRAY class from jpf-core. Has some extra code to
  * detect if a symbolic variable is being used as the size of the new array, and
  * treat it accordingly.
- * 
+ * <p>
  * Someone with more experience should review this :)
- * TODO: to review; Corina: this code does not make too much sense: for now I will comment it out 
+ * TODO: to review; Corina: this code does not make too much sense: for now I will comment it out
  * who wrote it?
- * 
  */
 
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
     private static final int c = 0;//TODO make this into a configuration option
     private static final boolean stopIfCExceeded = false; //TODO make this into a configuration option
-    private static final int[] smallValues = {2, 3, 4, 5, 10};
-    ArrayList<Long> values ;
+    private static final int[] smallValues = {3};//,3,4,5}; //, 10};
+    ArrayList<Long> values;
 
-	public NEWARRAY(int typeCode) {
-    	super(typeCode);
+    public NEWARRAY(int typeCode) {
+        super(typeCode);
     }
-	
-	@Override
-	public Instruction execute( ThreadInfo ti) {
-		/*
-		StackFrame frame = ti.getModifiableTopFrame();
 
-	    arrayLength = frame.pop();
-	    Heap heap = ti.getHeap();
+    @Override
+    public Instruction execute(ThreadInfo ti) {
 
-	    if (arrayLength < 0){
-	      return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-	    }
+        StackFrame sf = ti.getModifiableTopFrame();
+        Object attr = sf.getOperandAttr();
+        ArrayExpression arrayAttr = null;
+        PathCondition pc = null;
+        ;
 
-	    // there is no clinit for array classes, but we still have  to create a class object
-	    // since its a builtin class, we also don't have to bother with NoClassDefFoundErrors
-	    String clsName = "[" + type;
-	    ClassInfo ci = ClassLoaderInfo.getCurrentResolvedClassInfo(clsName);
-
-	    if (!ci.isRegistered()) {
-	      ci.registerClass(ti);
-	      ci.setInitialized();
-	    }
-	   
-	    if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
-	      return ti.createAndThrowException("java.lang.OutOfMemoryError",
-	                                        "trying to allocate new " +
-	                                          getTypeName() +
-	                                        "[" + arrayLength + "]");
-	    }
-	    
-	    ElementInfo eiArray = heap.newArray(type, arrayLength, ti);
-	    int arrayRef = eiArray.getObjectRef();
-	    
-	    frame.pushRef(arrayRef);
-
-	    return getNext(ti);
-		*/
-		// old code
-	    // Corina: incorrect
-
-		StackFrame sf = ti.getModifiableTopFrame();
-		Object attr = sf.getOperandAttr();
-		ArrayExpression arrayAttr = null;
-        PathCondition pc = null;;
-
-		if(attr instanceof SymbolicLengthInteger) {
-			long l = ((SymbolicLengthInteger) attr).solution;
+      /*  if(attr instanceof SymbolicLengthInteger || attr instanceof IntegerExpression)
+            return ti.createAndThrowException("java.lang.NegativeArraySizeException");
+*/
+        if (attr instanceof SymbolicLengthInteger) {
+            long l = ((SymbolicLengthInteger) attr).solution;
 //			assert(l>=0 && l<=Integer.MAX_VALUE) : "Array length must be positive integer";
-            if ( !(l >= 0 && l <= Integer.MAX_VALUE))
+            if (!(l >= 0 && l <= Integer.MAX_VALUE))
                 return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-			arrayLength = (int) l;
-			sf.pop();
-		} else 	if(attr instanceof IntegerExpression) {
-
+            arrayLength = (int) l;
+            sf.pop();
+        } else if (attr instanceof IntegerExpression) {
+//            return ti.createAndThrowException("unsupported creation of symbolic array length.");
             ChoiceGenerator<?> cg = null;
             if (!ti.isFirstStepInsn()) {
                 /* These changes are introduced by Java Ranger's path-merging in SPF */
@@ -142,65 +107,47 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
-                /*Map<String, Object> map = attr instanceof SymbolicInteger ?
-                        pc.solveWithValuation((SymbolicInteger) attr, null) : null;
-                String name = map != null ? ((SymbolicInteger) attr).getName() : null;
-                Long lastValue = getVal(map, name);
-                if (map == null || map.size() == 0 || lastValue == null) { //reached an unsat state
-                    ti.getVM().getSystemState().setIgnored(true);
-                    return getNext(ti);
-                }*/
+
                 values = new ArrayList<>();
-//                values.add(lastValue);
-                /*while (c - values.size() > 0) {
-                    pc._addDet(Comparator.NE, (IntegerExpression)attr, new IntegerConstant(lastValue));
-                    Map<String, Object> map = pc.solveWithValuation((SymbolicInteger)attr, null);
-                    Long lastValue = getVal(map, name);
-                    if (map == null || map.size() == 0 || lastValue == null) break;
-                    else values.add(lastValue);
-                }*/
+
                 for (int i = 0; i < smallValues.length; i++) {
                     PathCondition newPC = pc.make_copy();
-                    newPC._addDet(Comparator.EQ, (IntegerExpression)attr, new IntegerConstant(smallValues[i]));
-                    Map<String, Object> map = newPC.solveWithValuation((SymbolicInteger)attr, null);
+                    newPC._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(smallValues[i]));
+                    Map<String, Object> map = newPC.solveWithValuation((SymbolicInteger) attr, null);
                     Long lastValue = getVal(map, name);
                     if (map == null || map.size() == 0 || lastValue == null) continue;
                     else if (lastValue == smallValues[i]) values.add(lastValue);
                 }
-                /*if (values.size() == c && stopIfCExceeded) {
-                    pc._addDet(Comparator.NE, (IntegerExpression)attr, new IntegerConstant(lastValue));
-                    map = pc.solveWithValuation((SymbolicInteger)attr, null);
-                    if (!(map == null || map.size() == 0 || lastValue == null)) {
-                        return ti.createAndThrowException("too many feasible solutions for " + name);
-                    }
-                }*/
+                //SH: for now do not support any symbolic length array, that is outside the range of smallValues. TODO: extend that to support symbolic array length.
+                if (values.size() == 0)
+                    return ti.createAndThrowException("unsupported symbolic size of array length.");
+
                 // First choice is to explore negative array length
                 // Last choice is to explore unconstrained symbolic array length
-                // All the choices in the middle explore small array lengths
-                cg = new PCChoiceGenerator(values.size()+2);
+                // All the choices in the middle explore small array lengths -- SH: commenting this option out as of now, since it is broken. TODO
+                cg = new PCChoiceGenerator(values.size() + 1); // only one choice in addition to the values to be explored setup as of now
                 /* End of Java Ranger changes */
 
 //                cg = new PCChoiceGenerator(2);
                 ti.getVM().setNextChoiceGenerator(cg);
                 return this;
-            } else {
-                cg = ti.getVM().getSystemState().getChoiceGenerator();
-                assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got:" + cg;
+            }
+            cg = ti.getVM().getSystemState().getChoiceGenerator();
+            assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got:" + cg;
 //                sf.pop();
 //                arrayLength = Math.toIntExact(values.get((Integer)cg.getNextChoice()));
-                pc = ((PCChoiceGenerator) cg).getCurrentPC();
-            }
+
 
             ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
 
-            if(prev_cg == null)
+            if (prev_cg == null)
                 pc = new PathCondition();
             else
-                pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+                pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
             assert pc != null;
 
-            if ((Integer)cg.getNextChoice() == 0) {
-                pc._addDet(Comparator.LT, getBNLIEOperand((IntegerExpression)attr), new IntegerConstant(0));
+            if ((Integer) cg.getNextChoice() == 0) {
+                pc._addDet(Comparator.LT, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                     return ti.createAndThrowException("java.lang.NegativeArraySizeException");
@@ -210,8 +157,9 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
-            } else if ((Integer)cg.getNextChoice() < cg.getTotalNumberOfChoices()-1) {
-                pc._addDet(Comparator.GE, getBNLIEOperand((IntegerExpression)attr), new IntegerConstant(0));
+            } else { // exploring smallValues choices.
+//                if ((Integer) cg.getNextChoice() < cg.getTotalNumberOfChoices() - 1) {
+                pc._addDet(Comparator.GE, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                     arrayLength = sf.pop();
@@ -219,55 +167,56 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
-                arrayLength = Math.toIntExact(values.get((Integer)cg.getNextChoice()-1));
-                pc._addDet(Comparator.EQ, getBNLIEOperand((IntegerExpression)attr), new IntegerConstant(arrayLength));
-            } else if ((Integer)cg.getNextChoice() == cg.getTotalNumberOfChoices()-1) {
-                pc._addDet(Comparator.GE, (IntegerExpression)attr, new IntegerConstant(0));
-                if (pc.simplify()) {
-                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
-                    arrayLength = sf.pop();
-                } else {
-                    ti.getVM().getSystemState().setIgnored(true);
-                    return getNext(ti);
-                }
+                arrayLength = Math.toIntExact(values.get((Integer) cg.getNextChoice() - 1));
+                pc._addDet(Comparator.EQ, getBNLIEOperand((IntegerExpression) attr), new IntegerConstant(arrayLength));
             }
+            /*else if ((Integer) cg.getNextChoice() == cg.getTotalNumberOfChoices() - 1) {
+                pc._addDet(Comparator.GE, (IntegerExpression) attr, new IntegerConstant(0));
+                if (pc.simplify()) {
+                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
+                    arrayLength = sf.pop();
+                } else {
+                    ti.getVM().getSystemState().setIgnored(true);
+                    return getNext(ti);
+                }
+            }*/
         } else {
-			arrayLength = sf.pop();
-		}
+            arrayLength = sf.pop();
+        }
 
-		//the remainder of the code is almost identical to the parent class
+        //the remainder of the code is almost identical to the parent class
 
-	    Heap heap = ti.getHeap();
+        Heap heap = ti.getHeap();
 
-	    if (arrayLength < 0){
-	      return ti.createAndThrowException("java.lang.NegativeArraySizeException");
-	    }
+        if (arrayLength < 0) {
+            return ti.createAndThrowException("java.lang.NegativeArraySizeException");
+        }
 
-	    // there is no clinit for array classes, but we still have  to create a class object
-	    // since its a builtin class, we also don't have to bother with NoClassDefFoundErrors
-	    String clsName = "[" + type;
-	    
-	    ClassInfo ci = ClassLoaderInfo.getCurrentResolvedClassInfo(clsName);
-	    if (!ci.isRegistered()) {
-	      ci.registerClass(ti);
-	      ci.setInitialized();
-	    }
-	   
-	    if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
-	      return ti.createAndThrowException("java.lang.OutOfMemoryError",
-	                                        "trying to allocate new " +
-	                                          getTypeName() +
-	                                        "[" + arrayLength + "]");
-	    }
-	    
-	    ElementInfo eiArray = heap.newArray(type, arrayLength, ti);
-	    int arrayRef = eiArray.getObjectRef();
-	    
-	    sf.pushRef(arrayRef);
-	    
+        // there is no clinit for array classes, but we still have  to create a class object
+        // since its a builtin class, we also don't have to bother with NoClassDefFoundErrors
+        String clsName = "[" + type;
+
+        ClassInfo ci = ClassLoaderInfo.getCurrentResolvedClassInfo(clsName);
+        if (!ci.isRegistered()) {
+            ci.registerClass(ti);
+            ci.setInitialized();
+        }
+
+        if (heap.isOutOfMemory()) { // simulate OutOfMemoryError
+            return ti.createAndThrowException("java.lang.OutOfMemoryError",
+                    "trying to allocate new " +
+                            getTypeName() +
+                            "[" + arrayLength + "]");
+        }
+
+        ElementInfo eiArray = heap.newArray(type, arrayLength, ti);
+        int arrayRef = eiArray.getObjectRef();
+
+        sf.pushRef(arrayRef);
+
         if (attr instanceof IntegerExpression) {
             arrayAttr = new ArrayExpression(eiArray.toString());
-            pc._addDet(Comparator.EQ, arrayAttr.length, (IntegerExpression)attr);
+            pc._addDet(Comparator.EQ, arrayAttr.length, (IntegerExpression) attr);
             pc.arrayExpressions.put(arrayAttr.getRootName(), arrayAttr);
             try {
                 maybeParseConstraint(pc);
@@ -277,20 +226,20 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
         }
         sf.setOperandAttr(arrayAttr);
 
-	    ti.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
-	    
-	    return getNext(ti);
-	    
-	}
+        ti.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
+
+        return getNext(ti);
+
+    }
 
     private IntegerExpression getBNLIEOperand(IntegerExpression attr) {
-	    if (!(attr instanceof BinaryNonLinearIntegerExpression)) return attr;
+        if (!(attr instanceof BinaryNonLinearIntegerExpression)) return attr;
         BinaryNonLinearIntegerExpression attrBNLIE = (BinaryNonLinearIntegerExpression) attr;
         if (attrBNLIE.left instanceof SymbolicInteger && attrBNLIE.right instanceof SymbolicInteger
                 && attrBNLIE.left.equals(attrBNLIE.right)) {
             return attrBNLIE.left;
         }
-        assert(false);
+        assert (false);
         return null;
     }
 
