@@ -3,16 +3,16 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -118,12 +118,18 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
     // } catch (Exception e) {
     // }
     // }
+    @Override
+    public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
+        System.out.println("threadTerminated");
+        super.threadTerminated(vm, terminatedThread);
+    }
+
 
     @Override
     public void propertyViolated(Search search) {
 
         VM vm = search.getVM();
-
+        System.out.println("the depth of violation is" + search.getDepth());
         ChoiceGenerator<?> cg = vm.getChoiceGenerator();
         if (!(cg instanceof PCChoiceGenerator)) {
             ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
@@ -167,7 +173,7 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
 
     @Override
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction,
-            Instruction executedInstruction) {
+                                    Instruction executedInstruction) {
 
         if (!vm.getSystemState().isIgnored()) {
             Instruction insn = executedInstruction;
@@ -285,11 +291,11 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
                                 pa.solve(pc, solver);
                             } else
                                 pc.solve();
-                            
+
                             if (!PathCondition.flagSolved) {
                                 return;
                             }
-                           
+
 
                             // after the following statement is executed, the pc loses its solution
 
@@ -370,26 +376,78 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
                              * pa.solve(pc,solver); } else pc.solve();
                              */
 
-                            
-                              String pcString = pc.toString(); pcPair = new Pair<String,String>(pcString,returnString);
-                              MethodSummary methodSummary = allSummaries.get(longName); Vector<Pair> pcs =
-                              methodSummary.getPathConditions(); if ((!pcs.contains(pcPair)) &&
-                              (pcString.contains("SYM"))) { methodSummary.addPathCondition(pcPair); }
-                              
-                              if(allSummaries.get(longName)!=null) // recursive call longName = longName +
-                              methodSummary.hashCode(); // differentiate the key for recursive calls
-                              allSummaries.put(longName,methodSummary); if (SymbolicInstructionFactory.debugMode) {
-                              System.out.println("*************Summary***************");
-                              System.out.println("PC is:"+pc.toString()); if(result!=null){
-                              System.out.println("Return is:  "+result);
-                              System.out.println("***********************************"); } }
-                              // YN
+
+                            String pcString = pc.toString();
+                            pcPair = new Pair<String, String>(pcString, returnString);
+                            MethodSummary methodSummary = allSummaries.get(longName);
+                            Vector<Pair> pcs =
+                                    methodSummary.getPathConditions();
+                            if ((!pcs.contains(pcPair)) &&
+                                    (pcString.contains("SYM"))) {
+                                methodSummary.addPathCondition(pcPair);
+                            }
+
+                            if (allSummaries.get(longName) != null) // recursive call longName = longName +
+                                methodSummary.hashCode(); // differentiate the key for recursive calls
+                            allSummaries.put(longName, methodSummary);
+                            if (SymbolicInstructionFactory.debugMode) {
+                                System.out.println("*************Summary***************");
+                                System.out.println("PC is:" + pc.toString());
+                                if (result != null) {
+                                    System.out.println("Return is:  " + result);
+                                    System.out.println("***********************************");
+                                }
+                            }
+                            // YN
                         }
                     }
                 }
             }
         }
     }
+/*
+
+
+    @Override
+    public void threadStarted(VM vm, ThreadInfo startedThread) {
+        System.out.println("threadStarted");
+        //super.threadTerminated(vm, terminatedThread);
+        System.out.println("depth = " + vm.getSearch().getDepth());
+    }
+
+    @Override
+    public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
+        System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
+        System.out.println("depth = " + vm.getSearch().getDepth());
+    }
+
+    @Override
+    public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
+
+        System.out.println("choiceGeneratorAdvanced(" + currentCG.getClass() + ")");
+        System.out.println("depth = " + vm.getSearch().getDepth());
+    }
+
+    @Override
+    public void stateAdvanced(Search search) {
+
+        System.out.println("stateAdvanced");
+        System.out.println("depth = " + search.getDepth());
+    }
+
+    @Override
+    public void stateBacktracked(Search search) {
+        System.out.println("stateBacktracked");
+        System.out.println("depth = " + search.getDepth());
+
+    }
+
+    @Override
+    public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
+        System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+        System.out.println("depth = " + vm.getSearch().getDepth());
+    }
+*/
 
     /*
      * The way this method works is specific to the format of the methodSummary data structure
@@ -468,7 +526,7 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
                             testCase = testCase + actualValue + ",";
                         else
                             testCase = testCase + SymbolicInteger.UNDEFINED + "(don't care),";// not correct in concolic
-                                                                                              // mode
+                        // mode
                     }
                 }
                 if (testCase.endsWith(","))
@@ -547,10 +605,10 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
                             testCase = testCase + "<td>" + actualValue + "</td>";
                         else
                             testCase = testCase + "<td>" + SymbolicInteger.UNDEFINED + "(don't care)</td>"; // not
-                                                                                                            // correct
-                                                                                                            // in
-                                                                                                            // concolic
-                                                                                                            // mode
+                        // correct
+                        // in
+                        // concolic
+                        // mode
                     }
                 }
 

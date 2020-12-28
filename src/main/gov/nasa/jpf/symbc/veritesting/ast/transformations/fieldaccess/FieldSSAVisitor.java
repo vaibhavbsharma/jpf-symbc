@@ -6,7 +6,6 @@ import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases.SPFCaseList;
-import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.FixedPointAstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
@@ -18,6 +17,7 @@ import za.ac.sun.cs.green.expr.RealVariable;
 
 import java.util.Map;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.compose;
@@ -49,6 +49,7 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
     private ThreadInfo ti;
     static final int FIELD_SUBSCRIPT_BASE = 0;
     private GlobalSubscriptMap gsm;
+    private boolean somethingChanged;
 
     public FieldSSAVisitor(ThreadInfo ti, DynamicRegion dynRegion) {
         super(new ExprMapVisitor());
@@ -57,6 +58,11 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         this.ti = ti;
         this.gsm = new GlobalSubscriptMap();
         this.somethingChanged = false;
+    }
+
+    @Override
+    public boolean getChange() {
+        return somethingChanged;
     }
 
     private void populateException(IllegalArgumentException e) {
@@ -267,7 +273,8 @@ public class FieldSSAVisitor extends FixedPointAstMapVisitor {
         instantiatedRegion = new DynamicRegion(dynRegion, fieldStmt, new SPFCaseList(), null, null, dynRegion.earlyReturnResult);
         instantiatedRegion.psm = this.psm;
 
-        System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
+        if(verboseVeritesting)
+            System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
 
         return instantiatedRegion;
     }

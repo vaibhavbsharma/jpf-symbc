@@ -77,7 +77,7 @@ public final class InternalJRSsaVar extends CloneableVariable {
     }
 
     @Override
-    public InternalJRSsaVar makeUnique(int unique) throws StaticRegionException {
+    public InternalJRSsaVar makeUnique(int unique) {
         /*if (uniqueNum != -1 && unique != uniqueNum)
             throw new StaticRegionException("Attempting to make a already-unique WalaVarExpr unique");
         return new InternalJRVar(number, unique);*/

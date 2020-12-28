@@ -5,7 +5,8 @@ import com.ibm.wala.ssa.SSAInstruction;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 
 import java.util.Iterator;
-import java.util.Set;
+
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 /**
  * An environment table that holds all vars to types.
@@ -13,6 +14,7 @@ import java.util.Set;
 public class VarTypeTable extends StaticTable<String> {
     /**
      * Constructor that is used to generate the type table for a method region.
+     *
      * @param ir
      */
     public VarTypeTable(IR ir) {
@@ -34,7 +36,8 @@ public class VarTypeTable extends StaticTable<String> {
 
     /**
      * Constructor that is used to generate the type table for a conditional region, by specifying the boundaries of variables inside the region.
-     * @param ir Wala IR that corresponds to the method that the region is discovered from.
+     *
+     * @param ir              Wala IR that corresponds to the method that the region is discovered from.
      * @param firstUseLastDef A pair of the first Use Var and the Last Def Var numbers inside the region.
      */
     public VarTypeTable(IR ir, Pair<Integer, Integer> firstUseLastDef) {
@@ -61,8 +64,11 @@ public class VarTypeTable extends StaticTable<String> {
 
     @Override
     public void print() {
-        System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
-        table.forEach((v1, v2) -> System.out.println("@w" + v1 + " --------- " + v2));
+        if (verboseVeritesting) {
+
+            System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
+            table.forEach((v1, v2) -> System.out.println("@w" + v1 + " --------- " + v2));
+        }
     }
 }
 

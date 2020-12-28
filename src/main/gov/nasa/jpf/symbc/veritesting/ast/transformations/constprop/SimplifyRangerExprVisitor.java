@@ -105,6 +105,7 @@ public class SimplifyRangerExprVisitor extends ExprMapVisitor implements ExprVis
                     ret =  result == ExprUtil.SatResult.TRUE ? TRUE:
                             (result == ExprUtil.SatResult.FALSE ? FALSE: ret);
                 }
+                somethingChanged = somethingChanged || ((Operation) ret).getOperator() != expr.getOperator();
                 break;
             case ADD:
                 if (op1 instanceof IntConstant && op2 instanceof IntConstant) {

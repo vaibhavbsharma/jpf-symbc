@@ -1,7 +1,6 @@
 package gov.nasa.jpf.symbc.veritesting.VeritestingUtil;
 
 import gov.nasa.jpf.JPFException;
-import gov.nasa.jpf.jvm.bytecode.GOTO;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.numeric.solvers.ProblemGeneral;
@@ -21,6 +20,7 @@ import za.ac.sun.cs.green.expr.Operation;
 
 import java.io.File;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 
@@ -201,7 +201,8 @@ public class SpfUtil {
                     return new IntegerConstant(variable);
             }
         } else {
-            System.out.println("SPF does not know the type, type is assumed int.");
+            if(verboseVeritesting)
+                System.out.println("SPF does not know the type, type is assumed int.");
             return new IntegerConstant(variable);
         }
     }
@@ -278,23 +279,6 @@ public class SpfUtil {
     // we want to allow only stores at the end of the region but skip regions that end on any other instruction that
     // consumes 1 or more stack operands
     public static boolean isStackConsumingRegionEnd(ThreadInfo ti, StaticRegion region, Instruction ins) throws StaticRegionException {
-        /*int endIns = region.endIns;
-        Instruction prevIns = null;
-        while (ins != null && ins.getPosition() != endIns) {
-            if (ins instanceof GOTO && (((GOTO) ins).getTarget().getPosition() <= endIns)) {
-                prevIns = ins;
-                ins = ((GOTO) ins).getTarget();
-            }
-            else {
-                prevIns = ins;
-                ins = ins.getNext(); // can potentially return null, seen in nativereturn instruction in java.lang.String.substring
-            }
-        }
-        if (ins == null) {
-            assert prevIns != null;
-            throw new StaticRegionException("region end instruction cannot be found");
-        }*/
-        //Instruction ret = ins;
         Instruction ret;
         try {
             ret = ti.getTopFrameMethodInfo().getInstructionAt(region.endIns);
@@ -310,6 +294,10 @@ public class SpfUtil {
 //        if (ret.getMnemonic().contains("store"))
 //            return false;
         // https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings
+        return isStackConsumingInstruction(ret);
+    }
+
+    public static boolean isStackConsumingInstruction(Instruction ret) {
         int bytecode = ret.getByteCode();
         if (bytecode <= 0x2d) return false;
         if (bytecode >= 0x2e && bytecode <= 0x83) return true;

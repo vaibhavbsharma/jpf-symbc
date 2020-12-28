@@ -33,6 +33,7 @@ import za.ac.sun.cs.green.expr.Variable;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.VeritestingListener.printRegionDigest;
 import static gov.nasa.jpf.symbc.VeritestingListener.veritestingMode;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
@@ -53,6 +54,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
     public final DynamicRegion dynRegion;
     public final ThreadInfo ti;
     private boolean useVarTable = false;
+    private boolean somethingChanged;
 //    private static HashMap<MethodReference, Integer> recursiveMethods = new HashMap<>();
 
     private Pair<MethodReference, Integer> recursiveScope = null;
@@ -203,7 +205,8 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                 .getDeclaredTarget()))
         ) {   //if the method invocation was previously discovered to be recursive in a previous fix point iteration then just
             // return, i.e., do not attempt to inline it.
-            System.out.println("Encountering an already discovered recursive method. Returning.");
+            if(verboseVeritesting)
+                System.out.println("Encountering an already discovered recursive method. Returning.");
             return c;
         }
 
@@ -247,7 +250,8 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                     if (isRecursiveCall(methodRef)) {//check if along the path of invocation we have encountered the same
                         // method - meaning we are in a recursive call
                         if (!isAllowedRecursiveCall(methodRef)) {
-                            System.out.println("recursive inlining finished for method:" + newC);
+                            if(verboseVeritesting)
+                                System.out.println("recursive inlining finished for method:" + newC);
                             noFurtherInlines.add(methodRef);
                             return newC;
                         }
@@ -257,10 +261,10 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
 
                     ++StatisticManager.thisHighOrdCount;
                     String key = keyRegionPair.getFirst();
-
-                    System.out.println("\n********** High Order Region Discovered for region: " + key + "\n");
-                    System.out.println("\n---------- STARTING Inlining Transformation for region: ---------------\n" + StmtPrintVisitor.print(hgOrdStaticRegion.staticStmt) + "\n");
-                    DynamicRegion uniqueHgOrdDynRegion = null;
+                    if(verboseVeritesting) {
+                        System.out.println("\n********** High Order Region Discovered for region: " + key + "\n");
+                        System.out.println("\n---------- STARTING Inlining Transformation for region: ---------------\n" + StmtPrintVisitor.print(hgOrdStaticRegion.staticStmt) + "\n");
+                    }DynamicRegion uniqueHgOrdDynRegion = null;
                     try {
 //                        if (VeritestingListener.coverageCriteria != CoverageCriteria.BRANCHCOVERAGE)
                             hgOrdStaticRegion = RemoveEarlyReturns.removeEarlyReturns(hgOrdStaticRegion);
@@ -589,19 +593,20 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
         */
         this.instantiatedRegion = new DynamicRegion(dynRegion, dynStmt, new SPFCaseList(), null, null, dynRegion.earlyReturnResult);
 
-        System.out.println("\n--------------- SUBSTITUTION TRANSFORMATION for: " + VeritestingListener.key + " ---------------\n");
-        System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
-        dynRegion.slotParamTable.print();
-        dynRegion.outputTable.print();
-        dynRegion.varTypeTable.print();
+        if(verboseVeritesting) {
+            System.out.println("\n--------------- SUBSTITUTION TRANSFORMATION for: " + VeritestingListener.key + " ---------------\n");
+            System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
+            dynRegion.slotParamTable.print();
+            dynRegion.outputTable.print();
+            dynRegion.varTypeTable.print();
 
-        System.out.println("\n--------------- AFTER SUBSTITUTION TRANSFORMATION for: " + VeritestingListener.key + " ---------------\n");
-        System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
-        instantiatedRegion.slotParamTable.print();
-        instantiatedRegion.outputTable.print();
-        instantiatedRegion.varTypeTable.print();
-        System.out.println("Stack output: " + dynRegion.stackOutput);
-
+            System.out.println("\n--------------- AFTER SUBSTITUTION TRANSFORMATION for: " + VeritestingListener.key + " ---------------\n");
+            System.out.println(StmtPrintVisitor.print(instantiatedRegion.dynStmt));
+            instantiatedRegion.slotParamTable.print();
+            instantiatedRegion.outputTable.print();
+            instantiatedRegion.varTypeTable.print();
+            System.out.println("Stack output: " + dynRegion.stackOutput);
+        }
         if (!this.somethingChanged)
             this.somethingChanged = ((ExprSubstitutionVisitor) eva.theVisitor).isSomethingChanged();
         return instantiatedRegion;

@@ -15,6 +15,7 @@ import za.ac.sun.cs.green.expr.*;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.STATIC;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.SSAUtil.convertWalaVar;
@@ -205,7 +206,8 @@ public class SSAToStatIVisitor implements SSAInstruction.IVisitor {
 
                 List<PhiCondition> cond = blockConditionMap.get(new PhiEdge(preBlock, currentBlock));
                 if (cond == null) {
-                    System.out.println("Unable to find condition.");
+                    if(verboseVeritesting)
+                        System.out.println("Unable to find condition.");
                     SSAUtil.printBlocksUpTo(cfg, currentBlock.getNumber());
                     // MWW: null case.  Do not add to the gamma.
                     // MWW: This case occurs due to jumps from complex 'if' conditions.

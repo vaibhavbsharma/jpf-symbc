@@ -209,6 +209,8 @@ public class BytecodeUtils {
             }
         } else if (isSymbolicStringCharAt(invInst, th)){
             throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: charAt");
+        } else if (isSymbolicStringTrim(invInst, th)){
+            throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: trim");
         } else if (isSymbolicBuilderCharAt(invInst, th)) {
             throw new RuntimeException("ERROR: symbolic method not handled on SymbolicStringBuilder: charAt");
         } else if (isSymbolicStringRegionMatches5(invInst, th)) {
@@ -615,6 +617,14 @@ public class BytecodeUtils {
                 && th.getTopFrame().getOperandAttr(1) instanceof StringSymbolic
                 && invInst.getInvokedMethodClassName().equals("java.lang.String")
                 && invInst.getInvokedMethodName().equals("charAt(I)C");
+    }
+
+    private static boolean isSymbolicStringTrim(JVMInvokeInstruction invInst, ThreadInfo th) {
+        return invInst instanceof INVOKEVIRTUAL
+                && invInst.getArgSize() == 1
+                && th.getTopFrame().getOperandAttr() instanceof StringSymbolic
+                && invInst.getInvokedMethodClassName().equals("java.lang.String")
+                && invInst.getInvokedMethodName().equals("trim()Ljava/lang/String;");
     }
 
     private static boolean isSymbolicBuilderCharAt(JVMInvokeInstruction invInst, ThreadInfo th) {

@@ -4,6 +4,7 @@ import java.util.*;
 
 import choco.Problem;
 import com.microsoft.z3.*;
+import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
 import gov.nasa.jpf.symbc.numeric.solvers.ProblemGeneral;
 import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.IntVariable;
@@ -75,11 +76,11 @@ class GreenPbTranslator extends Visitor {
             Integer lower = variable.getLowerBound();
             Integer upper = variable.getUpperBound();
             try {
-                v = (Expr) context.makeIntVar(variable.getName(),lower,upper);
+                v = (Expr) context.makeIntVar(variable.getName(), lower, upper);
                 // now add bounds
-                Expr low  = (Expr) context.geq(v,context.makeIntConst(lower));
-                Expr high = (Expr) context.leq(v,context.makeIntConst(upper));
-                domains.add((Expr) context.logical_and(low,high));
+                Expr low = (Expr) context.geq(v, context.makeIntConst(lower));
+                Expr high = (Expr) context.leq(v, context.makeIntConst(upper));
+                domains.add((Expr) context.logical_and(low, high));
                 PCParser.intVariableMap.put(variable, v);
             } catch (Z3Exception e) {
                 e.printStackTrace();
@@ -96,11 +97,11 @@ class GreenPbTranslator extends Visitor {
             int lower = (int) (double) variable.getLowerBound();
             int upper = (int) (double) variable.getUpperBound();
             try {
-                v = (Expr) context.makeRealVar(variable.getName(),lower,upper);
+                v = (Expr) context.makeRealVar(variable.getName(), lower, upper);
                 // now add bounds
-                Expr low  = (Expr) context.geq(v,context.makeRealConst((double)lower));
-                Expr high = (Expr) context.leq(v,context.makeRealConst((double) upper));
-                domains.add((Expr) context.logical_and(low,high));
+                Expr low = (Expr) context.geq(v, context.makeRealConst((double) lower));
+                Expr high = (Expr) context.leq(v, context.makeRealConst((double) upper));
+                domains.add((Expr) context.logical_and(low, high));
                 PCParser.realVariableMap.put(variable, v);
             } catch (Z3Exception e) {
                 e.printStackTrace();
@@ -139,19 +140,19 @@ class GreenPbTranslator extends Visitor {
                     stack.push((Expr) context.lt(l, r));
                     break;
                 case LE:
-                    stack.push((Expr) context.leq( l, r));
+                    stack.push((Expr) context.leq(l, r));
                     break;
                 case GT:
-                    stack.push((Expr) context.gt( l,  r));
+                    stack.push((Expr) context.gt(l, r));
                     break;
                 case GE:
-                    stack.push((Expr) context.geq( l, r));
+                    stack.push((Expr) context.geq(l, r));
                     break;
                 case AND:
-                    stack.push((Expr) context.logical_and( l, r));
+                    stack.push((Expr) context.logical_and(l, r));
                     break;
                 case OR:
-                    stack.push((Expr) context.logical_or( l, r));
+                    stack.push((Expr) context.logical_or(l, r));
                     break;
 /* Soha: not currently supported in Z3BitVectorProblem in SPF
 			case IMPLIES:
@@ -159,48 +160,73 @@ class GreenPbTranslator extends Visitor {
 				break;
 		*/
                 case ADD:
-                    stack.push((Expr) context.plus( l, r));
+                    Expr addVal = (Expr) context.plus(l, r);
+                    String[] dp = SymbolicInstructionFactory.dp;
+
+                    if (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) {
+                        if (allIntOperands(operation)) {
+                            Expr shiftLVal = (Expr) context.shiftL(addVal, 32);
+                            Expr shiftRLVal = (Expr) context.shiftR(shiftLVal, 32);
+                            stack.push(shiftRLVal);
+                        } else stack.push(addVal);
+                    } else stack.push(addVal);
                     break;
                 case SUB:
-                    stack.push((Expr)context.minus( l, r));
+                    Expr subVal = (Expr) context.minus(l, r);
+                    dp = SymbolicInstructionFactory.dp;
+                    if (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) {
+                        if (allIntOperands(operation)) {
+                            Expr shiftLVal = (Expr) context.shiftL(subVal, 32);
+                            Expr shiftRLVal = (Expr) context.shiftR(shiftLVal, 32);
+                            stack.push(shiftRLVal);
+                        } else stack.push(subVal);
+                    } else stack.push(subVal);
                     break;
                 case MUL:
-                    stack.push((Expr)context.mult( l, r));
+                    Expr mulVal = (Expr) context.mult(l, r);
+                    dp = SymbolicInstructionFactory.dp;
+                    if (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) {
+                        if (allIntOperands(operation)) {
+                            Expr shiftLVal = (Expr) context.shiftL(mulVal, 32);
+                            Expr shiftRLVal = (Expr) context.shiftR(shiftLVal, 32);
+                            stack.push(shiftRLVal);
+                        } else stack.push(mulVal);
+                    } else stack.push(mulVal);
                     break;
                 case DIV:
-                    stack.push((Expr)context.div( l, r));
+                    stack.push((Expr) context.div(l, r));
                     break;
                 case MOD:
                     if (BitVecNum.class.isInstance(r)) {
-                        int rValue = ((BitVecNum)r).getInt();
+                        int rValue = ((BitVecNum) r).getInt();
                         // if rValue is a power of 2, we can implement a mod 2^i as a & (2^i–1)
-                        if ((rValue & (rValue-1)) == 0) {
-                            stack.push((Expr)context.and(l, context.minus(r, 1)));
+                        if ((rValue & (rValue - 1)) == 0) {
+                            stack.push((Expr) context.and(l, context.minus(r, 1)));
                         }
-                    } else assert(false);
+                    } else assert (false);
                     break;
                 case NEG:
                     stack.push((Expr) context.minus(0, l));
                     break;
                 case BIT_AND:
-                    stack.push((Expr) context.and( l, r));
+                    stack.push((Expr) context.and(l, r));
                     break;
                 case BIT_OR:
-                    stack.push((Expr) context.or( l, r));
+                    stack.push((Expr) context.or(l, r));
                     break;
                 case BIT_XOR:
-                    stack.push((Expr) context.xor( l, r));
+                    stack.push((Expr) context.xor(l, r));
                     break;
                 case BIT_NOT:
                     break;
                 case SHIFTL:
-                    stack.push((Expr) context.shiftL( l, r));
+                    stack.push((Expr) context.shiftL(l, r));
                     break;
                 case SHIFTR:
-                    stack.push((Expr) context.shiftR( l, r));
+                    stack.push((Expr) context.shiftR(l, r));
                     break;
                 case SHIFTUR:
-                    stack.push((Expr) context.shiftUR( l, r));
+                    stack.push((Expr) context.shiftUR(l, r));
                     break;
                 case NOT:
                     stack.push((Expr) context.logical_not(l));
@@ -257,12 +283,23 @@ class GreenPbTranslator extends Visitor {
                 case NOTREGIONMATCHES:
                 default:
                     System.out.println("GreenPbTranslator.postVisit does not know how to translate Green operator (" +
-                            operation.getOperator() + ") to Z3BitVector" );
-                    assert(false);
+                            operation.getOperator() + ") to Z3BitVector");
+                    assert (false);
 
             }
         } catch (Z3Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean allIntOperands(Operation operation) {
+        for (int i = 0; i < operation.getArity(); i++) {
+            if (operation.getOperand(i) instanceof Operation) {
+                if (!allIntOperands((Operation) operation.getOperand(i)))
+                    return false;
+            }else if(!(operation.getOperand(i) instanceof IntConstant) && !(operation.getOperand(i) instanceof IntVariable))
+                return false;
+        }
+        return true;
     }
 }

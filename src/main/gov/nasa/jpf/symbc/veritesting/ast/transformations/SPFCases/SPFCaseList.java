@@ -4,9 +4,10 @@ import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.ast.def.SPFCaseStmt;
 
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 public class SPFCaseList {
     public final LinkedHashSet<SPFCaseStmt> casesList = new LinkedHashSet<>();
@@ -44,8 +45,10 @@ public class SPFCaseList {
         int i =0;
         while(itr.hasNext()){
             SPFCaseStmt aCase = itr.next();
-            System.out.println("Case(" + i + "): ");
-            System.out.println(ExprUtil.AstToString(aCase.spfCondition) + "--------- reason:" + aCase.reason);
+            if(verboseVeritesting) {
+                System.out.println("Case(" + i + "): ");
+                System.out.println(ExprUtil.AstToString(aCase.spfCondition) + "--------- reason:" + aCase.reason);
+            }
             ++i;
         }
     }

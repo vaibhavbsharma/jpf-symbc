@@ -1,11 +1,11 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess;
 
-import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.FieldRef;
 
 import java.util.HashMap;
 import java.util.Set;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess.FieldSSAVisitor.FIELD_SUBSCRIPT_BASE;
@@ -49,10 +49,11 @@ public class GlobalSubscriptMap {
     }
 
     public void print() {
-        System.out.println("\nprinting " + tableName+" ("+ label1 + "->" + label2 +")");
-        table.forEach((v1, v2) -> System.out.println("!w"+v1 + " --------- " + v2));
+        if (verboseVeritesting) {
+            System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
+            table.forEach((v1, v2) -> System.out.println("!w" + v1 + " --------- " + v2));
+        }
     }
-
     public Set<FieldRef> getKeys(){
         return table.keySet();
     }

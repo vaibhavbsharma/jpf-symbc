@@ -85,7 +85,7 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
               return this;
           } else { // this is what really returns results
               cg = ti.getVM().getChoiceGenerator();
-              assert (cg instanceof PCChoiceGenerator) : "expected JPCChoiceGenerator, got: " + cg;
+              assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
           }
           
           PathCondition pc;

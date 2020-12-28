@@ -120,6 +120,11 @@ public class DynamicRegion implements Region {
     public RemoveEarlyReturns.ReturnResult earlyReturnResult;
 
     /**
+     * Holds a Wala variable that should be read from the stack
+     */
+    public WalaVarExpr stackInput = null;
+
+    /**
      * Holds the expression that should be written out to the stack
      */
     public WalaVarExpr stackOutput = null;
@@ -153,6 +158,7 @@ public class DynamicRegion implements Region {
         this.arrayOutputs = oldDynRegion.arrayOutputs;
         this.constantsTable = oldDynRegion.constantsTable;
         this.stackOutput = oldDynRegion.stackOutput;
+        this.stackInput = oldDynRegion.stackInput;
         this.totalNumPaths = oldDynRegion.totalNumPaths;
         this.maxDepth = oldDynRegion.maxDepth;
     }
@@ -197,7 +203,8 @@ public class DynamicRegion implements Region {
         this.psm = new FieldSubscriptMap();
         this.arrayOutputs = null;
         this.constantsTable = null;
-        this.stackOutput = staticRegion.stackOutput;
+        this.stackOutput = staticRegion.stackOutput != null ? staticRegion.stackOutput.makeUnique(uniqueNum) : null;
+        this.stackInput = staticRegion.stackInput != null ? staticRegion.stackInput.makeUnique(uniqueNum) : null;
     }
 
 }

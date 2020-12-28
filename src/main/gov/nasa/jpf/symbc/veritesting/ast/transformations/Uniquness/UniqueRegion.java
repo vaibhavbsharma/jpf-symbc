@@ -2,7 +2,6 @@ package gov.nasa.jpf.symbc.veritesting.ast.transformations.Uniquness;
 
 import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
-import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeEarlyReturns.RemoveEarlyReturns;
@@ -10,17 +9,9 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
-import ia_parser.Exp;
 import za.ac.sun.cs.green.expr.Expression;
-import za.ac.sun.cs.green.expr.Variable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
-import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.constprop.SimplifyStmtVisitor.makeConstantsTableUnique;
 
 /**
@@ -57,27 +48,27 @@ public class UniqueRegion {
             dynRegion = new DynamicRegion(staticRegion,
                     dynStmt,
                     uniqueNum, newReturnResult);
-        }else
+        } else {
             dynRegion = new DynamicRegion(staticRegion,
                     dynStmt,
                     uniqueNum, staticRegion.earlyReturnResult);
+        }
 
-
-        System.out.println("\n--------------- UNIQUENESS TRANSFORMATION ---------------");
-        System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
-        dynRegion.slotParamTable.print();
-        dynRegion.inputTable.print();
-        dynRegion.varTypeTable.print();
-        dynRegion.outputTable.print();
-        System.out.println("Stack output: " + dynRegion.stackOutput);
-
+        if(verboseVeritesting) {
+            System.out.println("\n--------------- UNIQUENESS TRANSFORMATION ---------------");
+            System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
+            dynRegion.slotParamTable.print();
+            dynRegion.inputTable.print();
+            dynRegion.varTypeTable.print();
+            dynRegion.outputTable.print();
+            System.out.println("Stack output: " + dynRegion.stackOutput);
+        }
         return dynRegion;
     }
 
     public static DynamicRegion execute(DynamicRegion oldDynRegion) throws StaticRegionException, CloneNotSupportedException {
         int uniqueNum = DynamicRegion.uniqueCounter;
         ExpUniqueVisitor expUniqueVisitor = new ExpUniqueVisitor(uniqueNum);
-        if (expUniqueVisitor.sre != null) throwException(expUniqueVisitor.sre, INSTANTIATION);
         AstMapVisitor stmtVisitor = new AstMapVisitor(expUniqueVisitor);
 
         Stmt dynStmt = oldDynRegion.dynStmt.accept(stmtVisitor);
@@ -90,6 +81,8 @@ public class UniqueRegion {
         newDynRegion.arrayOutputs = newDynRegion.arrayOutputs.makeUnique(uniqueNum);
         if (oldDynRegion.stackOutput != null)
             newDynRegion.stackOutput = oldDynRegion.stackOutput.makeUnique(uniqueNum);
+        if (oldDynRegion.stackInput != null)
+            newDynRegion.stackInput = oldDynRegion.stackInput.makeUnique(uniqueNum);
 
 
         if(VeritestingListener.simplify)

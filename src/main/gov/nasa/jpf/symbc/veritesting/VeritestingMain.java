@@ -38,6 +38,7 @@ import za.ac.sun.cs.green.expr.Operation;
 
 import static gov.nasa.jpf.symbc.VeritestingListener.exclusionsFile;
 import static gov.nasa.jpf.symbc.VeritestingListener.jitAnalysis;
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 /**
  * Main class file for veritesting static analysis exploration.
@@ -68,9 +69,11 @@ public class VeritestingMain {
             AnalysisScope scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(appJar,
                     jitAnalysis == true ? null : (new FileProvider()).getFile(exclusionsFile));
 //                    (new FileProvider()).getFile(CallGraphTestUtil.REGRESSION_EXCLUSIONS));
-            System.out.print("Constructing class hierarchy...");
+            if(verboseVeritesting)
+                System.out.print("Constructing class hierarchy...");
             cha = ClassHierarchyFactory.make(scope);
-            System.out.println("done!");
+            if(verboseVeritesting)
+                System.out.println("done!");
             methodSummaryClassNames = new HashSet<String>();
             //veritestingRegions = new HashMap<>();
             veriRegions = new HashMap<>();
@@ -185,7 +188,8 @@ public class VeritestingMain {
         MethodReference mr = StringStuff.makeMethodReference(className + "." + methodSig);
         IMethod m = cha.resolveMethod(mr);
         if (m == null) {
-            System.out.println("could not resolve " + className + "." + methodSig);
+            if(verboseVeritesting)
+                System.out.println("could not resolve " + className + "." + methodSig);
             return;
             //Assertions.UNREACHABLE("could not resolve " + mr);
         }
@@ -202,7 +206,8 @@ public class VeritestingMain {
         currentClassName = className;
         currentMethodName = m.getName().toString();
         this.methodSig = methodSig.substring(methodSig.indexOf('('));
-        System.out.println("Starting " + (methodAnalysis ? "method " : "region ") + "analysis for " +
+        if(verboseVeritesting)
+            System.out.println("Starting " + (methodAnalysis ? "method " : "region ") + "analysis for " +
                 currentMethodName + "(" + currentClassName + "." + methodSig + ")");
         NumberedDominators<ISSABasicBlock> uninverteddom =
                 (NumberedDominators<ISSABasicBlock>) Dominators.make(cfg, cfg.entry());
@@ -358,7 +363,8 @@ public class VeritestingMain {
             }
             //find veritesting regions inside all the methods discovered so far
             methodSummaryClassNames.addAll(newClassNames);
-            System.out.println("iteration = " + iteration);
+            if(verboseVeritesting)
+                System.out.println("iteration = " + iteration);
             ++iteration;
             if (iteration == VeritestingListener.maxStaticExplorationDepth)
                 break;
@@ -372,7 +378,8 @@ public class VeritestingMain {
             MethodReference mr = StringStuff.makeMethodReference(className + "." + methodSig);
             IMethod m = cha.resolveMethod(mr);
             if (m == null) {
-                System.out.println("could not resolve " + className + "." + methodSig);
+                if(verboseVeritesting)
+                    System.out.println("could not resolve " + className + "." + methodSig);
                 return;
                 //Assertions.UNREACHABLE("could not resolve " + mr);
             }
@@ -381,7 +388,8 @@ public class VeritestingMain {
             IAnalysisCacheView cache = new AnalysisCacheImpl(options.getSSAOptions());
             ir = cache.getIR(m, Everywhere.EVERYWHERE);
             if (ir == null) {
-                System.out.println("Null IR for " + className + "." + methodSig);
+                if(verboseVeritesting)
+                    System.out.println("Null IR for " + className + "." + methodSig);
                 return;
             }
             cfg = ir.getControlFlowGraph();
@@ -389,7 +397,8 @@ public class VeritestingMain {
             currentClassName = className;
             currentMethodName = m.getName().toString();
             this.methodSig = methodSig.substring(methodSig.indexOf('('));
-            System.out.println("Starting " + (methodAnalysis ? "method " : "region ") + "analysis for " +
+            if(verboseVeritesting)
+                System.out.println("Starting " + (methodAnalysis ? "method " : "region ") + "analysis for " +
                     currentMethodName + "(" + currentClassName + "." + methodSig + ")");
             NumberedDominators<ISSABasicBlock> uninverteddom =
                     (NumberedDominators<ISSABasicBlock>) Dominators.make(cfg, cfg.entry());

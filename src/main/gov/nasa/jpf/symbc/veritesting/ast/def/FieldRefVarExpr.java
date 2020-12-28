@@ -93,16 +93,17 @@ public final class FieldRefVarExpr extends CloneableVariable {
 
     @Override
     public FieldRefVarExpr clone() {
-        FieldRefVarExpr ret = null;
+        FieldRefVarExpr ret;
         if (uniqueNum != -1) ret = new FieldRefVarExpr(fieldRef.clone(), subscript.clone(), uniqueNum);
         else ret = new FieldRefVarExpr(fieldRef.clone(), subscript.clone());
         return ret;
     }
 
     @Override
-    public FieldRefVarExpr makeUnique(int unique) throws StaticRegionException {
-        if (uniqueNum != -1 && unique != uniqueNum) throwException(new StaticRegionException("Attempting to make a already-unique FieldRefVarExpr unique"), INSTANTIATION);
-        uniqueNum = unique;
+    public FieldRefVarExpr makeUnique(int unique) {
+        if (uniqueNum == -1) {
+            uniqueNum = unique;
+        }
         return this.clone();
     }
 

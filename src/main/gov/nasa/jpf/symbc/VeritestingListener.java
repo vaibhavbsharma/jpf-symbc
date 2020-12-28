@@ -12,7 +12,6 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVMDirectCallStackFrame;
-import gov.nasa.jpf.jvm.bytecode.GOTO;
 import gov.nasa.jpf.report.ConsolePublisher;
 import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.PublisherExtension;
@@ -38,6 +37,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.CreateStaticR
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.substitutestackinput.SubstituteStackInput;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.typepropagation.TypePropagationVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
@@ -63,6 +63,7 @@ import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwExceptio
 import static gov.nasa.jpf.symbc.veritesting.VeritestingMain.skipRegionStrings;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingMain.skipVeriRegions;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil.*;
+import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.isStackConsumingInstruction;
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.isSymCond;
 
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.isStackConsumingRegionEnd;
@@ -112,7 +113,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public enum VeritestingMode {VANILLASPF, VERITESTING, HIGHORDER, SPFCASES, EARLYRETURNS}
 
-    public static boolean printState = true;
+    public static StaticBranchChoiceGenerator advancedSBCG = null;
 
     public static boolean performanceMode = false;
     // reads in a exclusionsFile configuration option, set to ${jpf-symbc}/MyJava60RegressionExclusions.txt by default
@@ -124,6 +125,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public static CoverageCriteria coverageCriteria;
     public static boolean veritestingSuccessful = false;
+    public static boolean verboseVeritesting = false;
 
     public String[] regionKeys = {"replace.amatch([C[CI)I#160",
             "replace.amatch([C[CI)I#77",
@@ -179,14 +181,23 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                     break;
             }
 
+            if (conf.hasValue("search.depth_limit"))
+                System.out.println("search depth = " + conf.getInt("search.depth_limit"));
+
             if (conf.hasValue("performanceMode"))
                 performanceMode = conf.getBoolean("performanceMode");
+
             if (conf.hasValue("jpf-symbc")) {
                 exclusionsFile = conf.getString("jpf-symbc") + "/MyJava60RegressionExclusions.txt";
             }
             if (conf.hasValue("jitAnalysis")) {
                 jitAnalysis = conf.getBoolean("jitAnalysis");
             }
+
+            if (conf.hasValue("verboseVeritesting")) {
+                verboseVeritesting = conf.getBoolean("verboseVeritesting");
+            }
+
             if (conf.hasValue("exclusionsFile")) {
                 exclusionsFile = conf.getString("exclusionsFile");
                 if (jitAnalysis) {
@@ -200,9 +211,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (conf.hasValue("veritestRegionExpectedCount"))
                 veritestRegionExpectedCount = conf.getInt("veritestRegionExpectedCount");
-
-            if (conf.hasValue("printState"))
-                printState = conf.getBoolean("printState");
 
             if (conf.hasValue("instantiationLimit"))
                 instantiationLimit = conf.getInt("instantiationLimit");
@@ -331,7 +339,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         try {
             if (jitAnalysis) {
                 StaticRegion staticRegion;
-                if (!skipVeriRegions.contains(key) && isAllowedRegion(key)) {
+                // SH: I am commenting the skipping out because it needs to pass replace_eqk check first. The main problem is that we think that we
+                // are skipping a non useful region, when in fact we are in the process of executing the then-side of a StaticBranchChoiceGenerator.
+                // this condition results in skipping the veritesting code, including the execution of the if-bytecode, a soundness problem.
+                if (isAllowedRegion(key) && !skipVeriRegion(vm)) { //!skipVeriRegions.contains(key) &&
                     if (isSymCond(ti, instructionToExecute)) {
                         thisHighOrdCount = 0;
                         staticRegion = JITAnalysis.discoverRegions(ti, instructionToExecute, key); // Just-In-Time static analysis to discover regions
@@ -349,8 +360,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 } else {
                     HashMap<String, StaticRegion> regionsMap = VeritestingMain.veriRegions;
                     StaticRegion staticRegion = regionsMap.get(key);
-                    if ((staticRegion != null) && !(staticRegion.isMethodRegion) && !skipVeriRegions.contains(key) &&
-                            isAllowedRegion(key)) {
+                    // SH: I am commenting the skipping out because it needs to pass replace_eqk check first. The main problem is that we think that we
+                    // are skipping a non useful region, when in fact we are in the process of executing the then-side of a StaticBranchChoiceGenerator.
+                    // this condition results in skipping the veritesting code, including the execution of the if-bytecode.
+                    if ((staticRegion != null) && !(staticRegion.isMethodRegion) && isAllowedRegion(key) && !skipVeriRegion(vm)) { // && !skipVeriRegions.contains(key)
                         thisHighOrdCount = 0;
                         //if (SpfUtil.isSymCond(staticRegion.staticStmt)) {
                         if (SpfUtil.isSymCond(ti, staticRegion.staticStmt, (SlotParamTable) staticRegion.slotParamTable, instructionToExecute)) {
@@ -393,22 +406,49 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         }
     }
 
+    /**
+     * skipping a region is only allowed if it has been identified as not beneficial and if we are not hitting this region because the choice generator is trying to execute on of it spfcases choices,
+     * because if it is trying to execute a choice of spf case we should not ignore the region at that point, we should however delegate the execute to the if-bytecode in java ranger.
+     *
+     * @param vm
+     * @return
+     */
+    private boolean skipVeriRegion(VM vm) {
+        return skipVeriRegions.contains(key) && (advancedSBCG == null || advancedSBCG == vm.getChoiceGenerator());
+//        return false;
+    }
+
 
     private void runVeritestingWrapper(ThreadInfo ti, VM vm, StaticRegion staticRegion, Instruction instructionToExecute) throws Exception {
         if ((runMode != VeritestingMode.SPFCASES) && (runMode != VeritestingMode.EARLYRETURNS)) {
-            isRegionEndOk(ti, staticRegion, instructionToExecute);
-
+            checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
             runOnSamePath(ti, instructionToExecute, dynRegion);
             System.out.println("------------- Region was successfully veritested --------------- ");
 
         } else {
-            isRegionEndOk(ti, staticRegion, instructionToExecute);
+            checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
         }
         if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
             VeriObligationMgr.addSymbolicOblgMap(CollectObligationsVisitor.oblgToExprsMap);
         veritestingSuccessful = true;
+    }
+
+    private void checkRegionStackInputOutput(ThreadInfo ti, StaticRegion staticRegion, Instruction instructionToExecute)
+            throws StaticRegionException {
+        isRegionBeginOk(staticRegion, instructionToExecute);
+        isRegionEndOk(ti, staticRegion, instructionToExecute);
+    }
+
+    private void isRegionBeginOk(StaticRegion staticRegion, Instruction instructionToExecute) throws StaticRegionException {
+        boolean isBeginInsnStackConsuming = isStackConsumingInstruction(instructionToExecute);
+        // If region does not begin on a stack operand consuming instructiverboseVeritestingon then the region should not have a stack input
+        if (!isBeginInsnStackConsuming && staticRegion.stackOutput != null) {
+            String ex = "Region with stack input does not begin at a stack-consuming instruction";
+            skipRegionStrings.add(ex);
+            throwException(new StaticRegionException(ex), INSTANTIATION);
+        }
     }
 
 
@@ -522,6 +562,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             ti.setNextPC(instructionToExecute);
             statisticManager.updateVeriSuccForRegion(key);
             ++VeritestingListener.veritestRegionCount;
+            System.out.println("------------- Region was successfully veritested --------------- ");
+
         } else {
 
             ChoiceGenerator<?> cg = ti.getVM().getSystemState().getChoiceGenerator();
@@ -541,9 +583,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         }
     }
 
-    @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
-        if (printState && !performanceMode)
+        if (verboseVeritesting && !performanceMode)
             System.out.println("threadTerminated");
         npaths++;
         super.threadTerminated(vm, terminatedThread);
@@ -551,35 +592,47 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     @Override
     public void threadStarted(VM vm, ThreadInfo startedThread) {
-        if (printState && !performanceMode)
+        if (verboseVeritesting && !performanceMode)
             System.out.println("threadStarted");
         //super.threadTerminated(vm, terminatedThread);
     }
 
     @Override
     public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
-        if (printState && !performanceMode)
+        if (nextCG instanceof PCChoiceGenerator && verboseVeritesting  && !performanceMode)
             System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
     }
 
     @Override
     public void stateAdvanced(Search search) {
-        if (printState && !performanceMode)
+        advancedSBCG = null;
+        if (verboseVeritesting  && !performanceMode)
             System.out.println("stateAdvanced");
 
     }
 
     @Override
     public void stateBacktracked(Search search) {
-        if (printState && !performanceMode)
+        if (verboseVeritesting && !performanceMode)
             System.out.println("stateBacktracked");
 
     }
 
+
     @Override
     public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
-        if (printState && !performanceMode)
-            System.out.println("choiceGeneratorProcessed: at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+        if (verboseVeritesting && !performanceMode)
+            System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+    }
+
+    @Override
+    public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
+        if (currentCG instanceof StaticBranchChoiceGenerator)
+            advancedSBCG = (StaticBranchChoiceGenerator) currentCG;
+        else advancedSBCG = null;
+
+        if (verboseVeritesting && !performanceMode)
+            System.out.println("choiceGeneratorAdvanced(" + currentCG.getClass() + ")");
     }
 
     private DynamicRegion runVeritesting(ThreadInfo ti, Instruction instructionToExecute, StaticRegion staticRegion,
@@ -599,6 +652,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
         /*-------------- UNIQUENESS TRANSFORMATION ---------------*/
         DynamicRegion dynRegion = UniqueRegion.execute(staticRegion);
+
+        dynRegion = SubstituteStackInput.execute(ti, dynRegion);
 
         boolean somethingChanged = true;
         FixedPointWrapper.resetWrapper();
@@ -695,7 +750,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 pushReturnOnStack(ti.getTopFrame(), dynRegion);
             }
             if (dynRegion.stackOutput != null) {
-//                dynRegion.stackOutput = (WalaVarExpr) (new ExprVisitorAdapter(new WalaVarToSPFVarVisitor(dynRegion.varTypeTable))).accept(dynRegion.stackOutput);
                 pushExpOnStack(dynRegion, ti.getTopFrame(), (String) dynRegion.varTypeTable.lookup(dynRegion.stackOutput),
                         dynRegion.stackOutput);
             }

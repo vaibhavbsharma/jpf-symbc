@@ -196,19 +196,19 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                     success = true;
                 }
 
-                if(success){
-                    String fileName = folderName + "/" + StatisticManager.instructionToExec+"$" + StatisticManager.solverQueriesUnique + ".txt";
-                    ++StatisticManager.solverQueriesUnique;
-                    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                            new FileOutputStream(fileName), "utf-8"))) {
-
-                        DiscoverContract.z3QuerySet.add(new Pair(solver.toString(), z3FunDecSet));
-
-                        writer.write(DiscoverContract.toSMT(solver.toString(), z3FunDecSet));
-                    }
-                }
-                else
-                    System.out.println("Encountered a problem while creating Solver Queries directory.");
+//                if(success){
+//                    String fileName = folderName + "/" + StatisticManager.instructionToExec+"$" + StatisticManager.solverQueriesUnique + ".txt";
+//                    ++StatisticManager.solverQueriesUnique;
+//                    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+//                            new FileOutputStream(fileName), "utf-8"))) {
+//
+//                        DiscoverContract.z3QuerySet.add(new Pair(solver.toString(), z3FunDecSet));
+//
+//                        writer.write(DiscoverContract.toSMT(solver.toString(), z3FunDecSet));
+//                    }
+//                }
+//                else
+//                    System.out.println("Encountered a problem while creating Solver Queries directory.");
 
 
                 /*********** SH: end logging *******************/

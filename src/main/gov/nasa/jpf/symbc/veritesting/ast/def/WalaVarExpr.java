@@ -1,7 +1,5 @@
 package gov.nasa.jpf.symbc.veritesting.ast.def;
 
-import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
-import za.ac.sun.cs.green.expr.Variable;
 import za.ac.sun.cs.green.expr.Visitor;
 import za.ac.sun.cs.green.expr.VisitorException;
 
@@ -102,10 +100,12 @@ public final class WalaVarExpr extends CloneableVariable {
     }
 
     @Override
-    public WalaVarExpr makeUnique(int unique) throws StaticRegionException {
-        if (uniqueNum != -1 && unique != uniqueNum)
-            throw new StaticRegionException("Attempting to make a already-unique WalaVarExpr unique");
-        return new WalaVarExpr(number, unique);
+    public WalaVarExpr makeUnique(int unique) {
+        if (uniqueNum == -1) {
+            return new WalaVarExpr(number, unique);
+        } else {
+            return new WalaVarExpr(number, uniqueNum);
+        }
     }
 
     @Override

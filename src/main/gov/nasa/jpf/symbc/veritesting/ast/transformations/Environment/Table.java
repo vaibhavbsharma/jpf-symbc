@@ -1,8 +1,8 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment;
 
-import gov.nasa.jpf.symbc.veritesting.ast.def.AssignmentStmt;
-
 import java.util.*;
+
+import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 public class Table<K, V> {
 
@@ -64,17 +64,18 @@ public class Table<K, V> {
      */
 
     public void print() {
-        System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
-        Collection<V> values = table.values();
-        if (values != null) {
-            Iterator itr = values.iterator();
-            if (itr.hasNext())
-                if (itr.next() instanceof int[])
-                    table.forEach((v1, stackSlots) -> System.out.println(v1 + " --------- " + Arrays.toString((int[]) stackSlots)));
-                else
-                    table.forEach((v1, v2) -> System.out.println(v1 + " --------- " + v2));
+        if(verboseVeritesting) {
+            System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
+            Collection<V> values = table.values();
+            if (values != null) {
+                Iterator itr = values.iterator();
+                if (itr.hasNext())
+                    if (itr.next() instanceof int[])
+                        table.forEach((v1, stackSlots) -> System.out.println(v1 + " --------- " + Arrays.toString((int[]) stackSlots)));
+                    else
+                        table.forEach((v1, v2) -> System.out.println(v1 + " --------- " + v2));
+            }
         }
-
     }
 
 }

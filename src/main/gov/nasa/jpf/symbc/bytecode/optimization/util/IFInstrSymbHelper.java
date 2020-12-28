@@ -197,7 +197,7 @@ public class IFInstrSymbHelper {
 			if(prevPcGen!=null)
 				pc = prevPcGen.getCurrentPC();
 			else
-				pc = new PathCondition();
+				pc = new PathCondition();//				secPC._addDet(Comparator.NE,v1,sym_v2);
 			
 			PathCondition firstPC = pc.make_copy();
 			PathCondition secPC = pc.make_copy();
@@ -209,7 +209,12 @@ public class IFInstrSymbHelper {
 			if(sym_v1 != null){
 				if(sym_v2 != null){ //both are symbolic values
 					firstPC._addDet(firstComparator,sym_v2,sym_v1);
-					secPC._addDet(secondComparator,sym_v1,sym_v2);
+					//SH: fuzzying a number close to zero, this allows us to represent floats with reals.
+					float epsilon = 1.4E-45F;
+					RealExpression fuzzyl = sym_v2._minus(sym_v1);
+					secPC._addDet(firstComparator, fuzzyl, epsilon);
+					secPC._addDet(thirdComparator, fuzzyl, -epsilon);
+
 					thirdPC._addDet(thirdComparator,sym_v2,sym_v1);
 				} else {
 					firstPC._addDet(firstComparator,v2,sym_v1);
@@ -294,12 +299,20 @@ public class IFInstrSymbHelper {
 			} else if (conditionValue == 0){
 				if (sym_v1 != null) {
 					if (sym_v2 != null) { // both are symbolic values
-						pc._addDet(secondComparator, sym_v1, sym_v2);
+						//SH: fuzzying a number close to zero, this allows us to represent floats with reals.
+						float epsilon = 1.4E-45F;
+						RealExpression fuzzyl = sym_v2._minus(sym_v1);
+						pc._addDet(firstComparator, fuzzyl, epsilon);
+						pc._addDet(thirdComparator, fuzzyl, -epsilon);
+
+//						pc._addDet(secondComparator, sym_v1, sym_v2);
 					} else
 						pc._addDet(secondComparator, sym_v1, v2);
 				} else
 					pc._addDet(secondComparator, v1, sym_v2);
 					((PCChoiceGenerator) curCg).setCurrentPC(pc);
+
+
 			} else {// 1
 				if (sym_v1 != null) {
 					if (sym_v2 != null) { // both are symbolic values

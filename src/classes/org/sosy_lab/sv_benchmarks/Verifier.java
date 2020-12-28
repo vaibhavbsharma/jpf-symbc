@@ -9,8 +9,20 @@ public final class Verifier {
   
   static int counter=0;
   
+/*
   public static void assume(boolean condition) {
     Debug.assume(condition);
+  }
+*/
+
+
+  public static void assume(boolean condition) {
+    if(condition) {
+      return;
+    }
+    else{
+      Verify.ignoreIf(true);
+    }
   }
   
   public static boolean nondetBoolean() {

@@ -30,7 +30,7 @@ public class BranchCoverage {
 
         File exclusionFile = new File("../coverageExclusions.txt");
 
-        AnalysisScope scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(targetAbsPath.substring(0,targetAbsPath.lastIndexOf("/")), exclusionFile);
+        AnalysisScope scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(targetAbsPath, exclusionFile);
         cha = ClassHierarchyFactory.make(scope);
         Iterable<Entrypoint> entryPoints = Util.makeMainEntrypoints(scope, cha);
 
@@ -57,7 +57,7 @@ public class BranchCoverage {
         String walaPackageName = CoverageUtil.getWalaPackageName(m);
         String className = m.getDeclaringClass().getName().getClassName().toString();
         String methodSignature = m.getSelector().toString();
-        gov.nasa.jpf.symbc.branchcoverage.BranchOblgCollectorVisitor branchOblgCollectorVisitor = null;
+        BranchOblgCollectorVisitor branchOblgCollectorVisitor = null;
         for (int irInstIndex = 0; irInstIndex < instructions.length; irInstIndex++) {
             SSAInstruction ins = instructions[irInstIndex];
             if (ins != null) {

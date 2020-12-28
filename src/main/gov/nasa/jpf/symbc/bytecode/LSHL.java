@@ -17,8 +17,7 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
-import gov.nasa.jpf.symbc.numeric.IntegerConstant;
-import gov.nasa.jpf.symbc.numeric.IntegerExpression;
+import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
@@ -43,19 +42,27 @@ public class LSHL extends gov.nasa.jpf.jvm.bytecode.LSHL {
 	    	long v2 = sf.popLong();
 	    	sf.pushLong(v2 << v1);
 
-	    	IntegerExpression result = null;
+	    	Expression result = null;
 	    	if (sym_v1 != null) {
 	    		if (sym_v2 != null) {
 					//result = sym_v1._shiftL(sym_v2);
-					result = sym_v2._shiftL(sym_v1);
+					BinaryLinearIntegerExpression sym_shift_val = new BinaryLinearIntegerExpression((IntegerExpression) sym_v1, Operator.AND, new IntegerConstant(63));
+					result = sym_v2._shiftL(sym_shift_val);
 				}
 	    		else { // v2 is concrete
 					//result = sym_v1._shiftL(v2);
-					result = (new IntegerConstant((int) v2))._shiftL(sym_v1);
+					BinaryLinearIntegerExpression sym_shift_val = new BinaryLinearIntegerExpression((IntegerExpression) sym_v1, Operator.AND, new IntegerConstant(63));
+
+					result = new IntegerConstant(v2)._shiftL(sym_shift_val);
+
+//					BinaryRealExpression sym_shift_val = new BinaryRealExpression(new )
+//					result = new RealConstant(v2)._shiftL(sym_shift_val);
+
+
 				}
 	    	}
 	    	else if (sym_v2 != null) {
-	    		result = sym_v2._shiftL(v1);
+				result = new IntegerConstant(v2)._shiftL(v1 & 63);
 	    	}
 
 	    	sf.setLongOperandAttr(result);

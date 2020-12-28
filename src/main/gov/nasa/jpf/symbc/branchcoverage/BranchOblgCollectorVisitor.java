@@ -96,7 +96,6 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         AnalysisOptions options = new AnalysisOptions();
         options.getSSAOptions().setPiNodePolicy(SSAOptions.getAllBuiltInPiNodes());
         IAnalysisCacheView cache = new AnalysisCacheImpl(options.getSSAOptions());
-
         IR ir = cache.getIR(m, Everywhere.EVERYWHERE);
 
         String walaPackageName = CoverageUtil.getWalaPackageName(m);
