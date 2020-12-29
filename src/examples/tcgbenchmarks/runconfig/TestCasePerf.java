@@ -1,4 +1,4 @@
-package veritesting.test_case_gen;
+package tcgbenchmarks.runconfig;
 
 import veritesting.Outputs;
 
@@ -11,7 +11,7 @@ public class TestCasePerf {
         int myVal = myA.getIncA();
         System.out.println("my A value is = " + myVal);*/
 //        singleBranchCov2(1, 1);
-//        doubleBranchCov(1, 1);
+        doubleBranchCov(1, 1);
 //        doubleRec(1, 1);
 //        complexBranchCov(1,1);
 //        unoptimalDFS(1, 1);
@@ -29,7 +29,7 @@ public class TestCasePerf {
 //        testingComplexConditions3(true, true, true, true);
 
 //        (new TestCasePerf()).testingER1(true, 1);
-        (new TestCasePerf()).testERInline(true, 1);
+//        (new TestCasePerf()).testERInline(true, 1);
 //        simpleRegion(1);
     }
 
@@ -314,7 +314,7 @@ public class TestCasePerf {
 
     public static int branchMethodCov(int x, int y) {
 
-        veritesting.test_case_gen.A a = new veritesting.test_case_gen.A();
+        A a = new A();
         for (int i = 0; i < 2; i++) {
             if (x == 1)
                 x = y;
@@ -327,7 +327,7 @@ public class TestCasePerf {
 
     public static int c(int x, int y) {
 
-        veritesting.test_case_gen.A a = new veritesting.test_case_gen.A();
+        A a = new A();
         for (int i = 0; i < 2; i++) {
             if (x == 1)
                 x = y;
@@ -340,7 +340,7 @@ public class TestCasePerf {
 
     public static int doubleRec(int x, int y) {
 
-        veritesting.test_case_gen.A a = new veritesting.test_case_gen.A();
+        A a = new A();
         for (int i = 0; i < 2; i++) {
             if (x == 1)
                 x = y;

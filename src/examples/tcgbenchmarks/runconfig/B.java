@@ -1,4 +1,4 @@
-package veritesting.test_case_gen;
+package tcgbenchmarks.runconfig;
 
 public class B {
 
@@ -8,7 +8,7 @@ public class B {
         return ++b;
     }
 
-    public int getIncA(veritesting.test_case_gen.A aRef) {
+    public int getIncA(A aRef) {
         return aRef.getIncB();
     }
 
