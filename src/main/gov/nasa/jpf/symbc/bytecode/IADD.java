@@ -59,7 +59,7 @@ public class IADD extends gov.nasa.jpf.jvm.bytecode.IADD {
             IntegerExpression result = null;
             String[] dp = SymbolicInstructionFactory.dp;
 
-            if (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) {
+            if ((dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) && SymbolicInstructionFactory.bvlength == 64) {
                 if (sym_v1 != null) {
                     if (sym_v2 != null)
                         result = ((sym_v1._plus(sym_v2))._shiftL(32))._shiftR(32);

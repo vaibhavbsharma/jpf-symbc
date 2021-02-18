@@ -27,6 +27,7 @@ import com.microsoft.z3.*;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
 import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.string.translate.BVExpr;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 
 public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements IncrementalSolver {
 
@@ -127,8 +128,21 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
             Model model = null;
             if (Status.SATISFIABLE == solver.check()) {
                 model = solver.getModel();
+                String[] dp = SymbolicInstructionFactory.dp;
+                if (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) {
+                    String[] valuations = model.toString().split("\n");
+                    assert valuations.length > 0 : "valuations of the model cannot be zero, something is wrong. Failing";
+                    int i = 0;
+                    String value = valuations[i];
+                    while (i < valuations.length && !value.contains(dpVar.toString())) //try to find the valuation of what we are looking for
+                        value = valuations[i++];
+                    if (i == valuations.length && !value.contains(dpVar.toString())) // we couldn't find the variable in the model, so assume it the lowest value.
+                        return Integer.MIN_VALUE;
+                    return SpfUtil.hexToDec(value.substring(value.indexOf(">") + 1));
+                }
                 try {
                     String strResult = model.eval((Expr) dpVar, false).toString();
+                    SpfUtil.hexToDec(strResult);
                     return new BigInteger(strResult).longValue();
                 } catch (NumberFormatException e) {
                     return Integer.MIN_VALUE;

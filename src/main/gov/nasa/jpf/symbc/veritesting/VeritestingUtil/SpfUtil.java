@@ -19,6 +19,7 @@ import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.Operation;
 
 import java.io.File;
+import java.math.BigInteger;
 
 import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
@@ -201,7 +202,7 @@ public class SpfUtil {
                     return new IntegerConstant(variable);
             }
         } else {
-            if(verboseVeritesting)
+            if (verboseVeritesting)
                 System.out.println("SPF does not know the type, type is assumed int.");
             return new IntegerConstant(variable);
         }
@@ -334,4 +335,53 @@ public class SpfUtil {
         }
     }
 
+    public static Long hexToDec(String hex) {
+        if (hex == null) {
+            throw new NullPointerException("hexToDec: hex String is null.");
+        }
+        hex = hex.replace(" ","");
+        hex = hex.replace("#", "");
+        hex = hex.replace("x", "");
+
+        String[] dp = SymbolicInstructionFactory.dp;
+        assert (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) : "cannot call hex conversion when the solver is not a bitvector solver. Failing!";
+
+        assert (SymbolicInstructionFactory.bvlength == 32) : "hexToDecimal operation only supported on 32 bit integer. Failing!";
+
+        if ((SymbolicInstructionFactory.bvlength == 32 && hex.length() < 8))
+            return new BigInteger(hex, 16).longValue();
+
+        assert(hex.length() == 8) : "the bit-vector expected is 32-bits, thus the length of hex should be 8 in hex representation. Assumption violated, failing.";
+
+        hex = hex.toUpperCase();
+
+      /*  BigInteger temp;
+
+        temp = new BigInteger(hex, 16);
+        BigInteger subtrahend = BigInteger.ONE.shiftLeft(hex.length() * 4);
+        temp = temp.subtract(subtrahend);
+
+        return (Long) temp.longValue();*/
+
+        // Check if high bit is set.
+        boolean isNegative =
+                hex.startsWith("8") || hex.startsWith("9") ||
+                        hex.startsWith("A") || hex.startsWith("B") ||
+                        hex.startsWith("C") || hex.startsWith("D") ||
+                        hex.startsWith("E") || hex.startsWith("F");
+
+        BigInteger temp;
+
+        if (isNegative) {
+            // Negative number
+            temp = new BigInteger(hex, 16);
+            BigInteger subtrahend = BigInteger.ONE.shiftLeft(hex.length() * 4);
+            temp = temp.subtract(subtrahend);
+        } else {
+            // Positive number
+            temp = new BigInteger(hex, 16);
+        }
+
+        return (Long) temp.longValue();
+    }
 }
