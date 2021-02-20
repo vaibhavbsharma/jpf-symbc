@@ -25,6 +25,7 @@ import za.ac.sun.cs.green.expr.*;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.BranchListener.evaluationMode;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil.getWalaInstLineNum;
 
 public class VeriObligationMgr {
@@ -33,12 +34,13 @@ public class VeriObligationMgr {
      * used to track the depth of PCChoiceGenerators to keep track of symbolic variables in every path exploration.
      */
     private static int pcDepth = 0;
+    static HashSet<String> solutionHash = new HashSet<>(); //ensures that every solution we collect must be unique from the pervious one, otherwise there is something wrong.
 
     /**
      * This is the main symbolicOblgMap that lives throughout. It carries obligations and their corresponding symbolic
      * expressions that we need to find valuations for.
      */
-    public static final HashMap<Obligation, PriorityQueue<Pair<Expression, Integer>>> symbolicOblgMap = new HashMap<>();
+    public static final LinkedHashMap<Obligation, PriorityQueue<Pair<Expression, Integer>>> symbolicOblgMap = new LinkedHashMap<>();
 
     /**
      * creates an obligation from ssa if-instruction
@@ -64,6 +66,7 @@ public class VeriObligationMgr {
 
         return new Obligation(generalOblg.spfPackageName, generalOblg.className, generalOblg.methodSig, generalOblg.instLine, generalOblg.inst, side);
     }
+
     /**
      * populates the symbolicOblgMap with the current map of obligations and symbolic expression, ideally obtained from veritesting
      * right before linearization.
@@ -125,21 +128,22 @@ public class VeriObligationMgr {
      * collects new coverage by doing the following
      * 1. first it finds out which of the obligations encountered in path merging is not yet covered.
      * 2. utilizes symbolicOblgMap, pc and the solver to ask for coverage for these obligations.
+     *
      * @return
      */
-    public static ArrayList<Obligation> collectVeritestingCoverage(ThreadInfo ti, HashSet<Obligation> oblgsNeedsCoverage) {
+    public static ArrayList<Obligation> collectVeritestingCoverage(ThreadInfo ti, LinkedHashSet<Obligation> oblgsNeedsCoverage) {
 //        HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
         ArrayList<Obligation> coveredOblgsOnPath = new ArrayList<>();
         if (oblgsNeedsCoverage.size() > 0) {
             coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
-            if (!BranchListener.evaluationMode)
+            if (!evaluationMode)
                 System.out.println("newly covered obligation on the path: " + coveredOblgsOnPath);
         }
         return coveredOblgsOnPath;
     }
 
-    public static HashSet<Obligation> getVeriNeedsCoverageOblg() {
-        HashSet<Obligation> oblgNeedsCoverage = new HashSet<>();
+    public static LinkedHashSet<Obligation> getVeriNeedsCoverageOblg() {
+        LinkedHashSet<Obligation> oblgNeedsCoverage = new LinkedHashSet<>();
 
         for (Obligation oblg : symbolicOblgMap.keySet()) {
             if (!ObligationMgr.isOblgCovered(oblg)) oblgNeedsCoverage.add(oblg);
@@ -147,7 +151,7 @@ public class VeriObligationMgr {
         return oblgNeedsCoverage;
     }
 
-    private static ArrayList<Obligation> askSolverForCoverage(ThreadInfo ti, HashSet<Obligation> oblgsNeedCoverage) {
+    private static ArrayList<Obligation> askSolverForCoverage(ThreadInfo ti, LinkedHashSet<Obligation> oblgsNeedCoverage) {
         boolean sat = true;
         ArrayList<Obligation> newCoveredOblgsOnPath = new ArrayList<>();
         do {
@@ -186,8 +190,7 @@ public class VeriObligationMgr {
                     if (solution.size() != 0) {
                         ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedCoverage, solution);
                         oblgsNeedCoverage.removeAll(newCoveredOblgs);
-                        ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
-                        newCoveredOblgsOnPath.addAll(newCoveredOblgs);
+//                        ObligationMgr.addNewOblgsCoverag/**/e(newCoveredOblgs);
                         System.out.println("");
                     } else sat = false;
                 }
@@ -205,13 +208,21 @@ public class VeriObligationMgr {
             if (isOblgCoveredInPath(oblgQueue, solution)) coveredOblgs.add(oblg);
         }
         // if we have any new coverage then
-        if(coveredOblgs.size()== 0)
+        if (!evaluationMode)
+            if (solutionHash.contains(solution.toString()))
+                assert false : "solution/test case is duplicated, something went wrong. Failing.";
+            else
+                solutionHash.add(solution.toString());
+
+        if (coveredOblgs.size() == 0) {
             System.out.println("---> useless execution for covering new JR obligations. SPF must have new branch obligation then.");
+        }
 
         //for a single solver output there can't exists multiple valuations for the arguments.
         else
             //generate system test at this point
-            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE) VeriSymbolicSequenceListener.collectVeriTests(vm, solution);
+            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
+                VeriSymbolicSequenceListener.collectVeriTests(vm, solution);
 
         return coveredOblgs;
     }

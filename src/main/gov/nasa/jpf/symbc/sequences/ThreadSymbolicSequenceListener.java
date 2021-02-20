@@ -165,7 +165,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
             Map<String, Object> solution = null;
             if (IncrementalListener.solver != null) IncrementalListener.solver.push();
             solution = pc.solveWithValuations(attributes);
-            assert solution.size() > 0 : "At least one solution is expected. Something went wrong. Failing.";
+            assert (pc.count() == 0 || solution.size() > 0) : "At least one solution is expected. Something went wrong. Failing.";
             if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
 
             // get the chain of choice generators.

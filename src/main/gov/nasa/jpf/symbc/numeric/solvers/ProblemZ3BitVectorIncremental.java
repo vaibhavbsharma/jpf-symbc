@@ -124,6 +124,7 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
     }
 
     public long getIntValue(Object dpVar) {
+        String dpVarStr = dpVar.toString() + " ";
         try {
             Model model = null;
             if (Status.SATISFIABLE == solver.check()) {
@@ -134,15 +135,14 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
                     assert valuations.length > 0 : "valuations of the model cannot be zero, something is wrong. Failing";
                     int i = 0;
                     String value = valuations[i];
-                    while (i < valuations.length && !value.contains(dpVar.toString())) //try to find the valuation of what we are looking for
+                    while (i < valuations.length && !value.contains(dpVarStr)) //try to find the valuation of what we are looking for
                         value = valuations[i++];
-                    if (i == valuations.length && !value.contains(dpVar.toString())) // we couldn't find the variable in the model, so assume it the lowest value.
+                    if (i == valuations.length && !value.contains(dpVarStr)) // we couldn't find the variable in the model, so assume it the lowest value.
                         return Integer.MIN_VALUE;
                     return SpfUtil.hexToDec(value.substring(value.indexOf(">") + 1));
                 }
                 try {
                     String strResult = model.eval((Expr) dpVar, false).toString();
-                    SpfUtil.hexToDec(strResult);
                     return new BigInteger(strResult).longValue();
                 } catch (NumberFormatException e) {
                     return Integer.MIN_VALUE;

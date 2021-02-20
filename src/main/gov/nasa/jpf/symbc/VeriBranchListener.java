@@ -23,6 +23,7 @@ import com.ibm.wala.ipa.callgraph.*;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.collectVeritestingCoverage;
@@ -115,7 +116,7 @@ public class VeriBranchListener extends BranchListener {
         if (!evaluationMode) System.out.println("end of thread");
 //        newCoverageFound = false;
         newCoveredOblg.clear();
-        HashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
+        LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
         if (veriOblgsNeedsCoverage.size() > 0) {
             newCoveredOblg = new HashSet<>(collectVeritestingCoverage(terminatedThread, veriOblgsNeedsCoverage));
             for (Obligation oblg : newCoveredOblg)
