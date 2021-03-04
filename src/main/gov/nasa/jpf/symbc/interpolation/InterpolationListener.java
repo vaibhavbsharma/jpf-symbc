@@ -49,7 +49,7 @@ public class InterpolationListener extends PropertyListenerAdapter implements Pu
             }
 
         if (insideInterestingMethod) {
-            Trace.add(instructionToExecute);
+            Trace.add(instructionToExecute, null);
         }
     }
 
@@ -62,17 +62,16 @@ public class InterpolationListener extends PropertyListenerAdapter implements Pu
 
     public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
         System.out.println("choiceGeneratorRegistered");
-            Trace.add(new GCinstruction(GCinstructionType.CHOICE_GENERATOR_REGISTERED));
+        Trace.add(new GCinstruction(GCinstructionType.CHOICE_GENERATOR_REGISTERED), nextCG);
     }
 
     public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
         System.out.println("choiceGeneratorAdvanced");
-
-            Trace.add(new GCinstruction(GCinstructionType.CHOICE_GENERATOR_ADVANCED));
+        Trace.add(new GCinstruction(GCinstructionType.CHOICE_GENERATOR_ADVANCED), null);
     }
 
     public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
-            Trace.add(new GCinstruction(GCinstructionType.CHOICE_GENERATOR_PROCESSED));
+        Trace.add(new GCinstruction(GCinstructionType.CHOICE_GENERATOR_PROCESSED), null);
     }
 
 

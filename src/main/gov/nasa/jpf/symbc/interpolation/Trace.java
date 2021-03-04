@@ -5,6 +5,8 @@ package gov.nasa.jpf.symbc.interpolation;
 
 import gov.nasa.jpf.symbc.interpolation.bytecode.GCinstruction;
 import gov.nasa.jpf.symbc.interpolation.bytecode.GCinstructionType;
+import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
+import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;
 
 import java.util.ArrayDeque;
@@ -13,10 +15,12 @@ import java.util.Deque;
 public class Trace {
     static Deque<Instruction> instTrace = new ArrayDeque<>(); //a queue of all instructions that spf has executed on a particular path
 
-    public static void add(Instruction inst) {
+    public static void add(Instruction inst, ChoiceGenerator cg) {
         if (inst instanceof GCinstruction) {
             switch (((GCinstruction) inst).cgInstructionType) {
                 case CHOICE_GENERATOR_REGISTERED:
+                    if(cg instanceof PCChoiceGenerator)
+                        instTrace.removeLast(); //removing isFirstStep call of the branching instruction.
                     instTrace.add(inst);
                     break;
                 case CHOICE_GENERATOR_ADVANCED:
