@@ -10,8 +10,11 @@ import gov.nasa.jpf.symbc.bytecode.INVOKESTATIC;
 import gov.nasa.jpf.symbc.bytecode.INVOKEVIRTUAL;
 import gov.nasa.jpf.symbc.interpolation.bytecode.GCinstruction;
 import gov.nasa.jpf.symbc.interpolation.bytecode.GCinstructionType;
+import gov.nasa.jpf.symbc.veritesting.ast.def.Stmt;
 import gov.nasa.jpf.vm.*;
 import gov.nasa.jpf.vm.bytecode.ReturnInstruction;
+
+import java.util.LinkedList;
 
 
 public class InterpolationListener extends PropertyListenerAdapter implements PublisherExtension {
@@ -39,14 +42,16 @@ public class InterpolationListener extends PropertyListenerAdapter implements Pu
         if (!insideInterestingMethod && instructionToExecute.toString().contains(interestingMethod))
             if (instructionToExecute instanceof INVOKESTATIC || instructionToExecute instanceof INVOKESPECIAL ||
                     instructionToExecute instanceof INVOKEVIRTUAL || instructionToExecute instanceof INVOKEINTERFACE) {
-                assert !insideInterestingMethod : "multiple enterance of the method is not supported. Failing.";
+                assert !insideInterestingMethod : "multiple entrance of the method is not supported. Failing.";
                 insideInterestingMethod = true;
 
                 return;
-            } else if (instructionToExecute instanceof ReturnInstruction) {
-                // this is where we want to compute the weakest precondition backward.
-                return;
             }
+
+        if (instructionToExecute.toString().contains(interestingMethod) && instructionToExecute instanceof ReturnInstruction) { // this is where we want to compute the weakest precondition backward.
+            LinkedList<Stmt> stmts = Trace.toAST();
+            return;
+        }
 
         if (insideInterestingMethod) {
             Trace.add(instructionToExecute, null);
