@@ -22,6 +22,11 @@ public class AssignmentStmt implements Stmt {
     }
 
     @Override
+    public <T> T accept(gov.nasa.jpf.symbc.interpolation.ast.AstVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public boolean equals(Stmt stmt2) {
         if (!(stmt2 instanceof AssignmentStmt))
             return false;

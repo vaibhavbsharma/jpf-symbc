@@ -14,7 +14,6 @@ import gov.nasa.jpf.vm.Instruction;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 
 public class Trace {
     static Deque<Instruction> instTrace = new ArrayDeque<>(); //a queue of all instructions that spf has executed on a particular path
@@ -77,8 +76,8 @@ public class Trace {
         return str.toString();
     }
 
-    public static LinkedList<Stmt> toAST() {
+    public static Deque<Stmt> toAST() {
         removeUntilLastBranch();
-        return TraceToAST.execute(instTrace);
+        return new TraceToAST().execute(instTrace);
     }
 }

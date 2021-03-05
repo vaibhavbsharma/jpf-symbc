@@ -7,17 +7,12 @@ import za.ac.sun.cs.green.expr.VisitorException;
 import java.util.List;
 
 public class SlotVar extends CloneableVariable {
-    int slot;
+    public final int slot;
     private static final String name = "slot_";
-
-    public SlotVar(String name) {
-        super(name);
-        assert false : "this is not the right constructure for SlotVars. Assumption Violated. Failing.";
-    }
 
     public SlotVar(int slot) {
         super(name+slot);
-        this.slot =slot;
+        this.slot = slot;
     }
 
     @Override

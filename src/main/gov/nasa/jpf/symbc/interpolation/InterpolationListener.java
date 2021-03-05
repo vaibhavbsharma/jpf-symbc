@@ -3,6 +3,7 @@ package gov.nasa.jpf.symbc.interpolation;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
+import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.report.PublisherExtension;
 import gov.nasa.jpf.symbc.bytecode.INVOKEINTERFACE;
 import gov.nasa.jpf.symbc.bytecode.INVOKESPECIAL;
@@ -14,7 +15,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.def.Stmt;
 import gov.nasa.jpf.vm.*;
 import gov.nasa.jpf.vm.bytecode.ReturnInstruction;
 
-import java.util.LinkedList;
+import java.util.Deque;
 
 
 public class InterpolationListener extends PropertyListenerAdapter implements PublisherExtension {
@@ -48,8 +49,12 @@ public class InterpolationListener extends PropertyListenerAdapter implements Pu
                 return;
             }
 
+        if(insideInterestingMethod && instructionToExecute instanceof IfInstruction){
+            //check subsumption here
+        }
         if (instructionToExecute.toString().contains(interestingMethod) && instructionToExecute instanceof ReturnInstruction) { // this is where we want to compute the weakest precondition backward.
-            LinkedList<Stmt> stmts = Trace.toAST();
+            Deque<Stmt> stmts = Trace.toAST();
+            WeakestPreConditionVisitor.computeInterpolant(stmts, currentThread);
             return;
         }
 
