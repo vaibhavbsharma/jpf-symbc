@@ -1,4 +1,4 @@
-package tcgbenchmarks.runconfig;
+package tcgbenchmarks.runconfig.TestCasePerf;
 
 public class B {
 

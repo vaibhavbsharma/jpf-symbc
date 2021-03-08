@@ -291,15 +291,26 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
                         if (value == null || value.intValue() == 0) solution = solution + "false";
                         else solution = solution + "true";
                     } else {
-                        if (value != null) solution = solution + solutionMap.get(((SymbolicInteger) e).getName());
-                        else solution = solution + Integer.MIN_VALUE;
+                        if (argValues[i] instanceof Character) { //converting the int value to its corresponding character.
+                            if (value != null) {
+                                String solverChar = specialcharToStr((char) value.intValue());
+                                solution = solution + "'" + solverChar + "'";
+                            } else solution = solution + "_"; //underscore presents dont care character.
+                        } else {
+                            if (value != null) solution = solution + solutionMap.get(((SymbolicInteger) e).getName());
+                            else solution = solution + Integer.MIN_VALUE;
+                        }
                     }
                 } else assert false : "unsupported type";
 
 
                 invokedMethod += solution + ",";
             } else { // parameter concrete - for a concrete parameter, the symbolic attribute is null
-                invokedMethod += argValues[i] + ",";
+                if (argValues[i] instanceof Character) {
+                    String outputChar = specialcharToStr((Character) argValues[i]);
+                    invokedMethod += "'" + outputChar + "'" + ",";
+                } else
+                    invokedMethod += argValues[i] + ",";
             }
         }
 
@@ -308,6 +319,25 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
         invokedMethod += ")";
 
         return invokedMethod;
+    }
+
+    static String specialcharToStr(Character charInt) {
+        String outputChar;
+        switch (charInt) {
+            case '\t':
+                outputChar = "\\t";
+                break;
+            case '\n':
+                outputChar = "\\n";
+                break;
+            case '\r':
+                outputChar = "\\r";
+                break;
+            default:
+                outputChar = charInt.toString();
+        }
+
+        return outputChar;
     }
 
 }

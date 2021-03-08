@@ -1,4 +1,4 @@
-package tcgbenchmarks.runconfig;
+package tcgbenchmarks.runconfig.TestCasePerf;
 
 import veritesting.Outputs;
 
@@ -10,8 +10,8 @@ public class TestCasePerf {
         /*veritesting.test_case_gen.A myA = new veritesting.test_case_gen.A();
         int myVal = myA.getIncA();
         System.out.println("my A value is = " + myVal);*/
-//        singleBranchCov2(1, 1);
-        doubleBranchCov(1, 1);
+        singleBranchCov2(1, 1);
+//        doubleBranchCov(1, 1);
 //        doubleRec(1, 1);
 //        complexBranchCov(1,1);
 //        unoptimalDFS(1, 1);

@@ -30,7 +30,8 @@ public class BranchCoverage {
 
         File exclusionFile = new File("../coverageExclusions.txt");
 
-        AnalysisScope scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(targetAbsPath, exclusionFile);
+        String classPath = targetAbsPath.substring(0, targetAbsPath.lastIndexOf("/"));
+        AnalysisScope scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(classPath, exclusionFile);
         cha = ClassHierarchyFactory.make(scope);
         Iterable<Entrypoint> entryPoints = Util.makeMainEntrypoints(scope, cha);
 
@@ -48,7 +49,7 @@ public class BranchCoverage {
         Graph<CGNode> g = pruneForAppLoader(cg);
 
         //I am not expecting to see multiple entery points at least for now.
-        assert cg.getEntrypointNodes().size() == 1;
+//        assert cg.getEntrypointNodes().size() == 1;
 
         IR entryIR = cg.getEntrypointNodes().iterator().next().getIR(); //getting the first entry point
         SSAInstruction[] instructions = entryIR.getInstructions();
