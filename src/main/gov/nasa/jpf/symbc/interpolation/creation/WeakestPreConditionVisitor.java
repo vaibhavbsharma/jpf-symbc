@@ -1,7 +1,7 @@
-package gov.nasa.jpf.symbc.interpolation;
+package gov.nasa.jpf.symbc.interpolation.creation;
 
 import gov.nasa.jpf.symbc.interpolation.ast.*;
-import gov.nasa.jpf.symbc.interpolation.shadow.ShadowStackFrame;
+import gov.nasa.jpf.symbc.interpolation.creation.shadow.ShadowStackFrame;
 import gov.nasa.jpf.symbc.veritesting.ast.def.AssignmentStmt;
 import gov.nasa.jpf.symbc.veritesting.ast.def.Stmt;
 import gov.nasa.jpf.vm.ThreadInfo;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class WeakestPreConditionVisitor extends AstMapVisitor {
 
-    //the key should be augmented with the call stack too.
+    //the key should be augmented with the call stack too. The expression part should be in the form of implication where the right-hand side is a summarization of the state.
     public static HashMap<String, Expression> wpMap = new HashMap<>();
 
     //contains the current interpol expression.

@@ -43,6 +43,24 @@ public class ExprUtil {
         }
     }
 
+    public static Expression SpfConstraintToGreenExpr(Constraint constraint) {
+        Expression greenExpr = null;
+
+        assert (constraint != null && constraint instanceof LinearIntegerConstraint) : "unexpected constraint type in PC. Assumption Violated. Failing";
+
+        LinearIntegerConstraint currConstraint = (LinearIntegerConstraint) constraint;
+
+        while (currConstraint != null) {
+            SolverTranslator.Translator toGreenTranslator = new SolverTranslator.Translator();
+            currConstraint.accept(toGreenTranslator);
+            Expression greenSubExpr = toGreenTranslator.getExpression();
+            greenExpr = (greenExpr == null) ? greenSubExpr : new Operation(AND, greenExpr, greenSubExpr);
+            assert (currConstraint.and == null || currConstraint.and instanceof LinearIntegerConstraint) : "unexpected constraint type in PC. Assumption Violated. Failing";
+            currConstraint = (LinearIntegerConstraint) currConstraint.and;
+        }
+        return greenExpr;
+    }
+
     /**
      * Translates an SPF expression to a Green Expression.
      *
@@ -75,8 +93,10 @@ public class ExprUtil {
         if (expression instanceof Operation) {
             Operation operation = (Operation) expression;
             String str = "";
-            if (operation.getOperator().getArity() == 2) str = "(" + AstToString(operation.getOperand(0)) + " " + operation.getOperator().toString() + " " + AstToString(operation.getOperand(1)) + ")";
-            else if (operation.getOperator().getArity() == 1) str = "(" + operation.getOperator().toString() + AstToString(operation.getOperand(0)) + ")";
+            if (operation.getOperator().getArity() == 2)
+                str = "(" + AstToString(operation.getOperand(0)) + " " + operation.getOperator().toString() + " " + AstToString(operation.getOperand(1)) + ")";
+            else if (operation.getOperator().getArity() == 1)
+                str = "(" + operation.getOperator().toString() + AstToString(operation.getOperand(0)) + ")";
             return str;
         } else return expression.toString();
     }
@@ -316,20 +336,28 @@ public class ExprUtil {
         if (op.getOperator() != Operation.Operator.NOT) return op;
         Expression e1 = op.getOperand(0);
         Expression returnExp;
-        if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.NOT)) returnExp = ((Operation) e1).getOperand(0);
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == EQ)) returnExp = new Operation(Operation.Operator.NE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.NE)) returnExp = new Operation(EQ, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.GT)) returnExp = new Operation(Operation.Operator.LE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.GE)) returnExp = new Operation(LT, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.LE)) returnExp = new Operation(Operation.Operator.GT, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
-        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == LT)) returnExp = new Operation(Operation.Operator.GE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.NOT))
+            returnExp = ((Operation) e1).getOperand(0);
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == EQ))
+            returnExp = new Operation(Operation.Operator.NE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.NE))
+            returnExp = new Operation(EQ, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.GT))
+            returnExp = new Operation(Operation.Operator.LE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.GE))
+            returnExp = new Operation(LT, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == Operation.Operator.LE))
+            returnExp = new Operation(Operation.Operator.GT, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
+        else if ((e1 instanceof Operation) && (((Operation) e1).getOperator() == LT))
+            returnExp = new Operation(Operation.Operator.GE, ((Operation) e1).getOperand(0), ((Operation) e1).getOperand(1));
         else returnExp = new Operation(Operation.Operator.NOT, e1);
         return returnExp;
     }
 
     public static Stmt compose(Stmt s1, Stmt s2, boolean allowBothNull) {
         if (s1 == null && s2 == null) {
-            if (!allowBothNull) throwException(new IllegalArgumentException("trying to compose with two null statements"), gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.DONTKNOW);
+            if (!allowBothNull)
+                throwException(new IllegalArgumentException("trying to compose with two null statements"), gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.DONTKNOW);
             else return null;
         } else if (s1 == null) return s2;
         else if (s2 == null) return s1;

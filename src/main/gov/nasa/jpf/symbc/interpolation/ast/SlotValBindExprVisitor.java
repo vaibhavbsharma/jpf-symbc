@@ -1,8 +1,6 @@
 package gov.nasa.jpf.symbc.interpolation.ast;
 
-import gov.nasa.jpf.symbc.interpolation.ast.ExprMapVisitor;
-import gov.nasa.jpf.symbc.interpolation.ast.SlotVar;
-import gov.nasa.jpf.symbc.interpolation.shadow.ShadowStackFrame;
+import gov.nasa.jpf.symbc.interpolation.creation.shadow.ShadowStackFrame;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitor;
 import za.ac.sun.cs.green.expr.*;
@@ -68,7 +66,7 @@ public class SlotValBindExprVisitor extends ExprMapVisitor implements ExprVisito
     //dereference the stack slot variable.
     @Override
     public Expression visit(SlotVar slotVar) {
-        int slot = slotVar.slot;
+        int slot = slotVar.slotNum;
         return frame.getSPFSlotExpr(slot);
     }
 }

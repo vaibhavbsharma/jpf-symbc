@@ -1,4 +1,4 @@
-package gov.nasa.jpf.symbc.interpolation.shadow;
+package gov.nasa.jpf.symbc.interpolation.creation.shadow;
 
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases.SpfToGreenVisitor;
 import gov.nasa.jpf.vm.StackFrame;

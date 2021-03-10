@@ -1,4 +1,4 @@
-package gov.nasa.jpf.symbc.interpolation;
+package gov.nasa.jpf.symbc.interpolation.creation;
 
 //holds the trace of instructions along a path, for computing the weakest precondition
 
@@ -7,7 +7,6 @@ import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.symbc.interpolation.bytecode.GCinstruction;
 import gov.nasa.jpf.symbc.interpolation.bytecode.GCinstructionType;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
-import gov.nasa.jpf.symbc.veritesting.ast.def.Ast;
 import gov.nasa.jpf.symbc.veritesting.ast.def.Stmt;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.Instruction;

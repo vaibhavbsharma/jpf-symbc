@@ -1,23 +1,28 @@
 package gov.nasa.jpf.symbc.interpolation.ast;
 
+import gov.nasa.jpf.symbc.veritesting.RangerDiscovery.InputOutput.DiscoveryUtil;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.ast.def.CloneableVariable;
+import gov.nasa.jpf.vm.StackFrame;
+import za.ac.sun.cs.green.expr.Expression;
+import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.Visitor;
 import za.ac.sun.cs.green.expr.VisitorException;
 
 import java.util.List;
 
 public class SlotVar extends CloneableVariable {
-    public final int slot;
+    public final int slotNum;
     private static final String name = "slot_";
 
-    public SlotVar(int slot) {
-        super(name+slot);
-        this.slot = slot;
+    public SlotVar(int slotNum) {
+        super(name + slotNum);
+        this.slotNum = slotNum;
     }
 
     @Override
     public CloneableVariable clone() throws CloneNotSupportedException {
-        return new SlotVar(slot);
+        return new SlotVar(slotNum);
     }
 
     @Override
@@ -29,6 +34,16 @@ public class SlotVar extends CloneableVariable {
     @Override
     public int hashCode() {
         return toString().hashCode();
+    }
+
+    //returns its symbolic value in the stackframe if found, otherwise it returns its concrete value.
+    public Expression instantiate(StackFrame sf) {
+        Object slotAttr = sf.getSlotAttr(slotNum);
+        if (slotAttr != null) {
+            assert slotAttr instanceof gov.nasa.jpf.symbc.numeric.Expression;
+            return ExprUtil.SPFToGreenExpr((gov.nasa.jpf.symbc.numeric.Expression) sf.getSlotAttr(slotNum));
+        } else
+            return new IntConstant(sf.getSlot(slotNum));
     }
 
     @Override
@@ -48,7 +63,7 @@ public class SlotVar extends CloneableVariable {
 
     @Override
     public String toString() {
-        return name+slot;
+        return name + slotNum;
     }
 
     @Override

@@ -11,22 +11,22 @@ import gov.nasa.jpf.symbc.bytecode.INVOKESTATIC;
 import gov.nasa.jpf.symbc.bytecode.INVOKEVIRTUAL;
 import gov.nasa.jpf.symbc.interpolation.bytecode.GCinstruction;
 import gov.nasa.jpf.symbc.interpolation.bytecode.GCinstructionType;
-import gov.nasa.jpf.symbc.veritesting.ast.def.Stmt;
+import gov.nasa.jpf.symbc.interpolation.creation.Trace;
 import gov.nasa.jpf.vm.*;
 import gov.nasa.jpf.vm.bytecode.ReturnInstruction;
-
-import java.util.Deque;
 
 
 public class InterpolationListener extends PropertyListenerAdapter implements PublisherExtension {
 
     static boolean insideInterestingMethod = false; // indicates whether we are in the method we want to compute the interpolant for.
 
-    static String interestingMethod;
+    static String interpolMainMethod;
+    public static boolean interpolationOn = false;
 
     public InterpolationListener(Config conf, JPF jpf) {
         if (conf.hasValue("interpolation.method")) {
-            interestingMethod = conf.getString("interpolation.method");
+            interpolMainMethod = conf.getString("interpolation.method");
+            interpolationOn = true;
         } else assert false : "configuration interpolation.method must be specified. Failing.";
     }
 
@@ -40,7 +40,7 @@ public class InterpolationListener extends PropertyListenerAdapter implements Pu
     public void executeInstruction(VM vm, ThreadInfo currentThread, Instruction instructionToExecute) {
 //        System.out.println(instructionToExecute);
 
-        if (!insideInterestingMethod && instructionToExecute.toString().contains(interestingMethod))
+        if (!insideInterestingMethod && instructionToExecute.toString().contains(interpolMainMethod))
             if (instructionToExecute instanceof INVOKESTATIC || instructionToExecute instanceof INVOKESPECIAL ||
                     instructionToExecute instanceof INVOKEVIRTUAL || instructionToExecute instanceof INVOKEINTERFACE) {
                 assert !insideInterestingMethod : "multiple entrance of the method is not supported. Failing.";
@@ -52,9 +52,8 @@ public class InterpolationListener extends PropertyListenerAdapter implements Pu
         if(insideInterestingMethod && instructionToExecute instanceof IfInstruction){
             //check subsumption here
         }
-        if (instructionToExecute.toString().contains(interestingMethod) && instructionToExecute instanceof ReturnInstruction) { // this is where we want to compute the weakest precondition backward.
-            Deque<Stmt> stmts = Trace.toAST();
-            WeakestPreConditionVisitor.computeInterpolant(stmts, currentThread);
+        if (instructionToExecute.toString().contains(interpolMainMethod) && instructionToExecute instanceof ReturnInstruction) { // this is where we want to compute the weakest precondition backward.
+            InterpolationMain.computeInterpolants(currentThread);
             return;
         }
 

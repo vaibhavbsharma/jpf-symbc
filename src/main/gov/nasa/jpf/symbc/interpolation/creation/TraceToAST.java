@@ -1,6 +1,7 @@
-package gov.nasa.jpf.symbc.interpolation;
+package gov.nasa.jpf.symbc.interpolation.creation;
 
 import gov.nasa.jpf.jvm.bytecode.*;
+import gov.nasa.jpf.symbc.interpolation.CoveredSides;
 import gov.nasa.jpf.symbc.interpolation.ast.Guard;
 import gov.nasa.jpf.symbc.interpolation.ast.SlotVar;
 import gov.nasa.jpf.symbc.veritesting.ast.def.AssignmentStmt;
@@ -11,6 +12,10 @@ import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.Operation;
 
 import java.util.*;
+
+import static gov.nasa.jpf.symbc.interpolation.CoveredSides.ELSE;
+import static gov.nasa.jpf.symbc.interpolation.CoveredSides.THEN;
+import static gov.nasa.jpf.symbc.interpolation.InterpolationMain.updateCoveredInstSide;
 
 public class TraceToAST {
 
@@ -33,12 +38,25 @@ public class TraceToAST {
                 case "IF_ICMPNE":
                     Expression op1 = jvmOperands.pop();
                     Expression op2 = jvmOperands.pop();
-                    Operation.Operator op = ((IF_ICMPNE) inst).getTarget().equals(nextInst) ? Operation.Operator.NE : Operation.Operator.EQ;
+                    Operation.Operator op;
+                    if (((IF_ICMPNE) inst).getTarget().equals(nextInst)) {
+                        op = Operation.Operator.NE;
+                        updateCoveredInstSide((IfInstruction) inst, THEN);
+                    } else {
+                        op = Operation.Operator.EQ;
+                        updateCoveredInstSide((IfInstruction) inst, ELSE);
+                    }
                     stmts.add(new Guard(new Operation(op, op1, op2), (IfInstruction) inst));
                     break;
                 case "IFEQ":
                     op1 = jvmOperands.pop();
-                    op = ((IFEQ) inst).getTarget().equals(nextInst) ? Operation.Operator.EQ : Operation.Operator.NE;
+                    if (((IFEQ) inst).getTarget().equals(nextInst)) {
+                        op = Operation.Operator.EQ;
+                        updateCoveredInstSide((IfInstruction) inst, THEN);
+                    } else {
+                        op = Operation.Operator.NE;
+                        updateCoveredInstSide((IfInstruction) inst, ELSE);
+                    }
                     stmts.add(new Guard(new Operation(op, op1, new IntConstant(0)), (IfInstruction) inst));
                     break;
                 case "IF_ICMPEQ":
