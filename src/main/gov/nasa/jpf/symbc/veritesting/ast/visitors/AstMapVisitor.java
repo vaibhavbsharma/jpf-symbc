@@ -146,4 +146,9 @@ public class AstMapVisitor extends ExprMapVisitor implements AstVisitor<Stmt> {
                 eva.accept(c.def),
                 rhs);
     }
+
+    @Override
+    public Stmt visit(StoreGlobalInstruction c) {
+        return new StoreGlobalInstruction((GlobalJRVar) eva.accept(c.lhs), eva.accept(c.rhs));
+    }
 }

@@ -258,8 +258,8 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
 
 	}
 
-
-
+//we do not want to print test cases with every state backtrack, it should only happen at the end of the thread.
+/*
 	public void stateBacktracked(Search search) {
 		VM vm = search.getVM();
 		Config conf = vm.getConfig();
@@ -301,7 +301,7 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
 				methodSequences.add(getMethodSequence(cgs));
 			}
 	//	}
-	}
+	}*/
 
 
 	/**

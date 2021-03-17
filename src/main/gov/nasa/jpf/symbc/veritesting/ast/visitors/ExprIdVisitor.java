@@ -52,4 +52,14 @@ public class ExprIdVisitor implements ExprVisitor<Expression> {
 
     @Override public Expression visit(GammaVarExpr expr) { return expr; }
     @Override public Expression visit(IfThenElseExpr expr) { return expr; }
+
+    @Override
+    public Expression visit(GlobalJRVar expr) {
+        return expr;
+    }
+    @Override
+    public Expression visit(GlobalJRVarSSAExpr expr) {
+        return expr;
+    }
+
 }

@@ -10,12 +10,15 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprIdVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.PrepareCoverageVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.Operation;
 
 import java.util.Deque;
 import java.util.LinkedList;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.coverageCriteria;
 import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 /**
@@ -284,9 +287,9 @@ Similar things can be done for SPF Cases.
  */
 
     public StaticRegion analyze(StaticRegion region) throws StaticRegionException, InvalidClassFileException {
-        if(verboseVeritesting)
+        if (verboseVeritesting)
             System.out.println("\nRegion prior to removeEarlyReturns: " +
-                PrettyPrintVisitor.print(region.staticStmt));
+                    PrettyPrintVisitor.print(region.staticStmt));
         ReturnResult stmtResult = doStmt(new ReturnResult(region.staticStmt));
         Stmt resultStmt;
         if (stmtResult.hasER()) { // if the region has a early return
@@ -317,9 +320,9 @@ Similar things can be done for SPF Cases.
             resultStmt = stmtResult.stmt;
 
 
-        if(verboseVeritesting)
+        if (verboseVeritesting)
             System.out.println("\nRegion after removeEarlyReturns: " +
-                StmtPrintVisitor.print(resultStmt));
+                    StmtPrintVisitor.print(resultStmt));
         // VarTypeTable varTypeTable = new VarTypeTable(region.varTypeTable);
 
         // MWW TODO: need to add in types and new vars somewhere.
@@ -332,13 +335,19 @@ Similar things can be done for SPF Cases.
     public static StaticRegion removeEarlyReturns(StaticRegion region) throws StaticRegionException, InvalidClassFileException {
         RemoveEarlyReturns rer = new RemoveEarlyReturns(region);
         StaticRegion condRegion = ConditionReturns.execute(region);
-        if(verboseVeritesting)
+        if (verboseVeritesting)
             System.out.println("region after conditional returns addition :\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
+
+        if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+            condRegion = PrepareCoverageVisitor.execute(condRegion);
+
         StaticRegion internalJRVarRemovedRegion = CreateInternalJRSsaVars.execute(condRegion);
-        if(verboseVeritesting)
+
+        if (verboseVeritesting)
             System.out.println("region after conditional returns removal:\n" + PrettyPrintVisitor.print(internalJRVarRemovedRegion.staticStmt));
 
         StaticRegion result = rer.analyze(internalJRVarRemovedRegion);
+
         return result;
     }
 

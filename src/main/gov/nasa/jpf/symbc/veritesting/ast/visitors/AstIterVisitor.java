@@ -142,4 +142,10 @@ public class AstIterVisitor<T> extends ExprMapVisitor implements AstVisitor<T> {
         return toReturn;
     }
 
+    @Override
+    public T visit(StoreGlobalInstruction c) {
+        assert false :"unimplemented.";
+        return null;
+    }
+
 }

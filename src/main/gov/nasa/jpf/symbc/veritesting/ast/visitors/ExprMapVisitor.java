@@ -94,4 +94,15 @@ public class ExprMapVisitor implements ExprVisitor<Expression> {
                 eva.accept(expr.thenExpr),
                 eva.accept(expr.elseExpr));
     }
+
+    @Override
+    public Expression visit(GlobalJRVarSSAExpr expr) {
+        return expr;
+    }
+
+
+    @Override
+    public Expression visit(GlobalJRVar expr) {
+        return expr;
+    }
 }

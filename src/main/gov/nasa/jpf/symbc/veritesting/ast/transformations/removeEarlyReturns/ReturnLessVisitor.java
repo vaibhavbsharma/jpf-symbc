@@ -103,4 +103,9 @@ public class ReturnLessVisitor implements AstVisitor<Stmt> {
     public Stmt visit(PhiInstruction c) {
         return new PhiInstruction((SSAPhiInstruction) c.original, c.def, c.rhs);
     }
+
+    @Override
+    public Stmt visit(StoreGlobalInstruction c) {
+        return new StoreGlobalInstruction(c.lhs, c.rhs);
+    }
 }

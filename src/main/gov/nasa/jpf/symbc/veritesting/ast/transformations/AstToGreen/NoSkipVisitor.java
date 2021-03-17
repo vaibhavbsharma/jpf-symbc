@@ -112,6 +112,11 @@ public class NoSkipVisitor implements AstVisitor<Stmt> {
         return bad(c);
     }
 
+    @Override
+    public Stmt visit(StoreGlobalInstruction c) {
+        return bad(c);
+    }
+
     public Stmt bad(Object obj) {
         String name = obj.getClass().getCanonicalName();
         String exceptionalReason = "Unsupported class: " + name +

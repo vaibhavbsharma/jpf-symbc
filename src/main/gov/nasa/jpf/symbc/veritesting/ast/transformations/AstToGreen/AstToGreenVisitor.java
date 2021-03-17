@@ -176,6 +176,11 @@ public class AstToGreenVisitor implements AstVisitor<Expression> {
         return bad(c);
     }
 
+    @Override
+    public Expression visit(StoreGlobalInstruction c) {
+        return bad(c);
+    }
+
     public static DynamicRegion execute(DynamicRegion dynRegion) throws VisitorException {
 
         WalaVarToSPFVarVisitor walaVarVisitor = new WalaVarToSPFVarVisitor(dynRegion.varTypeTable);

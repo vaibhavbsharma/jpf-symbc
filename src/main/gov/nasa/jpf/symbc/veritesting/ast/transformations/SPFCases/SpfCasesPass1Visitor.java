@@ -88,7 +88,7 @@ public class SpfCasesPass1Visitor implements AstVisitor<Stmt> {
         Expression oldSPFCondition = spfCondition;
         spfCondition = new Operation(Operation.Operator.AND, spfCondition, a.condition);
         Stmt thenStmt = a.thenStmt.accept(this);
-        spfCondition = new Operation(Operation.Operator.AND, oldSPFCondition, new Operation(Operation.Operator.NOT,  a.condition));
+        spfCondition = new Operation(Operation.Operator.AND, oldSPFCondition, new Operation(Operation.Operator.NOT, a.condition));
         Stmt elseStmt = a.elseStmt.accept(this);
         s = new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
         spfCondition = oldSPFCondition;
@@ -205,12 +205,18 @@ public class SpfCasesPass1Visitor implements AstVisitor<Stmt> {
                 c.rhs);
     }
 
+    @Override
+    public Stmt visit(StoreGlobalInstruction c) {
+        assert false : "StoreGlobalInstruction cannot appear in spfcases. Failing.";
+        return null;
+    }
+
     public static DynamicRegion execute(ThreadInfo ti, DynamicRegion dynRegion, ArrayList spfCasesInstructionList) {
         SpfCasesPass1Visitor visitor = new SpfCasesPass1Visitor(ti, spfCasesInstructionList);
         Stmt dynStmt = dynRegion.dynStmt.accept(visitor);
 
 
-        if(verboseVeritesting) {
+        if (verboseVeritesting) {
             System.out.println("--------------- SPFCases TRANSFORMATION 1ST PASS ---------------");
             System.out.println(StmtPrintVisitor.print(dynStmt));
         }

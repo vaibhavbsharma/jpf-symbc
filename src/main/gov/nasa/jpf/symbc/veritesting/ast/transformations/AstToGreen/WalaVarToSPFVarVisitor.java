@@ -115,4 +115,15 @@ public class WalaVarToSPFVarVisitor implements ExprVisitor<Expression> {
     public Expression visit(AstVarExpr expr) {
         return createGreenVar(expr.type, expr.getSymName());
     }
+
+    @Override
+    public Expression visit(GlobalJRVar expr) {
+        assert false : "GlobalJRVar should not appear at this point. Assumption Violated. Failing";
+        return null;
+    }
+
+    @Override
+    public Expression visit(GlobalJRVarSSAExpr expr) {
+        return  createGreenVar("int", expr.getSymName());
+    }
 }

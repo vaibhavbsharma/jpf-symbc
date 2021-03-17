@@ -17,7 +17,11 @@ import gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SimplifyGreenVisitor;
+import gov.nasa.jpf.symbc.veritesting.ast.def.GlobalJRVar;
+import gov.nasa.jpf.symbc.veritesting.ast.def.GlobalJRVarSSAExpr;
 import gov.nasa.jpf.symbc.veritesting.ast.def.IfThenElseStmt;
+import gov.nasa.jpf.symbc.veritesting.ast.def.ObligationVar;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.globaljrvarssa.GlobalVarPsmMap;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.VM;
@@ -231,7 +235,11 @@ public class VeriObligationMgr {
         Iterator<Pair<Expression, Integer>> queueItr = queue.iterator();
         while (queueItr.hasNext()) {
             Expression expr = queueItr.next().getFirst();
-            SolutionSubstitutionVisitor solutionSubstitutionVisitor = new SolutionSubstitutionVisitor(solution);
+            Object solutionValue = solution.get(expr.toString());
+            assert (solutionValue == null || solutionValue instanceof Long) : "unexpected type in solution. Assumption Violated. Failing.";
+
+            if (solutionValue != null) return (Long) solutionValue == 1;
+            /*SolutionSubstitutionVisitor solutionSubstitutionVisitor = new SolutionSubstitutionVisitor(solution);
             try {
                 expr.accept(solutionSubstitutionVisitor);
                 Expression substitutedExpr = solutionSubstitutionVisitor.returnExp;
@@ -242,7 +250,7 @@ public class VeriObligationMgr {
             } catch (VisitorException e) {
                 e.printStackTrace();
                 assert false : "something went wrong during evaluating the green expression. Failing.";
-            }
+            }*/
 
             /*if (((Operation) expr).getOperator() == Operation.Operator.NOT) {
                 expr = ((Operation) expr).getOperand(0);
@@ -284,7 +292,7 @@ public class VeriObligationMgr {
     private static Expression createDisjunctExprPerOblg(PriorityQueue<Pair<Expression, Integer>> exprQueue) {
         assert exprQueue.size() > 0 : "cannot have an empty priority queue of expressions, there must be at least one. Failing";
         Iterator<Pair<Expression, Integer>> queueItr = exprQueue.iterator();
-        Expression oblgDisjunctiveExpr = queueItr.next().getFirst();
+        Expression oblgDisjunctiveExpr = new Operation(Operation.Operator.EQ, queueItr.next().getFirst(), new IntConstant(1));
 
         while (queueItr.hasNext()) {
             oblgDisjunctiveExpr = new Operation(Operation.Operator.OR, oblgDisjunctiveExpr, queueItr.next().getFirst());
@@ -292,4 +300,25 @@ public class VeriObligationMgr {
         return oblgDisjunctiveExpr;
     }
 
+    public static void addSymbolicOblgMap(GlobalVarPsmMap gpsm) {
+        for (Map.Entry entry : gpsm.table.entrySet()) {
+            assert (entry.getKey() instanceof ObligationVar) : "unexpected type for key in gpsm. Assumption Violated. Failing.";
+            ObligationVar oblgVar = ((ObligationVar) entry.getKey());
+            Obligation oblg = (((ObligationVar) entry.getKey()).oblg);
+            PriorityQueue<Pair<Expression, Integer>> symExprToPcDepthQueue = symbolicOblgMap.get(oblg);
+            if (symExprToPcDepthQueue == null) {
+                PriorityQueue<Pair<Expression, Integer>> newSymExprToPcDepthQueue = new PriorityQueue(new Comparator() {
+                    @Override
+                    public int compare(Object o1, Object o2) {
+                        return -Integer.compare(((Pair<Expression, Integer>) o1).getSecond(), ((Pair<Expression, Integer>) o2).getSecond());
+                    }
+                });
+                newSymExprToPcDepthQueue.add(new Pair(gpsm.getVarExprForKey(oblgVar), pcDepth));
+//                addInQueue(newSymExprToPcDepthQueue, gpsm.getVarExprForKey(oblg));
+                symbolicOblgMap.put(oblg, newSymExprToPcDepthQueue);
+            } else
+                symExprToPcDepthQueue.add(new Pair(gpsm.getVarExprForKey(oblgVar), pcDepth));
+//            addInQueue(symExprToPcDepthQueue, gpsm.getVarExprForKey(oblg));
+        }
+    }
 }

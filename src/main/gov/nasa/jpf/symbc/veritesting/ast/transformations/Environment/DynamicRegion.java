@@ -10,6 +10,8 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases.SPFCaseList;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayExpressions;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArraySubscriptMap;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess.FieldSubscriptMap;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess.GlobalSubscriptMap;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.globaljrvarssa.GlobalVarPsmMap;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeEarlyReturns.RemoveEarlyReturns;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import za.ac.sun.cs.green.expr.Expression;
@@ -80,6 +82,8 @@ public class DynamicRegion implements Region {
      * Holds path subscript map for field references in the region
      */
     public FieldSubscriptMap psm;
+
+    public GlobalVarPsmMap gpsm;
 
     /**
      * Identifies the End Position that the region is summarizing and which also SPF to resume from.
@@ -154,6 +158,7 @@ public class DynamicRegion implements Region {
         this.spfPredicateSummary = spfRegionSummary;
         this.fieldRefTypeTable = oldDynRegion.fieldRefTypeTable;
         this.psm = oldDynRegion.psm;
+        this.gpsm = oldDynRegion.gpsm;
         this.earlyReturnResult = earlyReturnResult;
         this.arrayOutputs = oldDynRegion.arrayOutputs;
         this.constantsTable = oldDynRegion.constantsTable;
@@ -201,6 +206,7 @@ public class DynamicRegion implements Region {
                 (OutputTable) staticRegion.outputTable, uniqueNum);
         this.fieldRefTypeTable = new FieldRefTypeTable();
         this.psm = new FieldSubscriptMap();
+        this.gpsm = new GlobalVarPsmMap();
         this.arrayOutputs = null;
         this.constantsTable = null;
         this.stackOutput = staticRegion.stackOutput != null ? staticRegion.stackOutput.makeUnique(uniqueNum) : null;

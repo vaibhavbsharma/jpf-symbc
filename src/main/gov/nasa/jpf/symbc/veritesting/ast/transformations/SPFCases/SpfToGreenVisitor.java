@@ -163,6 +163,11 @@ public class SpfToGreenVisitor implements AstVisitor<Expression> {
         return bad(c);
     }
 
+    @Override
+    public Expression visit(StoreGlobalInstruction c) {
+        return bad(c);
+    }
+
     public DynamicRegion execute(DynamicRegion dynRegion) {
 
         LinkedHashSet<SPFCaseStmt> greenList = new LinkedHashSet<>();

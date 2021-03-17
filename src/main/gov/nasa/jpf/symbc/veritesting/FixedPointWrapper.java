@@ -6,6 +6,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicTab
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArraySSAVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.constprop.SimplifyStmtVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess.FieldSSAVisitor;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.globaljrvarssa.GlobalVarSSAVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.substitution.SubstitutionVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.FixedPointAstMapVisitor;
 import gov.nasa.jpf.vm.StackFrame;
@@ -28,7 +29,7 @@ public class FixedPointWrapper {
 
     public static DynamicTable multiPathRegSymbolValueTable = null;
 
-    enum Transformation {SUBSTITUTION, FIELD, ARRAY, SIMPLIFICATION}
+    enum Transformation {SUBSTITUTION, GOLOBAL_INTERNAL_VAR, FIELD, ARRAY, SIMPLIFICATION}
 
     ;
 
@@ -95,6 +96,8 @@ public class FixedPointWrapper {
                 changedTransformation = Transformation.SUBSTITUTION;
             else if (currentTransformation instanceof FieldSSAVisitor)
                 changedTransformation = Transformation.FIELD;
+            else if (currentTransformation instanceof GlobalVarSSAVisitor)
+                changedTransformation = Transformation.GOLOBAL_INTERNAL_VAR;
             else if (currentTransformation instanceof ArraySSAVisitor)
                 changedTransformation = Transformation.ARRAY;
             else if (currentTransformation instanceof SimplifyStmtVisitor)
@@ -154,6 +157,12 @@ public class FixedPointWrapper {
         intermediateRegion = substitutionVisitor.execute();
         collectTransformationState(substitutionVisitor);
 
+
+        if(verboseVeritesting)
+            System.out.println("\n--------------- GLOBAL INTERNAL VAR SSA TRANSFORMATION ---------------\n");
+        GlobalVarSSAVisitor globalVarSSAVisitor = new GlobalVarSSAVisitor(ti, intermediateRegion);
+        intermediateRegion = globalVarSSAVisitor.execute();
+        collectTransformationState(globalVarSSAVisitor);
 
         if(verboseVeritesting)
             System.out.println("\n--------------- FIELD REFERENCE TRANSFORMATION ---------------\n");

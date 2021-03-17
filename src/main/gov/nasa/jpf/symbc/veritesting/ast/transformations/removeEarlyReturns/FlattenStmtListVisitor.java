@@ -65,4 +65,10 @@ public class FlattenStmtListVisitor implements AstVisitor<Void> {
     @Override public Void visit(CheckCastInstruction c) { return add(c); }
     @Override public Void visit(InstanceOfInstruction c) { return add(c); }
     @Override public Void visit(PhiInstruction c) { return add(c); }
+
+    @Override
+    public Void visit(StoreGlobalInstruction c) {
+        assert false : "unimplemented.";
+        return null;
+    }
 }

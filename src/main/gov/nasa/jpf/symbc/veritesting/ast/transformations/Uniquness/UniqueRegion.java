@@ -78,6 +78,7 @@ public class UniqueRegion {
                 oldDynRegion.spfCaseList, oldDynRegion.regionSummary, oldDynRegion.spfPredicateSummary, oldDynRegion.earlyReturnResult);
         newDynRegion.fieldRefTypeTable.makeUniqueKey(uniqueNum);
         newDynRegion.psm.setUniqueNum(uniqueNum);
+        newDynRegion.gpsm.setUniqueNum(uniqueNum);
         newDynRegion.arrayOutputs = newDynRegion.arrayOutputs.makeUnique(uniqueNum);
         if (oldDynRegion.stackOutput != null)
             newDynRegion.stackOutput = oldDynRegion.stackOutput.makeUnique(uniqueNum);

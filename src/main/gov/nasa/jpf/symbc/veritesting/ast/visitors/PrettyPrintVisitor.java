@@ -188,6 +188,13 @@ public class PrettyPrintVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(StoreGlobalInstruction c) {
+        ind();
+        write(c.toString());; nl();
+        return null;
+    }
+
 
     public class PrettyPrintExpr implements ExprVisitor<Void> {
         @Override
@@ -228,6 +235,18 @@ public class PrettyPrintVisitor implements AstVisitor<Void> {
 
         @Override
         public Void visit(AstVarExpr expr) {
+            write(expr.toString());
+            return null;
+        }
+
+        @Override
+        public Void visit(GlobalJRVar expr) {
+            write(expr.toString());
+            return null;
+        }
+
+        @Override
+        public Void visit(GlobalJRVarSSAExpr expr) {
             write(expr.toString());
             return null;
         }

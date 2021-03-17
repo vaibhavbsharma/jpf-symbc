@@ -27,5 +27,5 @@ public interface AstVisitor<T>  {
     T visit(CheckCastInstruction c);
     T visit(InstanceOfInstruction c);
     T visit(PhiInstruction c);
-
+    T visit(StoreGlobalInstruction c);
 }

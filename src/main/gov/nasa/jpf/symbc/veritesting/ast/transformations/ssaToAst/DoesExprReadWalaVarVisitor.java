@@ -109,4 +109,14 @@ public class DoesExprReadWalaVarVisitor implements ExprVisitor<Boolean> {
     public Boolean visit(AstVarExpr expr) {
         return false;
     }
+
+    @Override
+    public Boolean visit(GlobalJRVar expr) {
+        return false;
+    }
+
+    @Override
+    public Boolean visit(GlobalJRVarSSAExpr expr) {
+        return false;
+    }
 }

@@ -103,6 +103,16 @@ public class AstToGreenExprVisitor implements ExprVisitor<Expression> {
         return bad(expr);
     }
 
+    @Override
+    public Expression visit(GlobalJRVar expr) {
+        return bad(expr);
+    }
+
+    @Override
+    public Expression visit(GlobalJRVarSSAExpr expr) {
+        return bad(expr);
+    }
+
 
     /**
      * Translating a TfThenElseExpr into an IfThenElseExpression

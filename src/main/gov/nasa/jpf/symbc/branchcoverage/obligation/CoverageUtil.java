@@ -44,6 +44,18 @@ public class CoverageUtil {
         return oblgs;
     }
 
+    public static Obligation createOblgFromWalaInst(IR ir, SSAInstruction inst, ObligationSide side) {
+
+        IMethod m = ir.getMethod();
+        String walaPackageName = getWalaPackageName(m);
+        String className = m.getDeclaringClass().getName().getClassName().toString();
+        String methodSig = m.getSelector().toString();
+        int instLine = getWalaInstLineNum(m, inst);
+
+        Obligation oblg = new Obligation(walaPackageName, className, methodSig, instLine, inst, side);
+        return oblg;
+    }
+
     public static int getWalaInstLineNum(IMethod iMethod, SSAInstruction inst) {
 
 

@@ -100,6 +100,16 @@ public class SymbCondVisitor implements ExprVisitor<Expression> {
     public Expression visit(AstVarExpr expr) { return null; }
 
     @Override
+    public Expression visit(GlobalJRVar expr) {
+        return null;
+    }
+
+    @Override
+    public Expression visit(GlobalJRVarSSAExpr expr) {
+        return null;
+    }
+
+    @Override
     public Expression visit(Operation expr) {
         Expression [] operands = new Expression [expr.getArity()];
         int index = 0;

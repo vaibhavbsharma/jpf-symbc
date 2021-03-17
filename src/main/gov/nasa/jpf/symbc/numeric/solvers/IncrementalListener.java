@@ -3,10 +3,10 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,9 +28,9 @@ import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.VM;
 
 public class IncrementalListener extends PropertyListenerAdapter {
-  
+
   public static IncrementalSolver solver;
-  
+
   public IncrementalListener(Config config, JPF jpf) {
     String stringDp = SymbolicInstructionFactory.dp[0];
     if(stringDp.equalsIgnoreCase("z3inc")){
@@ -48,7 +48,8 @@ public class IncrementalListener extends PropertyListenerAdapter {
   public void choiceGeneratorAdvanced (VM vm, ChoiceGenerator<?> currentCG) {
     if(currentCG instanceof PCChoiceGenerator) {
       System.out.println("choiceGeneratorAdvanced: at " + currentCG.getInsn().getMethodInfo() + "#" + currentCG.getInsn().getPosition());
-      solver.push();
+      if(IncrementalListener.solver!=null)
+          solver.push();
     }
   }
 
@@ -56,7 +57,8 @@ public class IncrementalListener extends PropertyListenerAdapter {
   public void stateBacktracked(Search search) {
     if(search.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
       System.out.println("stateBacktracked");
-      solver.pop();
+        if(IncrementalListener.solver!=null)
+            solver.pop();
     }
   }
 }

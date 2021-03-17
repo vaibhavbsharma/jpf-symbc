@@ -33,6 +33,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.Uniquness.UniqueRegion
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess.SubstituteGetOutput;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.linearization.LinearizationTransformation;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeEarlyReturns.RemoveEarlyReturns;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeinternalvar.CreateInternalJRSsaVars;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.CreateStaticRegions;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
@@ -42,8 +43,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.typepropagation.TypePr
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CollectObligationsVisitor;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.IsolateObligationsVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.PrepareCoverageVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.*;
 import gov.nasa.jpf.vm.Instruction;
@@ -430,8 +430,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
         }
-        if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
-            VeriObligationMgr.addSymbolicOblgMap(CollectObligationsVisitor.oblgToExprsMap);
         veritestingSuccessful = true;
     }
 
@@ -648,8 +646,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         /*-------------- EARLY RETURN TRANSFORMATION ---------------*/
         if (runMode == VeritestingMode.EARLYRETURNS) {
             staticRegion = RemoveEarlyReturns.removeEarlyReturns(staticRegion);
+        } else if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+            staticRegion = PrepareCoverageVisitor.execute(staticRegion);
+//            staticRegion = CreateInternalJRSsaVars.execute(staticRegion);
         }
-
         /*-------------- UNIQUENESS TRANSFORMATION ---------------*/
         DynamicRegion dynRegion = UniqueRegion.execute(staticRegion);
 
@@ -712,10 +712,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             dynRegion = SpfCasesPass2Visitor.execute(dynRegion);
         }
 
-        if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
-            dynRegion = IsolateObligationsVisitor.execute(dynRegion);
-
-        /*--------------- LINEARIZATION TRANSFORMATION ---------------*/
+                /*--------------- LINEARIZATION TRANSFORMATION ---------------*/
         LinearizationTransformation linearTrans = new LinearizationTransformation();
         dynRegion = linearTrans.execute(dynRegion);
 
@@ -726,6 +723,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             SpfToGreenVisitor visitor = new SpfToGreenVisitor();
             dynRegion = visitor.execute(dynRegion);
         }
+        if(coverageCriteria==CoverageCriteria.BRANCHCOVERAGE)
+            VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
         return dynRegion;
     }
 

@@ -1,6 +1,5 @@
 package gov.nasa.jpf.symbc.veritesting.ast.visitors;
 
-import gov.nasa.jpf.symbc.veritesting.RangerDiscovery.LustreTranslation.EquationExprVisitor;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import za.ac.sun.cs.green.expr.*;
@@ -19,10 +18,6 @@ public class ExprVisitorAdapter<T> {
 
     public ExprVisitorAdapter(ExprVisitor<T> theVisitor) {
         this.theVisitor = theVisitor;
-    }
-
-    public ExprVisitorAdapter(EquationExprVisitor theVisitor) {
-        this.theVisitor = (ExprVisitor<T>) theVisitor;
     }
 
     // doing a kind of gross thing since the visitor support I like is not
@@ -58,6 +53,10 @@ public class ExprVisitorAdapter<T> {
             return theVisitor.visit((InternalJRVar) e);
         } else if (e instanceof InternalJRSsaVar) {
             return theVisitor.visit((InternalJRSsaVar) e);
+        } else if (e instanceof GlobalJRVar) {
+            return theVisitor.visit((GlobalJRVar) e);
+        } else if (e instanceof GlobalJRVarSSAExpr) {
+            return theVisitor.visit((GlobalJRVarSSAExpr) e);
         } else {
             throwException(new IllegalArgumentException("Unknown class in ExprVisitorAdapter!"), DONTKNOW);
             return (T) e;

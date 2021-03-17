@@ -24,4 +24,6 @@ public interface ExprVisitor<T> {
     public T visit(FieldRefVarExpr expr);
     public T visit(GammaVarExpr expr);
     public T visit(AstVarExpr expr);
+    public T visit(GlobalJRVar expr);
+    public T visit(GlobalJRVarSSAExpr expr);
 }

@@ -69,7 +69,7 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
         else if (elseStmt instanceof SPFCaseStmt)
             s = thenStmt;
         else
-            s = new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt,a.genuine, a.isByteCodeReversed, a.generalOblg);
+            s = new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
         spfCondition = oldSPFCondition;
         return s;
     }
@@ -178,6 +178,12 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
                 c.rhs);
     }
 
+    @Override
+    public Stmt visit(StoreGlobalInstruction c) {
+        assert false : "StoreGlobalInstruction cannot appear in spfcases. Failing.";
+        return null;
+    }
+
     /**
      * This executes the second path of the SPFCases. It removes all SPFCases nodes and creates a new condition instead onto the spfCaseSet. There is still one more step that SPFCases needs to go through which is actually generating a green expression out of the spfCaseSet, this happens seperately after the green transformation is done.
      *
@@ -189,18 +195,18 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
         SpfCasesPass2Visitor visitor = new SpfCasesPass2Visitor();
         Stmt dynStmt = dynRegion.dynStmt.accept(visitor);
 
-        if(verboseVeritesting){
+        if (verboseVeritesting) {
             System.out.println("--------------- SPFCases TRANSFORMATION 2ND PASS ---------------");
             System.out.println(StmtPrintVisitor.print(dynStmt));
         }
 
         SPFCaseList detectedCases = new SPFCaseList(visitor.spfCaseSet);
-        if(verboseVeritesting)
+        if (verboseVeritesting)
             detectedCases.print();
 
         dynRegion.earlyReturnResult.condition = visitor.earlyReturnCondition;
 
-        if(verboseVeritesting)
+        if (verboseVeritesting)
             System.out.println("printing early return result condition after spfcases2: " + visitor.earlyReturnCondition);
         return new DynamicRegion(dynRegion,
                 dynStmt,
