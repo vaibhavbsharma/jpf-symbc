@@ -1,6 +1,7 @@
 package gov.nasa.jpf.symbc.veritesting.VeritestingUtil;
 
 import gov.nasa.jpf.symbc.numeric.*;
+import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
 import gov.nasa.jpf.symbc.numeric.solvers.SolverTranslator;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
@@ -145,19 +146,33 @@ public class ExprUtil {
         boolean isPCSat = isSatisfiable(pc);
         StatisticManager.constPropTime += (System.nanoTime() - startTime);
         // verify that static unsatisfiability is confirmed by solver if we dont want to run fast
-        if (!performanceMode && !isPCSat) assert (!pc.simplify());
+        if (!performanceMode && !isPCSat) {
+            if (IncrementalListener.solver != null)
+                IncrementalListener.solver.push();
+            assert (!pc.simplify());
+            if (IncrementalListener.solver != null)
+                IncrementalListener.solver.pop();
+        }
         // in performanceMode, ask the solver for satisfiability only if we didn't find the PC to be unsat.
         if (performanceMode) {
             if (isPCSat) {
                 StatisticManager.PCSatSolverCount++;
                 startTime = System.nanoTime();
+                if (IncrementalListener.solver != null)
+                    IncrementalListener.solver.push();
                 isPCSat = pc.simplify();
+                if (IncrementalListener.solver != null)
+                    IncrementalListener.solver.pop();
                 StatisticManager.PCSatSolverTime += (System.nanoTime() - startTime);
             }
         } else {
             StatisticManager.PCSatSolverCount++;
             startTime = System.nanoTime();
+            if (IncrementalListener.solver != null)
+                IncrementalListener.solver.push();
             isPCSat = pc.simplify();
+            if (IncrementalListener.solver != null)
+                IncrementalListener.solver.pop();
             StatisticManager.PCSatSolverTime += (System.nanoTime() - startTime);
         }
         return isPCSat;

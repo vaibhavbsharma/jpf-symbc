@@ -194,7 +194,8 @@ public class VeriObligationMgr {
                     if (solution.size() != 0) {
                         ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedCoverage, solution);
                         oblgsNeedCoverage.removeAll(newCoveredOblgs);
-//                        ObligationMgr.addNewOblgsCoverag/**/e(newCoveredOblgs);
+                        newCoveredOblgsOnPath.addAll(newCoveredOblgs);
+                        ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
                         System.out.println("");
                     } else sat = false;
                 }
@@ -295,7 +296,7 @@ public class VeriObligationMgr {
         Expression oblgDisjunctiveExpr = new Operation(Operation.Operator.EQ, queueItr.next().getFirst(), new IntConstant(1));
 
         while (queueItr.hasNext()) {
-            oblgDisjunctiveExpr = new Operation(Operation.Operator.OR, oblgDisjunctiveExpr, queueItr.next().getFirst());
+            oblgDisjunctiveExpr = new Operation(Operation.Operator.OR, oblgDisjunctiveExpr, new Operation(Operation.Operator.EQ, queueItr.next().getFirst(), new IntConstant(1)));
         }
         return oblgDisjunctiveExpr;
     }

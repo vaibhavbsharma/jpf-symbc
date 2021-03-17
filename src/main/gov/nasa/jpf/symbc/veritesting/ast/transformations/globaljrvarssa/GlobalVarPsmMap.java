@@ -4,6 +4,7 @@ import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.GlobalJRVar;
 import gov.nasa.jpf.symbc.veritesting.ast.def.GlobalJRVarSSAExpr;
 import gov.nasa.jpf.symbc.veritesting.ast.def.ObligationVar;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import za.ac.sun.cs.green.expr.Expression;
 
 import java.util.*;
@@ -113,6 +114,6 @@ public final class GlobalVarPsmMap {
     }
 
     public Expression getVarExprForKey(ObligationVar oblgVar) {
-        return createGreenVar("int", oblgVar.toString() + "." + table.get(oblgVar).toString());
+        return createGreenVar("int", oblgVar.toString() + "." + table.get(oblgVar).toString() +"."+ DynamicRegion.uniqueCounter);
     }
 }

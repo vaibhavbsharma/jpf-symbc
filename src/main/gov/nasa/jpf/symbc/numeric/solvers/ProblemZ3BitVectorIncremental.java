@@ -124,7 +124,7 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
     }
 
     public long getIntValue(Object dpVar) {
-        String dpVarStr = dpVar.toString() + " ";
+        String dpVarStr = dpVar.toString().replaceAll("\\|","") + " ";
         try {
             Model model = null;
             if (Status.SATISFIABLE == solver.check()) {
