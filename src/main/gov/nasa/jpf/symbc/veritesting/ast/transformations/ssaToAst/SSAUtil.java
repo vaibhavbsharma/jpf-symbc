@@ -185,4 +185,11 @@ public class SSAUtil {
         return false;
     }
 
+    public static Expression[] createOperands(Operation condExpr) {
+        Expression[] exprs = new Expression[condExpr.getArity()];
+        for (int i = 0; i < condExpr.getArity(); i++)
+            exprs[i] = condExpr.getOperand(i);
+
+        return exprs;
+    }
 }

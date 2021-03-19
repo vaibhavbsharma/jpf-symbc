@@ -12,6 +12,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.PrepareCoverageVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.SeperateCmplxCondVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.Operation;
 
@@ -338,8 +339,10 @@ Similar things can be done for SPF Cases.
         if (verboseVeritesting)
             System.out.println("region after conditional returns addition :\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
 
-        if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+        if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+            condRegion = SeperateCmplxCondVisitor.execute(condRegion);
             condRegion = PrepareCoverageVisitor.execute(condRegion);
+        }
 
         StaticRegion internalJRVarRemovedRegion = CreateInternalJRSsaVars.execute(condRegion);
 

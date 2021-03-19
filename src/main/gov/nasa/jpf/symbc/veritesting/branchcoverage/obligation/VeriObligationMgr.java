@@ -63,12 +63,11 @@ public class VeriObligationMgr {
         return new Obligation(walaPackageName, className, methodSig, instLine, inst, oblgSide);
     }
 
-    public static Obligation createOblgFromGeneral(IfThenElseStmt s, ObligationSide side) {
-        Obligation generalOblg = s.generalOblg;
+    public static Obligation createOblgFromGeneral(Obligation instGeneralOblg, ObligationSide side) {
 
-        assert generalOblg.oblgSide == ObligationSide.GENERAL : "JR If statements must contain general obligations, assumption violated. Failing.";
+        assert instGeneralOblg.oblgSide == ObligationSide.GENERAL : "JR If statements must contain general obligations, assumption violated. Failing.";
 
-        return new Obligation(generalOblg.spfPackageName, generalOblg.className, generalOblg.methodSig, generalOblg.instLine, generalOblg.inst, side);
+        return new Obligation(instGeneralOblg.spfPackageName, instGeneralOblg.className, instGeneralOblg.methodSig, instGeneralOblg.instLine, instGeneralOblg.inst, side);
     }
 
     /**

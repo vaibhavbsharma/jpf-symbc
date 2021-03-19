@@ -495,12 +495,20 @@ public class CreateStaticRegions {
             Expression branchExpr;
             Expression condExpr = null;
             if (isConditionalBranch(parent)) {
+                SSAConditionalBranchInstruction conditionalInst = SSAUtil.getLastBranchInstruction(parent);
                 assert (child == Util.getTakenSuccessor(cfg, parent) ||
                         child == Util.getNotTakenSuccessor(cfg, parent));
-                condExpr = SSAUtil.convertCondition(ir, SSAUtil.getLastBranchInstruction(parent));
+                condExpr = SSAUtil.convertCondition(ir, conditionalInst);
+
+                assert condExpr instanceof Operation:"unexpected leaf type of a complex expression.";
+                boolean isReversed = WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (conditionalInst).getOperator());
+
                 if (child == Util.getNotTakenSuccessor(cfg, parent)) {
                     condExpr = new Operation(Operation.Operator.NOT, condExpr);
+                    isReversed = !isReversed;
                 }
+                Obligation generalOblg = VeriObligationMgr.createOblg(conditionalInst, ObligationSide.GENERAL, ir);
+                condExpr = new ComplexExpr(((Operation) condExpr).getOperator(), conditionalInst, isReversed, generalOblg, SSAUtil.createOperands((Operation) condExpr));
             }
 
             if (parent == entry) {
@@ -509,10 +517,6 @@ public class CreateStaticRegions {
                 Pair<Expression, Stmt> parentExprStmt = createComplexIfCondition(parent, entry);
                 Expression parentExpr = parentExprStmt.getFirst();
                 setupStmt = compose(parentExprStmt.getSecond(), setupStmt, true);
-                if (VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
-                    throwException(new StaticRegionException("createComplexIfCondition is not supported with Branch coverage yet. Failing."), STATIC);
-                    return null;
-                }
                 branchExpr = condExpr != null ? new Operation(Operation.Operator.AND, parentExpr, condExpr) : parentExpr;
             }
             assert branchExpr != null;
@@ -520,10 +524,6 @@ public class CreateStaticRegions {
             if (returnExpr == null) {
                 returnExpr = branchExpr;
             } else {
-                if (VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
-                    throwException(new StaticRegionException("createComplexIfCondition is not supported with Branch coverage yet. Failing."), STATIC);
-                    return null;
-                }
                 returnExpr = new Operation(Operation.Operator.OR, returnExpr, branchExpr);
             }
         }

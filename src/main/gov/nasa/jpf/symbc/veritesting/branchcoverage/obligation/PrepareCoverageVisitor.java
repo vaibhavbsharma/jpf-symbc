@@ -91,21 +91,34 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
 
         Obligation thenOblg;
         Obligation elseOblg;
-        if (a.isByteCodeReversed) {
-            thenOblg = VeriObligationMgr.createOblgFromGeneral(a, ObligationSide.ELSE);
-            elseOblg = VeriObligationMgr.createOblgFromGeneral(a, ObligationSide.THEN);
+        boolean conditionReverseStatus =  a.isByteCodeReversed;
+
+        if (a.condition instanceof ComplexExpr) {
+            conditionReverseStatus = ((ComplexExpr) a.condition).isRevered;
+            if (conditionReverseStatus) {
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.ELSE);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.THEN);
+            } else {
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.ELSE);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.THEN);
+            }
         } else {
-            elseOblg = VeriObligationMgr.createOblgFromGeneral(a, ObligationSide.ELSE);
-            thenOblg = VeriObligationMgr.createOblgFromGeneral(a, ObligationSide.THEN);
+            if (conditionReverseStatus) {
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.ELSE);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.THEN);
+            } else {
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.ELSE);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.THEN);
+            }
         }
 
         if (!conditionHasJRVar) {
             if (!thenHasJRVarAssignment) {// then I'll add a JRVar assignment to indicate the branching/obligation
 //                newThen = new CompositionStmt(new AssignmentStmt(InternalJRVar.jrVar, new IntConstant(1)), a.thenStmt);
-                newThen = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(thenOblg), new IntConstant(1)), a.thenStmt);
+                newThen = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(thenOblg), new IntConstant(1)), newThen);
             }
             if (!elseHasJRVarAssignment) {// then I'll add a JRVar assignment to indicate the branching/obligation
-                newElse = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(elseOblg), new IntConstant(1)), a.elseStmt);
+                newElse = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(elseOblg), new IntConstant(1)), newElse);
             }
         }
         return new IfThenElseStmt(a.original, a.condition, newThen,
