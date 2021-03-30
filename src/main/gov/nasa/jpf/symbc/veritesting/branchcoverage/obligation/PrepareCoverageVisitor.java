@@ -9,6 +9,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitor;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
+import za.ac.sun.cs.green.expr.Operation;
 
 /**
  * Prepares collection of obligations by inserting jrvar inside source defined if-statements, that is if an if-statement is not generated because of the source,
@@ -91,7 +92,7 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
 
         Obligation thenOblg;
         Obligation elseOblg;
-        boolean conditionReverseStatus =  a.isByteCodeReversed;
+        boolean conditionReverseStatus = a.isByteCodeReversed;
 
         if (a.condition instanceof ComplexExpr) {
             conditionReverseStatus = ((ComplexExpr) a.condition).isRevered;
@@ -103,6 +104,11 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
                 thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.THEN);
             }
         } else {
+            if (a.generalOblg == null) { //in case of jrInternal variable for early returns
+                assert a.condition instanceof Operation && ((Operation) a.condition).getArity() == 2 && (((Operation) a.condition).getOperand(0) instanceof InternalJRVar || ((Operation) a.condition).getOperand(1) instanceof InternalJRVar) : "condition is not in the form of internalJR vairable, the only case where general obligation is expected to be null";
+                return new IfThenElseStmt(a.original, a.condition, newThen,
+                        newElse, a.genuine, a.isByteCodeReversed, a.generalOblg);
+            }
             if (conditionReverseStatus) {
                 thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.ELSE);
                 elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.THEN);

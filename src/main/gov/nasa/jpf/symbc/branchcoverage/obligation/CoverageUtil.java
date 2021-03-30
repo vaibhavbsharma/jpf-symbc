@@ -2,10 +2,16 @@ package gov.nasa.jpf.symbc.branchcoverage.obligation;
 
 import com.ibm.wala.classLoader.IBytecodeMethod;
 import com.ibm.wala.classLoader.IMethod;
+import com.ibm.wala.ipa.callgraph.*;
+import com.ibm.wala.ipa.callgraph.impl.Everywhere;
 import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import com.ibm.wala.ssa.IR;
 import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SSAInvokeInstruction;
+import com.ibm.wala.ssa.SSAOptions;
+import com.ibm.wala.types.MethodReference;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
+import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
 
 import java.util.HashSet;
 
@@ -81,5 +87,35 @@ public class CoverageUtil {
             return "L" + className + "." + refinedMethodSig;
         else
             return "L" + walaPackageName + "/" + className + "." + refinedMethodSig;
+    }
+
+    public static CGNode findNodeForInst(CallGraph cg, MethodReference methodRef) {
+        int i = 0;
+        CGNode node = cg.getNode(i);
+        while (node != null) {
+//            node.getClass()
+            if (node.toString().contains(methodRef.toString()))
+                return node;
+            node = cg.getNode(++i);
+        }
+        return null;
+    }
+
+    //an abstract method is a method which we cannot have an IR for it.
+    public static boolean isAbstractInvoke(SSAInstruction instruction) {
+        if (!(instruction instanceof SSAInvokeInstruction)) return false;
+        MethodReference mr = ((SSAInvokeInstruction) instruction).getDeclaredTarget();
+        IMethod m = BranchCoverage.cha.resolveMethod(mr);
+//        assert m != null : "imethod cannot be null for instruction:" + instruction.toString() + "target = "+ mr.toString();
+ /*       if (m == null)
+            return false;*/
+        AnalysisOptions options = new AnalysisOptions();
+        options.getSSAOptions().setPiNodePolicy(SSAOptions.getAllBuiltInPiNodes());
+        IAnalysisCacheView cache = new AnalysisCacheImpl(options.getSSAOptions());
+        IR ir = cache.getIR(m, Everywhere.EVERYWHERE);
+        if (ir == null)//case of an abstract method
+            return true;
+
+        return false;
     }
 }

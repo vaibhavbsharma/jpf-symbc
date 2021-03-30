@@ -238,7 +238,7 @@ public class VeriObligationMgr {
             Object solutionValue = solution.get(expr.toString());
             assert (solutionValue == null || solutionValue instanceof Long) : "unexpected type in solution. Assumption Violated. Failing.";
 
-            if (solutionValue != null) return (Long) solutionValue == 1;
+            if ((solutionValue != null) && ((Long) solutionValue == 1)) return true;
             /*SolutionSubstitutionVisitor solutionSubstitutionVisitor = new SolutionSubstitutionVisitor(solution);
             try {
                 expr.accept(solutionSubstitutionVisitor);

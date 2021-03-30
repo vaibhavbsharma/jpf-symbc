@@ -23,12 +23,15 @@ public class ExprMapVisitor implements ExprVisitor<Expression> {
 
     @Override
     public Expression visit(Operation expr) {
-        Expression [] operands = new Expression [expr.getArity()];
+        Expression[] operands = new Expression[expr.getArity()];
         int index = 0;
-        for (Expression e: expr.getOperands()) {
+        for (Expression e : expr.getOperands()) {
             operands[index++] = eva.accept(e);
         }
-        return new Operation(expr.getOperator(), operands);
+        if (expr instanceof ComplexExpr)
+            return new ComplexExpr(expr.getOperator(), ((ComplexExpr) expr).original, ((ComplexExpr) expr).isRevered, ((ComplexExpr) expr).generalOblg, operands);
+        else
+            return new Operation(expr.getOperator(), operands);
     }
 
     @Override

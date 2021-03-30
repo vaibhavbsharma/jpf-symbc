@@ -5,7 +5,6 @@ import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.ipa.callgraph.*;
 import com.ibm.wala.ipa.callgraph.impl.Util;
 import com.ibm.wala.ipa.cha.ClassHierarchy;
-import com.ibm.wala.ipa.cha.ClassHierarchyException;
 import com.ibm.wala.ipa.cha.ClassHierarchyFactory;
 import com.ibm.wala.ssa.IR;
 import com.ibm.wala.ssa.SSAInstruction;
@@ -18,12 +17,15 @@ import gov.nasa.jpf.vm.ThreadInfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
 import static gov.nasa.jpf.symbc.BranchListener.targetAbsPath;
+import static gov.nasa.jpf.symbc.BranchListener.targetClass;
 import static gov.nasa.jpf.symbc.branchcoverage.CallGraphUtil.pruneForAppLoader;
 
 public class BranchCoverage {
     public static ClassHierarchy cha;
+    public static CallGraph cg;
 
 
     public static void createObligations(ThreadInfo ti) throws WalaException, IOException, CallGraphBuilderCancelException {
@@ -44,14 +46,25 @@ public class BranchCoverage {
         AnalysisOptions analysisOptions = new AnalysisOptions(scope, entryPoints);
         IAnalysisCacheView cache = new AnalysisCacheImpl(analysisOptions.getSSAOptions());
         CallGraphBuilder cgBuilder = Util.makeZeroCFABuilder(Language.JAVA, analysisOptions, cache, cha, scope);
-        CallGraph cg = cgBuilder.makeCallGraph(analysisOptions, null);
+        cg = cgBuilder.makeCallGraph(analysisOptions, null);
 //        System.out.println("made the class hierarchy");
         Graph<CGNode> g = pruneForAppLoader(cg);
 
         //I am not expecting to see multiple entery points at least for now.
 //        assert cg.getEntrypointNodes().size() == 1;
+        boolean specificEntryNodeFound = false;
+        IR entryIR = null;
+        Iterator<CGNode> entryItr = cg.getEntrypointNodes().iterator();
+        while (!specificEntryNodeFound && entryItr.hasNext()) {
+            CGNode node = entryItr.next();
+            if (node.toString().contains(targetClass.replaceAll("\\.", "/"))) {
+                entryIR = node.getIR();
+                specificEntryNodeFound = true;
+            }
+        }
 
-        IR entryIR = cg.getEntrypointNodes().iterator().next().getIR(); //getting the first entry point
+        assert entryIR != null : "entry node cannot be null. Assumption Violated. Failing.";
+
         SSAInstruction[] instructions = entryIR.getInstructions();
         IMethod m = entryIR.getMethod();
 
@@ -75,5 +88,6 @@ public class BranchCoverage {
     public static void finishedCollection() {
         cha = null;
         BranchOblgCollectorVisitor.finishedCollection();
+        cg = null;
     }
 }

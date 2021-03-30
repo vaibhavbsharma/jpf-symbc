@@ -44,6 +44,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.PrepareCoverageVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.SeperateCmplxCondVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.*;
 import gov.nasa.jpf.vm.Instruction;
@@ -125,7 +126,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public static CoverageCriteria coverageCriteria;
     public static boolean veritestingSuccessful = false;
-    public static boolean verboseVeritesting = false;
+    public static boolean verboseVeritesting = true;
+    static int numberOfThreads=0;
 
     public String[] regionKeys = {"replace.amatch([C[CI)I#160",
             "replace.amatch([C[CI)I#77",
@@ -583,7 +585,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (verboseVeritesting && !performanceMode)
-            System.out.println("threadTerminated");
+            System.out.println("threadTerminated: " + ++numberOfThreads);
         npaths++;
         super.threadTerminated(vm, terminatedThread);
     }
@@ -647,6 +649,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         if (runMode == VeritestingMode.EARLYRETURNS) {
             staticRegion = RemoveEarlyReturns.removeEarlyReturns(staticRegion);
         } else if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+            staticRegion = SeperateCmplxCondVisitor.execute(staticRegion);
             staticRegion = PrepareCoverageVisitor.execute(staticRegion);
 //            staticRegion = CreateInternalJRSsaVars.execute(staticRegion);
         }

@@ -1,15 +1,15 @@
 package gov.nasa.jpf.symbc.branchcoverage;
 
-import com.ibm.wala.classLoader.IBytecodeMethod;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ipa.callgraph.AnalysisCacheImpl;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
+import com.ibm.wala.ipa.callgraph.CGNode;
 import com.ibm.wala.ipa.callgraph.IAnalysisCacheView;
 import com.ibm.wala.ipa.callgraph.impl.Everywhere;
 
+import com.ibm.wala.ipa.callgraph.impl.ExplicitCallGraph;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.types.MethodReference;
-import gov.nasa.jpf.symbc.BranchListener;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
@@ -18,6 +18,7 @@ import gov.nasa.jpf.symbc.branchcoverage.reachability.ObligationReachability;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import static gov.nasa.jpf.symbc.BranchListener.coverageExclusions;
@@ -29,11 +30,13 @@ import static gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil.UNKNOWN_
  * and its side effect is population of obligation in the obligationMgr.
  */
 public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
+
     //packageName and className of the currently being analyzed method.
     IR ir;
     String walaPackageName;
     String className;
     String methodSig;
+    CGNode callerNode;
     IMethod iMethod;
     int irInstIndex;
     public static HashSet<String> visitedClassesMethod = new HashSet<>();
@@ -93,6 +96,10 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
     public void visitInvoke(SSAInvokeInstruction instruction) {
         MethodReference mr = instruction.getDeclaredTarget();
         IMethod m = BranchCoverage.cha.resolveMethod(mr);
+        if (m == null) {
+            System.out.println(mr + " :is not a user defined method. Ignoring.");
+            return;
+        }
         AnalysisOptions options = new AnalysisOptions();
         options.getSSAOptions().setPiNodePolicy(SSAOptions.getAllBuiltInPiNodes());
         IAnalysisCacheView cache = new AnalysisCacheImpl(options.getSSAOptions());
@@ -117,7 +124,39 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
                 if (branchOblgCollectorVisitor == null)
                     branchOblgCollectorVisitor = new BranchOblgCollectorVisitor(ir, walaPackageName, className, methodSignature, m, irInstIndex);
                 else branchOblgCollectorVisitor.updateInstIndex(irInstIndex);
-                ins.visit(branchOblgCollectorVisitor);
+
+                /*if (ins instanceof SSAInvokeInstruction && BranchCoverage.cha.resolveMethod(((SSAInvokeInstruction) ins).getDeclaredTarget()) == null) { //method is not defined in the class hierarchy, thus not a user code.
+                    System.out.println(ins.toString() + " is not defined in the class hierarchy, thus not a user code, ignoring");
+                    return;
+                }*/
+                if (CoverageUtil.isAbstractInvoke(ins)) { //iterating over subtype implementations of abstract functions.
+                    CGNode node = CoverageUtil.findNodeForInst(BranchCoverage.cg, instruction.getDeclaredTarget());
+                    Set<CGNode> targets = BranchCoverage.cg.getPossibleTargets(node, ((SSAInvokeInstruction) ins).getCallSite());
+                    Iterator<CGNode> targetItr = targets.iterator();
+                    while (targetItr.hasNext()) {
+                        CGNode targetNode = targetItr.next();
+                        assert targetNode instanceof ExplicitCallGraph.ExplicitNode : "unexpected type for node. Assumption violated. Failing.";
+                        IR targetIR = cache.getIR(targetNode.getMethod(), Everywhere.EVERYWHERE);
+                        SSAInstruction[] targetInstructions = targetIR.getInstructions();
+                        String targetWalaPackageName = CoverageUtil.getWalaPackageName(m);
+                        String targetClassName = m.getDeclaringClass().getName().getClassName().toString();
+                        String targetMethodSignature = m.getSelector().toString();
+                        BranchOblgCollectorVisitor targetBranchOblgCollectorVisitor = null;
+                        for (int targetInstIndex = 0; targetInstIndex < targetInstructions.length; targetInstIndex++) {
+                            SSAInstruction targetInst = targetInstructions[targetInstIndex];
+                            if (targetInst != null) {
+                                if (targetBranchOblgCollectorVisitor == null)
+                                    targetBranchOblgCollectorVisitor = new BranchOblgCollectorVisitor(targetIR, targetWalaPackageName, targetClassName, targetMethodSignature, m, targetInstIndex);
+                                else
+                                    targetBranchOblgCollectorVisitor.updateInstIndex(targetInstIndex);
+                                targetInst.visit(targetBranchOblgCollectorVisitor);
+                            }
+                        }
+                    }
+                } else
+                    ins.visit(branchOblgCollectorVisitor);
+
+//                ins.visit(branchOblgCollectorVisitor);
             }
         }
     }
