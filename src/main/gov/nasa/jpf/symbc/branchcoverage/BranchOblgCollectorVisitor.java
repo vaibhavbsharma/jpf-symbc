@@ -120,43 +120,52 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
 
         for (int irInstIndex = 0; irInstIndex < ir.getInstructions().length; irInstIndex++) {
             SSAInstruction ins = ir.getInstructions()[irInstIndex];
-            if (ins != null) {
-                if (branchOblgCollectorVisitor == null)
-                    branchOblgCollectorVisitor = new BranchOblgCollectorVisitor(ir, walaPackageName, className, methodSignature, m, irInstIndex);
-                else branchOblgCollectorVisitor.updateInstIndex(irInstIndex);
+            if (ins instanceof SSAInvokeInstruction && BranchCoverage.cha.resolveMethod(((SSAInvokeInstruction) ins).getDeclaredTarget()) == null) { //method is not defined in the class hierarchy, thus not a user code.
+                System.out.println(ins.toString() + " is not defined in the class hierarchy, thus not a user code, ignoring");
+            } else {
+                if (ins != null) {
+                    if (branchOblgCollectorVisitor == null)
+                        branchOblgCollectorVisitor = new BranchOblgCollectorVisitor(ir, walaPackageName, className, methodSignature, m, irInstIndex);
+                    else branchOblgCollectorVisitor.updateInstIndex(irInstIndex);
 
-                /*if (ins instanceof SSAInvokeInstruction && BranchCoverage.cha.resolveMethod(((SSAInvokeInstruction) ins).getDeclaredTarget()) == null) { //method is not defined in the class hierarchy, thus not a user code.
-                    System.out.println(ins.toString() + " is not defined in the class hierarchy, thus not a user code, ignoring");
-                    return;
-                }*/
-                if (CoverageUtil.isAbstractInvoke(ins)) { //iterating over subtype implementations of abstract functions.
-                    CGNode node = CoverageUtil.findNodeForInst(BranchCoverage.cg, instruction.getDeclaredTarget());
-                    Set<CGNode> targets = BranchCoverage.cg.getPossibleTargets(node, ((SSAInvokeInstruction) ins).getCallSite());
-                    Iterator<CGNode> targetItr = targets.iterator();
-                    while (targetItr.hasNext()) {
-                        CGNode targetNode = targetItr.next();
-                        assert targetNode instanceof ExplicitCallGraph.ExplicitNode : "unexpected type for node. Assumption violated. Failing.";
-                        IR targetIR = cache.getIR(targetNode.getMethod(), Everywhere.EVERYWHERE);
-                        SSAInstruction[] targetInstructions = targetIR.getInstructions();
-                        String targetWalaPackageName = CoverageUtil.getWalaPackageName(m);
-                        String targetClassName = m.getDeclaringClass().getName().getClassName().toString();
-                        String targetMethodSignature = m.getSelector().toString();
-                        BranchOblgCollectorVisitor targetBranchOblgCollectorVisitor = null;
-                        for (int targetInstIndex = 0; targetInstIndex < targetInstructions.length; targetInstIndex++) {
-                            SSAInstruction targetInst = targetInstructions[targetInstIndex];
-                            if (targetInst != null) {
-                                if (targetBranchOblgCollectorVisitor == null)
-                                    targetBranchOblgCollectorVisitor = new BranchOblgCollectorVisitor(targetIR, targetWalaPackageName, targetClassName, targetMethodSignature, m, targetInstIndex);
-                                else
-                                    targetBranchOblgCollectorVisitor.updateInstIndex(targetInstIndex);
-                                targetInst.visit(targetBranchOblgCollectorVisitor);
+
+                    if (CoverageUtil.isAbstractInvoke(ins)) { //iterating over subtype implementations of abstract functions.
+                        CGNode node = CoverageUtil.findNodeForInst(BranchCoverage.cg, instruction.getDeclaredTarget());
+                        Set<CGNode> targets = BranchCoverage.cg.getPossibleTargets(node, ((SSAInvokeInstruction) ins).getCallSite());
+                        Iterator<CGNode> targetItr = targets.iterator();
+                        while (targetItr.hasNext()) {
+                            CGNode targetNode = targetItr.next();
+                            assert targetNode instanceof ExplicitCallGraph.ExplicitNode : "unexpected type for node. Assumption violated. Failing.";
+                            IR targetIR = cache.getIR(targetNode.getMethod(), Everywhere.EVERYWHERE);
+                            SSAInstruction[] targetInstructions = targetIR.getInstructions();
+                            IMethod mTarget = targetIR.getMethod();
+                            String targetWalaPackageName = CoverageUtil.getWalaPackageName(mTarget);
+                            String targetClassName = mTarget.getDeclaringClass().getName().getClassName().toString();
+                            String targetMethodSignature = mTarget.getSelector().toString();
+                            String targetClassUniqueName = CoverageUtil.classUniqueName(targetWalaPackageName, targetClassName, targetMethodSignature);
+
+                            //return from collecting obligations from the invoked method if we have already visited it or if it is not loaded by Application class loader.
+                            if (visitedClassesMethod.contains(targetClassUniqueName) || !(mTarget.getDeclaringClass().getClassLoader().toString().equals("Application")))
+                                continue; //ignore those methods that are either visited or are not a user defined code.
+                            visitedClassesMethod.add(targetClassUniqueName);
+
+                            BranchOblgCollectorVisitor targetBranchOblgCollectorVisitor = null;
+                            for (int targetInstIndex = 0; targetInstIndex < targetInstructions.length; targetInstIndex++) {
+                                SSAInstruction targetInst = targetInstructions[targetInstIndex];
+                                if (targetInst != null) {
+                                    if (targetBranchOblgCollectorVisitor == null)
+                                        targetBranchOblgCollectorVisitor = new BranchOblgCollectorVisitor(targetIR, targetWalaPackageName, targetClassName, targetMethodSignature, mTarget, targetInstIndex);
+                                    else
+                                        targetBranchOblgCollectorVisitor.updateInstIndex(targetInstIndex);
+                                    targetInst.visit(targetBranchOblgCollectorVisitor);
+                                }
                             }
                         }
-                    }
-                } else
-                    ins.visit(branchOblgCollectorVisitor);
+                    } else
+                        ins.visit(branchOblgCollectorVisitor);
 
 //                ins.visit(branchOblgCollectorVisitor);
+                }
             }
         }
     }
