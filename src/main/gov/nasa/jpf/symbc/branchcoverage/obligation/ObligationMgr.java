@@ -44,6 +44,18 @@ public class ObligationMgr {
     }
 
 
+    public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, SSACFG.BasicBlock blockForOblg) {
+        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN);
+        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE);
+
+        if (oblgExists(oblgElse)) return;
+
+        obligationsMap.put(oblgThen, indexSerial++);
+        obligationsMap.put(oblgElse, indexSerial++);
+
+       if (!BranchListener.evaluationMode) obligationBBMap.put(oblgThen, blockForOblg);
+    }
+
     public static boolean oblgExists(Obligation oblg) {
         Integer oblIndex = obligationsMap.get(oblg);
         return oblIndex != null;
