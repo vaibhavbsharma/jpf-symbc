@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#takes nothing as an input -- run from script directory
+#takes nothing as an input --
+# (((((runs from "scripts" directory))))
 
 rm -rf ../logs/apachecli
 mkdir ../logs/apachecli
@@ -14,5 +15,4 @@ shopt -s expand_aliases
 COVERAGEDIR=/media/soha/DATA/git/jrTCG
 
 
-runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/apachecli/ApacheCLIEqCheckTCG.jpf
-#>& $COVERAGEDIR/logs/apachecli/ApacheCLIEqCheckTCG.log
+runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/apachecli/ApacheCLIEqCheck.jpf>& $COVERAGEDIR/logs/apachecli/ApacheCLIEqCheck.log

@@ -21,6 +21,7 @@ package gov.nasa.jpf.symbc;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
+import gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.BranchChoiceGenerator;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ClassInfo;
 import gov.nasa.jpf.vm.Instruction;
@@ -441,13 +442,15 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
         System.out.println("depth = " + search.getDepth());
 
     }
-
+*/
     @Override
     public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
-        System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
-        System.out.println("depth = " + vm.getSearch().getDepth());
+        /*System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+        System.out.println("depth = " + vm.getSearch().getDepth());*/
+        if (processedCG instanceof BranchChoiceGenerator)
+            assert ((BranchChoiceGenerator) processedCG).getOneChoiceIsSate() : "one choice of the choice generator must be satisified. assumption Violated. Failing";
     }
-*/
+
 
     /*
      * The way this method works is specific to the format of the methodSummary data structure

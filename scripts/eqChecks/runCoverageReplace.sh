@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#takes nothing as an input -- run from script directory
+#takes nothing as an input --
+# (((((runs from "scripts" directory))))
 
 rm -rf ../logs/replace
 mkdir ../logs/replace
@@ -16,5 +17,6 @@ COVERAGEDIR=/media/soha/DATA/git/jrTCG
 
 
 
-runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/replace/ReplaceEqCheckTCG.jpf
-#>& $COVERAGEDIR/logs/replace/ReplaceEqCheckTCG.log
+runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/replace/ReplaceEqCheck.jpf>& $COVERAGEDIR/logs/replace/ReplaceEqCheck.log
+
+runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/replace/ReplaceEqCheckTCG.jpf>& $COVERAGEDIR/logs/replace/ReplaceEqCheckTCG.log

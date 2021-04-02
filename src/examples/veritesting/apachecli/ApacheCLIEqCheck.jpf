@@ -17,7 +17,13 @@ symbolic.max_double=100.0
 #listener = .symbc.SymbolicListener
 listener = .symbc.VeritestingListener
 symbolic.dp=z3bitvector
-search.depth_limit = 12
+
+#depth.limit shoud be off to test the equivelance checking with and without test case generation, and should be back on otherwise.
+#direct comparision between the output of apachecli with TCG and without cannot be made, as the depth limit in TCG is different due to the sequence choice genreator.
+#turning it of is the best chance of getting
+#search.depth_limit = 12
+
+
 veritestingMode = 3
 performanceMode = true
 symbolic.lazy = true

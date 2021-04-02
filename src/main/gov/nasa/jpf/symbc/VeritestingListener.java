@@ -5,6 +5,7 @@ import com.ibm.wala.util.shrike.gotoTransformation.GoToTransformer;
 import gov.nasa.jpf.JPFException;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
+import gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.BranchChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
@@ -623,6 +624,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public void choiceGeneratorProcessed(VM vm, ChoiceGenerator<?> processedCG) {
         if (verboseVeritesting && !performanceMode)
             System.out.println("choiceGeneratorProcessed (" + processedCG + "): at " + processedCG.getInsn().getMethodInfo() + "#" + processedCG.getInsn().getPosition());
+        if (processedCG instanceof BranchChoiceGenerator)
+            assert ((BranchChoiceGenerator) processedCG).getOneChoiceIsSate() : "one choice of the choice generator must be satisified. assumption Violated. Failing";
     }
 
     @Override

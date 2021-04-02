@@ -6,7 +6,7 @@ import gov.nasa.jpf.vm.Instruction;
 public class BranchSymInstructionFactory extends SymbolicInstructionFactory {
 
 
-    public static boolean GuideBranchExploration = true;
+    public static boolean GuideBranchExploration = false;
 
     public BranchSymInstructionFactory(Config conf) {
         super(conf);

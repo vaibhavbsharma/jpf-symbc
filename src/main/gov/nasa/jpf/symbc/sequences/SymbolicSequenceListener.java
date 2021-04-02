@@ -3,16 +3,16 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -303,6 +303,47 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
 	//	}
 	}*/
 
+    @Override
+    public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
+        Config conf = vm.getConfig();
+
+        Instruction insn = vm.getChoiceGenerator().getInsn();
+        SystemState ss = vm.getSystemState();
+        //ThreadInfo ti = vm.getChoiceGenerator().getThreadInfo();
+        MethodInfo mi = insn.getMethodInfo();
+        String methodName = mi.getFullName();
+
+        int numberOfArgs = mi.getNumberOfArguments();//mi.getArgumentsSize()- 1;// corina: problem here? - 1;
+
+        //	if (BytecodeUtils.isMethodSymbolic(conf, methodName, numberOfArgs, null)){
+
+        ChoiceGenerator<?> cg = vm.getChoiceGenerator();
+
+        if (!(cg instanceof PCChoiceGenerator)) {
+            ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
+            while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
+                prev_cg = prev_cg.getPreviousChoiceGenerator();
+            }
+            cg = prev_cg;
+        }
+
+        if ((cg instanceof PCChoiceGenerator) &&
+                ((PCChoiceGenerator) cg).getCurrentPC() != null) {
+
+            PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
+            //solve the path condition
+            if (SymbolicInstructionFactory.concolicMode) { //TODO: cleaner
+                SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
+                PCAnalyzer pa = new PCAnalyzer();
+                pa.solve(pc, solver);
+            } else
+                pc.solve();
+            // get the chain of choice generators.
+            ChoiceGenerator<?>[] cgs = ss.getChoiceGenerators();
+            methodSequences.add(getMethodSequence(cgs));
+        }
+        //	}
+    }
 
 	/**
 	 *

@@ -12,6 +12,7 @@ import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
+import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.ChoiceGenerator;
@@ -31,7 +32,7 @@ import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriOblig
 
 public class VeriBranchListener extends BranchListener {
     public static HashSet<Obligation> newCoveredOblg = new HashSet<>();
-
+    public static boolean CoverageWithNoTestCases = false;
     public VeriBranchListener(Config conf, JPF jpf) {
         super(conf, jpf);
         if (conf.hasValue("coverageMode")) {
@@ -46,6 +47,8 @@ public class VeriBranchListener extends BranchListener {
             }
             VeritestingListener.simplify = false;
         }
+        if (IncrementalListener.solver != null)
+            assert !conf.getBoolean("symbolic.optimizechoices") : "in incremental solving mode the optimization bytecode package must be off. Assumption Violated. Failing.";
 
         if (conf.hasValue("TestCaseGenerationMode")) {
             int coverageNum = conf.getInt("TestCaseGenerationMode");
@@ -56,7 +59,14 @@ public class VeriBranchListener extends BranchListener {
                 testCaseGenerationMode = TestCaseGenerationMode.UNIT_LEVEL;
             else testCaseGenerationMode = TestCaseGenerationMode.NONE;
         }
-        coverageStatistics = new CoverageStatistics();
+
+        //used to turn off test case generation, but still allow for collecting coverage. Particularly useful in equivalence checking of FSE benchmarks.
+        // in that context, the equivelance checking main method could be concrete and thus we can when generating test we'll complain from that, as
+        // it is assumed that you want to generate system tests for methods that have symbolic input.
+        if (conf.hasValue("CoverageWithNoTestCases")) {
+            CoverageWithNoTestCases = conf.getBoolean("CoverageWithNoTestCases");
+        }
+            coverageStatistics = new CoverageStatistics();
     }
 
 

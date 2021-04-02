@@ -36,7 +36,7 @@ public class ProblemZ3Incremental extends ProblemGeneral implements IncrementalS
   //not on the ld_library_path. If the
   //Z3 solver object and context were class fields,
   //we would likely encounter a linker error
-  private static class Z3Wrapper {
+  public static class Z3Wrapper {
     private Context ctx;
     private Solver solver;
 

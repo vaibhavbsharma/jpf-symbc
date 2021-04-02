@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#takes nothing as an input -- run from script directory
+#takes nothing as an input --
+# (((((runs from "scripts" directory))))
 
 rm -rf ../logs/printtokens2_3
 mkdir ../logs/printtokens2_3
@@ -15,5 +16,7 @@ COVERAGEDIR=/media/soha/DATA/git/jrTCG
 
 
 
-runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/printtokens2_3/PrintTokensEqCheckTCG.jpf
-#>& $COVERAGEDIR/logs/printtokens2_3/PrintTokensEqCheckTCG.log
+runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/printtokens2_3/PrintTokensEqCheck.jpf>& $COVERAGEDIR/logs/printtokens2_3/PrintTokensEqCheck.log
+
+runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/printtokens2_3/PrintTokensEqCheckTCG.jpf>& $COVERAGEDIR/logs/printtokens2_3/PrintTokensEqCheckTCG.log
+

@@ -39,9 +39,13 @@ public class SeperateCmplxCondVisitor extends AstMapVisitor {
                 Expression lhs = ((Operation) condition).getOperand(0);
                 Expression rhs = ((Operation) condition).getOperand(1);
                 return new IfThenElseStmt(a.original, lhs, new IfThenElseStmt(a.original, rhs, a.thenStmt, a.elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg).accept(this), a.elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg).accept(this);
-            } else return a;
+            } else
+                return new IfThenElseStmt(a.original, a.condition, a.thenStmt.accept(this), a.elseStmt.accept(this), a.genuine, a.isByteCodeReversed, a.generalOblg);
+//                return a;
 
-        } else return a;
+        } else
+            assert false : "unexpected type in condition. Assumption Violated. Failing";
+        return a;
     }
 
     public static StaticRegion execute(StaticRegion staticRegion) throws StaticRegionException {

@@ -33,5 +33,7 @@ maxStaticExplorationDepth = 3
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 coverageMode=5
-targetAbsPath=${jpf-symbc}/build/examples/veritesting
+targetAbsPath=/media/soha/DATA/git/jrTCG/build/examples/veritesting
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+CoverageWithNoTestCases=true

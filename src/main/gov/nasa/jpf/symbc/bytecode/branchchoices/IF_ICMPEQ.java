@@ -68,7 +68,7 @@ public class IF_ICMPEQ extends gov.nasa.jpf.jvm.bytecode.IF_ICMPEQ {
             int v1 = sf.peek(1);
             Instruction next_insn = super.execute(ti); // this also sets conditionValue
 
-            conditionValue =  (Integer) cg.getNextChoice() == 1 ? true : false;
+            conditionValue = (Integer) cg.getNextChoice() == 1 ? true : false;
             conditionValue = ((BranchChoiceGenerator) cg).flip ? !conditionValue : conditionValue;
             // System.out.println("Execute IF_ICMPEQ: "+ conditionValue);
             PathCondition pc;
@@ -93,6 +93,8 @@ public class IF_ICMPEQ extends gov.nasa.jpf.jvm.bytecode.IF_ICMPEQ {
                 if (!pc.simplify()) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
+                    assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";
+                    ((BranchChoiceGenerator) cg).choiceIsSat();
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                 }
                 return getTarget();
@@ -105,6 +107,8 @@ public class IF_ICMPEQ extends gov.nasa.jpf.jvm.bytecode.IF_ICMPEQ {
                 if (!pc.simplify()) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
+                    assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";
+                    ((BranchChoiceGenerator) cg).choiceIsSat();
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                 }
                 return getNext(ti);

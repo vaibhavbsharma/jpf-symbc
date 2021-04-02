@@ -87,6 +87,8 @@ public class IFGE extends gov.nasa.jpf.jvm.bytecode.IFGE {
                 if (!pc.simplify()) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
+                    assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";
+                    ((BranchChoiceGenerator) cg).choiceIsSat();
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                 }
                 return getTarget();
@@ -95,6 +97,8 @@ public class IFGE extends gov.nasa.jpf.jvm.bytecode.IFGE {
                 if (!pc.simplify()) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
+                    assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";
+                    ((BranchChoiceGenerator) cg).choiceIsSat();
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
                 }
                 return getNext(ti);

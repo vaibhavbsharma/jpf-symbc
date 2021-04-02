@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#takes nothing as an input -- run from script directory
+#takes nothing as an input --
+# (((((runs from "scripts" directory))))
 
 rm -rf ../logs/schedule2_3
 mkdir ../logs/schedule2_3
@@ -15,5 +16,8 @@ COVERAGEDIR=/media/soha/DATA/git/jrTCG
 
 
 
-runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/schedule2_3/Schedule2EqCheckTCG.jpf
-#>& $COVERAGEDIR/logs/schedule2_3/Schedule2EqCheckTCG.log
+runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/schedule2_3/Schedule2EqCheck.jpf >& $COVERAGEDIR/logs/schedule2_3/Schedule2EqCheck.log
+
+
+runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/schedule2_3/Schedule2EqCheckTCG.jpf >& $COVERAGEDIR/logs/schedule2_3/Schedule2EqCheckTCG.log
+

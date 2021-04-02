@@ -54,6 +54,7 @@ import gov.nasa.jpf.report.PublisherExtension;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.BranchListener;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
+import gov.nasa.jpf.symbc.VeriBranchListener;
 import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.bytecode.BytecodeUtils;
 import gov.nasa.jpf.symbc.bytecode.INVOKESTATIC;
@@ -133,7 +134,8 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
 
         if (IncrementalListener.solver == null) {//call super to generate test cases in case it is non-incremental mode and we do want to generate testcases.
-            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE) super.stateBacktracked(vm.getSearch());
+            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
+                super.threadTerminated(vm, terminatedThread);
             return;
         }
         SystemState ss = vm.getSystemState();
@@ -201,8 +203,8 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
     private static SequenceChoiceGenerator getFirstSequenceCG(ChoiceGenerator[] cgs) {
         for (int i = 0; i < cgs.length; i++)
             if (cgs[i] instanceof SequenceChoiceGenerator) return (SequenceChoiceGenerator) cgs[i];
-
-        assert false : "at least one SequenceChoiceGenerator should be in the sequence, but found zero. Something went wrong. Failing.";
+        if (!VeriBranchListener.CoverageWithNoTestCases)
+            assert false : "at least one SequenceChoiceGenerator should be in the sequence, but found zero. Something went wrong. Failing.";
         return null;
     }
 
@@ -213,6 +215,11 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
      * @return
      */
     private static List<String> getInvokedMethodAttributes(SequenceChoiceGenerator cg) {
+
+        if (cg == null) if (VeriBranchListener.CoverageWithNoTestCases)
+            return new ArrayList<>();
+        else
+            assert false : "a null first sequence choice generator can only happen in the case we are having equivleance checking and executing the system level method concretely. Assumption Violated. Failing.";
 
         List<String> attributeNames = new ArrayList<>();
 

@@ -3,6 +3,7 @@ package gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ssa.*;
 import gov.nasa.jpf.symbc.BranchListener;
+import gov.nasa.jpf.symbc.VeriBranchListener;
 import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
@@ -182,7 +183,7 @@ public class VeriObligationMgr {
                 Map<String, Object> solution = null;
                 if (sat) {
                     if (IncrementalListener.solver != null) IncrementalListener.solver.push();
-                    assert (attributes.size() != 0);
+                    if (!VeriBranchListener.CoverageWithNoTestCases) assert (attributes.size() != 0);
 
                     /*List<Expression> greenExprs = ExprUtil.spfToGreenExpr((List<gov.nasa.jpf.symbc.numeric.Expression>) (List<?>) attributes);
                     for (Expression e : greenExprs)

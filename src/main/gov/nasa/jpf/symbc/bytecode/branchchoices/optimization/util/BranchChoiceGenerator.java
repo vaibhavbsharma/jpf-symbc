@@ -47,10 +47,22 @@ public class BranchChoiceGenerator extends PCChoiceGenerator {
     //To indicate which precedence this CG is taking, could be different from one to another
     public final boolean flip;
 
+    //    a sanity check to validate that for any choice generator there must be at least one choice satisfied. Otherwise we need to fail.
+    private boolean oneChoiceIsSat = false;
+
     public BranchChoiceGenerator(int count, boolean flip) {
         super(count);
         this.flip = flip;
-        if(flip)
+        if (flip)
             System.out.println("I am a flipped CG: " + this);
     }
+
+    public void choiceIsSat() {
+        oneChoiceIsSat = true;
+    }
+
+    public boolean getOneChoiceIsSate() {
+        return oneChoiceIsSat;
+    }
+
 }

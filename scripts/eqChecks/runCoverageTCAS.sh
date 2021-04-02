@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#takes nothing as an input -- run from script directory
+#takes nothing as an input --
+# (((((runs from "scripts" directory))))
 
 rm -rf ../logs/tcas
 mkdir ../logs/tcas
@@ -14,6 +15,7 @@ shopt -s expand_aliases
 COVERAGEDIR=/media/soha/DATA/git/jrTCG
 
 
+runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/tcas/TCASEqCheck.jpf >& $COVERAGEDIR/logs/tcas/TCASEqCheck.log
+=
 
-runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/tcas/TCASEqCheckTCG.jpf
-#>& $COVERAGEDIR/logs/tcas/TCASEqCheckTCG.log
+runEquivelanceCheck $COVERAGEDIR/src/examples/veritesting/tcas/TCASEqCheckTCG.jpf >& $COVERAGEDIR/logs/tcas/TCASEqCheckTCG.log
