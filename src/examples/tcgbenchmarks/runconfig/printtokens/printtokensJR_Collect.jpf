@@ -1,7 +1,7 @@
 target=tcgbenchmarks.printtokens2_3.printTokens2
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.printtokens2_3.printTokens2.mainProcess(sym#sym#sym#sym#sym#con#con#con)
+symbolic.method = tcgbenchmarks.printtokens2_3.printTokens2.mainProcess(sym#sym#sym#sym#con#con#con#con)
 
 vm.storage.class=nil
 symbolic.debug=false
@@ -21,10 +21,10 @@ symbolic.dp=z3bitvectorinc
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 
-#symbolic.optimizechoices=false
+symbolic.optimizechoices=false
 
 branchCoverageOn=true
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/printtokens2_3/printTokens2.class
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/printtokens2_3/
 
 
 veritestingMode = 3

@@ -2,7 +2,7 @@ target=tcgbenchmarks.nanoxmlTCG.DumpXML
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
 #symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
-symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#con#con#con#con#con#con#con#con)
+symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#con#con#con#con#con)
 
 
 vm.storage.class=nil
@@ -21,11 +21,13 @@ symbolic.dp=z3bitvectorinc
 
 listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
-#symbolic.optimizechoices=false
+symbolic.optimizechoices=false
 
 #branchCoverageOn=true
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/nanoxmlTCG/DumpXML.class
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/nanoxmlTCG/
 #coverageExclusions=Ltcgbenchmarks/nanoxmlTCG/DumpXML.main([Ljava/lang/String)V
 
-coverageMode=1
+performanceMode=true
 
+coverageMode=1
+evaluationMode=true

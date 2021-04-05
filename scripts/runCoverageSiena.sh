@@ -31,8 +31,11 @@ echo "maxsteps is $MAX_STEPS"
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaCollect.jpf >& $COVERAGEDIR/logs/siena/sienaCollect_steps$2.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaCollect_Prune.jpf >& $COVERAGEDIR/logs/siena/sienaCollect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaCollect_Guide.jpf >& $COVERAGEDIR/logs/siena/sienaCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaCollect_Guide.jpf >& $COVERAGEDIR/logs/siena/sienaCollect_Guide_steps$2.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/siena/sienaCollect_Prune_Guide_steps$2.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.jpf >& $COVERAGEDIR/logs/siena/sienaJRCollect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/siena/sienaJR_Collect_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/siena/sienaJRCollect.mode2_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/siena/sienaJRCollect.mode3_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/siena/sienaJRCollect.mode4_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/siena/sienaJRCollect.mode5_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/siena/sienaJR_Collect_Guide_steps$2.log

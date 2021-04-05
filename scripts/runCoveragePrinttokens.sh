@@ -31,8 +31,12 @@ echo "maxsteps is $MAX_STEPS"
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_steps$2.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Prune.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Guide_steps$2.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Prune_Guide_steps$2.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJR_Collect_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect.mode2_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect.mode3_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect.mode4_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect.mode5_steps$2.log
+
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJR_Collect_Guide_steps$2.log

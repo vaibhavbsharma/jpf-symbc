@@ -31,8 +31,11 @@ echo "maxsteps is $MAX_STEPS"
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect.jpf >& $COVERAGEDIR/logs/apachecli/apacheCollect_steps$2.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect_Prune.jpf >& $COVERAGEDIR/logs/apachecli/apacheCollect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect_Guide.jpf >& $COVERAGEDIR/logs/apachecli/apacheCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect_Guide.jpf >& $COVERAGEDIR/logs/apachecli/apacheCollect_Guide_steps$2.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/apachecli/apacheCollect_Prune_Guide_steps$2.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect.jpf >& $COVERAGEDIR/logs/apachecli/apacheJRCollect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/apachecli/apacheJR_Collect_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/apachecli/apacheJRCollect.mode2_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/apachecli/apacheJRCollect.mode3_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/apachecli/apacheJRCollect.mode4_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/apachecli/apacheJRCollect.mode5_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/apachecli/apacheJR_Collect_Guide_steps$2.log

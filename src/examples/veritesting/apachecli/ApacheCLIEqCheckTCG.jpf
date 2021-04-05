@@ -18,16 +18,16 @@ symbolic.max_double=100.0
 #listener = .symbc.VeritestingListener
 symbolic.dp=z3bitvector
 
-#search.depth_limit = 12
+search.depth_limit = 14
 veritestingMode = 3
-performanceMode = false
+performanceMode=false
 symbolic.lazy = true
 
 #symbolic.dp=z3bitvectorinc
 #listener = .symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 symbolic.optimizechoices=false
 
-maxStaticExplorationDepth = 3
+maxStaticExplorationDepth=3
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 coverageMode=5
@@ -35,4 +35,4 @@ targetAbsPath=${jpf-symbc}/build/examples/veritesting
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener
 evaluationMode=true
 
-CoverageWithNoTestCases=true
+ignoreCoverageCollection=true

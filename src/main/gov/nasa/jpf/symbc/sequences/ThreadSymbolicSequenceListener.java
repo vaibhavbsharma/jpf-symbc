@@ -132,6 +132,8 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
 
     @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
+        if (VeriBranchListener.ignoreCoverageCollection)
+            return;
 
         if (IncrementalListener.solver == null) {//call super to generate test cases in case it is non-incremental mode and we do want to generate testcases.
             if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
@@ -193,9 +195,11 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
             // explore the choice generator chain - unique for a given path.
             for (int i = 0; i < cgs.length; i++) {
                 cg = cgs[i];
-                if ((cg instanceof SequenceChoiceGenerator)) methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg));
+                if ((cg instanceof SequenceChoiceGenerator))
+                    methodSequence.addAll(getInvokedMethodAttributes((SequenceChoiceGenerator) cg));
             }
-        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.addAll(getInvokedMethodAttributes(getFirstSequenceCG(cgs)));
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL)
+            methodSequence.addAll(getInvokedMethodAttributes(getFirstSequenceCG(cgs)));
         else return methodSequence;
         return methodSequence;
     }
@@ -203,8 +207,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
     private static SequenceChoiceGenerator getFirstSequenceCG(ChoiceGenerator[] cgs) {
         for (int i = 0; i < cgs.length; i++)
             if (cgs[i] instanceof SequenceChoiceGenerator) return (SequenceChoiceGenerator) cgs[i];
-        if (!VeriBranchListener.CoverageWithNoTestCases)
-            assert false : "at least one SequenceChoiceGenerator should be in the sequence, but found zero. Something went wrong. Failing.";
+        assert false : "at least one SequenceChoiceGenerator should be in the sequence, but found zero. Something went wrong. Failing.";
         return null;
     }
 
@@ -216,9 +219,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
      */
     private static List<String> getInvokedMethodAttributes(SequenceChoiceGenerator cg) {
 
-        if (cg == null) if (VeriBranchListener.CoverageWithNoTestCases)
-            return new ArrayList<>();
-        else
+        if (cg == null)
             assert false : "a null first sequence choice generator can only happen in the case we are having equivleance checking and executing the system level method concretely. Assumption Violated. Failing.";
 
         List<String> attributeNames = new ArrayList<>();
@@ -255,7 +256,8 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
                     methodSequence.add(getInvokedMethod((SequenceChoiceGenerator) cg, solution));
                 }
             }
-        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL) methodSequence.add(getInvokedMethod(getFirstSequenceCG(cgs), solution));
+        else if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.SYSTEM_LEVEL)
+            methodSequence.add(getInvokedMethod(getFirstSequenceCG(cgs), solution));
 
         return methodSequence;
     }

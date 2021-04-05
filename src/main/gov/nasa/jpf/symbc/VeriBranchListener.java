@@ -32,7 +32,10 @@ import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriOblig
 
 public class VeriBranchListener extends BranchListener {
     public static HashSet<Obligation> newCoveredOblg = new HashSet<>();
-    public static boolean CoverageWithNoTestCases = false;
+
+    //this flag is used to remove the collection of test cases and the coverage at the end of each thread while still have the instrumentation of the obligations inside the region summary
+    public static boolean ignoreCoverageCollection = false;
+
     public VeriBranchListener(Config conf, JPF jpf) {
         super(conf, jpf);
         if (conf.hasValue("coverageMode")) {
@@ -45,7 +48,7 @@ public class VeriBranchListener extends BranchListener {
             else { //default setting for coverage
                 coverageMode = CoverageMode.JRCOLLECT_PRUNE_GUIDE;
             }
-            VeritestingListener.simplify = false;
+            VeritestingListener.simplify = true;
         }
         if (IncrementalListener.solver != null)
             assert !conf.getBoolean("symbolic.optimizechoices") : "in incremental solving mode the optimization bytecode package must be off. Assumption Violated. Failing.";
@@ -63,10 +66,10 @@ public class VeriBranchListener extends BranchListener {
         //used to turn off test case generation, but still allow for collecting coverage. Particularly useful in equivalence checking of FSE benchmarks.
         // in that context, the equivelance checking main method could be concrete and thus we can when generating test we'll complain from that, as
         // it is assumed that you want to generate system tests for methods that have symbolic input.
-        if (conf.hasValue("CoverageWithNoTestCases")) {
-            CoverageWithNoTestCases = conf.getBoolean("CoverageWithNoTestCases");
+        if (conf.hasValue("ignoreCoverageCollection")) {
+            ignoreCoverageCollection = conf.getBoolean("ignoreCoverageCollection");
         }
-            coverageStatistics = new CoverageStatistics();
+        coverageStatistics = new CoverageStatistics();
     }
 
 
@@ -125,6 +128,9 @@ public class VeriBranchListener extends BranchListener {
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (!evaluationMode) System.out.println("end of thread");
 //        newCoverageFound = false;
+        if (VeriBranchListener.ignoreCoverageCollection)
+            return;
+
         newCoveredOblg.clear();
         LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
         if (veriOblgsNeedsCoverage.size() > 0) {

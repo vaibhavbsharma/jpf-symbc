@@ -40,4 +40,4 @@ coverageMode=5
 targetAbsPath=${jpf-symbc}/build/examples/veritesting
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener
 
-CoverageWithNoTestCases=true
+ignoreCoverageCollection=true

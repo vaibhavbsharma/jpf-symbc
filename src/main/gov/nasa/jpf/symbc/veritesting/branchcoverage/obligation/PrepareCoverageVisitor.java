@@ -11,6 +11,8 @@ import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.Operation;
 
+import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.isOblgCovered;
+
 /**
  * Prepares collection of obligations by inserting jrvar inside source defined if-statements, that is if an if-statement is not generated because of the source,
  * it does not generate a jrvar assignment, as it maps ot no obligations in the source.
@@ -121,10 +123,12 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
         if (!conditionHasJRVar) {
             if (!thenHasJRVarAssignment) {// then I'll add a JRVar assignment to indicate the branching/obligation
 //                newThen = new CompositionStmt(new AssignmentStmt(InternalJRVar.jrVar, new IntConstant(1)), a.thenStmt);
-                newThen = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(thenOblg), new IntConstant(1)), newThen);
+                if (!isOblgCovered(thenOblg))
+                    newThen = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(thenOblg), new IntConstant(1)), newThen);
             }
             if (!elseHasJRVarAssignment) {// then I'll add a JRVar assignment to indicate the branching/obligation
-                newElse = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(elseOblg), new IntConstant(1)), newElse);
+                if (!isOblgCovered(elseOblg))
+                    newElse = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(elseOblg), new IntConstant(1)), newElse);
             }
         }
         return new IfThenElseStmt(a.original, a.condition, newThen,

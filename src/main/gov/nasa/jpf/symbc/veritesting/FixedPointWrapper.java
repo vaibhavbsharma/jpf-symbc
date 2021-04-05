@@ -9,9 +9,11 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess.FieldSSAVi
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.globaljrvarssa.GlobalVarSSAVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.substitution.SubstitutionVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.FixedPointAstMapVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.coverageCriteria;
 import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 
 /**
@@ -157,12 +159,13 @@ public class FixedPointWrapper {
         intermediateRegion = substitutionVisitor.execute();
         collectTransformationState(substitutionVisitor);
 
-
-        if(verboseVeritesting)
-            System.out.println("\n--------------- GLOBAL INTERNAL VAR SSA TRANSFORMATION ---------------\n");
-        GlobalVarSSAVisitor globalVarSSAVisitor = new GlobalVarSSAVisitor(ti, intermediateRegion);
-        intermediateRegion = globalVarSSAVisitor.execute();
-        collectTransformationState(globalVarSSAVisitor);
+        if(coverageCriteria== CoverageCriteria.BRANCHCOVERAGE) {
+            if (verboseVeritesting)
+                System.out.println("\n--------------- GLOBAL INTERNAL VAR SSA TRANSFORMATION ---------------\n");
+            GlobalVarSSAVisitor globalVarSSAVisitor = new GlobalVarSSAVisitor(ti, intermediateRegion);
+            intermediateRegion = globalVarSSAVisitor.execute();
+            collectTransformationState(globalVarSSAVisitor);
+        }
 
         if(verboseVeritesting)
             System.out.println("\n--------------- FIELD REFERENCE TRANSFORMATION ---------------\n");

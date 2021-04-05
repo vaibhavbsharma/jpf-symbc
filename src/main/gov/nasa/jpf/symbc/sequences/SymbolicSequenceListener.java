@@ -40,6 +40,7 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.Property;
 import gov.nasa.jpf.PropertyListenerAdapter;
+import gov.nasa.jpf.symbc.VeriBranchListener;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 
 
@@ -305,6 +306,8 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
 
     @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
+    	if(VeriBranchListener.ignoreCoverageCollection)
+    		return;
         Config conf = vm.getConfig();
 
         Instruction insn = vm.getChoiceGenerator().getInsn();

@@ -36,4 +36,4 @@ coverageMode=5
 targetAbsPath=/media/soha/DATA/git/jrTCG/build/examples/veritesting
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
-CoverageWithNoTestCases=true
+ignoreCoverageCollection=true

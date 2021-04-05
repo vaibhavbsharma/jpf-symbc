@@ -31,8 +31,11 @@ echo "maxsteps is $MAX_STEPS"
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect.jpf>& $COVERAGEDIR/logs/schedule/scheduleCollect_steps$2.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Prune.jpf >& $COVERAGEDIR/logs/schedule/scheduleCollect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Guide.jpf >& $COVERAGEDIR/logs/schedule/scheduleCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Guide.jpf >& $COVERAGEDIR/logs/schedule/scheduleCollect_Guide_steps$2.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/schedule/scheduleCollect_Prune_Guide_steps$2.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.jpf >& $COVERAGEDIR/logs/schedule/scheduleJRCollect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/schedule/scheduleJR_Collect_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/schedule/scheduleJRCollect.mode2_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/schedule/scheduleJRCollect.mode3_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/schedule/scheduleJRCollect.mode4_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/schedule/scheduleJRCollect.mode5_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/schedule/scheduleJR_Collect_Guide_steps$2.log

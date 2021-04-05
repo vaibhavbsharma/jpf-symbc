@@ -4,13 +4,13 @@ sourcepath=${jpf-symbc}/src/examples
 vm.storage.class=nil
 symbolic.debug=false
 
-symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.singleBranchCov2(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.singleBranchCov2(sym#sym)
 
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.doubleBranchCov(sym#sym)
 
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.complexBranchCov(sym#sym)
 
-#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.unoptimalDFS(sym#sym)
+symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.unoptimalDFS(sym#sym)
 
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
 
@@ -47,12 +47,20 @@ symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.singleBranchCov2(sym#sym
 
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.simpleRegion(sym)
 
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.testingSoundReach2(sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.staticFieldTest(sym#sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.mwwTestAndIte(sym#sym#sym)
+
+
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 #symbolic.dp=z3
 
 symbolic.dp=z3bitvectorinc
+#symbolic.dp=z3bitvector
 #symbolic.dp=z3inc
 
 #listener =.symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
@@ -68,10 +76,12 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 #listener =.symbc.SymbolicListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 #listener =.symbc.SymbolicListener
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/runconfig
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks
 
 coverageMode=5
 veritestingMode=3
 
 # must be added to avoid redundant constraints on the path condition.
 performanceMode=false
+
+symbolic.optimizechoices=false

@@ -29,8 +29,12 @@ MAX_STEPS=$2 && export MAX_STEPS
 echo "maxsteps is $MAX_STEPS"
 
 
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Guide.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_Guide_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_Prune_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASCollect.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_Prune_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Guide.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/tcas/TCASCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/tcas/TCASCollect_Prune_Guide_steps$2.log
 
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/tcas/TCAS_JR_Collect.mode2_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/tcas/TCAS_JR_Collect.mode3_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/tcas/TCAS_JR_Collect.mode4_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/tcas/TCAS_JR_Collect.mode5_steps$2.log

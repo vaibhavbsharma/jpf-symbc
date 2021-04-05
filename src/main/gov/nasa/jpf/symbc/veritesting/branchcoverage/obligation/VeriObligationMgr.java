@@ -183,7 +183,7 @@ public class VeriObligationMgr {
                 Map<String, Object> solution = null;
                 if (sat) {
                     if (IncrementalListener.solver != null) IncrementalListener.solver.push();
-                    if (!VeriBranchListener.CoverageWithNoTestCases) assert (attributes.size() != 0);
+                    if (!VeriBranchListener.ignoreCoverageCollection) assert (attributes.size() != 0);
 
                     /*List<Expression> greenExprs = ExprUtil.spfToGreenExpr((List<gov.nasa.jpf.symbc.numeric.Expression>) (List<?>) attributes);
                     for (Expression e : greenExprs)

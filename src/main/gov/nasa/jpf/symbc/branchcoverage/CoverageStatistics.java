@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import static gov.nasa.jpf.symbc.BranchListener.*;
+import static gov.nasa.jpf.symbc.VeritestingListener.veritestingMode;
 
 public class CoverageStatistics {
 
@@ -47,13 +48,13 @@ public class CoverageStatistics {
 
 
         if (evnMaxSteps != null) {
-            statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
-            executionStatFileName = folderStr + "/" + benchmarkName + "ExecStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
-            coveragePerThreadFileName = folderStr + "/" + benchmarkName + "ThreadStat_" + coverageMode + "_steps" + evnMaxSteps + ".txt";
+            statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_mode" + veritestingMode + "_steps" + evnMaxSteps + ".txt";
+            executionStatFileName = folderStr + "/" + benchmarkName + "ExecStat_" + coverageMode + "_mode" + veritestingMode + "_steps" + evnMaxSteps + ".txt";
+            coveragePerThreadFileName = folderStr + "/" + benchmarkName + "ThreadStat_" + coverageMode + "_mode" + veritestingMode + "_steps" + evnMaxSteps + ".txt";
         } else {
-            statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + ".txt";
-            executionStatFileName = folderStr + "/" + benchmarkName + "ExecStat_" + coverageMode + ".txt";
-            coveragePerThreadFileName = folderStr + "/" + benchmarkName + "ThreadStat_" + coverageMode + ".txt";
+            statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode +"_mode" + veritestingMode +  ".txt";
+            executionStatFileName = folderStr + "/" + benchmarkName + "ExecStat_" + coverageMode +"_mode" + veritestingMode +  ".txt";
+            coveragePerThreadFileName = folderStr + "/" + benchmarkName + "ThreadStat_" + coverageMode +"_mode" + veritestingMode + ".txt";
         }
 
         try {

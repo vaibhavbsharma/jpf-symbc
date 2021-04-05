@@ -31,12 +31,15 @@ MAX_STEPS=$2 && export MAX_STEPS
 echo "maxsteps is $MAX_STEPS"
 
 
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Guide_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBSCollect.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBSCollect_Prune_Guide_steps$2.log
 
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Prune.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_Prune_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_Guide_steps$2.log
-runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Prune_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_Prune_Guide_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBS_JR_Collect.mode2.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect.mode2_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBS_JR_Collect.mode3.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect.mode3_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBS_JR_Collect.mode4.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect.mode4_steps$2.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBS_JR_Collect.mode5.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect.mode5_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Prune.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_Prune_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_Guide_steps$2.log
+#runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Prune_Guide.jpf >& $COVERAGEDIR/logs/wbs/WBS_JR_Collect_Prune_Guide_steps$2.log

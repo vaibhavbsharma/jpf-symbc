@@ -1,7 +1,7 @@
 target=tcgbenchmarks.siena.SENPDriver
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.siena.SENPDriver.mainProcess(sym#sym#sym#sym#sym#sym#con#con#con)
+symbolic.method = tcgbenchmarks.siena.SENPDriver.mainProcess(sym#sym#sym#sym#sym#con#con#con#con)
 
 vm.storage.class=nil
 symbolic.debug=false
@@ -20,10 +20,10 @@ symbolic.dp=z3bitvectorinc
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 
-#symbolic.optimizechoices=false
+symbolic.optimizechoices=false
 
 #branchCoverageOn=true
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/siena/SENPDriver.class
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/siena/
 
 
 veritestingMode = 3
