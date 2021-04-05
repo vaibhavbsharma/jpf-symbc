@@ -1,7 +1,7 @@
 target=tcgbenchmarks.printtokens2_3.printTokens2
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.printtokens2_3.printTokens2.mainProcess(sym#sym#sym#sym#sym#con#con#con)
+symbolic.method = tcgbenchmarks.printtokens2_3.printTokens2.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym)
 
 vm.storage.class=nil
 symbolic.debug=false

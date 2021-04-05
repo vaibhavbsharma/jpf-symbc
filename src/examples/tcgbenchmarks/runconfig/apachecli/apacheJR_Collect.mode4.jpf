@@ -1,7 +1,7 @@
 target=tcgbenchmarks.apachecli.CLI
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.apachecli.CLI.mainProcess(sym#sym#sym#sym#sym#con#con#con#sym)
+symbolic.method = tcgbenchmarks.apachecli.CLI.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
 
 vm.storage.class=nil
 symbolic.debug=false
