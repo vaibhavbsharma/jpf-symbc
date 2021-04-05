@@ -141,7 +141,7 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
     }
 
     public static StaticRegion execute(StaticRegion staticRegion) throws StaticRegionException {
-        if (!staticRegion.ir.getMethod().getReference().getReturnType().getClassLoader().getName().toString().equals("Application")) //if it not an application statement we do not want to create obligation for it.
+        if (!staticRegion.ir.getMethod().getDeclaringClass().getClassLoader().getName().toString().equals("Application")) //if it not an application statement we do not want to create obligation for it.
             return staticRegion;
         PrepareCoverageExprVisitor prepareCoverageExprVisitor = new PrepareCoverageExprVisitor();
         PrepareCoverageVisitor prepareCoverageVisitor = new PrepareCoverageVisitor(prepareCoverageExprVisitor);
