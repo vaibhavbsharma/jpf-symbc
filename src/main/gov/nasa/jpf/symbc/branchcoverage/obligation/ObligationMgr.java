@@ -53,7 +53,7 @@ public class ObligationMgr {
         obligationsMap.put(oblgThen, indexSerial++);
         obligationsMap.put(oblgElse, indexSerial++);
 
-       if (!BranchListener.evaluationMode) obligationBBMap.put(oblgThen, blockForOblg);
+        if (!BranchListener.evaluationMode) obligationBBMap.put(oblgThen, blockForOblg);
     }
 
     public static boolean oblgExists(Obligation oblg) {
@@ -71,7 +71,8 @@ public class ObligationMgr {
             System.out.println("obligation not found in the obligation HashMap. Assumed none application/user branch. Coverage Ignored for instruction.");
             return false; // no new obligation that we are looking for are covered in this instance
         }
-        if (isOblgCovered(oblg)) return false; //this is an already covered obligation, so nothing new here, returning false.
+        if (isOblgCovered(oblg))
+            return false; //this is an already covered obligation, so nothing new here, returning false.
         else {
             coveredArray[oblgIndex] = true;
             return true; //this is a new coverage, thus returning true
@@ -100,7 +101,7 @@ public class ObligationMgr {
     public static boolean isOblgCovered(Obligation oblg) {
         Integer oblgIndex = obligationsMap.get(oblg);
 
-        assert (!(oblgIndex == null)) : ("obligation not found in the obligation HashMap. Something is wrong. Failing.");
+        assert (!(oblgIndex == null)) : ("obligation" + oblg.toString() + "not found in the obligation HashMap. Something is wrong. Failing.");
 
         assert oblgIndex < coveredArray.length;
 
