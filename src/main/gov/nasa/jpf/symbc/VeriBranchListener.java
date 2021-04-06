@@ -82,6 +82,13 @@ public class VeriBranchListener extends BranchListener {
                 return;
             }
 */
+
+        if (evaluationMode && startTime > 0) {
+            long currentTime = System.currentTimeMillis() / 1000;
+            if (currentTime - startTime >= timeForExperiment) //ignore and report the results if time budget was hit.
+                ti.getVM().getSystemState().setIgnored(true);
+        }
+
         try {
             if (firstTime) {
                 System.out.println("---- CoverageMode = " + coverageMode + ", solver = " + solver + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS") != null ? ", STEPS " + System.getenv("MAX_STEPS") : ""));

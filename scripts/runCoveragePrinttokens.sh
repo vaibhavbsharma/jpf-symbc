@@ -3,7 +3,7 @@
 #no input is provided, the number o steps are hardcoded
 
 
-alias runCoverage='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/media/soha/DATA/git/jrTCG/lib TARGET_CLASSPATH_WALA=/media/soha/DATA/git/jrTCG/build/examples/ timeout 180m java -Djava.library.path=/media/soha/DATA/git/jrTCG/lib  -ea -Xmx5000m -Dfile.encoding=UTF-8 -jar /home/soha/git/jpf-core/build/RunJPF.jar '
+alias runCoverage='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/media/soha/DATA/git/jrTCG/lib TARGET_CLASSPATH_WALA=/media/soha/DATA/git/jrTCG/build/examples/ java -Djava.library.path=/media/soha/DATA/git/jrTCG/lib  -ea -Xmx5000m -Dfile.encoding=UTF-8 -jar /home/soha/git/jpf-core/build/RunJPF.jar '
 
 
 shopt -s expand_aliases
@@ -15,16 +15,16 @@ MAX_STEPS=1 && export MAX_STEPS
 
 echo "maxsteps is $MAX_STEPS"
 
+mkdir $COVERAGEDIR/logs/log_printtokens
 
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect.jpf >& $COVERAGEDIR/logs/log_printtokens/printtokensCollect_steps$MAX_STEPS.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Prune.jpf >& $COVERAGEDIR/logs/log_printtokens/printtokensCollect_Prune_steps$MAX_STEPS.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Guide.jpf >& $COVERAGEDIR/logs/log_printtokens/printtokensCollect_Guide_steps$MAX_STEPS.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/log_printtokens/printtokensCollect_Prune_Guide_steps$MAX_STEPS.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Prune.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Prune_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Guide_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensCollect_Prune_Guide_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_printtokens/printtokensJRCollect.mode2_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_printtokens/printtokensJRCollect.mode3_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_printtokens/printtokensJRCollect.mode4_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_printtokens/printtokensJRCollect.mode5_steps$MAX_STEPS.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect.mode2_steps$MAX_STEPS.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect.mode3_steps$MAX_STEPS.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect.mode4_steps$MAX_STEPS.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJRCollect.mode5_steps$MAX_STEPS.log
-
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/printtokens/printtokensJR_Collect_Guide_steps$MAX_STEPS.log
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/printtokensJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/log_printtokens/printtokensJR_Collect_Guide_steps$MAX_STEPS.log
