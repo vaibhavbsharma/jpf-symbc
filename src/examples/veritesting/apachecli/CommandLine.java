@@ -51,8 +51,9 @@ public class CommandLine implements Serializable
                 char thatArr[] = (char []) thatObj;
                 if (thisArr.length != thatArr.length) return false;
                 for (int k = 0; k < thisArr.length; k++) {
-                    System.out.println("char array entry mismatch " + thisArr[k] + ", " + thatArr[k]);
-                    if (thisArr[k] != thatArr[k]) return false;
+                    if (thisArr[k] != thatArr[k]){
+                        System.out.println("char array entry mismatch " + thisArr[k] + ", " + thatArr[k]);
+                        return false;}
                 }
             }
             else if (!args.get(i).equals(that.args.get(i))) {

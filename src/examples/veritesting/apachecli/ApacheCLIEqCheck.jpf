@@ -21,10 +21,10 @@ symbolic.dp=z3bitvector
 #depth.limit shoud be off to test the equivelance checking with and without test case generation, and should be back on otherwise.
 #direct comparision between the output of apachecli with TCG and without cannot be made, as the depth limit in TCG is different due to the sequence choice genreator.
 #turning it of is the best chance of getting
-search.depth_limit = 12
+#search.depth_limit = 14
 
 
-veritestingMode = 3
+veritestingMode = 1
 performanceMode=false
 symbolic.lazy = true
 

@@ -18,7 +18,7 @@ symbolic.max_double=100.0
 #listener = .symbc.VeritestingListener
 symbolic.dp=z3bitvector
 
-search.depth_limit = 14
+#search.depth_limit = 14
 veritestingMode = 3
 performanceMode=false
 symbolic.lazy = true
