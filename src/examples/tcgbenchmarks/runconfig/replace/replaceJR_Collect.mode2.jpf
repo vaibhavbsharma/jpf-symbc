@@ -1,0 +1,34 @@
+target=tcgbenchmarks.replace.replace11
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+
+vm.storage.class=nil
+symbolic.debug=false
+
+#listener = .symbc.SymbolicListener
+
+jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
+
+#symbolic.dp=z3
+
+
+#symbolic.dp=z3inc
+
+symbolic.dp=z3bitvectorinc
+
+## branch coverage with unit test for JR
+listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+
+symbolic.optimizechoices=false
+
+branchCoverageOn=true
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/replace/
+
+
+veritestingMode=2
+coverageMode=5
+performanceMode=true
+
+evaluationMode=true
