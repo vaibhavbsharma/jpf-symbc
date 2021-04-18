@@ -28,9 +28,9 @@ public class BranchCoverage {
     public static CallGraph cg;
 
 
-    public static void createObligations(ThreadInfo ti) throws WalaException, IOException, CallGraphBuilderCancelException {
+    public static void createObligations(ThreadInfo ti, String exclusionFilePath) throws WalaException, IOException, CallGraphBuilderCancelException {
 
-        File exclusionFile = new File("../coverageExclusions.txt");
+        File exclusionFile = new File(exclusionFilePath);
 
         String classPath = targetAbsPath.substring(0, targetAbsPath.lastIndexOf("/"));
         AnalysisScope scope = AnalysisScopeReader.makeJavaBinaryAnalysisScope(classPath, exclusionFile);

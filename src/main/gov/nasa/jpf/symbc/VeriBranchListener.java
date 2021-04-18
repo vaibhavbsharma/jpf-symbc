@@ -92,7 +92,7 @@ public class VeriBranchListener extends BranchListener {
         try {
             if (firstTime) {
                 System.out.println("---- CoverageMode = " + coverageMode + ", solver = " + solver + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS") != null ? ", STEPS " + System.getenv("MAX_STEPS") : ""));
-                BranchCoverage.createObligations(ti);
+                BranchCoverage.createObligations(ti, this.exclusionFilePath);
                 ObligationMgr.finishedCollection();
                 BranchCoverage.finishedCollection();
                 firstTime = false;
