@@ -124,33 +124,19 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
     }
 
     public long getIntValue(Object dpVar) {
-        String dpVarStr = dpVar.toString().replaceAll("\\|","") + " ";
+        String dpVarStr = dpVar.toString().replaceAll("\\|", "") + " ";
         try {
-            Model model = null;
-            if (Status.SATISFIABLE == solver.check()) {
-                model = solver.getModel();
-                String[] dp = SymbolicInstructionFactory.dp;
-                if (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) {
-                    String[] valuations = model.toString().split("\n");
-                    assert valuations.length > 0 : "valuations of the model cannot be zero, something is wrong. Failing";
-                    int i = 0;
-                    String value = valuations[i];
-                    while (i < valuations.length && !value.contains(dpVarStr)) //try to find the valuation of what we are looking for
-                        value = valuations[i++];
-                    if (i == valuations.length && !value.contains(dpVarStr)) // we couldn't find the variable in the model, so assume it the lowest value.
-                        return Integer.MIN_VALUE;
-                    return SpfUtil.hexToDec(value.substring(value.indexOf(">") + 1));
-                }
-                try {
-                    String strResult = model.eval((Expr) dpVar, false).toString();
-                    return new BigInteger(strResult).longValue();
-                } catch (NumberFormatException e) {
-                    return Integer.MIN_VALUE;
-                }
-            } else {
-                assert false; // should not be reachable
-                return 0;
-            }
+            Model model = solver.getModel();
+
+            String[] valuations = model.toString().split("\n");
+            assert valuations.length > 0 : "valuations of the model cannot be zero, something is wrong. Failing";
+            int i = 0;
+            String value = valuations[i];
+            while (i < valuations.length && !value.contains(dpVarStr)) //try to find the valuation of what we are looking for
+                value = valuations[i++];
+            if (i == valuations.length && !value.contains(dpVarStr)) // we couldn't find the variable in the model, so assume it the lowest value.
+                return Integer.MIN_VALUE;
+            return SpfUtil.hexToDec(value.substring(value.indexOf(">") + 1));
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("## Error Z3: Exception caught in getIntValue: \n" + e);

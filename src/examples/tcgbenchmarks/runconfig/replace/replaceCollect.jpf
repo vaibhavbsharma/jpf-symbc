@@ -22,7 +22,7 @@ listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSeque
 symbolic.optimizechoices=false
 
 branchCoverageOn=true
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/printtokens2_3/
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/replace/
 
 performanceMode=true
 

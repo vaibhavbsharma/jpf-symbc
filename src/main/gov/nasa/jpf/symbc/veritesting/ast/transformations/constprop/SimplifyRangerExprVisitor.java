@@ -4,6 +4,7 @@ import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicTable;
+import gov.nasa.jpf.symbc.veritesting.ast.transformations.globaljrvarssa.GlobalVarSSAVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitor;
 import za.ac.sun.cs.green.expr.*;
@@ -41,6 +42,11 @@ public class SimplifyRangerExprVisitor extends ExprMapVisitor implements ExprVis
 
     @Override
     public Expression visit(InternalJRSsaVar expr) {
+        return lookup(expr);
+    }
+
+    @Override
+    public Expression visit(GlobalJRVarSSAExpr expr) {
         return lookup(expr);
     }
 

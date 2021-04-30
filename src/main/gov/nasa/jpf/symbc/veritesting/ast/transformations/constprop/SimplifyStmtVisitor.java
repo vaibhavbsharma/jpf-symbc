@@ -65,6 +65,13 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
                 }
             }
             this.somethingChanged = true;
+            /* if are simplifying that assignment, then if it is referring to a GlobalJRVarSSAExpr,
+            then we need to remove it from the gpsm as well, this is because we create the disjunction of branch coverage based on the
+            last variables in the gpsm, yet if they do not correspond to any variable assignment (because they were removed by simplification) then we
+            need to remove them as well from the disjunction and therefore from the query.
+            */
+            if(a.lhs instanceof GlobalJRVarSSAExpr)
+                dynRegion.gpsm.remove((GlobalJRVarSSAExpr) a.lhs);
             return SkipStmt.skip;
         }
         return new AssignmentStmt(a.lhs, rhs);

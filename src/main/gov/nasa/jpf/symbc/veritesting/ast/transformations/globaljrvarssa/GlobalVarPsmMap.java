@@ -55,6 +55,17 @@ public final class GlobalVarPsmMap {
             }
     }
 
+    public void remove(GlobalJRVarSSAExpr key) {
+        for (Iterator<Map.Entry<GlobalJRVar, SubscriptPair>> globalVarItr = table.entrySet().iterator();
+             ((Iterator) globalVarItr).hasNext(); ) {
+            Map.Entry<GlobalJRVar, SubscriptPair> entry = globalVarItr.next();
+            GlobalJRVarSSAExpr entryVar = new GlobalJRVarSSAExpr(entry.getKey(), entry.getValue());
+            if(key.equals(entryVar))
+                globalVarItr.remove();
+        }
+    }
+
+
     public void print() {
         if (verboseVeritesting) {
             System.out.println("\nprinting " + tableName + " (" + label1 + "->" + label2 + ")");
@@ -114,6 +125,6 @@ public final class GlobalVarPsmMap {
     }
 
     public Expression getVarExprForKey(ObligationVar oblgVar) {
-        return createGreenVar("int", oblgVar.toString() + "." + table.get(oblgVar).toString() +"."+ DynamicRegion.uniqueCounter);
+        return createGreenVar("int", oblgVar.toString() + "." + table.get(oblgVar).toString() + "." + DynamicRegion.uniqueCounter);
     }
 }
