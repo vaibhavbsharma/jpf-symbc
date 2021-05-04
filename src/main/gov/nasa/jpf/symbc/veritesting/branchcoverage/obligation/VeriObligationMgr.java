@@ -29,6 +29,8 @@ import gov.nasa.jpf.vm.VM;
 import za.ac.sun.cs.green.expr.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static gov.nasa.jpf.symbc.BranchListener.evaluationMode;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil.getWalaInstLineNum;
@@ -139,9 +141,16 @@ public class VeriObligationMgr {
 //        HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
         ArrayList<Obligation> coveredOblgsOnPath = new ArrayList<>();
         if (oblgsNeedsCoverage.size() > 0) {
-            coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
-            if (!evaluationMode)
-                System.out.println("newly covered obligation on the path: " + coveredOblgsOnPath);
+            if (VeriBranchListener.batchCoverage) {
+                coveredOblgsOnPath = askSolverForCoverage(ti, oblgsNeedsCoverage);
+                if (!evaluationMode)
+                    System.out.println("newly covered obligation on the path: " + coveredOblgsOnPath);
+            } else {
+                for (Obligation oblg : oblgsNeedsCoverage)//asking one by one.
+                    coveredOblgsOnPath.addAll(askSolverForCoverage(ti, Stream.of(oblg).collect(Collectors.toCollection(LinkedHashSet::new))));
+                if (!evaluationMode)
+                    System.out.println("newly covered obligation on the path: " + coveredOblgsOnPath);
+            }
         }
         return coveredOblgsOnPath;
     }

@@ -35,6 +35,7 @@ public class VeriBranchListener extends BranchListener {
 
     //this flag is used to remove the collection of test cases and the coverage at the end of each thread while still have the instrumentation of the obligations inside the region summary
     public static boolean ignoreCoverageCollection = false;
+    public static boolean batchCoverage = true;
 
     public VeriBranchListener(Config conf, JPF jpf) {
         super(conf, jpf);
@@ -50,6 +51,9 @@ public class VeriBranchListener extends BranchListener {
             }
             VeritestingListener.simplify = true;
         }
+        if (conf.hasValue("batchCoverage"))
+            batchCoverage = conf.getBoolean("batchCoverage");
+
         if (IncrementalListener.solver != null)
             assert !conf.getBoolean("symbolic.optimizechoices") : "in incremental solving mode the optimization bytecode package must be off. Assumption Violated. Failing.";
 
