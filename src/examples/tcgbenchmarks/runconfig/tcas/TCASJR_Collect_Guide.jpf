@@ -22,7 +22,7 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 
 #symbolic.optimizechoices=false
 
-branchCoverageOn=true
+#branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/tcas/tcas.class
 
 coverageExclusions=Ltcgbenchmarks/tcas/tcas.main([Ljava/lang/String)V

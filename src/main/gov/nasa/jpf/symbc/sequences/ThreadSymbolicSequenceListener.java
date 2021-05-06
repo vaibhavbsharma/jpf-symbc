@@ -337,6 +337,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
                 outputChar = "\\t";
                 break;
             case '\n':
+            case '\u0000':
                 outputChar = "\\n";
                 break;
             case '\r':

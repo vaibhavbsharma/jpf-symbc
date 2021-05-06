@@ -21,7 +21,6 @@ listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSeque
 
 symbolic.optimizechoices=false
 
-branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/wbs/
 coverageExclusions=Ltcgbenchmarks/wbs/WBS.launch(IZZIZZIZZIZZIZZ)V
 

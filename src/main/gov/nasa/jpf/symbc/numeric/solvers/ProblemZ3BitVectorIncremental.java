@@ -126,9 +126,10 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
     public long getIntValue(Object dpVar) {
         String dpVarStr = dpVar.toString().replaceAll("\\|", "") + " ";
         try {
-            Model model = solver.getModel();
-
-            String[] valuations = model.toString().split("\n");
+            Model model = null;
+//            solver.check();
+             model = solver.getModel();
+             String[] valuations = model.toString().split("\n");
             assert valuations.length > 0 : "valuations of the model cannot be zero, something is wrong. Failing";
             int i = 0;
             String value = valuations[i];
