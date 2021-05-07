@@ -23,7 +23,6 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 
 #symbolic.optimizechoices=false
 
-branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/printtokens2_3/printTokens2.class
 
 

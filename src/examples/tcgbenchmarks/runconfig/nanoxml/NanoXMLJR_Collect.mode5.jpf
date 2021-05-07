@@ -24,7 +24,6 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 
 symbolic.optimizechoices=false
 
-branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/nanoxmlTCG/
 #coverageExclusions=Ltcgbenchmarks/nanoxmlTCG/DumpXML.main([Ljava/lang/String)V
 
@@ -33,4 +32,4 @@ veritestingMode=5
 coverageMode=5
 performanceMode=true
 
-evaluationMode=false
+evaluationMode=true
