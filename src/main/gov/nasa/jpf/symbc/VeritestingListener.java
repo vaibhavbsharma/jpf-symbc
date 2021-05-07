@@ -34,7 +34,6 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.Uniquness.UniqueRegion
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.fieldaccess.SubstituteGetOutput;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.linearization.LinearizationTransformation;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeEarlyReturns.RemoveEarlyReturns;
-import gov.nasa.jpf.symbc.veritesting.ast.transformations.removeinternalvar.CreateInternalJRSsaVars;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.CreateStaticRegions;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.StaticRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
@@ -129,6 +128,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public static boolean veritestingSuccessful = false;
     public static boolean verboseVeritesting = true;
     static int numberOfThreads=0;
+
+    protected static int timeForExperiment = 60 * 60; //180 * 60; //minutes * seconds -- set to 0 if you want to run indefinitely.
+    static boolean timedExperimentOn = false;
+    protected static Long veriStartTime = System.currentTimeMillis() / 1000;
 
     public String[] regionKeys = {"replace.amatch([C[CI)I#160",
             "replace.amatch([C[CI)I#77",
@@ -256,6 +259,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 GoToTransformer.active = false;
                 GoToTransformer.statisticsOn = false;
             }
+            if (conf.hasValue("timedExperimentOn")) {
+                timedExperimentOn = conf.getBoolean("timedExperimentOn");
+            }
 
             StatisticManager.veritestingRunning = true;
             jpf.addPublisherExtension(ConsolePublisher.class, this);
@@ -278,6 +284,12 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
      * @param instructionToExecute instruction to be executed.
      */
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
+        if (timedExperimentOn && timeForExperiment > 0) {
+            long currentTime = System.currentTimeMillis() / 1000;
+            if (currentTime - veriStartTime >= timeForExperiment) //ignore and report the results if time budget was hit.
+                ti.getVM().getSystemState().setIgnored(true);
+        }
+
         veritestingSuccessful = false;
 
         if (timeout_mins != -1) {

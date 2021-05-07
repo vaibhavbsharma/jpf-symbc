@@ -29,6 +29,8 @@ symbolic.optimizechoices=false
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/wbs/
 coverageExclusions=Ltcgbenchmarks/wbs/WBS.launch(IZZIZZIZZIZZIZZ)V
 
+timedExperimentOn=true
+
 veritestingMode=3
 #coverageMode=5
 performanceMode=true

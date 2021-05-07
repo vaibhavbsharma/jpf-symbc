@@ -27,6 +27,8 @@ targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/tcas/
 
 coverageExclusions=Ltcgbenchmarks/tcas/tcas.main([Ljava/lang/String)V
 
+timedExperimentOn=true
+
 veritestingMode=3
 #coverageMode=5
 performanceMode=true

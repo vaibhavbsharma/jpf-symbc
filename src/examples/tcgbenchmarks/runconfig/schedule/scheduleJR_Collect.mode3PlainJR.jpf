@@ -26,7 +26,7 @@ symbolic.optimizechoices=false
 
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/schedule2_3/
 
-
+timedExperimentOn=true
 veritestingMode=3
 #coverageMode=5
 performanceMode=true

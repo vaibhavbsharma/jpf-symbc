@@ -26,7 +26,7 @@ symbolic.optimizechoices=false
 
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/siena/
 
-
+timedExperimentOn=true
 veritestingMode=3
 #coverageMode=5
 performanceMode=true

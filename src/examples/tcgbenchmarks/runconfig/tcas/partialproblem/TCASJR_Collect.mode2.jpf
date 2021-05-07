@@ -1,0 +1,32 @@
+target=tcgbenchmarks.tcas.tcas
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+symbolic.method = tcgbenchmarks.tcas.tcas.sym1(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcgbenchmarks.tcas.tcas.sym2(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcgbenchmarks.tcas.tcas.sym3(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcgbenchmarks.tcas.tcas..sym4(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcgbenchmarks.tcas.tcas.sym5(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcgbenchmarks.tcas.tcas.sym6(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcgbenchmarks.tcas.tcas..sym7(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcgbenchmarks.tcas.tcas.sym8(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcgbenchmarks.tcas.tcas.sym9(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym),tcgbenchmarks.tcas.tcas.sym10(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+
+vm.storage.class=nil
+symbolic.debug=false
+
+#listener = .symbc.SymbolicListener
+
+jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
+
+#symbolic.dp=z3
+
+#symbolic.dp=z3inc
+
+symbolic.dp=z3bitvectorinc
+
+## branch coverage with unit test for JR
+listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+
+symbolic.optimizechoices=false
+
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/tcas/
+
+coverageExclusions=Ltcgbenchmarks/tcas/tcas.main([Ljava/lang/String)V
+
+veritestingMode=2
+coverageMode=5
+performanceMode=true
+evaluationMode=true
