@@ -151,7 +151,12 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     public long getIntValue(Object dpVar) {
         try {
             Model model = solver.getModel();
-            String strResult = ((com.microsoft.z3.BitVecNum) model.eval((Expr) dpVar, false)).toString();
+            Expr modelValue = model.eval((Expr) dpVar, false);
+            if(!(modelValue instanceof BitVecNum) && modelValue instanceof BitVecExpr) { // var was not found in the model return anything, this can happen if the symvar is a don't care to the result of the model.
+                assert (!model.toString().contains(dpVar.toString())) : "if there is no value found in the model, then string contains should fail as well.";
+                return Integer.MIN_VALUE;
+            }
+            String strResult = modelValue.toString();
             String bitStr = new BigInteger(strResult).toString(2);
             if (bitStr.length() == SymbolicInstructionFactory.bvlength && bitStr.charAt(0) == '1') {
                 // negative number

@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc.branchcoverage;
 
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -9,6 +10,8 @@ import java.util.HashMap;
 import java.util.Set;
 
 import static gov.nasa.jpf.symbc.BranchListener.*;
+import static gov.nasa.jpf.symbc.VeriBranchListener.batchCoverage;
+import static gov.nasa.jpf.symbc.VeritestingListener.coverageCriteria;
 import static gov.nasa.jpf.symbc.VeritestingListener.veritestingMode;
 
 public class CoverageStatistics {
@@ -46,17 +49,24 @@ public class CoverageStatistics {
 
         new File(folderStr).mkdirs(); //creating a folder to hold results
 
+//        String JRorSPF = veritestingMode != 0 ? "JR" : "SPF";
+        String isBatch = coverageMode == CoverageMode.JR ? (batchCoverage ? "batch" : "single") : "NA";
+        String envStepsStr = evnMaxSteps != null ? "_steps_" + evnMaxSteps : "";
 
-        if (evnMaxSteps != null) {
+        statisticFileName = folderStr + "/" + benchmarkName + "_OblgOnlyStat_" + coverageMode + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
+        executionStatFileName = folderStr + "/" + benchmarkName + "_ExecStat_" + coverageMode + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
+        coveragePerThreadFileName = folderStr + "/" + benchmarkName + "_ThreadStat_" + coverageMode + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
+
+      /*  if (evnMaxSteps != null) {
             statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_mode" + veritestingMode + "_steps" + evnMaxSteps + ".txt";
             executionStatFileName = folderStr + "/" + benchmarkName + "ExecStat_" + coverageMode + "_mode" + veritestingMode + "_steps" + evnMaxSteps + ".txt";
             coveragePerThreadFileName = folderStr + "/" + benchmarkName + "ThreadStat_" + coverageMode + "_mode" + veritestingMode + "_steps" + evnMaxSteps + ".txt";
         } else {
-            statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode +"_mode" + veritestingMode +  ".txt";
-            executionStatFileName = folderStr + "/" + benchmarkName + "ExecStat_" + coverageMode +"_mode" + veritestingMode +  ".txt";
-            coveragePerThreadFileName = folderStr + "/" + benchmarkName + "ThreadStat_" + coverageMode +"_mode" + veritestingMode + ".txt";
+            statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_mode" + veritestingMode + ".txt";
+            executionStatFileName = folderStr + "/" + benchmarkName + "ExecStat_" + coverageMode + "_mode" + veritestingMode + ".txt";
+            coveragePerThreadFileName = folderStr + "/" + benchmarkName + "ThreadStat_" + coverageMode + "_mode" + veritestingMode + ".txt";
         }
-
+*/
         try {
 
             statisticFilefw = new FileWriter(statisticFileName);

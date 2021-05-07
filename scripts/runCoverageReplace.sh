@@ -24,3 +24,7 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/replaceJR_
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/replaceJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_replace/replaceJR_Collect.mode3_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/replaceJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_replace/replaceJR_Collect.mode4_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/replaceJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_replace/replaceJR_Collect.mode5_steps$MAX_STEPS.log
+
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/replaceJR_Collect.mode3NoBatch.jpf >& $COVERAGEDIR/logs/log_replace/replaceJR_Collect.mode3NoBatch_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/replaceJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_replace/replaceJR_Collect.mode3PlainJR_steps$MAX_STEPS.log
+

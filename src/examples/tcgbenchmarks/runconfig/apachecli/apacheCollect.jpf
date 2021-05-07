@@ -2,7 +2,7 @@ target=tcgbenchmarks.apachecli.CLI
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
 symbolic.method = tcgbenchmarks.apachecli.CLI.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
-
+#symbolic.method = tcgbenchmarks.apachecli.CLI.mainProcess(sym#sym#con#con#con#con#con#con#con)
 vm.storage.class=nil
 symbolic.debug=false
 
@@ -21,7 +21,6 @@ listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSeque
 
 symbolic.optimizechoices=false
 
-#branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/apachecli/
 
 

@@ -21,7 +21,6 @@ listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSeque
 
 #symbolic.optimizechoices=false
 
-branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/schedule2_3/Schedule2.class
 
 coverageMode=3

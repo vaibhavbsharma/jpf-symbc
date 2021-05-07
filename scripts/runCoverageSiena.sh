@@ -28,3 +28,6 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Coll
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_siena/sienaJRCollect.mode4_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_siena/sienaJRCollect.mode5_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/log_siena/sienaJR_Collect_Guide_steps$MAX_STEPS.log
+
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.mode3NoBatch.jpf >& $COVERAGEDIR/logs/log_siena/sienaJR_Collect.mode3NoBatch_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/sienaJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_siena/sienaJR_Collect.mode3PlainJR_steps$MAX_STEPS.log
