@@ -10,7 +10,7 @@ symbolic.debug=false
 
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.complexBranchCov(sym#sym)
 
-symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.unoptimalDFS(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.unoptimalDFS(sym#sym)
 
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
 
@@ -36,7 +36,7 @@ symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.unoptimalDFS(sym#sym)
 
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.testingSoundReach(sym#sym)
 
-#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.testingComplexConditions1(sym#sym)
+symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.testingComplexConditions1(sym#sym)
 
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.testingComplexConditions2(sym#sym)
 

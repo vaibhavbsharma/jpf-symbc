@@ -1,7 +1,8 @@
-target=tcgbenchmarks.schedule2_3.Schedule2
+target=tcgbenchmarks.nanoxmlTCG.DumpXML
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.schedule2_3.Schedule2.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
+#symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#con#con#con#con#con)
 
 vm.storage.class=nil
 symbolic.debug=false
@@ -23,8 +24,10 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 
 symbolic.optimizechoices=false
 
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/schedule2_3/
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/nanoxmlTCG/
+#coverageExclusions=Ltcgbenchmarks/nanoxmlTCG/DumpXML.main([Ljava/lang/String)V
 
+batchCoverage=false
 
 veritestingMode=3
 coverageMode=5

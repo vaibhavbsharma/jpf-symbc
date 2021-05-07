@@ -12,7 +12,7 @@ shopt -s expand_aliases
 
 COVERAGEDIR=/media/soha/DATA/git/jrTCG
 
-MAX_STEPS=1 && export MAX_STEPS
+MAX_STEPS=5 && export MAX_STEPS
 
 echo "maxsteps is $MAX_STEPS"
 
@@ -28,3 +28,6 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJ
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_schedule/scheduleJRCollect.mode4_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_schedule/scheduleJRCollect.mode5_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/log_schedule/scheduleJR_Collect_Guide_steps$MAX_STEPS.log
+
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode3NoBatch.jpf >& $COVERAGEDIR/logs/log_schedule/scheduleJR_Collect.mode3NoBatch_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_schedule/scheduleJR_Collect.mode3PlainJR_steps$MAX_STEPS.log

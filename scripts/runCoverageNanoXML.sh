@@ -28,3 +28,7 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLJR_
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_nanoxml/NanoXMLJRCollect.mode4_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_nanoxml/NanoXMLJRCollect.mode5_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/log_nanoxml/NanoXMLJR_Collect_Guide_steps$MAX_STEPS.log
+
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLJR_Collect.mode3NoBatch.jpf >& $COVERAGEDIR/logs/log_nanoxml/NanoXMLJR_Collect.mode3NoBatch_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_nanoxml/NanoXMLJR_Collect.mode3PlainJR_steps$MAX_STEPS.log
+

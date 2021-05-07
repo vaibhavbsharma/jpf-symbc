@@ -11,7 +11,7 @@ shopt -s expand_aliases
 
 COVERAGEDIR=/media/soha/DATA/git/jrTCG
 
-MAX_STEPS=5 && export MAX_STEPS
+MAX_STEPS=7 && export MAX_STEPS
 
 echo "maxsteps is $MAX_STEPS"
 
@@ -29,3 +29,6 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBSJR_Collect.
 #runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Prune.jpf >& $COVERAGEDIR/logs/log_wbs/WBS_JR_Collect_Prune_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Guide.jpf >& $COVERAGEDIR/logs/log_wbs/WBS_JR_Collect_Guide_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBS_JR_Collect_Prune_Guide.jpf >& $COVERAGEDIR/logs/log_wbs/WBS_JR_Collect_Prune_Guide_steps$MAX_STEPS.log
+
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBSJR_Collect.mode3NoBatch.jpf >& $COVERAGEDIR/logs/log_wbs/WBSJR_Collect.mode3NoBatch_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBSJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_wbs/WBSJR_Collect.mode3PlainJR_steps$MAX_STEPS.log

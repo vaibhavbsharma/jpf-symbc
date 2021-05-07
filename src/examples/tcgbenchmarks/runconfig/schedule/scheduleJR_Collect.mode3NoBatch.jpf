@@ -23,8 +23,10 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 
 symbolic.optimizechoices=false
 
+branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/schedule2_3/
 
+batchCoverage=false
 
 veritestingMode=3
 coverageMode=5

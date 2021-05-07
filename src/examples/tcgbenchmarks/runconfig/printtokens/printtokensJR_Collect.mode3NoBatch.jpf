@@ -1,7 +1,8 @@
-target=tcgbenchmarks.schedule2_3.Schedule2
+target=tcgbenchmarks.printtokens2_3.printTokens2
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.schedule2_3.Schedule2.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+symbolic.method = tcgbenchmarks.printtokens2_3.printTokens2.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym)
+#symbolic.method = tcgbenchmarks.printtokens2_3.printTokens2.mainProcess(sym#sym#con#con#con#con#con#con)
 
 vm.storage.class=nil
 symbolic.debug=false
@@ -23,8 +24,9 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 
 symbolic.optimizechoices=false
 
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/schedule2_3/
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/printtokens2_3/
 
+batchCoverage=false
 
 veritestingMode=3
 coverageMode=5

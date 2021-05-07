@@ -1,8 +1,7 @@
-target=tcgbenchmarks.schedule2_3.Schedule2
+target=tcgbenchmarks.wbs.WBS
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.schedule2_3.Schedule2.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
-
+symbolic.method = tcgbenchmarks.wbs.WBS.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
 vm.storage.class=nil
 symbolic.debug=false
 
@@ -12,10 +11,13 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 #symbolic.dp=z3
 
-
 #symbolic.dp=z3inc
 
 symbolic.dp=z3bitvectorinc
+
+
+#listener = .symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
 
 ## branch coverage with unit test for JR
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
@@ -23,8 +25,10 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 
 symbolic.optimizechoices=false
 
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/schedule2_3/
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/wbs/
+coverageExclusions=Ltcgbenchmarks/wbs/WBS.launch(IZZIZZIZZIZZIZZ)V
 
+batchCoverage=false
 
 veritestingMode=3
 coverageMode=5

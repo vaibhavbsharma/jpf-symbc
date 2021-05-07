@@ -27,3 +27,7 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collec
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_tacas/TCAS_JR_Collect.mode3_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_tacas/TCAS_JR_Collect.mode4_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_tacas/TCAS_JR_Collect.mode5_steps$MAX_STEPS.log
+
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collect.mode3NoBatch.jpf >& $COVERAGEDIR/logs/log_tacas/TCASJR_Collect.mode3NoBatch_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/TCASJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_tacas/TCASJR_Collect.mode3PlainJR_steps$MAX_STEPS.log
+

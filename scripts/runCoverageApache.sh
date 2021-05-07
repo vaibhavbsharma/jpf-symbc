@@ -28,3 +28,6 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_apachecli/apacheJRCollect.mode4_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_apachecli/apacheJRCollect.mode5_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect_Guide.jpf >& $COVERAGEDIR/logs/log_apachecli/apacheJR_Collect_Guide_steps$MAX_STEPS.log
+
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect.mode3NoBatch.jpf >& $COVERAGEDIR/logs/log_apachecli/apacheJR_Collect.mode3NoBatch_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_apachecli/apacheJR_Collect.mode3PlainJR_steps$MAX_STEPS.log

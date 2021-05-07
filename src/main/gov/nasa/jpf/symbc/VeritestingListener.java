@@ -125,7 +125,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     // reads in an array of Strings, each of which is the name of a method whose regions we wish to report metrics for
     public static String[] interestingClassNames;
 
-    public static CoverageCriteria coverageCriteria;
+    public static CoverageCriteria coverageCriteria=CoverageCriteria.UNDEFINED;
     public static boolean veritestingSuccessful = false;
     public static boolean verboseVeritesting = true;
     static int numberOfThreads=0;

@@ -42,7 +42,7 @@ public class VeriBranchListener extends BranchListener {
         if (conf.hasValue("coverageMode")) {
             int coverageNum = conf.getInt("coverageMode");
             assert coverageNum > 4 : "coverageMode must be greater that 4 to support Veritesting";
-            if (conf.getInt("coverageMode") == 5) coverageMode = CoverageMode.JRCOLLECT_COVERAGE;
+            if (conf.getInt("coverageMode") == 5) coverageMode = CoverageMode.JR;
             else if (conf.getInt("coverageMode") == 6) coverageMode = CoverageMode.JRCOLLECT_PRUNE;
             else if (conf.getInt("coverageMode") == 7) coverageMode = CoverageMode.JRCOLLECT_GUIDE;
             else if (conf.getInt("coverageMode") == 8) coverageMode = CoverageMode.JRCOLLECT_PRUNE_GUIDE;
