@@ -57,6 +57,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     protected static Long startTime = System.currentTimeMillis() / 1000;
     protected static int timeForExperiment = 180 * 60; //minutes * seconds -- set to 0 if you want to run indefinitely.
+    protected String exclusionFilePath;
 
     public BranchListener(Config conf, JPF jpf) {
         jpf.addPublisherExtension(ConsolePublisher.class, this);
@@ -75,6 +76,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
 
         if (conf.hasValue("coverageExclusions")) coverageExclusions = conf.getStringSet("coverageExclusions");
+        // Instead of setting a relative path, using configure to set the path will make it possible to run it in any
+        // directories
+        exclusionFilePath = conf.getString("jpf-symbc") + "/coverageExclusions.txt";
 
         if (conf.hasValue("symbolic.dp")) solver = conf.getString("symbolic.dp");
 
@@ -125,7 +129,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         try {
             if (firstTime) {
                 System.out.println("---- CoverageMode = " + coverageMode + ", solver = " + solver + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS") != null ? ", STEPS " + System.getenv("MAX_STEPS") : ""));
-                BranchCoverage.createObligations(ti);
+                BranchCoverage.createObligations(ti, this.exclusionFilePath);
                 ObligationMgr.finishedCollection();
                 BranchCoverage.finishedCollection();
                 firstTime = false;
