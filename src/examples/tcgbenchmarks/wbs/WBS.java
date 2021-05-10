@@ -277,6 +277,7 @@ public class WBS {
 		if (maxSteps-- > 0) wbs.update(pedal3, auto3, skid3);
 		if (maxSteps-- > 0) wbs.update(pedal4, auto4, skid4);
 		if (maxSteps-- > 0) wbs.update(pedal5, auto5, skid5);
+		assert(wbs.Nor_Pressure>=0);
 	}
 
 	public static void main(String[] args) {
