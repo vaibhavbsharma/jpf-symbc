@@ -438,6 +438,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         if ((runMode != VeritestingMode.SPFCASES) && (runMode != VeritestingMode.EARLYRETURNS)) {
             checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
+            if(coverageCriteria==CoverageCriteria.BRANCHCOVERAGE)
+                VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
             runOnSamePath(ti, instructionToExecute, dynRegion);
             System.out.println("------------- Region was successfully veritested --------------- ");
 
@@ -562,11 +564,13 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             else
                 newCG = new StaticBranchChoiceGenerator(dynRegion, instructionToExecute);
 
+            if(coverageCriteria==CoverageCriteria.BRANCHCOVERAGE)
+                VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
+
             if (singlePathOptimization)
                 if (optimizedChoices(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
                     return;
                 }
-
 
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
 
@@ -741,8 +745,6 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             SpfToGreenVisitor visitor = new SpfToGreenVisitor();
             dynRegion = visitor.execute(dynRegion);
         }
-        if(coverageCriteria==CoverageCriteria.BRANCHCOVERAGE)
-            VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
         return dynRegion;
     }
 

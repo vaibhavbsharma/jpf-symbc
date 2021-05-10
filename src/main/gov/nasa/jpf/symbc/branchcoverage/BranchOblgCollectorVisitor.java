@@ -61,9 +61,9 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
      * @param inst
      */
     public void visitConditionalBranch(SSAConditionalBranchInstruction inst) {
-        if (coverageExclusions.contains(constructWalaSign())) // do not look for covering these oblg if they exist in the coverageExclusion.
+   /*     if (coverageExclusions.contains(constructWalaSign())) // do not look for covering these oblg if they exist in the coverageExclusion.
             return;
-
+*/
         int instLine = CoverageUtil.getWalaInstLineNum(iMethod, inst);
 
 
