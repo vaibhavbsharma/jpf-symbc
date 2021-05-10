@@ -79,7 +79,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     // veritestingMode ranges from 1 to 5 which is the same as runMode ranging from VANILLASPF, VERITESTING, HIGHORDER,
     // SPFCASES, EARLYRETURNS
     public static int veritestingMode = 0;
-    public static VeritestingMode runMode;
+    public static VeritestingMode runMode = VeritestingMode.VANILLASPF;
 
     public static long totalSolverTime = 0, z3Time = 0;
     public static long parseTime = 0, regionSummaryParseTime = 0;
@@ -999,7 +999,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         return ret;
     }
 
-
+    @Override
     public void publishFinished(Publisher publisher) {
         long runEndTime = System.nanoTime();
         PrintWriter pw = publisher.getOut();
