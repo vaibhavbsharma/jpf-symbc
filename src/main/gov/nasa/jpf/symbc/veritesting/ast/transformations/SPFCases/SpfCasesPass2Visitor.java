@@ -1,15 +1,27 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases;
 
+import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.AstVisitor;
+import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprMapVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.StmtPrintVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CollectOblgInSide;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.Operation;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.coverageCriteria;
 import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
+import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.ELSE;
+import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.THEN;
 import static za.ac.sun.cs.green.expr.Operation.Operator.OR;
 
 
@@ -23,6 +35,13 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
     private final LinkedHashSet<SPFCaseStmt> spfCaseSet = new LinkedHashSet<>();
     private Expression earlyReturnCondition = null;
 
+    //these are the list of obligations that lay in an SPFCase path, we need to take these out, as their coverage is no longer controlled by the summary but instead it should be collected by SPF
+    private List<Obligation> spfcasesOblgList = new ArrayList<>();
+
+
+    public List<Obligation> getSpfcasesOblgList() {
+        return spfcasesOblgList;
+    }
 
     @Override
     public Stmt visit(AssignmentStmt a) {
@@ -59,19 +78,70 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
         Stmt thenStmt = a.thenStmt.accept(this);
         spfCondition = new Operation(Operation.Operator.AND, oldSPFCondition, new Operation(Operation.Operator.NOT, a.condition));
         Stmt elseStmt = a.elseStmt.accept(this);
-        if ((thenStmt instanceof SPFCaseStmt) && (elseStmt instanceof SPFCaseStmt)) { //attempting to collapse unncessary nodes
+        if ((thenStmt instanceof SPFCaseStmt) && (elseStmt instanceof SPFCaseStmt)) { //attempting to collapse unnecessary nodes
+            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) { // we need to keep track of obligation statements that are on the path for spf, we should take them out of the summary as their satisfaction is incomplete if one would look only at the summary on this path
+                addOblgToSPF(a, THEN);
+                addOblgToSPF(a, ELSE);
+            }
             s = new SPFCaseStmt(oldSPFCondition, SPFCaseStmt.SPFReason.MULTIPLE);
             spfCaseSet.remove(thenStmt);
             spfCaseSet.remove(elseStmt);
             spfCaseSet.add((SPFCaseStmt) s);
-        } else if (thenStmt instanceof SPFCaseStmt)
+        } else if (thenStmt instanceof SPFCaseStmt) {
             s = elseStmt;
-        else if (elseStmt instanceof SPFCaseStmt)
+            addOblgToSPF(a, THEN);
+        } else if (elseStmt instanceof SPFCaseStmt) {
             s = thenStmt;
-        else
+            addOblgToSPF(a, ELSE);
+        } else
             s = new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
         spfCondition = oldSPFCondition;
         return s;
+    }
+
+    //adds the obligations that SPF going to cover in the list, so we can take them out of the summary - we basically want to ignore any obligation down that path
+    private void addOblgToSPF(IfThenElseStmt a, ObligationSide side) {
+        Obligation thenOblg;
+        Obligation elseOblg;
+        boolean conditionReverseStatus = a.isByteCodeReversed;
+
+        if (a.condition instanceof ComplexExpr) {
+            conditionReverseStatus = ((ComplexExpr) a.condition).isRevered;
+            if (conditionReverseStatus) {
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.ELSE);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.THEN);
+            } else {
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.ELSE);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.THEN);
+            }
+        } else {
+            if (a.generalOblg == null) { //in case of jrInternal variable for early returns
+                //this assert is not valid at that point because we could hae created if statements from the array transformation, it is however true when we are first instantiating the region before any array transformation takes place
+//                assert a.condition instanceof Operation && ((Operation) a.condition).getArity() == 2 && (((Operation) a.condition).getOperand(0) instanceof InternalJRVar || ((Operation) a.condition).getOperand(1) instanceof InternalJRVar) : "condition is not in the form of internalJR vairable, the only case where general obligation is expected to be null";
+                return;
+            }
+            if (conditionReverseStatus) {
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.ELSE);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.THEN);
+            } else {
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.ELSE);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.THEN);
+            }
+        }
+        if (side == THEN)
+            spfcasesOblgList.add(thenOblg);
+        else
+            spfcasesOblgList.add(elseOblg);
+
+
+        CollectOblgInSide collectOblgInSide = new CollectOblgInSide(new ExprMapVisitor());
+
+        if (side == THEN)
+            a.thenStmt.accept(collectOblgInSide);
+        else
+            a.elseStmt.accept(collectOblgInSide);
+
+        spfcasesOblgList.addAll(collectOblgInSide.getSpfcasesOblgList());
     }
 
 
@@ -190,7 +260,7 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
      * @param dynRegion Dynamic region for which SPFCases nodes are going to be removed from the AST and replaced with a condition onto the spfCaseSet instead.
      * @return Dynamic Region with a new AST and spfCaseSet populated.
      */
-    public static DynamicRegion execute(DynamicRegion dynRegion) {
+    public static Pair<DynamicRegion, List<Obligation>> execute(DynamicRegion dynRegion) {
 
         SpfCasesPass2Visitor visitor = new SpfCasesPass2Visitor();
         Stmt dynStmt = dynRegion.dynStmt.accept(visitor);
@@ -208,8 +278,8 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
 
         if (verboseVeritesting)
             System.out.println("printing early return result condition after spfcases2: " + visitor.earlyReturnCondition);
-        return new DynamicRegion(dynRegion,
+        return new Pair(new DynamicRegion(dynRegion,
                 dynStmt,
-                detectedCases, null, null, dynRegion.earlyReturnResult);
+                detectedCases, null, null, dynRegion.earlyReturnResult), visitor.spfcasesOblgList);
     }
 }

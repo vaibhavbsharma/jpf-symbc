@@ -5,6 +5,7 @@ import com.ibm.wala.util.shrike.gotoTransformation.GoToTransformer;
 import gov.nasa.jpf.JPFException;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.BranchChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
@@ -42,6 +43,7 @@ import gov.nasa.jpf.symbc.veritesting.ast.transformations.substitutestackinput.S
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.typepropagation.TypePropagationVisitor;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.ExprVisitorAdapter;
 import gov.nasa.jpf.symbc.veritesting.ast.visitors.PrettyPrintVisitor;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.ClearSPFCasesOblgVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.PrepareCoverageVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.SeperateCmplxCondVisitor;
@@ -110,7 +112,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     private static String regionDigestPrintName;
 
-    private static boolean spfCasesHeuristicsOn = false;
+    public static boolean spfCasesHeuristicsOn = false;
 
     public enum VeritestingMode {VANILLASPF, VERITESTING, HIGHORDER, SPFCASES, EARLYRETURNS}
 
@@ -124,10 +126,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     // reads in an array of Strings, each of which is the name of a method whose regions we wish to report metrics for
     public static String[] interestingClassNames;
 
-    public static CoverageCriteria coverageCriteria=CoverageCriteria.UNDEFINED;
+    public static CoverageCriteria coverageCriteria = CoverageCriteria.UNDEFINED;
     public static boolean veritestingSuccessful = false;
     public static boolean verboseVeritesting = true;
-    static int numberOfThreads=0;
+    static int numberOfThreads = 0;
 
     protected static int timeForExperiment = 60 * 60; //180 * 60; //minutes * seconds -- set to 0 if you want to run indefinitely.
     static boolean timedExperimentOn = false;
@@ -438,7 +440,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         if ((runMode != VeritestingMode.SPFCASES) && (runMode != VeritestingMode.EARLYRETURNS)) {
             checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
-            if(coverageCriteria==CoverageCriteria.BRANCHCOVERAGE)
+            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
                 VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
             runOnSamePath(ti, instructionToExecute, dynRegion);
             System.out.println("------------- Region was successfully veritested --------------- ");
@@ -564,13 +566,16 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             else
                 newCG = new StaticBranchChoiceGenerator(dynRegion, instructionToExecute);
 
-            if(coverageCriteria==CoverageCriteria.BRANCHCOVERAGE)
-                VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
 
             if (singlePathOptimization)
                 if (optimizedChoices(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
+                    if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+                        VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
                     return;
                 }
+
+            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+                VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
 
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
 
@@ -616,14 +621,14 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     @Override
     public void choiceGeneratorRegistered(VM vm, ChoiceGenerator<?> nextCG, ThreadInfo currentThread, Instruction executedInstruction) {
-        if (nextCG instanceof PCChoiceGenerator && verboseVeritesting  && !performanceMode)
+        if (nextCG instanceof PCChoiceGenerator && verboseVeritesting && !performanceMode)
             System.out.println("choiceGeneratorRegistered(" + nextCG.getClass() + ") at " + executedInstruction.getMethodInfo() + "#" + executedInstruction.getPosition());
     }
 
     @Override
     public void stateAdvanced(Search search) {
         advancedSBCG = null;
-        if (verboseVeritesting  && !performanceMode)
+        if (verboseVeritesting && !performanceMode)
             System.out.println("stateAdvanced");
 
     }
@@ -730,11 +735,17 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                     runMode.ordinal() < VeritestingMode.EARLYRETURNS.ordinal() ?
                             new ArrayList(Arrays.asList(THROWINSTRUCTION, NEWINSTRUCTION, ARRAYINSTRUCTION, INVOKE)) : null);
 
-            /*-------------- SPFCases TRANSFORMATION 1ST PASS ---------------*/
-            dynRegion = SpfCasesPass2Visitor.execute(dynRegion);
+            /*-------------- SPFCases TRANSFORMATION 2ST PASS ---------------*/
+            Pair<DynamicRegion, List<Obligation>> pair = SpfCasesPass2Visitor.execute(dynRegion);
+            dynRegion = pair.getFirst();
+
+            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+                dynRegion = ClearSPFCasesOblgVisitor.execute(dynRegion, pair.getSecond());
+            }
+
         }
 
-                /*--------------- LINEARIZATION TRANSFORMATION ---------------*/
+        /*--------------- LINEARIZATION TRANSFORMATION ---------------*/
         LinearizationTransformation linearTrans = new LinearizationTransformation();
         dynRegion = linearTrans.execute(dynRegion);
 

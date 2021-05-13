@@ -36,27 +36,6 @@ public class SpfCasesPass1Visitor implements AstVisitor<Stmt> {
 
     @Override
     public Stmt visit(AssignmentStmt a) {
-        //SH: Dealing with arrays out of bounds here, delayed until we figure out how to do it.
-        /*if (!(a.rhs instanceof ArrayRefVarExpr) && !(a.lhs instanceof ArrayRefVarExpr))
-            return new AssignmentStmt(a.lhs, a.rhs);
-
-        //case where one of the sides of the assignment is arrayreference.
-        Expression arrayCondition = null;
-        if ((spfCasesInstructionList.contains(SpfCasesInstruction.ARRAYINSTRUCTION)) || (spfCasesInstructionList.contains(SpfCasesInstruction.ALL))) {
-            if (a.rhs instanceof ArrayRefVarExpr) {
-                arrayCondition = createArrayCondition((ArrayRefVarExpr) a.rhs);
-            } else if (a.lhs instanceof ArrayRefVarExpr) {
-                arrayCondition = createArrayCondition((ArrayRefVarExpr) a.lhs);
-            }
-
-            Stmt elseStmt = new SPFCaseStmt(Operation.TRUE, SPFCaseStmt.SPFReason.OUT_OF_BOUND_EXCEPTION);
-
-            SSAConditionalBranchInstruction dummy = new SSAConditionalBranchInstruction(-2, null, null, -2, -2, -2);
-
-            assert (arrayCondition != null);
-            return new IfThenElseStmt(dummy, arrayCondition, a, elseStmt);
-        }*/
-
         return new AssignmentStmt(a.lhs, a.rhs);
     }
 

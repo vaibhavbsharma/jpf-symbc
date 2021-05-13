@@ -88,7 +88,7 @@ public final class GlobalVarPsmMap {
     }
 
     @Override
-    protected GlobalVarPsmMap clone() {
+    public GlobalVarPsmMap clone() {
         GlobalVarPsmMap map = new GlobalVarPsmMap();
         this.table.forEach((key, value) -> {
             map.add(key, value);

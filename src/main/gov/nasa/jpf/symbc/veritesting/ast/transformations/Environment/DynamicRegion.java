@@ -169,6 +169,39 @@ public class DynamicRegion implements Region {
     }
 
 
+    public DynamicRegion(DynamicRegion oldDynRegion,
+                         Stmt dynStmt,
+                         GlobalVarPsmMap gpsm) {
+        this.ir = oldDynRegion.ir;
+        this.dynStmt = dynStmt;
+       /* this.inputTable = new DynamicTable(
+                "Region Input Table",
+                "var",
+                oldDynRegion.isMethodRegion ? "param" : "slot");
+*/
+
+        this.inputTable = oldDynRegion.inputTable;
+        this.endIns = oldDynRegion.endIns;
+        this.isMethodRegion = oldDynRegion.isMethodRegion;
+        this.outputTable = oldDynRegion.outputTable;
+        this.varTypeTable = oldDynRegion.varTypeTable;
+        this.slotParamTable = oldDynRegion.slotParamTable;
+        this.spfCaseList = oldDynRegion.spfCaseList;
+        this.regionSummary = oldDynRegion.regionSummary;
+        this.spfPredicateSummary = oldDynRegion.spfPredicateSummary;
+        this.fieldRefTypeTable = oldDynRegion.fieldRefTypeTable;
+        this.psm = oldDynRegion.psm;
+        this.gpsm = gpsm;
+        this.earlyReturnResult = oldDynRegion.earlyReturnResult;
+        this.arrayOutputs = oldDynRegion.arrayOutputs;
+        this.constantsTable = oldDynRegion.constantsTable;
+        this.stackOutput = oldDynRegion.stackOutput;
+        this.stackInput = oldDynRegion.stackInput;
+        this.totalNumPaths = oldDynRegion.totalNumPaths;
+        this.maxDepth = oldDynRegion.maxDepth;
+    }
+
+
     /**
      * Constructor that is used to create a dynamic region out of a static region.
      *

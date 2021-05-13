@@ -13,6 +13,7 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
+import gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.StaticBranchChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.ChoiceGenerator;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.spfCasesHeuristicsOn;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.collectVeritestingCoverage;
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.getVeriNeedsCoverageOblg;
@@ -130,7 +132,12 @@ public class VeriBranchListener extends BranchListener {
         if ((executedInstruction instanceof IfInstruction)) {
 //            isSymBranchInst = SpfUtil.isSymCond(currentThread, instructionToExecute);
 //            if (isSymBranchInst && !VeritestingListener.veritestingSuccessful)
-            if (!VeritestingListener.veritestingSuccessful)
+            boolean isSPFCasesChoice;
+            if (spfCasesHeuristicsOn)
+                isSPFCasesChoice = (vm.getChoiceGenerator() instanceof StaticBranchChoiceGenerator && (((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 3 || ((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 4));
+            else
+                isSPFCasesChoice = (vm.getChoiceGenerator() instanceof StaticBranchChoiceGenerator && (((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 1 || ((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 2));
+            if (!VeritestingListener.veritestingSuccessful || isSPFCasesChoice)
                 super.instructionExecuted(vm, currentThread, nextInstruction, executedInstruction);
         }
     }

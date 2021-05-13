@@ -56,7 +56,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     public static String solver;
 
     protected static Long startTime = System.currentTimeMillis() / 1000;
-    protected static int timeForExperiment = 180 * 60; //minutes * seconds -- set to 0 if you want to run indefinitely.
+//    protected static int timeForExperiment = 60 * 60; //180 * 60; //minutes * seconds -- set to 0 if you want to run indefinitely.
 
     public BranchListener(Config conf, JPF jpf) {
         jpf.addPublisherExtension(ConsolePublisher.class, this);
@@ -83,7 +83,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
 
         if (conf.hasValue("coverageMode")) {
-            if (conf.getInt("coverageMode") == 1) coverageMode = CoverageMode.COLLECT_COVERAGE;
+            if (conf.getInt("coverageMode") == 1) coverageMode = CoverageMode.SPF;
             else if (conf.getInt("coverageMode") == 2) coverageMode = CoverageMode.COLLECT_PRUNE;
             else if (conf.getInt("coverageMode") == 3) coverageMode = CoverageMode.COLLECT_GUIDE;
             else if (conf.getInt("coverageMode") == 4) coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
