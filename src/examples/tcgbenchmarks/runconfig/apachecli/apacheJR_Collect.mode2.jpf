@@ -27,7 +27,7 @@ symbolic.optimizechoices=false
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/apachecli/CLI.class
 
 
-veritestingMode = 3
+veritestingMode = 2
 coverageMode=5
 performanceMode=true
 evaluationMode=true

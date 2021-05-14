@@ -20,8 +20,8 @@ import java.util.List;
 
 import static gov.nasa.jpf.symbc.VeritestingListener.coverageCriteria;
 import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
-import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.ELSE;
-import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.THEN;
+import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.NOT_TAKEN;
+import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.TAKEN;
 import static za.ac.sun.cs.green.expr.Operation.Operator.OR;
 
 
@@ -80,8 +80,8 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
         Stmt elseStmt = a.elseStmt.accept(this);
         if ((thenStmt instanceof SPFCaseStmt) && (elseStmt instanceof SPFCaseStmt)) { //attempting to collapse unnecessary nodes
             if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) { // we need to keep track of obligation statements that are on the path for spf, we should take them out of the summary as their satisfaction is incomplete if one would look only at the summary on this path
-                addOblgToSPF(a, THEN);
-                addOblgToSPF(a, ELSE);
+                addOblgToSPF(a, TAKEN);
+                addOblgToSPF(a, NOT_TAKEN);
             }
             s = new SPFCaseStmt(oldSPFCondition, SPFCaseStmt.SPFReason.MULTIPLE);
             spfCaseSet.remove(thenStmt);
@@ -89,10 +89,10 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
             spfCaseSet.add((SPFCaseStmt) s);
         } else if (thenStmt instanceof SPFCaseStmt) {
             s = elseStmt;
-            addOblgToSPF(a, THEN);
+            addOblgToSPF(a, TAKEN);
         } else if (elseStmt instanceof SPFCaseStmt) {
             s = thenStmt;
-            addOblgToSPF(a, ELSE);
+            addOblgToSPF(a, NOT_TAKEN);
         } else
             s = new IfThenElseStmt(a.original, a.condition, thenStmt, elseStmt, a.genuine, a.isByteCodeReversed, a.generalOblg);
         spfCondition = oldSPFCondition;
@@ -108,11 +108,11 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
         if (a.condition instanceof ComplexExpr) {
             conditionReverseStatus = ((ComplexExpr) a.condition).isRevered;
             if (conditionReverseStatus) {
-                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.ELSE);
-                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.THEN);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.NOT_TAKEN);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.TAKEN);
             } else {
-                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.ELSE);
-                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.THEN);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.NOT_TAKEN);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.TAKEN);
             }
         } else {
             if (a.generalOblg == null) { //in case of jrInternal variable for early returns
@@ -121,14 +121,14 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
                 return;
             }
             if (conditionReverseStatus) {
-                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.ELSE);
-                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.THEN);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.NOT_TAKEN);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.TAKEN);
             } else {
-                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.ELSE);
-                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.THEN);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.NOT_TAKEN);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.TAKEN);
             }
         }
-        if (side == THEN)
+        if (side == TAKEN)
             spfcasesOblgList.add(thenOblg);
         else
             spfcasesOblgList.add(elseOblg);
@@ -136,7 +136,7 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
 
         CollectOblgInSide collectOblgInSide = new CollectOblgInSide(new ExprMapVisitor());
 
-        if (side == THEN)
+        if (side == TAKEN)
             a.thenStmt.accept(collectOblgInSide);
         else
             a.elseStmt.accept(collectOblgInSide);

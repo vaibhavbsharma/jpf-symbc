@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc.veritesting.ChoiceGenerator;
 
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.symbc.VeritestingListener;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.bytecode.IFNONNULL;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
@@ -11,6 +12,7 @@ import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.RegionHitExactHeuristic;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.ssaToAst.CreateStaticRegions;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.MethodInfo;
 import gov.nasa.jpf.vm.StackFrame;
@@ -18,7 +20,10 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.Operation;
 
+import static gov.nasa.jpf.symbc.VeriBranchListener.coverSPFCaseObligation;
 import static gov.nasa.jpf.symbc.VeritestingListener.*;
+import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.NOT_TAKEN;
+import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.TAKEN;
 import static gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager.regionHeuristicFinished;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.throwException;
@@ -64,7 +69,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
     public StaticBranchChoiceGenerator(DynamicRegion region, Instruction instruction, boolean heuristicsOn) {
         super(5, region, instruction);
         if (!heuristicsOn) {
-            if(verboseVeritesting)
+            if (verboseVeritesting)
                 System.out.println("heuristics must be on to be able to use the heuristics choice generator!");
             assert false;
         }
@@ -95,7 +100,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
             System.out.println("\n=========Executing static region choice in BranchCG");
             nextInstruction = VeritestingListener.setupSPF(ti, instructionToExecute, getRegion(), STATIC_CHOICE);
 
-            if(heuristicsCountingMode){
+            if (heuristicsCountingMode) {
                 MethodInfo methodInfo = instructionToExecute.getMethodInfo();
                 String className = methodInfo.getClassName();
                 String methodName = methodInfo.getName();
@@ -108,9 +113,9 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
                 RegionHitExactHeuristic regionHitExactHeuristic = HeuristicManager.getRegionHeuristic();
                 assert !regionHitExactHeuristic.getRegionStatus();
                 if (region.totalNumPaths != regionHitExactHeuristic.getPathCount()) {
-                    if(verboseVeritesting)
+                    if (verboseVeritesting)
                         System.out.println("** warning: our estimated path count (" + region.totalNumPaths +
-                            ") does not match exact path count (" + regionHitExactHeuristic.getPathCount());
+                                ") does not match exact path count (" + regionHitExactHeuristic.getPathCount());
                 }
                 regionHitExactHeuristic.setEstimatedPathCount(region.totalNumPaths);
             }
@@ -145,6 +150,13 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
                 case OTHER:
                     throwException(new StaticRegionException("Error: Branch choice generator instantiated on non-branch instruction!"), INSTANTIATION);
             }
+
+            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+                if (!ti.getVM().getSystemState().isIgnored()) {
+                    ObligationSide oblgSide = nextInstruction == (((IfInstruction) instructionToExecute).getTarget()) ? TAKEN : NOT_TAKEN;
+                    coverSPFCaseObligation(oblgSide, instructionToExecute);
+                }
+            }
         }
         if (choice == THEN_CHOICE || choice == ELSE_CHOICE) {
             System.out.println("\n=========Executing" + (choice == THEN_CHOICE ? " then " : " else ") + ".  Instruction: ");
@@ -161,6 +173,12 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
                     break;
                 case OTHER:
                     throwException(new StaticRegionException("Error: Branch choice generator instantiated on non-branch instruction!"), INSTANTIATION);
+            }
+            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+                if (!ti.getVM().getSystemState().isIgnored()) {
+                    ObligationSide oblgSide = nextInstruction == (((IfInstruction) instructionToExecute).getTarget()) ? TAKEN : NOT_TAKEN;
+                    coverSPFCaseObligation(oblgSide, instructionToExecute);
+                }
             }
         }
         if (choice == RETURN_CHOICE) { //early returns choice happened
@@ -307,7 +325,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
             setPC(pc.make_copy(), HEURISTICS_THEN_CHOICE);
             setPC(pc.make_copy(), HEURISTICS_ELSE_CHOICE);
             Instruction endIns = VeritestingListener.advanceSpf(ti, instructionToExecute, region, false);
-            RegionHitExactHeuristic regionHitExactHeuristic = new RegionHitExactHeuristic(key, endIns, endIns.getMethodInfo() , 0);
+            RegionHitExactHeuristic regionHitExactHeuristic = new RegionHitExactHeuristic(key, endIns, endIns.getMethodInfo(), 0);
             /*if(!HeuristicManager.addRegionExactHeuristic(regionHitExactHeuristic))
                 this.heuristicsCountingMode = false;*/
             HeuristicManager.addRegionExactHeuristic(regionHitExactHeuristic);
@@ -347,7 +365,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
     }
 
     public static int getNumSatChoices(DynamicRegion region) {
-        int count  = 0;
+        int count = 0;
         count += isSatGreenExpression(region.regionSummary) != ExprUtil.SatResult.FALSE ? 1 : 0;
         if (veritestingMode >= 4) count += region.spfCaseList.casesList.size();
         if (veritestingMode == 5) count += region.earlyReturnResult.hasER() ? 1 : 0;

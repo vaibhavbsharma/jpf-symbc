@@ -1,10 +1,6 @@
 package gov.nasa.jpf.symbc.branchcoverage.reachability;
 
 import com.ibm.wala.classLoader.IMethod;
-import com.ibm.wala.ipa.callgraph.AnalysisCacheImpl;
-import com.ibm.wala.ipa.callgraph.AnalysisOptions;
-import com.ibm.wala.ipa.callgraph.IAnalysisCacheView;
-import com.ibm.wala.ipa.callgraph.impl.Everywhere;
 import com.ibm.wala.ssa.*;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.util.collections.HashSetFactory;
@@ -38,7 +34,7 @@ public class ObligationReachability {
         this.ir = ir;
         this.cfg = ir.getControlFlowGraph();
         SSACFG.BasicBlock branchBB = cfg.getBlockForInstruction(ifInst.iIndex());
-        if (side == ObligationSide.ELSE) //getting the "then" successor - they are filliped in WALA
+        if (side == ObligationSide.NOT_TAKEN) //getting the "then" successor - they are filliped in WALA
             interestingSuccBB = getNotTakenSuccessor(cfg, branchBB);
         else { //getting the "else" successor
             interestingSuccBB = getTakenSuccessor(cfg, branchBB);

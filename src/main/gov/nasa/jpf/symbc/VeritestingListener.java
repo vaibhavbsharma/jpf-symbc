@@ -444,12 +444,11 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
             runOnSamePath(ti, instructionToExecute, dynRegion);
             System.out.println("------------- Region was successfully veritested --------------- ");
-
+            veritestingSuccessful = true;
         } else {
             checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             runVeritestingWithSPF(ti, vm, instructionToExecute, staticRegion, key);
         }
-        veritestingSuccessful = true;
     }
 
     private void checkRegionStackInputOutput(ThreadInfo ti, StaticRegion staticRegion, Instruction instructionToExecute)
@@ -571,6 +570,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 if (optimizedChoices(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
                     if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
                         VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
+                    veritestingSuccessful = true;
                     return;
                 }
 
@@ -585,6 +585,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             statisticManager.updateVeriSuccForRegion(key);
             ++VeritestingListener.veritestRegionCount;
             System.out.println("------------- Region was successfully veritested --------------- ");
+            veritestingSuccessful = true;
 
         } else {
 
@@ -601,6 +602,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
                 }
 
                 ti.setNextPC(nextInstruction);
+                veritestingSuccessful = true;
             }
         }
     }

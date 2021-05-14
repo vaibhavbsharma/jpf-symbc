@@ -157,8 +157,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     protected void prunOrGuideSPF(ThreadInfo ti, Instruction instructionToExecute) {
 
-        Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.THEN);
-        Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.ELSE);
+        Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.TAKEN);
+        Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.NOT_TAKEN);
 
 
         Obligation[] uncoveredReachThenOblg = ObligationMgr.isReachableOblgsCovered(oblgThen);
@@ -221,9 +221,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
 
         ObligationSide oblgSide;
-        if (((IfInstruction) executedInstruction).getTarget() == nextInst) oblgSide = ObligationSide.THEN;
+        if (((IfInstruction) executedInstruction).getTarget() == nextInst) oblgSide = ObligationSide.TAKEN;
         else {
-            oblgSide = ObligationSide.ELSE;
+            oblgSide = ObligationSide.NOT_TAKEN;
             assert (executedInstruction).getNext() == nextInst;
         }
 

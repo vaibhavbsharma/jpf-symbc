@@ -42,8 +42,8 @@ public class CoverageUtil {
         String methodSig = m.getSelector().toString();
         int instLine = getWalaInstLineNum(m, inst);
 
-        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN);
-        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE);
+        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.TAKEN);
+        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.NOT_TAKEN);
 
         oblgs.add(oblgThen);
         oblgs.add(oblgElse);

@@ -29,8 +29,8 @@ public class ObligationMgr {
     }
 
     public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, SSACFG.BasicBlock blockForOblg, Pair<Set<String>, HashSet<Obligation>> reacheableThenOblgs, Pair<Set<String>, HashSet<Obligation>> reacheableElseOblgs) {
-        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN, reacheableThenOblgs.getFirst());
-        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE, reacheableElseOblgs.getFirst());
+        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.TAKEN, reacheableThenOblgs.getFirst());
+        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.NOT_TAKEN, reacheableElseOblgs.getFirst());
 
         if (oblgExists(oblgElse)) return;
 
@@ -45,8 +45,8 @@ public class ObligationMgr {
 
 
     public static void addOblgMap(String walaPackageName, String className, String methodSig, int instLine, SSAInstruction inst, SSACFG.BasicBlock blockForOblg) {
-        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.THEN);
-        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.ELSE);
+        Obligation oblgThen = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.TAKEN);
+        Obligation oblgElse = new Obligation(walaPackageName, className, methodSig, instLine, inst, ObligationSide.NOT_TAKEN);
 
         if (oblgExists(oblgElse)) return;
 

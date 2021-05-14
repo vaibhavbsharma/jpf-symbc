@@ -99,11 +99,11 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
         if (a.condition instanceof ComplexExpr) {
             conditionReverseStatus = ((ComplexExpr) a.condition).isRevered;
             if (conditionReverseStatus) {
-                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.ELSE);
-                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.THEN);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.NOT_TAKEN);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.TAKEN);
             } else {
-                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.ELSE);
-                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.THEN);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.NOT_TAKEN);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(((ComplexExpr) a.condition).generalOblg, ObligationSide.TAKEN);
             }
         } else {
             if (a.generalOblg == null) { //in case of jrInternal variable for early returns
@@ -112,11 +112,11 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
                         newElse, a.genuine, a.isByteCodeReversed, a.generalOblg);
             }
             if (conditionReverseStatus) {
-                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.ELSE);
-                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.THEN);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.NOT_TAKEN);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.TAKEN);
             } else {
-                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.ELSE);
-                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.THEN);
+                elseOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.NOT_TAKEN);
+                thenOblg = VeriObligationMgr.createOblgFromGeneral(a.generalOblg, ObligationSide.TAKEN);
             }
         }
 

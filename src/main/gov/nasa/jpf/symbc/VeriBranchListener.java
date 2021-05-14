@@ -9,8 +9,10 @@ import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageStatistics;
 import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
 import gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.StaticBranchChoiceGenerator;
@@ -132,16 +134,32 @@ public class VeriBranchListener extends BranchListener {
         if ((executedInstruction instanceof IfInstruction)) {
 //            isSymBranchInst = SpfUtil.isSymCond(currentThread, instructionToExecute);
 //            if (isSymBranchInst && !VeritestingListener.veritestingSuccessful)
-            boolean isSPFCasesChoice;
+            /*boolean isSPFCasesChoice;
             if (spfCasesHeuristicsOn)
                 isSPFCasesChoice = (vm.getChoiceGenerator() instanceof StaticBranchChoiceGenerator && (((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 3 || ((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 4));
             else
-                isSPFCasesChoice = (vm.getChoiceGenerator() instanceof StaticBranchChoiceGenerator && (((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 1 || ((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 2));
-            if (!VeritestingListener.veritestingSuccessful || isSPFCasesChoice)
+                isSPFCasesChoice = (vm.getChoiceGenerator() instanceof StaticBranchChoiceGenerator && (((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 1 || ((StaticBranchChoiceGenerator) vm.getChoiceGenerator()).getNextChoice() == 2));*/
+            if (!VeritestingListener.veritestingSuccessful)
                 super.instructionExecuted(vm, currentThread, nextInstruction, executedInstruction);
         }
     }
 
+
+    public static void coverSPFCaseObligation(ObligationSide oblgSide, Instruction instruction) {
+        Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) instruction, oblgSide);
+        if (ObligationMgr.oblgExists(oblg)) {
+            if (!evaluationMode) System.out.println("after: " + instruction + "---- obligation is: " + oblg);
+
+            if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
+                assert coverageStatistics != null : "coverageStatistics cannot be null, this is probably a configuration problem. Assumption violated. Failing.";
+                if (!evaluationMode) System.out.println("New coverage found -- " + oblg);
+                coverageStatistics.recordObligationCovered(oblg);
+                if (!newCoverageFound) {
+                    newCoverageFound = true;
+                }
+            }
+        }
+    }
     @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (!evaluationMode) System.out.println("end of thread");

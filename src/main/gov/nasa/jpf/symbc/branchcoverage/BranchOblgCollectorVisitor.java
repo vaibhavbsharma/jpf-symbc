@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import static gov.nasa.jpf.symbc.BranchListener.coverageExclusions;
 import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil.UNKNOWN_PACKAGE;
 
@@ -70,8 +69,8 @@ public class BranchOblgCollectorVisitor extends SSAInstruction.Visitor {
         if (((coverageMode == CoverageMode.COLLECT_GUIDE) ||
                 (coverageMode == CoverageMode.COLLECT_PRUNE) ||
                 (coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE))) {
-            Pair<Set<String>, HashSet<Obligation>> reacheableMethodThenOblgsPair = (new ObligationReachability(ir, inst, ObligationSide.THEN)).reachableObligations();
-            Pair<Set<String>, HashSet<Obligation>> reacheableMethodElseOblgsPair = (new ObligationReachability(ir, inst, ObligationSide.ELSE)).reachableObligations();
+            Pair<Set<String>, HashSet<Obligation>> reacheableMethodThenOblgsPair = (new ObligationReachability(ir, inst, ObligationSide.TAKEN)).reachableObligations();
+            Pair<Set<String>, HashSet<Obligation>> reacheableMethodElseOblgsPair = (new ObligationReachability(ir, inst, ObligationSide.NOT_TAKEN)).reachableObligations();
 
             ObligationMgr.addOblgMap(walaPackageName, className, methodSig, instLine, inst, ir.getControlFlowGraph().getBlockForInstruction(inst.iIndex()), reacheableMethodThenOblgsPair, reacheableMethodElseOblgsPair);
         } else
