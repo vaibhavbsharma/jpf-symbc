@@ -15,13 +15,13 @@ MAX_STEPS=1 && export MAX_STEPS
 
 echo "maxsteps is $MAX_STEPS"
 
-mkdir $COVERAGEDIR/logs/log_printtokens
-mkdir $COVERAGEDIR/logs/log_printtokens/partialproblem
+mkdir $COVERAGEDIR/logs/log_printtokens2
+mkdir $COVERAGEDIR/logs/log_printtokens2/partialproblem
 
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensCollect.jpf >& $COVERAGEDIR/logs/log_printtokens/partialproblem/printtokensCollect_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensCollect.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensCollect_steps$MAX_STEPS.log
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_printtokens/partialproblem/printtokensJRCollect.mode2_steps$MAX_STEPS.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_printtokens/partialproblem/printtokensJRCollect.mode3_steps$MAX_STEPS.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_printtokens/partialproblem/printtokensJRCollect.mode4_steps$MAX_STEPS.log
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_printtokens/partialproblem/printtokensJRCollect.mode5_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode2_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode3_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode4_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode5_steps$MAX_STEPS.log
