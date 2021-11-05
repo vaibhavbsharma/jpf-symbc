@@ -428,7 +428,8 @@ public class PathCondition implements Comparable<PathCondition> {
     }
 
     public String stringPC() {
-        return "constraint # = " + count + ((header == null) ? "" : "\n" + header.stringPC());
+        //return "constraint # = " + count + ((header == null) ? "" : "\n" + header.stringPC());
+    	return ((header == null) ? "" : "\n" + header.stringPC());
     }
 
     public String toString() {
@@ -444,7 +445,14 @@ public class PathCondition implements Comparable<PathCondition> {
         // specialization
         // + "\n" + spc.toString(); // TODO: to review
     }
-
+    
+    public String prefix_notationPC4Z3() {
+        return header.prefix_notationPC4Z3();
+        // return ((header == null) ? "" : " " + header.toString()); -- for
+        // specialization
+        // + "\n" + spc.toString(); // TODO: to review
+    }
+    
     public static PathCondition getPC(MJIEnv env) {
         VM vm = env.getVM();
         return getPC(vm);
