@@ -163,7 +163,7 @@ class GreenPbTranslator extends Visitor {
                     Expr addVal = (Expr) context.plus(l, r);
                     String[] dp = SymbolicInstructionFactory.dp;
 
-                    if (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) {
+                    if ((dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) && SymbolicInstructionFactory.bvlength == 64) {
                         if (allIntOperands(operation)) {
                             Expr shiftLVal = (Expr) context.shiftL(addVal, 32);
                             Expr shiftRLVal = (Expr) context.shiftR(shiftLVal, 32);
@@ -174,7 +174,7 @@ class GreenPbTranslator extends Visitor {
                 case SUB:
                     Expr subVal = (Expr) context.minus(l, r);
                     dp = SymbolicInstructionFactory.dp;
-                    if (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) {
+                    if ((dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) && SymbolicInstructionFactory.bvlength == 64) {
                         if (allIntOperands(operation)) {
                             Expr shiftLVal = (Expr) context.shiftL(subVal, 32);
                             Expr shiftRLVal = (Expr) context.shiftR(shiftLVal, 32);
@@ -185,7 +185,7 @@ class GreenPbTranslator extends Visitor {
                 case MUL:
                     Expr mulVal = (Expr) context.mult(l, r);
                     dp = SymbolicInstructionFactory.dp;
-                    if (dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) {
+                    if ((dp[0].equalsIgnoreCase("z3bitvector") || dp[0].equalsIgnoreCase("z3bitvectorinc")) && SymbolicInstructionFactory.bvlength == 64) {
                         if (allIntOperands(operation)) {
                             Expr shiftLVal = (Expr) context.shiftL(mulVal, 32);
                             Expr shiftRLVal = (Expr) context.shiftR(shiftLVal, 32);
