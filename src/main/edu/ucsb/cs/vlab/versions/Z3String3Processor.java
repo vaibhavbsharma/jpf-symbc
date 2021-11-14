@@ -57,8 +57,8 @@ public class Z3String3Processor {
 		params.add("str.aggressive_value_testing", SymbolicInstructionFactory.z3str3_aggressive_value_testing);
 		params.add("str.fast_length_tester_cache", SymbolicInstructionFactory.z3str3_fast_length_tester_cache);
 		params.add("str.fast_value_tester_cache", SymbolicInstructionFactory.z3str3_fast_value_tester_cache);
-		params.add("str.fixed_length_naive_cex", SymbolicInstructionFactory.z3str3_fixed_length_naive_cex);
-		params.add("str.fixed_length_refinement", SymbolicInstructionFactory.z3str3_fixed_length_refinement);
+//		params.add("str.fixed_length_naive_cex", SymbolicInstructionFactory.z3str3_fixed_length_naive_cex);
+//		params.add("str.fixed_length_refinement", SymbolicInstructionFactory.z3str3_fixed_length_refinement);
 		params.add("str.string_constant_cache", SymbolicInstructionFactory.z3str3_string_constant_cache);
 		params.add("str.strong_arrangements", SymbolicInstructionFactory.z3str3_strong_arrangements);
 

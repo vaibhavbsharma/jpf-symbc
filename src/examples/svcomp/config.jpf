@@ -10,7 +10,7 @@
 #target=svcomp.nanoxml_eqchk.MainProp3
 #target=svcomp.SatFibonacci01.Main
 #target=svcomp.VeritestingPerf.Main
-target=svcomp.array1.Main
+#target=svcomp.array1.Main
 #target=svcomp.nanoxml_eqchk.MainProp1
 #target=svcomp.StringBuilderChars03.Main
 #target=svcomp.shifting2.Main
@@ -44,10 +44,13 @@ target=svcomp.array1.Main
 #target=svcomp.Tsp_FunSat01.Main
 #target=svcomp.Tsp_FunUnsat01.Main
 #target=svcomp.Tsp_MemUnsat01.Main
+target=svcomp.securibench.Sanitizers6.Main
 
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
 symbolic.dp=z3bitvector
+#symbolic.string_dp=z3str3
+symbolic.string_dp=igen
 #symbolic.dp=z3bitvectorinc
 symbolic.min_int=-2147483648
 symbolic.max_int=2147483647
@@ -55,17 +58,16 @@ symbolic.min_double=-10000.0
 symbolic.max_double=10000.0
 symbolic.bvlength=64
 search.depth_limit=13
-symbolic.strings=false
-symbolic.string_dp=z3str
-symbolic.lazy=on 
+symbolic.strings=true
+symbolic.lazy=on
 #symbolic.arrays=true
 symbolic.jrarrays=true
 veritestingMode = 5
 recursiveDepth= 200
-listener = .symbc.VeritestingListener
+#listener = .symbc.VeritestingListener
 #,.symbc.SymbolicListener
 #listener = .symbc.SymbolicListener
-#,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
+listener = gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 singlePathOptimization=true
 #symbolic.optimizechoices=false
 

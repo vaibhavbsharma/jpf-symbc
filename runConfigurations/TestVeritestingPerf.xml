@@ -24,6 +24,8 @@
     </option>
     <envs>
       <env name="TARGET_CLASSPATH_WALA" value="../../jpf-core-veritesting/build/jpf.jar:../../jpf-core-veritesting/build/RunJPF.jar:../build/jpf-symbc.jar:../build/tests" />
+      <env name="LD_LIBRARY_PATH" value="$PROJECT_DIR$/lib/" />
+
     </envs>
     <patterns />
     <method>
