@@ -6,8 +6,11 @@
     <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/src/MerArbiter-v2/merarbiterSPF.jpf" />
     <option name="WORKING_DIRECTORY" value="lib" />
     <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="ALTERNATIVE_JRE_PATH" value="1.8 (1)" />
     <envs>
       <env name="TARGET_CLASSPATH_WALA" value="../build/MerArbiter-v2" />
+      <env name="LD_LIBRARY_PATH" value="$PROJECT_DIR$/lib/" />
+
       <env name="MAX_STEPS" value="3" />
     </envs>
     <method v="2">

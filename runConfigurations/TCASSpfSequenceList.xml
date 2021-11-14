@@ -9,6 +9,8 @@
     <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
     <envs>
       <env name="TARGET_CLASSPATH_WALA" value="../build/examples/" />
+      <env name="LD_LIBRARY_PATH" value="$PROJECT_DIR$/lib/" />
+
       <env name="MAX_STEPS" value="1" />
     </envs>
     <method v="2">

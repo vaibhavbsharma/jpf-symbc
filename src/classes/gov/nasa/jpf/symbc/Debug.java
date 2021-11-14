@@ -44,6 +44,7 @@ public class Debug {
     native public static void printPC(String msg);
     native public static String getSolvedPC();
     native public static String getPC_prefix_notation();
+    native public static String PC4Z3();
 
     native public static String getSymbolicIntegerValue(int v);
     native public static String getSymbolicLongValue(long v);
@@ -51,6 +52,7 @@ public class Debug {
     native public static String getSymbolicByteValue(byte v);
     native public static String getSymbolicCharValue(char v);
     native public static String getSymbolicRealValue(double v);
+    native public static String getSymbolicRealValue4Z3(double v);
     native public static String getSymbolicBooleanValue(boolean v);
     native public static String getSymbolicStringValue(String v);
     
@@ -60,7 +62,7 @@ public class Debug {
     native public static byte addSymbolicByte(byte v, String name);
     native public static char addSymbolicChar(char v, String name);
     native public static double addSymbolicDouble(double v, String name);
-    //native public static boolean addSymbolic(boolean v, String name);
+    native public static boolean addSymbolicBoolean(boolean v, String name);
     //native public static String addSymbolic(String v, String name);
     
     native public static boolean isSymbolicInteger(int v);

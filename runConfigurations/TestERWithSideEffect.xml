@@ -6,9 +6,11 @@
     <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/src/examples/veritesting/ERWithSideEffect.jpf" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/lib" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+    <option name="ALTERNATIVE_JRE_PATH" value="1.8 (1)" />
     <envs>
       <env name="TARGET_CLASSPATH_WALA" value="../build/examples/" />
+      <env name="LD_LIBRARY_PATH" value="$PROJECT_DIR$/lib/" />
+
       <env name="MAX_STEPS" value="1" />
     </envs>
     <method v="2">

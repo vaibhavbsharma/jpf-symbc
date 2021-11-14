@@ -53,14 +53,14 @@ public class Z3Interface {
 		if (Z3Version == null) {
 			Z3Version = decideZ3Version();
 		}
-		process = Runtime.getRuntime().exec("./lib/z3 -smt2 -in -m");
+		process = Runtime.getRuntime().exec("../lib/z3 -smt2 -in -m");
 		stdin = process.getOutputStream();
 		stdout = process.getInputStream();
 		brCleanUp = new BufferedReader (new InputStreamReader (stdout));
 	}
 	
 	public String decideZ3Version() throws IOException {
-		process = Runtime.getRuntime().exec("./lib/z3 -version");
+		process = Runtime.getRuntime().exec("../lib/z3 -version");
 		stdout = process.getInputStream();
 		brCleanUp = new BufferedReader (new InputStreamReader (stdout));
 		String line = brCleanUp.readLine();

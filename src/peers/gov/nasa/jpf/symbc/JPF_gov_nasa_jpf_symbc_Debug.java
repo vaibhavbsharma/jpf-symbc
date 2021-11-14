@@ -101,7 +101,17 @@ public class JPF_gov_nasa_jpf_symbc_Debug extends NativePeer {
         }
         return env.newString("");
     }
-
+    @MJI
+    public static int PC4Z3(MJIEnv env, int objRef) {
+    	PathCondition pc = getPC(env);
+        if (pc != null) {
+            pc.solve();
+            return env.newString(pc.prefix_notationPC4Z3());
+        }
+        return env.newString("");
+    }
+    
+    
     @MJI
     public static int getSymbolicIntegerValue(MJIEnv env, int objRef, int v) {
         Object[] attrs = env.getArgAttributes();
@@ -201,6 +211,15 @@ public class JPF_gov_nasa_jpf_symbc_Debug extends NativePeer {
     }
 
     @MJI
+    public static int getSymbolicRealValue4Z3(MJIEnv env, int objRef, double v) {
+        Object[] attrs = env.getArgAttributes();
+        RealExpression sym_arg = (RealExpression) attrs[0];
+        if (sym_arg != null)
+            return env.newString(sym_arg.prefix_notation());
+        else
+            return env.newString(Double.toString(v));
+    }
+    @MJI
     public static int getSymbolicBooleanValue(MJIEnv env, int objRef, boolean v) {
         Object[] attrs = env.getArgAttributes();
         IntegerExpression sym_arg = (IntegerExpression) attrs[0];
@@ -259,6 +278,13 @@ public class JPF_gov_nasa_jpf_symbc_Debug extends NativePeer {
     public static double addSymbolicDouble(MJIEnv env, int objRef, double v, int stringRef) {
         String name = env.getStringObject(stringRef);
         env.setReturnAttribute(new SymbolicReal(name));//, MinMax.getVarMinDouble(name), MinMax.getVarMaxDouble(name))); Corina: to check
+        return v;
+    }
+    
+    @MJI
+    public static boolean addSymbolicBoolean(MJIEnv env, int objRef, boolean v, int stringRef) {
+        String name = env.getStringObject(stringRef);
+        env.setReturnAttribute(new SymbolicInteger(name, 0, 1));
         return v;
     }
     

@@ -11,7 +11,26 @@ public final class Verifier {
   
 /*
   public static void assume(boolean condition) {
-    Debug.assume(condition);
+    //Debug.assume(condition);
+	  if(condition) {
+		  //System.out.println("!!!!!!!!!assumption");
+		  return;
+	  }
+	  else{
+		  Verify.ignoreIf(true);
+		  System.out.println("!!!!!!!!!should ignore");
+	  }
+  }
+*/
+
+
+  public static void assume(boolean condition) {
+    if(condition) {
+      return;
+    }
+    else{
+      Verify.ignoreIf(true);
+    }
   }
 */
 
