@@ -245,7 +245,9 @@ public class SymbolicStringHandler {
 				if (!th.isFirstStepInsn()) { // first time around
 					cg = new PCChoiceGenerator(2);
 					th.getVM().setNextChoiceGenerator(cg);
-					return invInst;
+					throw new RuntimeException("ERROR: Unsupported string operation.");
+					//SH: commented this for now as this is not correctly working with Z3Str3.
+//					return invInst;
 				} else {
 					handleParseFloat(invInst, th);
 					return invInst.getNext(th);
@@ -255,7 +257,9 @@ public class SymbolicStringHandler {
 				if (!th.isFirstStepInsn()) { // first time around
 					cg = new PCChoiceGenerator(2);
 					th.getVM().setNextChoiceGenerator(cg);
-					return invInst;
+					throw new RuntimeException("ERROR: Unsupported string operation.");
+					//SH: commented this for now as this is not correctly working with Z3Str3.
+//					return invInst;
 				} else {
 					handleParseLong(invInst, th);
 					return invInst.getNext(th);
@@ -265,7 +269,9 @@ public class SymbolicStringHandler {
 				if (!th.isFirstStepInsn()) { // first time around
 					cg = new PCChoiceGenerator(2);
 					th.getVM().setNextChoiceGenerator(cg);
-					return invInst;
+					throw new RuntimeException("ERROR: Unsupported string operation.");
+					//SH: commented this for now as this is not correctly working with Z3Str3.
+//					return invInst;
 				} else {
 					handleParseDouble(invInst, th);
 					return invInst.getNext(th);
