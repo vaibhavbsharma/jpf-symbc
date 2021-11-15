@@ -3,16 +3,16 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -161,10 +161,10 @@ public class PathCondition implements Comparable<PathCondition> {
 
     //Added by Aymeric
     public void _initializeArray(InitExpression ie, ArrayExpression ae) {
-      Constraint t;
-      flagSolved = false;
-      t = new ArrayConstraint(ie, Comparator.EQ, ae);
-      prependUnlessRepeated(t);
+        Constraint t;
+        flagSolved = false;
+        t = new ArrayConstraint(ie, Comparator.EQ, ae);
+        prependUnlessRepeated(t);
     }
 
     // Added by Gideon
@@ -419,12 +419,14 @@ public class PathCondition implements Comparable<PathCondition> {
             System.out.println("### PCs: total:" + MinMax.Debug_no_path_constraints + " sat:"
                     + MinMax.Debug_no_path_constraints_sat + " unsat:" + MinMax.Debug_no_path_constraints_unsat + "\n");
         }
-		long endTime = System.nanoTime();
-		VeritestingListener.totalSolverTime += (endTime - startTime);
+        long endTime = System.nanoTime();
+        VeritestingListener.totalSolverTime += (endTime - startTime);
         if (!result1)
             return false;
-        boolean result2 = spc.simplify(); // TODO to review: used for strings
-        return result1 && result2;
+        if (spc.toString().contains("string")) {
+            boolean result2 = spc.simplify(); // TODO to review: used for strings
+            return result1 && result2;
+        } else return result1;
     }
 
     public String stringPC() {
@@ -445,14 +447,14 @@ public class PathCondition implements Comparable<PathCondition> {
         // specialization
         // + "\n" + spc.toString(); // TODO: to review
     }
-    
+
     public String prefix_notationPC4Z3() {
         return header.prefix_notationPC4Z3();
         // return ((header == null) ? "" : " " + header.toString()); -- for
         // specialization
         // + "\n" + spc.toString(); // TODO: to review
     }
-    
+
     public static PathCondition getPC(MJIEnv env) {
         VM vm = env.getVM();
         return getPC(vm);
@@ -473,10 +475,10 @@ public class PathCondition implements Comparable<PathCondition> {
 
     /**
      * Indicates whether some other object is "equal to" this one.
-     * 
+     *
      * Note: Technically, this routine is incomplete and should take the string path
      * condition stored in field {@code spc} into account.
-     * 
+     *
      * @param obj
      *            the reference object with which to compare
      * @return {@code true} if this object is the same as the obj argument;
@@ -512,7 +514,7 @@ public class PathCondition implements Comparable<PathCondition> {
      * hash codes of the path conditions. In the event that the hash codes are
      * equal, a lexicographic comparison is made between the constraints of the path
      * conditions.
-     * 
+     *
      * @param pc
      *            the path condition to compare to
      * @return -1 if this path condition is less than the other, +1 if it is
@@ -547,10 +549,10 @@ public class PathCondition implements Comparable<PathCondition> {
 
     /**
      * Returns a hash code value for the object.
-     * 
+     *
      * Note: Technically, this routine is incomplete and should take the string path
      * condition stored in field {@code spc} into account.
-     * 
+     *
      * @return a hash code value for this object
      * @see java.lang.Object#hashCode()
      */

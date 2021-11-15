@@ -15,29 +15,31 @@ import gov.nasa.jpf.symbc.string.StringPathCondition;
 
 public class Translator<Manager extends TranslationManager> {
 	private Manager manager;
-	
+
 	public Translator(Manager manager) {
 		this.manager = manager;
 	}
-	
+
 	public String unwrap(final String result) {
 		return result;
 	}
 
-	public String translate(final StringPathCondition spc) {
-		return translate(spc, new HashSet<String>(), new HashSet<String>());
-	}
-	
-	public String translate(final PathCondition pc) {
-		return translate(pc, new HashSet<String>(), new HashSet<String>());
-	}
-	
-	public String translate(final StringPathCondition spc, final HashSet<String> additional_declaration, final HashSet<String> additional_assertions) {	
-		final StringConstraint strc = spc.header;
-		final Constraint npc = spc.getNpc().header;
+    public String translate(final StringPathCondition spc) {
+        return translate(spc, new HashSet<String>(), new HashSet<String>());
+    }
+
+    public String translate(final PathCondition pc) {
+        return translate(pc, new HashSet<String>(), new HashSet<String>());
+    }
+
+    public String translate(final StringPathCondition spc, final HashSet<String> additional_declaration, final HashSet<String> additional_assertions) {
+        final StringConstraint strc = spc.header;
+        Constraint npc = null;
+        if (spc.getNpc().header != null)
+            npc = spc.getNpc().header.toString().contains("<<") || spc.getNpc().header.toString().contains(">>") ? null : spc.getNpc().header;
 
 		final String header = getHeader();
-		
+
 		// translate the constraints
 
 		final String assertions = Arrays.asList(
@@ -47,12 +49,12 @@ public class Translator<Manager extends TranslationManager> {
 		).stream().collect(Collectors.joining("\n"));
 
 		// pull out the declarations
-		
+
 		ArrayList<String> decls = new ArrayList<String>(Arrays.asList(
 			symbolicStringDeclarations(Results.stringVariables),
 		        symbolicNumericDeclarations(Results.numericVariables)
 		));
-		
+
 		String predecls = decls.stream().collect(Collectors.joining("\n"));
 
 		for(final String added : additional_declaration) {
@@ -68,23 +70,23 @@ public class Translator<Manager extends TranslationManager> {
 
 
 		String declarations = decls.stream().collect(Collectors.joining("\n"));
-		
+
 		final String footer = getFooter();
-		
+
 		final String result = unwrap(header + "\n" + declarations + assertions + "\n" + footer);
-		
+
 		//System.out.println("Translating:");
 		//System.out.println(result);
 //		System.out.println();
-		
+
 		return result;
 	}
-	
-	public String translate(final PathCondition pc, final HashSet<String> additional_declaration, final HashSet<String> additional_assertions) {	
+
+	public String translate(final PathCondition pc, final HashSet<String> additional_declaration, final HashSet<String> additional_assertions) {
 		final Constraint npc = pc.header;
 
 		final String header = getHeader();
-		
+
 		// translate the constraints
 
 		final String assertions = Arrays.asList(
@@ -93,11 +95,11 @@ public class Translator<Manager extends TranslationManager> {
 		).stream().collect(Collectors.joining("\n"));
 
 		// pull out the declarations
-		
+
 		ArrayList<String> decls = new ArrayList<String>(Arrays.asList(
 		        symbolicNumericDeclarations(Results.numericVariables)
 		));
-		
+
 		String predecls = decls.stream().collect(Collectors.joining("\n"));
 
 		for(final String added : additional_declaration) {
@@ -113,32 +115,32 @@ public class Translator<Manager extends TranslationManager> {
 
 
 		String declarations = decls.stream().collect(Collectors.joining("\n"));
-		
+
 		final String footer = getFooter();
-		
+
 		final String result = unwrap(header + "\n" + declarations + assertions + "\n" + footer);
-		
+
 		//System.out.println("Translating:");
 		//System.out.println(result);
 //		System.out.println();
-		
+
 		return result;
 	}
-	
+
 	public String getHeader() {
 		return "";
 	}
 
 	public String getFooter() {
-		
+
 		return "(check-sat)\n(get-model)\n";
 	}
-	
+
 	public String createSymbolicDeclaration(final Set<String> symbolicVars, String type) {
-		
+
 		//return symbolicVars.parallelStream().map((var) -> "(declare-variable " + var + " " + type + ")")
 		//		.collect(Collectors.joining("\n"));
-		
+
 		// MJR 06/25/21 smt-lib 2.5 uses declare-const for variable declarations
 		return symbolicVars.parallelStream().map((var) -> "(declare-const " + var + " " + type + ")")
 				.collect(Collectors.joining("\n"));
@@ -150,5 +152,5 @@ public class Translator<Manager extends TranslationManager> {
 
 	public String symbolicNumericDeclarations(Set<String> symbolicVars) {
 		return createSymbolicDeclaration(symbolicVars, "Int");
-	}	
+	}
 }

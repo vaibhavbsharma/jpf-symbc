@@ -24,16 +24,6 @@ public final class Verifier {
 */
 
 
-  public static void assume(boolean condition) {
-    if(condition) {
-      return;
-    }
-    else{
-      Verify.ignoreIf(true);
-    }
-  }
-*/
-
 
   public static void assume(boolean condition) {
     if(condition) {

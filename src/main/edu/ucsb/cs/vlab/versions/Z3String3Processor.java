@@ -25,12 +25,12 @@ public class Z3String3Processor {
 	final Model model = new Model();
 	final StringBuilder currentQuery = new StringBuilder();
 
-	
+
 	public void send(String message) {
 		currentQuery.append(message + "\n");
 	}
 
-	
+
 	public void query(String message) {
 		currentQuery.append(message + "\n");
 
@@ -51,7 +51,7 @@ public class Z3String3Processor {
 		//params.add("fail_if_inconclusive", false);
 		params.add("smt.string_solver", "z3str3");
 
-		// SymbolicInstructionFactory populated these public vars since z3str3 was specified. 
+		// SymbolicInstructionFactory populated these public vars since z3str3 was specified.
 		params.add("str.aggressive_length_testing", SymbolicInstructionFactory.z3str3_aggressive_length_testing);
 		params.add("str.aggressive_unroll_testing", SymbolicInstructionFactory.z3str3_aggressive_unroll_testing);
 		params.add("str.aggressive_value_testing", SymbolicInstructionFactory.z3str3_aggressive_value_testing);
@@ -62,10 +62,10 @@ public class Z3String3Processor {
 		params.add("str.string_constant_cache", SymbolicInstructionFactory.z3str3_string_constant_cache);
 		params.add("str.strong_arrangements", SymbolicInstructionFactory.z3str3_strong_arrangements);
 
-		solver1.setParameters(params);	
+		solver1.setParameters(params);
 
 		// Translator added (check-sat) and (get-model) to our query. We need to remove them since we will be
-		// performing those functions through our JNI/JAR interface. The query is multiple lines, so a 
+		// performing those functions through our JNI/JAR interface. The query is multiple lines, so a
 		// reader allows us to check line by line.
 
 		final BufferedReader queryReader = new BufferedReader(new StringReader(currentQuery.toString()));
@@ -82,7 +82,7 @@ public class Z3String3Processor {
 		queryReader.close();
 
 		if (SymbolicInstructionFactory.debugMode) {
-			System.out.println("current query... " + finalQuery.toString());	
+			System.out.println("current query... " + finalQuery.toString());
 		}
 
 		// attempt to parse the query, if successful continue with checking satisfiability
@@ -98,7 +98,7 @@ public class Z3String3Processor {
 				sat = true;
 
 				if (SymbolicInstructionFactory.debugMode) {
-					System.out.println(solver1.getModel().toString());	
+					System.out.println(solver1.getModel().toString());
 				}
 
 				String returned = solver1.getModel().toString();
@@ -118,19 +118,27 @@ public class Z3String3Processor {
 				// output returned solutions and populate SPF output model.
 				System.out.println("Returned solutions: ");
 				for(String s : solutions) {
-					System.out.println(s.trim());
-					String value = s.substring(s.indexOf("\""), s.length() -1);
-					String[] parts = s.split(" ");
+					if(!s.contains(" Int ")) {
+						System.out.println(s.trim());
+						String value = s.substring(s.indexOf("\""), s.length() - 1);
+						String[] parts = s.split(" ");
 
-					model.put(parts[1], value);
+						model.put(parts[1], value);
+					}
+					else{
+						System.out.println(s.trim());
+						String value = s.substring(s.indexOf("Int ") + 3, s.length() - 1).replace("(","").replace(")","").replace(" ","");
+						String[] parts = s.split(" ");
 
+						model.put(parts[1], value);
+					}
 				}
 
 				reader.close();
 
 			} // end of sat	section
 
-			context1.close();	
+			context1.close();
 
 		}
 		catch (com.microsoft.z3.Z3Exception e) {
