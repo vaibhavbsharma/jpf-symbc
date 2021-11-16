@@ -143,6 +143,7 @@ public class Z3String3Processor {
 		}
 		catch (com.microsoft.z3.Z3Exception e) {
 			System.out.println("Z3 exception: " + e.getMessage());
+			throw new RuntimeException("ERROR: unsupported string operation");
 		}
 
 		return new Output(sat, assembleModel());
