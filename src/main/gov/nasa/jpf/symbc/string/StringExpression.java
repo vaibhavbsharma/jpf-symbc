@@ -3,16 +3,16 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -69,7 +69,7 @@ import gov.nasa.jpf.symbc.string.graph.PreProcessGraph;
 //TODO: Repeat the fix found in _charAt in other constraints
 public abstract class StringExpression extends Expression {
 
-  SymbolicInteger length = null;
+  Map<StringExpression, SymbolicLengthInteger> length = null;
   Map<String, SymbolicCharAtInteger> charAt = null;
   Map<StringExpression, SymbolicIndexOfInteger> indexOf = null;
   Map<StringExpression, SymbolicLastIndexOfInteger> lastIndexOf = null;
@@ -85,7 +85,7 @@ public abstract class StringExpression extends Expression {
 
 /* length */
   static int lengthcount = 0;
-  
+
   public IntegerExpression _charAt (IntegerExpression ie) {
 	  boolean quickSwitch = false;
 	  if (charAt == null) {
@@ -104,13 +104,17 @@ public abstract class StringExpression extends Expression {
 	  //PathCondition.flagSolved = quickSwitch;
 	  return result;
   }
-  
+
   public IntegerExpression _length() {
-    if (length == null) {
-      length = new SymbolicLengthInteger("Length_" + lengthcount + "_", 0, PreProcessGraph.MAXIMUM_LENGTH, this);
+//    if (length == null) {
+	  SymbolicLengthInteger result = new SymbolicLengthInteger("Length_" + lengthcount + "_", 0, PreProcessGraph.MAXIMUM_LENGTH, this);
       lengthcount++;
-    }
-    return length;
+	  if (length == null) {
+		  length = new HashMap<StringExpression, SymbolicLengthInteger>();
+	  }
+      length.put(this, result);
+//    }
+    return result;
   }
 
 /* indexOf */
@@ -132,7 +136,7 @@ public abstract class StringExpression extends Expression {
 	    }
 	    return sioi;
 	  }
-  
+
   public IntegerExpression _indexOf(StringExpression exp) {
 	    if (indexOf == null) {
 	      indexOf = new HashMap<StringExpression, SymbolicIndexOfInteger>();
@@ -146,8 +150,8 @@ public abstract class StringExpression extends Expression {
 	    }
 	    return sioi;
 	  }
-  
-  public IntegerExpression _lastIndexOf(StringExpression exp) { 
+
+  public IntegerExpression _lastIndexOf(StringExpression exp) {
 	    if (lastIndexOf == null) {
 	      lastIndexOf = new HashMap<StringExpression, SymbolicLastIndexOfInteger>();
 	    }
@@ -160,8 +164,8 @@ public abstract class StringExpression extends Expression {
 	    }
 	    return sioi;
   }
-  
-  public IntegerExpression _lastIndexOf(StringExpression exp, IntegerExpression ie) { 
+
+  public IntegerExpression _lastIndexOf(StringExpression exp, IntegerExpression ie) {
 	    if (lastIndexOf2 == null) {
 	      lastIndexOf2 = new HashMap<StringExpression, SymbolicLastIndexOf2Integer>();
 	    }
@@ -174,9 +178,9 @@ public abstract class StringExpression extends Expression {
 	    }
 	    return sioi;
 }
-  
-  
-  
+
+
+
   /* lastIndexof (char) */
   public IntegerExpression _lastIndexOf(IntegerExpression exp) {
 	    if (lastIndexOfChar == null) {
@@ -191,7 +195,7 @@ public abstract class StringExpression extends Expression {
 	    }
 	    return sioi;
 	  }
-  
+
   public IntegerExpression _lastIndexOf(IntegerExpression exp, IntegerExpression ie) {
 	    if (lastIndexOfChar2 == null) {
 	    	lastIndexOfChar2 = new HashMap<IntegerExpression, SymbolicLastIndexOfChar2Integer>();
@@ -205,7 +209,7 @@ public abstract class StringExpression extends Expression {
 	    }
 	    return sioi;
   }
-  
+
   /* indexof (char) */
   public IntegerExpression _indexOf(IntegerExpression exp) {
 	    if (indexOfChar == null) {
@@ -220,7 +224,7 @@ public abstract class StringExpression extends Expression {
 	    }
 	    return sioi;
   }
-  
+
   /* indexof (char, int) */
   public IntegerExpression _indexOf(IntegerExpression exp, IntegerExpression minIndex) {
 	    if (indexOfChar2 == null) {
@@ -228,8 +232,8 @@ public abstract class StringExpression extends Expression {
 	    }
 	    Set<SymbolicIndexOfChar2Integer> setSioi = indexOfChar2.get(exp);
 	    //-1 Should make our lifes much easier
-	    SymbolicIndexOfChar2Integer sioi = new SymbolicIndexOfChar2Integer("IndexOf2_" + lengthcount + "_", -1, PreProcessGraph.MAXIMUM_LENGTH, this, exp, minIndex); 
-	    
+	    SymbolicIndexOfChar2Integer sioi = new SymbolicIndexOfChar2Integer("IndexOf2_" + lengthcount + "_", -1, PreProcessGraph.MAXIMUM_LENGTH, this, exp, minIndex);
+
 	    if (setSioi == null) {
 	    	setSioi = new HashSet<SymbolicIndexOfChar2Integer>();
 	    	setSioi.add(sioi);
@@ -436,7 +440,7 @@ public RealExpression _RvalueOf() {
 		// FIXME unimplemented method
 		return 0;
 	}
- 
+
 //    public static class StringDependentNode {
 //	    StringDependentNode next;
 //	    DerivedStringExpression dependent;
