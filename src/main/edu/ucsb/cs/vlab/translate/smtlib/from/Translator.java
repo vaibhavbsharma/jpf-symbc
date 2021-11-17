@@ -37,7 +37,7 @@ public class Translator<Manager extends TranslationManager> {
         Constraint npc = null;
         if (spc.getNpc().header != null) {
 			String headerStr = spc.getNpc().header.toString();
-			npc = headerStr.contains("<<") || headerStr.contains(">>") || headerStr.contains("%") ? null : spc.getNpc().header;
+			npc = headerStr.contains("<<") || headerStr.contains(">>") || headerStr.contains("%NonLinInteger%") ? null : spc.getNpc().header;
 		}
 		final String header = getHeader();
 
