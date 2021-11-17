@@ -17,6 +17,7 @@
  */
 package gov.nasa.jpf.symbc.bytecode;
 
+import gov.nasa.jpf.symbc.string.StringSymbolic;
 import gov.nasa.jpf.vm.ClassInfo;
 import gov.nasa.jpf.vm.ElementInfo;
 import gov.nasa.jpf.vm.Heap;
@@ -56,7 +57,7 @@ public class NEW extends gov.nasa.jpf.jvm.bytecode.NEW {
 	    }
 
 	    String className = ci.getName();
-	      if(!(className.equals("java.lang.StringBuilder") || className.equals("java.lang.StringBuffer")))
+	      if(!(className.equals("java.lang.StringBuilder") ||className.equals("java.lang.String") || className.equals("java.lang.StringBuffer")))
 	    	  return super.execute(ti);
 	    
 	    if (!ci.isRegistered()){
@@ -91,7 +92,11 @@ public class NEW extends gov.nasa.jpf.jvm.bytecode.NEW {
 	    	SymbolicStringBuilder t = new SymbolicStringBuilder();
 	    	StackFrame sf = ti.getModifiableTopFrame();
 	    	sf.setOperandAttr(t);
-	    }
+	    } else if(className.equals("java.lang.String")){
+			StringSymbolic t = new StringSymbolic("temp");
+			StackFrame sf = ti.getModifiableTopFrame();
+			sf.setOperandAttr(t);
+		}
 	    // end of commented code by Java Ranger -- SH: I have uncommented this for SVComp2021
 	    
 	    return getNext(ti);
