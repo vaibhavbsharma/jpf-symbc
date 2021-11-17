@@ -14,17 +14,36 @@ import static svcomp.securibench.micro.securibench.micro.sanitizers.Sanitizers6.
 
 public class Main {
 
+//  public static void main(String[] args) {
+//    String s1 = Verifier.nondetString();
+//    HttpServletRequest req = new HttpServletRequest();
+//    HttpServletResponse res = new HttpServletResponse();
+//    req.setTaintedValue(s1);
+//
+//    Sanitizers6 sut = new Sanitizers6();
+//    try {
+//      sut.doGet(req, res);
+//    } catch (IOException e) {
+//
+//    }
+//  }
+
   public static void main(String[] args) {
     String s1 = Verifier.nondetString();
-    HttpServletRequest req = new HttpServletRequest();
-    HttpServletResponse res = new HttpServletResponse();
-    req.setTaintedValue(s1);
+    StringBuffer buf = new StringBuffer();
+    for (int i = 0; i < s1.length(); i++) {
+      char ch = s1.charAt(i);
 
-    Sanitizers6 sut = new Sanitizers6();
-    try {
-      sut.doGet(req, res);
-    } catch (IOException e) {
+      if (Character.isLetter(ch) || Character.isDigit(ch) || ch == '_') {
+        buf.append(ch);
+      } else {
+        buf.append('?');
+      }
+    }
 
+    String s = buf.toString();
+    if (s.contains("<bad/>")) {
+      assert false;
     }
   }
 }

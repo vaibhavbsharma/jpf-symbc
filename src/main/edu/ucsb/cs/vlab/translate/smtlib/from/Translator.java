@@ -35,9 +35,10 @@ public class Translator<Manager extends TranslationManager> {
     public String translate(final StringPathCondition spc, final HashSet<String> additional_declaration, final HashSet<String> additional_assertions) {
         final StringConstraint strc = spc.header;
         Constraint npc = null;
-        if (spc.getNpc().header != null)
-            npc = spc.getNpc().header.toString().contains("<<") || spc.getNpc().header.toString().contains(">>") ? null : spc.getNpc().header;
-
+        if (spc.getNpc().header != null) {
+			String headerStr = spc.getNpc().header.toString();
+			npc = headerStr.contains("<<") || headerStr.contains(">>") || headerStr.contains("%") ? null : spc.getNpc().header;
+		}
 		final String header = getHeader();
 
 		// translate the constraints
