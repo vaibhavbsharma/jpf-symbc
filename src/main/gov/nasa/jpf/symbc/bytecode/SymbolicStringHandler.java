@@ -2007,15 +2007,67 @@ public class SymbolicStringHandler {
 		if (sym_v1 == null) {
 			throw new RuntimeException("ERROR: symbolic string method must have symbolic operand: handleBooleanValueOf");
 		} else {
-			sf.pop();
+			if (!th.isFirstStepInsn()) { // first time around
+				ChoiceGenerator<?> cg;
+				cg = new PCChoiceGenerator(2);
+				th.getVM().setNextChoiceGenerator(cg);
+				return invInst;
+			}
+	/*		sf.pop();
 			StringExpression sym_v2 = StringExpression._valueOf(sym_v1);
-			int objRef = th.getHeap().newString("", th).getObjectRef(); /*
-																																	 * dummy
-																																	 * string
-																																	 * Object
-																																	 */
+			int objRef = th.getHeap().newString("", th).getObjectRef();
 			sf.push(objRef, true);
-			sf.setOperandAttr(sym_v2);
+			sf.setOperandAttr(sym_v2);*/
+			ChoiceGenerator<?> cg;
+			boolean conditionValue;
+			if (th.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
+				cg = (PCChoiceGenerator) th.getVM().getSystemState().getChoiceGenerator();
+			} else {
+				cg = th.getVM().getLastChoiceGeneratorOfType(PCChoiceGenerator.class);
+			}
+
+			assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got: " + cg;
+			conditionValue = (Integer) cg.getNextChoice() == 0 ? false : true;
+			sf.pop();
+			PathCondition pc;
+
+			ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
+			while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
+				prev_cg = prev_cg.getPreviousChoiceGenerator();
+			}
+
+			if (prev_cg == null)
+				pc = new PathCondition();
+			else
+				pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
+
+			assert pc != null;
+			StringExpression new_sym_v = new StringSymbolic("temp");
+			if (conditionValue) {
+				pc._addDet(Comparator.EQ, sym_v1, 0);
+
+				pc.spc._addDet(StringComparator.EQUALS, new_sym_v, new StringConstant("false"));
+				if (!pc.simplify()) {// not satisfiable
+					th.getVM().getSystemState().setIgnored(true);
+				} else {
+					((PCChoiceGenerator) cg).setCurrentPC(pc);
+					int temp_objRef = th.getHeap().newString("false", th).getObjectRef();
+					sf.push(temp_objRef, true);
+					sf.setOperandAttr(new_sym_v);
+				}
+			} else {
+				pc._addDet(Comparator.NE, sym_v1, 0);
+
+				pc.spc._addDet(StringComparator.EQUALS, new_sym_v, new StringConstant("true"));
+				if (!pc.simplify()) {// not satisfiable
+					th.getVM().getSystemState().setIgnored(true);
+				} else {
+					((PCChoiceGenerator) cg).setCurrentPC(pc);
+					int temp_objRef = th.getHeap().newString("true", th).getObjectRef();
+					sf.push(temp_objRef, true);
+					sf.setOperandAttr(new_sym_v);
+				}
+			}
 		}
 		return null;
 	}
