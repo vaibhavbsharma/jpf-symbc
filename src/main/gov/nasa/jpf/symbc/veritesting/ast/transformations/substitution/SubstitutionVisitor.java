@@ -7,6 +7,7 @@ import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.util.strings.Atom;
 import gov.nasa.jpf.symbc.VeritestingListener;
+import gov.nasa.jpf.symbc.string.SymbolicLengthInteger;
 import gov.nasa.jpf.symbc.veritesting.FixedPointWrapper;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.VeritestingMain;
@@ -204,7 +205,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                 .getDeclaredTarget()))
         ) {   //if the method invocation was previously discovered to be recursive in a previous fix point iteration then just
             // return, i.e., do not attempt to inline it.
-            if(verboseVeritesting)
+            if (verboseVeritesting)
                 System.out.println("Encountering an already discovered recursive method. Returning.");
             return c;
         }
@@ -249,7 +250,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                     if (isRecursiveCall(methodRef)) {//check if along the path of invocation we have encountered the same
                         // method - meaning we are in a recursive call
                         if (!isAllowedRecursiveCall(methodRef)) {
-                            if(verboseVeritesting)
+                            if (verboseVeritesting)
                                 System.out.println("recursive inlining finished for method:" + newC);
                             noFurtherInlines.add(methodRef);
                             return newC;
@@ -260,13 +261,14 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
 
                     ++StatisticManager.thisHighOrdCount;
                     String key = keyRegionPair.getFirst();
-                    if(verboseVeritesting) {
+                    if (verboseVeritesting) {
                         System.out.println("\n********** High Order Region Discovered for region: " + key + "\n");
                         System.out.println("\n---------- STARTING Inlining Transformation for region: ---------------\n" + StmtPrintVisitor.print(hgOrdStaticRegion.staticStmt) + "\n");
-                    }DynamicRegion uniqueHgOrdDynRegion = null;
+                    }
+                    DynamicRegion uniqueHgOrdDynRegion = null;
                     try {
 //                        if (VeritestingListener.coverageCriteria != CoverageCriteria.BRANCHCOVERAGE)
-                            hgOrdStaticRegion = RemoveEarlyReturns.removeEarlyReturns(hgOrdStaticRegion);
+                        hgOrdStaticRegion = RemoveEarlyReturns.removeEarlyReturns(hgOrdStaticRegion);
                         uniqueHgOrdDynRegion = UniqueRegion.execute(hgOrdStaticRegion);
                     } catch (Exception e) {
                         if (firstException == null)
@@ -555,6 +557,9 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
                     String varType = sf.getLocalVariableType(slot);
                     gov.nasa.jpf.symbc.numeric.Expression varValueExp;
                     varValueExp = (gov.nasa.jpf.symbc.numeric.Expression) sf.getLocalAttr(slot);
+                    if (varValueExp instanceof SymbolicLengthInteger)
+                        throw new StaticRegionException("Unsupported symbolic type: SymbolicLengthInteger");
+
                     if (varValueExp == null) {
                         int varValue = sf.getLocalVariable(slot);
                         varValueExp = createSPFVariableForType(sf, varValue, varType);
@@ -592,7 +597,7 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
         */
         this.instantiatedRegion = new DynamicRegion(dynRegion, dynStmt, new SPFCaseList(), null, null, dynRegion.earlyReturnResult);
 
-        if(verboseVeritesting) {
+        if (verboseVeritesting) {
             System.out.println("\n--------------- SUBSTITUTION TRANSFORMATION for: " + VeritestingListener.key + " ---------------\n");
             System.out.println(StmtPrintVisitor.print(dynRegion.dynStmt));
             dynRegion.slotParamTable.print();
@@ -624,8 +629,19 @@ public class SubstitutionVisitor extends FixedPointAstMapVisitor {
             try {
                 valueSymbolTable = SubstitutionVisitor.fillValueSymbolTable(ti, dynRegion);
             } catch (StaticRegionException e) {
+                if (valueSymbolTable == null) {
+                    //handling the case if JR was not able to fill in the valueSymbolTable that contains the valuation of the
+                    //region's input from the runtime environment of SPF. This can happen if the type of the symbolic input
+                    // happens to be of a type the JR does not yet support such as: SymbolicLengthInteger
+                    visitor = new SubstitutionVisitor(ti, dynRegion, valueSymbolTable, useVarTable, new ArrayList<>());
+                    if (visitor.firstException == null) {
+                        visitor.firstException = e;
+                        visitor.somethingChanged = false;
+                        skipRegionStrings.add("SPF symbolic string problem.");
+                        return visitor;
+                    }
+                }
                 visitor = new SubstitutionVisitor(ti, dynRegion, valueSymbolTable, useVarTable, new ArrayList<>());
-
                 visitor.firstException = e;
                 return visitor;
             }

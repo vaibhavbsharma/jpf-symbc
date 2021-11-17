@@ -116,7 +116,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public static StaticBranchChoiceGenerator advancedSBCG = null;
 
 
-    public static boolean performanceMode = true;
+    public static boolean performanceMode = false;
     // reads in a exclusionsFile configuration option, set to ${jpf-symbc}/MyJava60RegressionExclusions.txt by default
     public static String exclusionsFile;
 

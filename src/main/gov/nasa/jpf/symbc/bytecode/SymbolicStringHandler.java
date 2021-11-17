@@ -122,7 +122,8 @@ public class SymbolicStringHandler {
 				}
 			}
 			return false;
-		} else if(cname.equals("java.net.URLDecoder")){
+		} else if(cname.equals("java.net.URLDecoder") ||
+                  cname.equals("java.util.regex.Pattern")){
             throw new RuntimeException("Error: Unsupported string class, " + cname);
         }
 		else return false;

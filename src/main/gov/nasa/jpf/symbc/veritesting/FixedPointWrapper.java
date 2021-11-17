@@ -104,7 +104,6 @@ public class FixedPointWrapper {
         }
 
 
-
         Exception transformationException = currentTransformation.getFirstException();
         //TODO:This really does not propagate any exceptions that different transformations can raise. It only propagates specific exceptions from Substitution, which at this point suppresses most high order related exceptions, but propagates exceptions from jitAnalysis and earlyReturn.
         if (firstException == null)
@@ -143,19 +142,25 @@ public class FixedPointWrapper {
         FixedPointWrapper.regionBefore = dynRegion;
         DynamicRegion intermediateRegion;
 
-        if(verboseVeritesting)
+        if (verboseVeritesting)
             System.out.println("========================================= RUNNING FIXED POINT ITERATION # " + FixedPointWrapper.iterationNumber + "=========================================");
         if (FixedPointWrapper.iterationNumber > 1)
             FixedPointWrapper.resetIteration();
 
         SubstitutionVisitor substitutionVisitor = SubstitutionVisitor.create(ti, dynRegion, iterationNumber, false);
-        if(multiPathRegSymbolValueTable == null)
+        if (multiPathRegSymbolValueTable == null)
             multiPathRegSymbolValueTable = substitutionVisitor.getValueSymbolTable();
+        if (multiPathRegSymbolValueTable == null) {
+            if (FixedPointWrapper.firstException == null)
+                FixedPointWrapper.firstException = substitutionVisitor.getFirstException();
+            regionAfter = dynRegion;
+            return dynRegion;
+        }
         intermediateRegion = substitutionVisitor.execute();
         collectTransformationState(substitutionVisitor);
 
 
-        if(verboseVeritesting)
+        if (verboseVeritesting)
             System.out.println("\n--------------- FIELD REFERENCE TRANSFORMATION ---------------\n");
         FieldSSAVisitor fieldSSAVisitor = new FieldSSAVisitor(ti, intermediateRegion);
         intermediateRegion = fieldSSAVisitor.execute();
@@ -163,7 +168,7 @@ public class FixedPointWrapper {
 
 
         /* Array substitution iteration */
-        if(verboseVeritesting)
+        if (verboseVeritesting)
             System.out.println("\n--------------- ARRAY TRANSFORMATION ---------------\n");
         ArraySSAVisitor arraySSAVisitor = new ArraySSAVisitor(ti, intermediateRegion);
         intermediateRegion = arraySSAVisitor.execute();
@@ -191,7 +196,10 @@ public class FixedPointWrapper {
         FixedPointWrapper.regionBefore = dynRegion;
         DynamicRegion intermediateRegion;
 
-        if(verboseVeritesting)
+        if (FixedPointWrapper.multiPathRegSymbolValueTable == null) {
+            return dynRegion;
+        }
+        if (verboseVeritesting)
             System.out.println("========================================= RUNNING HIGH-ORDER ONE EXTRA TIME AFTER FIXED POINT ITERATION# " + FixedPointWrapper.iterationNumber + "=========================================");
         FixedPointWrapper.resetChange();
 
@@ -202,8 +210,8 @@ public class FixedPointWrapper {
 
         long endTime = System.nanoTime();
         fixedPointTime += endTime - startTime;
-
         regionAfter = intermediateRegion;
+
         return regionAfter;
     }
 }
