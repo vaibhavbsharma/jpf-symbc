@@ -92,11 +92,13 @@ public class NEW extends gov.nasa.jpf.jvm.bytecode.NEW {
 	    	SymbolicStringBuilder t = new SymbolicStringBuilder();
 	    	StackFrame sf = ti.getModifiableTopFrame();
 	    	sf.setOperandAttr(t);
-	    } else if(className.equals("java.lang.String")){
+	    }
+
+	    /*else if(className.equals("java.lang.String")){
 			StringSymbolic t = new StringSymbolic("temp");
 			StackFrame sf = ti.getModifiableTopFrame();
 			sf.setOperandAttr(t);
-		}
+		}*/
 	    // end of commented code by Java Ranger -- SH: I have uncommented this for SVComp2021
 	    
 	    return getNext(ti);

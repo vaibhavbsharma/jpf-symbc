@@ -11,26 +11,8 @@ import edu.ucsb.cs.vlab.translate.smtlib.generic.NumericConstraintTranslator;
 import edu.ucsb.cs.vlab.translate.smtlib.generic.NumericExpressionTranslator;
 import edu.ucsb.cs.vlab.translate.smtlib.generic.StringConstraintTranslator;
 import edu.ucsb.cs.vlab.translate.smtlib.generic.StringExpressionTranslator;
-import gov.nasa.jpf.symbc.numeric.BinaryLinearIntegerExpression;
-import gov.nasa.jpf.symbc.numeric.Comparator;
-import gov.nasa.jpf.symbc.numeric.IntegerConstant;
-import gov.nasa.jpf.symbc.numeric.IntegerExpression;
-import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
-import gov.nasa.jpf.symbc.string.DerivedStringExpression;
-import gov.nasa.jpf.symbc.string.StringComparator;
-import gov.nasa.jpf.symbc.string.StringConstant;
-import gov.nasa.jpf.symbc.string.StringExpression;
-import gov.nasa.jpf.symbc.string.StringSymbolic;
-import gov.nasa.jpf.symbc.string.SymbolicCharAtInteger;
-import gov.nasa.jpf.symbc.string.SymbolicIndexOf2Integer;
-import gov.nasa.jpf.symbc.string.SymbolicIndexOfChar2Integer;
-import gov.nasa.jpf.symbc.string.SymbolicIndexOfCharInteger;
-import gov.nasa.jpf.symbc.string.SymbolicIndexOfInteger;
-import gov.nasa.jpf.symbc.string.SymbolicLastIndexOf2Integer;
-import gov.nasa.jpf.symbc.string.SymbolicLastIndexOfChar2Integer;
-import gov.nasa.jpf.symbc.string.SymbolicLastIndexOfCharInteger;
-import gov.nasa.jpf.symbc.string.SymbolicLastIndexOfInteger;
-import gov.nasa.jpf.symbc.string.SymbolicLengthInteger;
+import gov.nasa.jpf.symbc.numeric.*;
+import gov.nasa.jpf.symbc.string.*;
 
 class Manager extends TranslationManager {
 
@@ -203,11 +185,18 @@ class Manager extends TranslationManager {
 			map(StringOrOperation.VALUEOF, (expr) -> {
 				String arg = null;
 				final DerivedStringExpression dse = (DerivedStringExpression) expr;
-				if (dse.oprlist[0] instanceof StringExpression) {
-					arg = manager.strExpr.collect((StringExpression) dse.oprlist[0]);
-				} else if (dse.oprlist[0] instanceof IntegerExpression) {
-					arg = manager.numExpr.collect((IntegerExpression) dse.oprlist[0]);
-				}
+				if(((DerivedStringExpression) expr).op == StringOperator.VALUEOF){
+					Expression operand = ((DerivedStringExpression) expr).oprlist[0];
+					if(operand instanceof SymbolicInteger){
+						Results.numericVariables.add(((SymbolicInteger) operand).getName());
+						return "(str.from-int " + ((SymbolicInteger) operand).getName() +")";
+					}
+				} else
+                    if (dse.oprlist[0] instanceof StringExpression) {
+                        arg = manager.strExpr.collect((StringExpression) dse.oprlist[0]);
+                    } else if (dse.oprlist[0] instanceof IntegerExpression) {
+                        arg = manager.numExpr.collect((IntegerExpression) dse.oprlist[0]);
+                    }
 
 				try {
 					Integer.parseInt(arg);

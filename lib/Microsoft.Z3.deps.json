@@ -1,13 +1,13 @@
 {
   "runtimeTarget": {
     "name": ".NETStandard,Version=v1.4/",
-    "signature": "2b5fbbb70f55dbebd64fed16c302840d9a06c582"
+    "signature": ""
   },
   "compilationOptions": {},
   "targets": {
     ".NETStandard,Version=v1.4": {},
     ".NETStandard,Version=v1.4/": {
-      "Microsoft.Z3/4.8.4": {
+      "Microsoft.Z3/4.8.9": {
         "dependencies": {
           "NETStandard.Library": "1.6.1"
         },
@@ -604,7 +604,7 @@
     }
   },
   "libraries": {
-    "Microsoft.Z3/4.8.4": {
+    "Microsoft.Z3/4.8.9": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

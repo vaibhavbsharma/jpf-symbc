@@ -3,16 +3,16 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -131,8 +131,6 @@ public class BytecodeUtils {
     /**
      * A container for BytecodeUtils.execute to return either the next instruction to execute or to tell the calling
      * method to call super.execute();
-     *
-     *
      */
     public static class InstructionOrSuper {
         private InstructionOrSuper() {
@@ -158,11 +156,9 @@ public class BytecodeUtils {
 
     /**
      * Execute INVOKESPECIAL, INVOKESTATIC, and INVOKEVIRTUAL symbolically.
-     * 
-     * @param invInst
-     *            The instance of INVOKESPECIAL, INVOKESTATIC, or INVOKEVIRTUAL
-     * @param th
-     *            The current thread info
+     *
+     * @param invInst The instance of INVOKESPECIAL, INVOKESTATIC, or INVOKEVIRTUAL
+     * @param th      The current thread info
      * @return an InstructionOrSuper instance saying what to do next.
      */
     public static InstructionOrSuper execute(JVMInvokeInstruction invInst, ThreadInfo th) {
@@ -177,7 +173,25 @@ public class BytecodeUtils {
             return new InstructionOrSuper(false,
                     th.createAndThrowException("java.lang.NoSuchMethodException", "calling " + cname + "." + mname));
         }
+       /* if (invInst.toString().equals("invokevirtual java.lang.reflect.Field.get(Ljava/lang/Object;)Ljava/lang/Object;")) {
+            if (!th.isFirstStepInsn()) { // first time around
+                return new BytecodeUtils.InstructionOrSuper(false,invInst);
+            }
+            int objectForReflection = th.getModifiableTopFrame().pop();
+            ElementInfo objectForReflectionEi = th.getElementInfo(objectForReflection);
+            if (objectForReflectionEi.getNumberOfFields() == 1) {
+                FieldInfo reflectionField = objectForReflectionEi.getFieldInfo(0);
+                Object symReflectionField = objectForReflectionEi.getFieldAttr(reflectionField);
+                if (symReflectionField != null && symReflectionField instanceof Expression) {
+                    th.getModifiableTopFrame().push(0);
+                    th.getModifiableTopFrame().setOperandAttr(th.getModifiableTopFrame().getTopPos(), symReflectionField);
+                    return new BytecodeUtils.InstructionOrSuper(false, invInst.getNext());
+                }
+            }
 
+            th.getModifiableTopFrame().push(objectForReflection);
+            return new InstructionOrSuper(true, invInst);
+        }*/
         /*
          * Here we test if the the method should be executed symbolically. We perform two checks: 1. Does the invoked
          * method correspond to a method listed in the symbolic.method property and does the number of parameters match?
@@ -207,9 +221,9 @@ public class BytecodeUtils {
                 // System.out.println("Symbolic string analysis!!!"+invInst);
                 return new InstructionOrSuper(false, handled);
             }
-        } else if (isSymbolicStringCharAt(invInst, th)){
+        } else if (isSymbolicStringCharAt(invInst, th)) {
             throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: charAt");
-        } else if (isSymbolicStringTrim(invInst, th)){
+        } else if (isSymbolicStringTrim(invInst, th)) {
             throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: trim");
         } else if (isSymbolicBuilderCharAt(invInst, th)) {
             throw new RuntimeException("ERROR: symbolic method not handled on SymbolicStringBuilder: charAt");
@@ -217,7 +231,7 @@ public class BytecodeUtils {
             throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: regionMatches (case-ignored)");
         } else if (isSymbolicStringEquals(invInst, th)) {
             throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: equals");
-        }  else if (isSymbolicStringContains(invInst, th)) {
+        } else if (isSymbolicStringContains(invInst, th)) {
             throw new RuntimeException("ERROR: symbolic method not handled on StringSymbolic: contains");
         }
         // End string handling
@@ -686,25 +700,27 @@ public class BytecodeUtils {
 
     public enum VarType {
         INT, REAL, REF, STRING
-    };
+    }
+
+    ;
 
     public static String varName(String name, VarType type) {
         String suffix = "";
         switch (type) {
-        case INT:
-            suffix = "_SYMINT";
-            break;
-        case REAL:
-            suffix = "_SYMREAL";
-            break;
-        case REF:
-            suffix = "_SYMREF";
-            break;
-        case STRING:
-            suffix = "_SYMSTRING";
-            break;
-        default:
-            throw new RuntimeException("Unhandled SymVarType: " + type);
+            case INT:
+                suffix = "_SYMINT";
+                break;
+            case REAL:
+                suffix = "_SYMREAL";
+                break;
+            case REF:
+                suffix = "_SYMREF";
+                break;
+            case STRING:
+                suffix = "_SYMSTRING";
+                break;
+            default:
+                throw new RuntimeException("Unhandled SymVarType: " + type);
         }
         return name + "_" + (symVarCounter++) + suffix;
     }

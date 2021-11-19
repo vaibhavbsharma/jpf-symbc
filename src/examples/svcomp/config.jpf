@@ -44,8 +44,8 @@
 #target=svcomp.Tsp_FunSat01.Main
 #target=svcomp.Tsp_FunUnsat01.Main
 #target=svcomp.Tsp_MemUnsat01.Main
-target=svcomp.securibench.Sanitizers2.Main
-#target=svcomp.securibench.Refl3.Main
+#target=svcomp.securibench.Sanitizers2.Main
+target=svcomp.securibench.Refl2.Main
 #target=svcomp.securibench.Aliasing1.Main
 #target=svcomp.securibench.Collections13.Main
 #Basic38 is a target to lookup problems in translating string constraints.
@@ -58,6 +58,10 @@ target=svcomp.securibench.Sanitizers2.Main
 ##target=svcomp.RegexSubstitution02.Main
 #had the problem with mod
 #target=svcomp.SatEvenOdd01.Main
+#difficult solver query.
+#target=svcomp.StringIndexMethods02.Main
+#target=svcomp.StringValueOf06.Main
+#target=svcomp.StringCompare01.Main
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
 symbolic.dp=z3bitvector
@@ -78,9 +82,9 @@ symbolic.lazy=on
 symbolic.jrarrays=true
 veritestingMode = 5
 recursiveDepth= 200
-listener = .symbc.VeritestingListener
+#listener = .symbc.VeritestingListener
 #,.symbc.SymbolicListener
-#listener = .symbc.SymbolicListener
+listener = .symbc.SymbolicListener
 #,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 singlePathOptimization=true
 #symbolic.optimizechoices=false
