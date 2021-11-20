@@ -173,25 +173,31 @@ public class BytecodeUtils {
             return new InstructionOrSuper(false,
                     th.createAndThrowException("java.lang.NoSuchMethodException", "calling " + cname + "." + mname));
         }
-       /* if (invInst.toString().equals("invokevirtual java.lang.reflect.Field.get(Ljava/lang/Object;)Ljava/lang/Object;")) {
-            if (!th.isFirstStepInsn()) { // first time around
-                return new BytecodeUtils.InstructionOrSuper(false,invInst);
-            }
-            int objectForReflection = th.getModifiableTopFrame().pop();
+        if (invInst.toString().equals("invokevirtual java.lang.reflect.Field.get(Ljava/lang/Object;)Ljava/lang/Object;")) {
+            StackFrame sf = th.getModifiableTopFrame();
+            int objectForReflection = sf.getSlot(sf.getTopPos());
             ElementInfo objectForReflectionEi = th.getElementInfo(objectForReflection);
             if (objectForReflectionEi.getNumberOfFields() == 1) {
                 FieldInfo reflectionField = objectForReflectionEi.getFieldInfo(0);
                 Object symReflectionField = objectForReflectionEi.getFieldAttr(reflectionField);
                 if (symReflectionField != null && symReflectionField instanceof Expression) {
-                    th.getModifiableTopFrame().push(0);
-                    th.getModifiableTopFrame().setOperandAttr(th.getModifiableTopFrame().getTopPos(), symReflectionField);
-                    return new BytecodeUtils.InstructionOrSuper(false, invInst.getNext());
+               /*     sf.pop();
+                    if (reflectionField.getType().equals("java.lang.String")) {
+                        int objRef = th.getHeap().newString("dummy", th).getObjectRef();
+                        sf.push(objRef, true);
+                        sf.setOperandAttr(symReflectionField);
+                    } else if (reflectionField.getType().equals("java.lang.Integer")) {
+                        sf.push(0);
+                        sf.setOperandAttr(symReflectionField);
+                    } else
+                        throw new RuntimeException("ERROR: cannot handle symbolic reference for reflection");
+                    return new BytecodeUtils.InstructionOrSuper(false, invInst.getNext());*/
+                    //SH: this code seems to be incomplete, needs further investigation. For now let's just throw an error
+                    throw new RuntimeException("ERROR: cannot handle symbolic reference for reflection");
                 }
-            }
-
-            th.getModifiableTopFrame().push(objectForReflection);
-            return new InstructionOrSuper(true, invInst);
-        }*/
+            } else
+                return new InstructionOrSuper(true, invInst);
+        }
         /*
          * Here we test if the the method should be executed symbolically. We perform two checks: 1. Does the invoked
          * method correspond to a method listed in the symbolic.method property and does the number of parameters match?

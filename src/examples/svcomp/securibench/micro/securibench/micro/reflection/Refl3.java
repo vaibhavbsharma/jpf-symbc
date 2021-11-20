@@ -37,7 +37,7 @@ public class Refl3 extends BasicTestCase implements MicroTestCase {
     PrintWriter writer = resp.getWriter();
 
     try {
-      Class clazz = Class.forName("securibench.micro.reflection.Refl3$ReflectivelyCreated");
+      Class clazz = Class.forName("svcomp.securibench.micro.securibench.micro.reflection.Refl3$ReflectivelyCreated");
       ReflectivelyCreated rc = (ReflectivelyCreated) clazz.newInstance();
       Field field = clazz.getField("value");
       field.set(rc, name);

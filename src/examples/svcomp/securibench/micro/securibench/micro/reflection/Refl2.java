@@ -39,15 +39,12 @@ public class Refl2 extends BasicTestCase implements MicroTestCase {
   }
 
   public void f(HttpServletResponse resp)
-      throws IOException, SecurityException, NoSuchFieldException, ClassNotFoundException,
+          throws IOException, SecurityException, NoSuchFieldException, ClassNotFoundException,
           IllegalArgumentException, IllegalAccessException {
     PrintWriter writer = resp.getWriter();
     Field field = Class.forName("svcomp.securibench.micro.securibench.micro.reflection.Refl2").getField("name");
     String myName = (String) field.get(this);
-    String temp = this.name;
-
     writer.println(myName); /* BAD */
-    writer.println(temp);
   }
 
   public String getDescription() {
