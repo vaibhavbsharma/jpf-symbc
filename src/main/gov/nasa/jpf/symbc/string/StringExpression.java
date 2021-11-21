@@ -106,16 +106,16 @@ public abstract class StringExpression extends Expression {
   }
 
   public IntegerExpression _length() {
-//    if (length == null) {
 	  SymbolicLengthInteger result = new SymbolicLengthInteger("Length_" + lengthcount + "_", 0, PreProcessGraph.MAXIMUM_LENGTH, this);
       lengthcount++;
 	  if (length == null) {
 		  length = new HashMap<StringExpression, SymbolicLengthInteger>();
 	  }
       length.put(this, result);
-//    }
+
     return result;
   }
+
 
 /* indexOf */
   /* TODO: should take exp and ie into account, not just exp */
