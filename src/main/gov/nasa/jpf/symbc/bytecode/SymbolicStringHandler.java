@@ -363,16 +363,19 @@ public class SymbolicStringHandler {
 
     public void handleLength(JVMInvokeInstruction invInst, ThreadInfo th) {
         StackFrame sf = th.getModifiableTopFrame();
-        StringExpression sym_v1 = (StringExpression) sf.getOperandAttr(0);
-        if (sym_v1 == null) {
-            throw new RuntimeException("ERROR: symbolic string method must have one symbolic operand: HandleLength");
-        } else {
-            sf.pop();
-            sf.push(0, false); /* dont care value for length */
-            IntegerExpression sym_v2 = sym_v1._length();
-            sf.setOperandAttr(sym_v2);
-        }
+        Expression sym_v1 = (Expression) sf.getOperandAttr(0);
+        if (sym_v1 == null)
+            return;
 
+        IntegerExpression sym_v2;
+        if (sym_v1 instanceof StringSymbolic)
+            sym_v2 = ((StringSymbolic) sym_v1)._length();
+        else if (sym_v1 instanceof SymbolicStringBuilder)
+            sym_v2 = ((SymbolicStringBuilder) sym_v1)._length();
+        else return;
+        sf.pop();
+        sf.push(0, false); /* dont care value for length */
+        sf.setOperandAttr(sym_v2);
     }
 
     public void handleIndexOf(JVMInvokeInstruction invInst, ThreadInfo th) {
@@ -810,10 +813,14 @@ public class SymbolicStringHandler {
             //throw new RuntimeException("Warning Symbolic String Analysis: Initialization type not handled in symbc/bytecode/SymbolicStringHandler init");
             StackFrame sf = th.getModifiableTopFrame();
             if (sf.getOperandAttr() instanceof StringSymbolic) {
-                /*StringSymbolic att = (StringSymbolic) sf.getOperandAttr();
-                int objRef = th.getHeap().newString("dummy", th).getObjectRef();
-                return invInst.getNext();*/
-                throw new RuntimeException("ERROR: cannot handle creation of a string from a symbolic string");
+                StringSymbolic att = (StringSymbolic) sf.getOperandAttr();
+//                int objRef = th.getHeap().newString("dummy", th).getObjectRef();
+                sf.pop();
+                sf.pop();
+//                sf.pushRef(objRef);
+                sf.setOperandAttr(att);
+                return invInst.getNext();
+//                throw new RuntimeException("ERROR: cannot handle creation of a string from a symbolic string");
             } else
                 return null;
         }
@@ -2158,7 +2165,11 @@ public class SymbolicStringHandler {
         if (sym_v2 != null) {
             // System.out.println("***" + sym_v2.toString());
             if (!(sym_v2 instanceof StringExpression)) {
-                throw new RuntimeException("ERROR: expressiontype not handled: ObjectEquals");
+                ElementInfo ei1 = th.getElementInfo(sf.getSlot(sf.getTopPos()));
+                ElementInfo ei2 = th.getElementInfo(sf.getSlot(sf.getTopPos()) - 1);
+                if (ei1.getClassInfo().equals(ei2.getClassInfo()))
+                    throw new RuntimeException("ERROR: expressiontype not handled: ObjectEquals");
+                else
             }
         }
 
@@ -2723,6 +2734,24 @@ public class SymbolicStringHandler {
             sf.setOperandAttr(sym_v2);
         }
     }
+
+/*
+    public void handleCharArrayAppend(JVMInvokeInstruction invInst, ThreadInfo th) {
+
+        StackFrame sf = th.getModifiableTopFrame();
+        Object charArray_sym = sf.getOperandAttr(0);
+        if (charArray_sym != null) {
+            throw new RuntimeException("ERROR: Cannot handle symbolic CharArrayAppend");
+        }
+        SymbolicStringBuilder stringBuilder_sym = (SymbolicStringBuilder) sf.getOperandAttr(1);
+        assert stringBuilder_sym != null : "assumption violated. Failing";
+
+        int charArrayRef = sf.pop();
+        ElementInfo charArrayEi = th.getElementInfo(charArrayRef);
+        String charStr = new String (charArrayEi.asCharArray());
+        stringBuilder_sym._append(charStr);
+        sf.setOperandAttr(stringBuilder_sym);
+    }*/
 
     public void handleStringBuilderAppend(JVMInvokeInstruction invInst, ThreadInfo th) {
 

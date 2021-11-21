@@ -438,6 +438,7 @@ public RealExpression _RvalueOf() {
 	@Override
 	public int compareTo(Expression expr) {
 		// FIXME unimplemented method
+		//One way of fixing that could be by concretrizing the length of the string, then doing the comparison over that fixed length
 		return 0;
 	}
 
