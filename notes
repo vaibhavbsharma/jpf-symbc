@@ -180,3 +180,10 @@ Result HTML: jr-mode5-depthlim12-recdepth12-assumefixed-singlpathopt-sortedlistf
 Result: 381 right, 0 wrong, total score = 559.
 ** same as best results so far in 1127 **
 
+SV-COMP2022
+* String support for z3str3 is added.
+* we need to support from string to float, and from string to a double this will help us give the right verdict on StringValueOf08 and StringValueOf09
+* NanoXml prop3, is reaching depth limit, so we return true. may be we should let it go for deeper then? I tried depth 14, and 15, but didn't seem like we are getting to the error by then.
+* boundcheck100 is reaching the timeout.
+* we have a problem with the z3 version if we use z3-4.8.9-x64-ubuntu-16.04 is does not come back, if I change the version to z3-4.8.8-x64-ubuntu-16.04 then it does not understand str.from-int
+* support a correct verdict for svcomp.StringValueOf07.Main is a possible extension.

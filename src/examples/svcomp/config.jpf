@@ -50,10 +50,10 @@
 #target=svcomp.securibench.Basic38.Main
 #target=svcomp.StringValueOf08.Main
 #target=svcomp.CharSequenceToString.Main
-#target=svcomp.URLDecoder01.Main
+target=svcomp.URLDecoder01.Main
 #target=svcomp.bug_test_gen_119.Main
-target=svcomp.RegexMatches01.Main
-##target=svcomp.RegexSubstitution02.Main
+#target=svcomp.RegexMatches01.Main
+#target=svcomp.RegexSubstitution02.Main
 #had the problem with mod
 #target=svcomp.SatEvenOdd01.Main
 #difficult solver query.
@@ -62,6 +62,12 @@ target=svcomp.RegexMatches01.Main
 #target=svcomp.StringCompare01.Main
 #target=svcomp.securibench.Refl2.Main
 #target=svcomp.securibench.Collections13.Main
+#target=svcomp.StaticCharMethods05.Main
+#target=svcomp.StringBuilderAppend02.Main
+#target=svcomp.StringBuilderCapLen03.Main
+#target=svcomp.StringCompare04.Main
+#target=svcomp.StringBuilderConstructors02.Main
+
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
 symbolic.dp=z3bitvector

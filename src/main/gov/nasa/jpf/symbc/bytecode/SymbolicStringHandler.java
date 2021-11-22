@@ -121,8 +121,9 @@ public class SymbolicStringHandler {
                 }
             }
             return false;
-        } else if (cname.equals("java.net.URLDecoder") ||
-                cname.equals("java.util.regex.Pattern")) {
+        } else if (cname.equals("java.net.URLDecoder")) {
+            throw new RuntimeException("Error: Unsupported string class, " + cname);
+        } else if (cname.equals("java.util.regex.Pattern")) {
 //            throw new RuntimeException("Error: Unsupported string class, " + cname);
             Object operandAtr = th.getTopFrame().getOperandAttr();
             if (operandAtr != null && operandAtr instanceof Expression) {
@@ -2165,11 +2166,7 @@ public class SymbolicStringHandler {
         if (sym_v2 != null) {
             // System.out.println("***" + sym_v2.toString());
             if (!(sym_v2 instanceof StringExpression)) {
-                ElementInfo ei1 = th.getElementInfo(sf.getSlot(sf.getTopPos()));
-                ElementInfo ei2 = th.getElementInfo(sf.getSlot(sf.getTopPos()) - 1);
-                if (ei1.getClassInfo().equals(ei2.getClassInfo()))
-                    throw new RuntimeException("ERROR: expressiontype not handled: ObjectEquals");
-                else
+                throw new RuntimeException("ERROR: expressiontype not handled: ObjectEquals");
             }
         }
 
