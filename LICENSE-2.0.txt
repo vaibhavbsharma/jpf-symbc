@@ -186,7 +186,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright [yyyy] [name of copyright owner]
+   Copyright 2020 Soha Hussein, Vaibhav Sharma, Mike Whalen, Stephen McCamant, and Willem Visser
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -200,3 +200,28 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
+    Java Ranger uses other dependencies for either analyzing the bytecode, for verifying properties, or for utilizing
+    different solvers. These dependencies uses the following licenses:
+    aima (https://github.com/aimacode/aima-java) => MIT License
+    asm (https://asm.ow2.io/) => BSD-3-Clause
+    dk.brics.automaton (https://github.com/cs-au-dk/dk.brics.automaton) => BSD license.
+    bcel (https://commons.apache.org/proper/commons-bcel/) => Apache License 2.0
+    choco (https://github.com/chocoteam/choco-solver) => BSD 4-Clause License
+    wala (https://github.com/wala/WALA) =>  Eclipse Public License 2.0
+    z3 (https://github.com/Z3Prover/z3)=> MIT License
+    apache commons (https://github.com/apache/commons-lang/blob/master/LICENSE.txt) => Apache License 2.0
+    coral (https://github.com/psycopaths/jconstraints-coral) => Apache License 2.0
+    grappa (https://github.com/uwsampa/grappa) => BSD-3-Clause License
+    green => GNU Lesser General Public License v3.0
+    iasolver (https://www.cs.brandeis.edu/~tim/Applets/IAsolver.html) => GNU General Public License
+    jedis-2 (https://github.com/redis/jedis) => MIT License
+    jkind (https://github.com/loonwerks/jkind) => BSD 3-Clause "New" or "Revised" License
+    JSAP-2 (https://github.com/martylamb/jsap) => Apache License 2.0
+    cvc3 (https://cs.nyu.edu/acsys/cvc3/) => BSD licence
+    gmp (https://gmplib.org/) => GNU General Public License version 3 or more, or GNU Lesser General Public License version 3 or more
+    opt4j (https://github.com/sdarg/opt4j/) => MIT license
+    hamcrest (https://github.com/hamcrest/JavaHamcrest) => BSD license.
+    sat4j (https://gitlab.ow2.org/sat4j/sat4j) => Eclipse Public License Version 1.0, GNU General Public License version 3 or more, or GNU Lesser General Public License version 3 or more
+    fasterxml (https://github.com/FasterXML/jackson-core) => Apache License 2.0
+    proteus (https://github.com/noboomu/proteus) =>  Apache-2.0 License
+    yices (https://github.com/SRI-CSL/yices2) => GNU GENERAL PUBLIC LICENSE
