@@ -5,39 +5,31 @@ vm.storage.class=nil
 symbolic.debug=false
 
 
-symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.separateBits_32(sym)
+symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.separateBits_4(sym)
 
+
+#listener = .symbc.SymbolicListener
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 #symbolic.dp=z3
 
-symbolic.dp=z3bitvectorinc
-#symbolic.dp=z3bitvector
+
 #symbolic.dp=z3inc
 
-#listener =.symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+symbolic.dp=z3bitvectorinc
 
 ## branch coverage with unit test for JR
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
-## branch execution for plain SPF with guiding and pruning features
-#listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+#symbolic.optimizechoices=false
+
+#branchCoverageOn=true
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/testcaseperf/
 
 
-## plain spf path exploration with unit tests, no guiding or pruning or coverage, just test cases
-#listener =.symbc.SymbolicListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
-
-#listener =.symbc.SymbolicListener
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks
-
+veritestingMode = 3
 coverageMode=5
-veritestingMode=3
-
-#symbolic.min_int=0
-#symbolic.max_int=15
-
-# must be added to avoid redundant constraints on the path condition.
-performanceMode=false
-
-symbolic.optimizechoices=false
+performanceMode=true
+evaluationMode=true

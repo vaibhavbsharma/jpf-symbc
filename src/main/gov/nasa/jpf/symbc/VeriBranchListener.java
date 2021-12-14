@@ -41,6 +41,9 @@ public class VeriBranchListener extends BranchListener {
     public static boolean ignoreCoverageCollection = false;
     public static boolean batchCoverage = true;
 
+//    this is only valid in spf mode, can should indicate whether we want to generate test cases for all paths or not
+    public static boolean pathCoverage = false;
+
     public VeriBranchListener(Config conf, JPF jpf) {
         super(conf, jpf);
         if (conf.hasValue("coverageMode")) {
@@ -70,6 +73,9 @@ public class VeriBranchListener extends BranchListener {
                 testCaseGenerationMode = TestCaseGenerationMode.UNIT_LEVEL;
             else testCaseGenerationMode = TestCaseGenerationMode.NONE;
         }
+
+        if (conf.hasValue("pathcoverage"))
+            pathCoverage = conf.getBoolean("pathcoverage");
 
         //used to turn off test case generation, but still allow for collecting coverage. Particularly useful in equivalence checking of FSE benchmarks.
         // in that context, the equivelance checking main method could be concrete and thus we can when generating test we'll complain from that, as
@@ -182,7 +188,7 @@ public class VeriBranchListener extends BranchListener {
         /*allObligationsCovered = ObligationMgr.isAllObligationCovered();
         coverageStatistics.recordCoverageForThread();*/
         updateCoverageEndOfPath();
-        newCoverageFound = false;
+//        newCoverageFound = false;
     }
 
     public static void updateCoverageEndOfPath() {

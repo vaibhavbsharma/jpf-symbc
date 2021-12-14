@@ -134,6 +134,11 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (VeriBranchListener.ignoreCoverageCollection)
             return;
+        if (!VeriBranchListener.pathCoverage)
+            if (!BranchListener.newCoverageFound)
+                return;
+
+        BranchListener.newCoverageFound = false;
 
         if (IncrementalListener.solver == null) {//call super to generate test cases in case it is non-incremental mode and we do want to generate testcases.
             if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
@@ -330,18 +335,32 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
         return invokedMethod;
     }
 
+//    representing the hexadecimal character in Java, which used \u0000 with
+//      4 digits to represent the hexadecimal number. This choice was made
+//      to avoid breaking the
+//      backward compatibility of C which used \X00 with two hexadecimal numbers
+
+
     static String specialcharToStr(Character charInt) {
         String outputChar;
         switch (charInt) {
             case '\t':
                 outputChar = "\\t";
                 break;
-            case '\n':
             case '\u0000':
+                outputChar = "\\u0000";
+                break;
+            case '\n':
                 outputChar = "\\n";
                 break;
             case '\r':
                 outputChar = "\\r";
+                break;
+            case '\\':
+                outputChar = "\\\\";
+                break;
+            case '\'':
+                outputChar = "\\'";
                 break;
             default:
                 outputChar = charInt.toString();

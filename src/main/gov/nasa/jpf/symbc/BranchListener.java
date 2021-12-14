@@ -266,7 +266,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         if (!evaluationMode) System.out.println("end of thread");
         if (VeriBranchListener.ignoreCoverageCollection)
             return;
-        newCoverageFound = false;
+//        newCoverageFound = false;
         allObligationsCovered = ObligationMgr.isAllObligationCovered();
         coverageStatistics.recordCoverageForThread();
     }
