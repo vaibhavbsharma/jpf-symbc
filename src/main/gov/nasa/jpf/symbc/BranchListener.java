@@ -52,6 +52,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     protected static CoverageStatistics coverageStatistics;
     public static String benchmarkName;
     public static Long timeZero;
+    public static boolean pathCoverage = false;
 
     public static String solver;
 
@@ -97,6 +98,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             BranchSymInstructionFactory.GuideBranchExploration = true;
         }
         benchmarkName = setBenchmarkName(conf.getString("target"));
+
+        if (conf.hasValue("pathcoverage"))
+            pathCoverage = conf.getBoolean("pathcoverage");
 
         if (coverageMode.ordinal() < 5)
             coverageStatistics = new CoverageStatistics();

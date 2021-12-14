@@ -134,7 +134,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (VeriBranchListener.ignoreCoverageCollection)
             return;
-        if (!VeriBranchListener.pathCoverage)
+        if (!BranchListener.pathCoverage)
             if (!BranchListener.newCoverageFound)
                 return;
 
