@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TCG_PaperExampleJR_SPF" type="CompoundRunConfigurationType" factoryName="Compound Run Configuration">
+    <toRun type="JarApplication" name="TCG_PaperExampleJR" />
+    <toRun type="JarApplication" name="TCG_PaperExampleSPF" />
+    <toRun type="JarApplication" name="TCG_PaperExampleSPF_Path" />
+    <method />
+  </configuration>
+</component>

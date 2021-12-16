@@ -72,13 +72,13 @@ public class CoverageStatistics {
             statisticFilefw = new FileWriter(statisticFileName);
             statisticFilebw = new BufferedWriter(statisticFilefw);
             statisticFilepw = new PrintWriter(statisticFilebw);
-            statisticFilepw.println(time + "  Obligation ------> Time ");
+            statisticFilepw.println(time + "  Obligation ------> Time(ms)");
             statisticFilepw.close();
 
             executionStatFilefw = new FileWriter(executionStatFileName);
             executionStatFilebw = new BufferedWriter(executionStatFilefw);
             executionStatFilepw = new PrintWriter(executionStatFilebw);
-            executionStatFilepw.println(time + "  Obligation ------> Execution Time ");
+            executionStatFilepw.println(time + "  Obligation ------> Execution Time(ms)");
             executionStatFilepw.close();
 
 

@@ -10,8 +10,8 @@ public class TCG_PaperExample {
 
     public static int separateBits_4(int i) {
         int j = 0;
-//        if (i >= -8 && i <= 7) {
-        if (i >= 2 && i <4) {
+        if (i >= -8 && i <= 7) {
+//        if (i >= 2 && i <4) {
             while (i != 0) {
                 int trailHasZero = (i & 1);
                 if (trailHasZero == 0) {
@@ -161,6 +161,10 @@ public class TCG_PaperExample {
         y = i << 8; if (y != 0) { n = n - 8; i = y; }
         y = i << 4; if (y != 0) { n = n - 4; i = y; }
         y = i << 2; if (y != 0) { n = n - 2; i = y; }
-        return n - ((i << 1) >>> 31);
+        y = i << 1; if (y != 0) { n = n - 1; }
+
+        return n;
+
+//        return n - ((i << 1) >>> 31);
     }
 }
