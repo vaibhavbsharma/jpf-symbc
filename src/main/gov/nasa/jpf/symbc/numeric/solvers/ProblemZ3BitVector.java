@@ -51,15 +51,16 @@ import com.microsoft.z3.*;
 
 import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
-import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
-import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.StatisticManager;
 
 public class ProblemZ3BitVector extends ProblemGeneral {
     /*SH: used to collect all function declarations (query variables) while constructing the solver and the context. */
     private HashSet<String> z3FunDecSet = new HashSet();
 
     static int quertyCount = 0;
+
+    //this is the model if a binary solver is used instead of the api solver.
+    static String model;
 
     // This class acts as a safeguard to prevent
     // issues when referencing ProblemZ3 in case the z3 libs are
@@ -154,40 +155,22 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                     + " is outside the permitted range for bitvector length " + bitVectorLength);
     }
 
-   /* public long getIntValue(Object dpVar) {
-        try {
-            Model model = solver.getModel();
-            Expr modelValue = model.eval((Expr) dpVar, false);
-            if(!(modelValue instanceof BitVecNum) && modelValue instanceof BitVecExpr) { // var was not found in the model return anything, this can happen if the symvar is a don't care to the result of the model.
-                assert (!model.toString().contains(dpVar.toString())) : "if there is no value found in the model, then string contains should fail as well.";
-                return Integer.MIN_VALUE;
-            }
-            String strResult = modelValue.toString();
-            String bitStr = new BigInteger(strResult).toString(2);
-            if (bitStr.length() == SymbolicInstructionFactory.bvlength && bitStr.charAt(0) == '1') {
-                // negative number
-                for (int i = bitStr.length(); i < Long.SIZE; i++) {
-                    bitStr = "1" + bitStr;
-                }
-            }
-            long value = new BigInteger(bitStr, 2).longValue();
-            return value;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("## Error Z3: Exception caught in getIntValue: \n" + e);
-        }
-    }*/
 
     public long getIntValue(Object dpVar) {
         //       String dpVarStr = dpVar.toString().replaceAll("\\|", "");
 //        dpVarStr = dpVarStr.replaceAll(" ","");
 
         String dpVarStr = dpVar.toString();
+        String[] valuations;
         try {
-            Model model = null;
-//            solver.check();
-            model = solver.getModel();
-            String[] valuations = model.toString().split("\n");
+            if(!VeritestingListener.useZ3BitVectorBinarySolver) {
+                Model model = null;
+                solver.check();
+                model = solver.getModel();
+                valuations = model.toString().split("\n");
+            } else
+                valuations = model.split("\n");
+
             assert valuations.length > 0 : "valuations of the model cannot be zero, something is wrong. Failing";
             int i = 0;
             String value = valuations[i];
@@ -214,30 +197,8 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         try {
         	boolean result = false;
         	if(SymbolicInstructionFactory.debugMode == true){
-        	    /****** SH: logging to files *******************/
-                String folderName;
-                if(StatisticManager.veritestingRunning)
-                    folderName = "../SolverQueriesVeritesting";
-                else
-                    folderName = "../SolverQueriesSPF";
-                File dir = new File(folderName);
-                boolean success;
 
-                if(!dir.exists())
-                    success = dir.mkdir();
-                else{
-                    if(StatisticManager.inializeQueriesFile){
-                        SpfUtil.emptyFolder(dir);
-                        StatisticManager.inializeQueriesFile = false;
-                    }
-                    success = true;
-                }
-
-
-                /*********** SH: end logging *******************/
-
-
-        	    System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+           	    System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         		System.out.println(solver.toString());
         		long z3time = 0;
                 long t1 = System.nanoTime();
@@ -248,7 +209,10 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         	}
         	else{
                 long t1 = System.nanoTime();
-                result = solver.check() == Status.SATISFIABLE ? true : false;
+                if(VeritestingListener.useZ3BitVectorBinarySolver)
+                    result = checkBinarySolver();
+                else
+                    result = solver.check() == Status.SATISFIABLE ? true : false;
                 float singleSolveTimeMs = (System.nanoTime() - t1);
                 if (VeritestingListener.verboseVeritesting) {
                     System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = ");
@@ -271,6 +235,35 @@ public class ProblemZ3BitVector extends ProblemGeneral {
             e.printStackTrace();
             throw new RuntimeException("## Error Z3: solve() failed.\n" + e);
         }
+    }
+
+    private boolean checkBinarySolver() throws IOException {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        File tempFile = File.createTempFile("tempQuery", ".tmp");
+        FileWriter fileWriter = new FileWriter(tempFile, true);
+        BufferedWriter bw = new BufferedWriter(fileWriter);
+        bw.write(solver.toString());
+        bw.write("\n(check-sat)");
+        bw.write("\n(get-model)");
+        bw.close();
+        try {
+            final Process process = Runtime.getRuntime().exec("/media/soha/DATA/git/jrTCG/lib/z3 -smt2 " + tempFile.getAbsoluteFile());
+
+            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                System.out.println(line);
+                stringBuilder.append(line+"\n");
+            }
+
+        } catch (Exception e) {
+            assert false: "problem running z3 process. Failing.";
+        }
+
+        model = stringBuilder.toString();
+        tempFile.deleteOnExit();
+        return model.startsWith("sat");
     }
 
     @Override

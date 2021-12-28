@@ -131,6 +131,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public static boolean verboseVeritesting = true;
     static int numberOfThreads = 0;
 
+    //indicates whether we want to invoke z3bitvector frome the binary as apposed to the api
+    public static boolean useZ3BitVectorBinarySolver = true;
+
     protected static int timeForExperiment = 60 * 60; //180 * 60; //minutes * seconds -- set to 0 if you want to run indefinitely.
     static boolean timedExperimentOn = false;
     protected static Long veriStartTime = System.currentTimeMillis() / 1000;
@@ -263,6 +266,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             }
             if (conf.hasValue("timedExperimentOn")) {
                 timedExperimentOn = conf.getBoolean("timedExperimentOn");
+            }
+
+            if (conf.hasValue("useBinarySolver")) {
+                useZ3BitVectorBinarySolver = conf.getBoolean("useBinarySolver");
             }
 
             StatisticManager.veritestingRunning = true;
