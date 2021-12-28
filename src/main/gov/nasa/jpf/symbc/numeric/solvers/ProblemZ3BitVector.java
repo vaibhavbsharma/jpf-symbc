@@ -39,6 +39,10 @@ package gov.nasa.jpf.symbc.numeric.solvers;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +58,8 @@ import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.StatisticManager;
 public class ProblemZ3BitVector extends ProblemGeneral {
     /*SH: used to collect all function declarations (query variables) while constructing the solver and the context. */
     private HashSet<String> z3FunDecSet = new HashSet();
+
+    static int quertyCount = 0;
 
     // This class acts as a safeguard to prevent
     // issues when referencing ProblemZ3 in case the z3 libs are
@@ -148,7 +154,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                     + " is outside the permitted range for bitvector length " + bitVectorLength);
     }
 
-    public long getIntValue(Object dpVar) {
+   /* public long getIntValue(Object dpVar) {
         try {
             Model model = solver.getModel();
             Expr modelValue = model.eval((Expr) dpVar, false);
@@ -170,12 +176,39 @@ public class ProblemZ3BitVector extends ProblemGeneral {
             e.printStackTrace();
             throw new RuntimeException("## Error Z3: Exception caught in getIntValue: \n" + e);
         }
+    }*/
+
+    public long getIntValue(Object dpVar) {
+        //       String dpVarStr = dpVar.toString().replaceAll("\\|", "");
+//        dpVarStr = dpVarStr.replaceAll(" ","");
+
+        String dpVarStr = dpVar.toString();
+        try {
+            Model model = null;
+//            solver.check();
+            model = solver.getModel();
+            String[] valuations = model.toString().split("\n");
+            assert valuations.length > 0 : "valuations of the model cannot be zero, something is wrong. Failing";
+            int i = 0;
+            String value = valuations[i];
+            while (i < valuations.length && !value.contains(dpVarStr)) //try to find the valuation of what we are looking for
+                value = valuations[i++];
+            if (i == valuations.length && !value.contains(dpVarStr)) // we couldn't find the variable in the model, so assume it the lowest value.
+                return Integer.MIN_VALUE;
+            if (i == 0) //case where the while loop above did not execute its body because the variable matched the first entry in the model.
+                return SpfUtil.hexToDec(valuations[i + 1].replace(")", ""));
+            else
+                return SpfUtil.hexToDec(valuations[i].replace(")", ""));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("## Error Z3: Exception caught in getIntValue: \n" + e);
+        }
     }
 
     public String printSMTLibv2String(){
     	return solver.toString();
     }
-    
+
     @Override
     public Boolean solve() {
         try {
@@ -200,20 +233,6 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                     success = true;
                 }
 
-//                if(success){
-//                    String fileName = folderName + "/" + StatisticManager.instructionToExec+"$" + StatisticManager.solverQueriesUnique + ".txt";
-//                    ++StatisticManager.solverQueriesUnique;
-//                    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-//                            new FileOutputStream(fileName), "utf-8"))) {
-//
-//                        DiscoverContract.z3QuerySet.add(new Pair(solver.toString(), z3FunDecSet));
-//
-//                        writer.write(DiscoverContract.toSMT(solver.toString(), z3FunDecSet));
-//                    }
-//                }
-//                else
-//                    System.out.println("Encountered a problem while creating Solver Queries directory.");
-
 
                 /*********** SH: end logging *******************/
 
@@ -228,9 +247,23 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");
         	}
         	else{
-        	    long t1 = System.nanoTime();
-        		result = solver.check() == Status.SATISFIABLE ? true : false;
-                VeritestingListener.z3Time += (System.nanoTime() - t1);
+                long t1 = System.nanoTime();
+                result = solver.check() == Status.SATISFIABLE ? true : false;
+                float singleSolveTimeMs = (System.nanoTime() - t1);
+                if (VeritestingListener.verboseVeritesting) {
+                    System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = ");
+                    Charset utf8 = StandardCharsets.UTF_8;
+                    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("../logs/Query_" + quertyCount + ".txt"), utf8)) {
+                        writer.write(solver.toString());
+                        writer.flush();
+                    } catch (IOException e) {
+                        System.out.println(e);
+                        assert false;
+                    }
+
+                    System.out.printf("%.3f\n", singleSolveTimeMs / 1000000);
+                }
+                VeritestingListener.z3Time += singleSolveTimeMs;
                 VeritestingListener.solverCount++;
         	}
             return result;
@@ -679,7 +712,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 return ctx.mkBVAdd((BitVecExpr) exp1, (BitVecExpr) exp2);
             } else if (exp1 instanceof IntExpr && exp2 instanceof IntExpr) {
                 return ctx.mkAdd((IntExpr) exp1, (IntExpr) exp2);
-            } else if (exp1 instanceof RealExpr && exp2 instanceof RealExpr) { 
+            } else if (exp1 instanceof RealExpr && exp2 instanceof RealExpr) {
                 return ctx.mkAdd((RealExpr) exp1, (RealExpr) exp2);
             } else {
                 throw new RuntimeException();
@@ -1418,11 +1451,11 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     public Object power(Object exp1, Object exp2) {
 		return ctx.mkPower((ArithExpr)exp1, (ArithExpr)exp2);
 	}
-    
+
 	public Object power(Object exp1, double exp2) {
 		return ctx.mkPower((ArithExpr)exp1, ctx.mkReal("" + exp2));
 	}
-	
+
 	public Object power(double exp1, Object exp2) {
 		return ctx.mkPower(ctx.mkReal("" + exp1), (ArithExpr)exp2);
 	}
@@ -1509,7 +1542,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         // forall i. exp1[i] == exp2
         Expr[] foralls = new Expr[1];
         String name = ((ArrayExpr)exp1).toString() + "!init";
-        foralls[0] = ctx.mkBVConst(name, this.bitVectorLength); 
+        foralls[0] = ctx.mkBVConst(name, this.bitVectorLength);
         Expr body = ctx.mkEq(ctx.mkSelect((ArrayExpr)exp1, (BitVecExpr)foralls[0]), (BitVecExpr)exp2);
         return ctx.mkForall(foralls, body, 1, null, null, null, null);
       } catch (Exception e) {

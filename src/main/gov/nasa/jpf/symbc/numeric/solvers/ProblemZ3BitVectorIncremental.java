@@ -187,17 +187,19 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
                 long t1 = System.nanoTime();
                 result = solver.check() == Status.SATISFIABLE ? true : false;
                 float singleSolveTimeMs = (System.nanoTime() - t1);
-                System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = ");
-                Charset utf8 = StandardCharsets.UTF_8;
-                try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("../logs/Query_" + quertyCount + ".txt"), utf8)) {
-                    writer.write(solver.toString());
-                    writer.flush();
-                } catch (IOException e) {
-                    System.out.println(e);
-                    assert false;
-                }
+                if(VeritestingListener.verboseVeritesting) {
+                    System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = ");
+                    Charset utf8 = StandardCharsets.UTF_8;
+                    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("../logs/Query_" + quertyCount + ".txt"), utf8)) {
+                        writer.write(solver.toString());
+                        writer.flush();
+                    } catch (IOException e) {
+                        System.out.println(e);
+                        assert false;
+                    }
 
-                System.out.printf("%.3f\n", singleSolveTimeMs / 1000000);
+                    System.out.printf("%.3f\n", singleSolveTimeMs / 1000000);
+                }
                 VeritestingListener.z3Time += singleSolveTimeMs;
                 VeritestingListener.solverCount++;
             }
