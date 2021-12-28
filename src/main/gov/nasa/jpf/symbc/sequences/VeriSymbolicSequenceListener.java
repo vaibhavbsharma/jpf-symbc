@@ -42,10 +42,15 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.report.PublisherExtension;
 import gov.nasa.jpf.symbc.VeriBranchListener;
+import gov.nasa.jpf.symbc.VeritestingListener;
+import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.numeric.*;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.*;
 
 import java.util.*;
+
+import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.getVeriNeedsCoverageOblg;
 
 public class VeriSymbolicSequenceListener extends ThreadSymbolicSequenceListener implements PublisherExtension {
 
@@ -68,7 +73,18 @@ public class VeriSymbolicSequenceListener extends ThreadSymbolicSequenceListener
             VeriBranchListener.updateCoverageEndOfPath(); // we still want to update the coverage done by SPF only.
         }*/
 
-        super.threadTerminated(vm, terminatedThread);
+        /*There are three scenarios that can happen:
+        * 1. there is a coverage for veri oblg, in this case we do not want to invoke spf oblg coverage, because it will be already implied by the covered veri oblg test case
+        * 2. there is no coverage for a veri oblg, in which case we do want to invoke spf oblg coverage to account for non-veritesting oblg coverage.
+        * 3. there is no veritesting regions along the path, in which case we do want to invoke spf oblg coverage to account for non-veritesting oblg coverage
+        * The condition below accounts for the last two cases where we want to invoke spf for coverage, otherwise we just return.*/
+        LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
+        if (veriOblgsNeedsCoverage.size() ==0 || VeriBranchListener.newCoveredOblg.size() == 0) {
+            super.threadTerminated(vm, terminatedThread);
+            VeriBranchListener.updateCoverageEndOfPath(); // we still want to update the coverage done by SPF only.
+        }
+//        VeriBranchListener.updateCoverageEndOfPath();
+//        super.threadTerminated(vm, terminatedThread);
     }
 
     public static void collectVeriTests(VM vm, Map<String, Object> veriSolutionMap) {

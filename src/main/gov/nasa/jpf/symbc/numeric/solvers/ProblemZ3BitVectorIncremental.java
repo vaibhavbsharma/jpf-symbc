@@ -18,7 +18,13 @@
 
 package gov.nasa.jpf.symbc.numeric.solvers;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +36,8 @@ import gov.nasa.jpf.symbc.string.translate.BVExpr;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 
 public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements IncrementalSolver {
+
+    static int quertyCount = 0;
 
     //This class acts as a safeguard to prevent
     //issues when referencing ProblemZ3 in case the z3 libs are
@@ -124,12 +132,15 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
     }
 
     public long getIntValue(Object dpVar) {
-        String dpVarStr = dpVar.toString().replaceAll("\\|", "") + " ";
+ //       String dpVarStr = dpVar.toString().replaceAll("\\|", "");
+//        dpVarStr = dpVarStr.replaceAll(" ","");
+
+        String dpVarStr = dpVar.toString();
         try {
             Model model = null;
 //            solver.check();
-             model = solver.getModel();
-             String[] valuations = model.toString().split("\n");
+            model = solver.getModel();
+            String[] valuations = model.toString().split("\n");
             assert valuations.length > 0 : "valuations of the model cannot be zero, something is wrong. Failing";
             int i = 0;
             String value = valuations[i];
@@ -137,7 +148,10 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
                 value = valuations[i++];
             if (i == valuations.length && !value.contains(dpVarStr)) // we couldn't find the variable in the model, so assume it the lowest value.
                 return Integer.MIN_VALUE;
-            return SpfUtil.hexToDec(value.substring(value.indexOf(">") + 1));
+            if (i == 0) //case where the while loop above did not execute its body because the variable matched the first entry in the model.
+                return SpfUtil.hexToDec(valuations[i + 1].replace(")", ""));
+            else
+                return SpfUtil.hexToDec(valuations[i].replace(")", ""));
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("## Error Z3: Exception caught in getIntValue: \n" + e);
@@ -172,7 +186,19 @@ public class ProblemZ3BitVectorIncremental extends ProblemGeneral implements Inc
             } else {
                 long t1 = System.nanoTime();
                 result = solver.check() == Status.SATISFIABLE ? true : false;
-                VeritestingListener.z3Time += (System.nanoTime() - t1);
+                float singleSolveTimeMs = (System.nanoTime() - t1);
+                System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = ");
+                Charset utf8 = StandardCharsets.UTF_8;
+                try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("../logs/Query_" + quertyCount + ".txt"), utf8)) {
+                    writer.write(solver.toString());
+                    writer.flush();
+                } catch (IOException e) {
+                    System.out.println(e);
+                    assert false;
+                }
+
+                System.out.printf("%.3f\n", singleSolveTimeMs / 1000000);
+                VeritestingListener.z3Time += singleSolveTimeMs;
                 VeritestingListener.solverCount++;
             }
             return result;

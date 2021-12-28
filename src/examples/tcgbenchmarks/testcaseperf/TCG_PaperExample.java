@@ -11,13 +11,14 @@ public class TCG_PaperExample {
     public static int separateBits_4(int i) {
         int j = 0;
         if (i >= -8 && i <= 7) {
-//        if (i >= 2 && i <4) {
+//        if (i >= -2 && i <=2) {
             while (i != 0) {
                 int trailHasZero = (i & 1);
                 if (trailHasZero == 0) {
                     int numberOfTrailingZeros = numberOfTrailingZeros_4(i);
                     i = (i >> numberOfTrailingZeros);
-                } else {
+                }
+                else {
                     j = (j >>> 1);
                     j = (j ^ 8);
                     i = (i >>> 1);
@@ -33,7 +34,7 @@ public class TCG_PaperExample {
         // HD, Figure 5-14
         int y;
         i = i << 28;
-        if (i == 0) return 4;
+//        if (i == 0) return 4;
         int n = 3;
 
 
@@ -42,7 +43,13 @@ public class TCG_PaperExample {
             n = (n - 2);
             i = y;
         }
-        return (n - ((((i << 1)) >>> 3)));
+        y = (i << 1);
+        if (y != 0) {
+            n = (n - 1);
+        }
+
+        return n;
+//        return (n - ((((i << 1)) >>> 3)));
     }
 
     public static int separateBits_8(int i) {
@@ -82,7 +89,13 @@ public class TCG_PaperExample {
             n = (n - 2);
             i = y;
         }
-        return (n - ((((i << 1)) >>> 7)));
+        y = (i << 1);
+        if (y != 0) {
+            n = (n - 1);
+        }
+
+        return n;
+//        return (n - ((((i << 1)) >>> 7)));
     }
 
     public static int separateBits_16(int i) {
@@ -127,7 +140,13 @@ public class TCG_PaperExample {
             n = (n - 2);
             i = y;
         }
-        return (n - ((((i << 1)) >>> 15)));
+        y = (i << 1);
+        if (y != 0) {
+            n = (n - 1);
+        }
+
+        return n;
+//        return (n - ((((i << 1)) >>> 15)));
     }
 
     public static int separateBits_32(int i) {

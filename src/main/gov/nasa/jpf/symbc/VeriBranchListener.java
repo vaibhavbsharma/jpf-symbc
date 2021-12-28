@@ -177,6 +177,8 @@ public class VeriBranchListener extends BranchListener {
             newCoveredOblg = new HashSet<>(collectVeritestingCoverage(terminatedThread, veriOblgsNeedsCoverage));
             for (Obligation oblg : newCoveredOblg)
                 coverageStatistics.recordObligationCovered(oblg);
+            if (newCoveredOblg.size()!=0) //reset newCoverageFound, so we start new path collecting only new coverages.
+                BranchListener.newCoverageFound = false;
         }
 
         //the case where the path contains no veriObligations, the computation of allObligationCovered might not be
@@ -185,7 +187,7 @@ public class VeriBranchListener extends BranchListener {
         // thus we need to provide VeriSymbolicSequenceListener to do the the same behaviour.
         /*allObligationsCovered = ObligationMgr.isAllObligationCovered();
         coverageStatistics.recordCoverageForThread();*/
-        updateCoverageEndOfPath();
+//        updateCoverageEndOfPath();
 //        newCoverageFound = false;
     }
 

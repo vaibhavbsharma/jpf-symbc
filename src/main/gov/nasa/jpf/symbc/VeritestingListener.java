@@ -608,7 +608,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     }
 
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
-        if (verboseVeritesting && !performanceMode)
+//        if (verboseVeritesting && !performanceMode)
             System.out.println("threadTerminated: " + ++numberOfThreads);
         npaths++;
         super.threadTerminated(vm, terminatedThread);
@@ -637,8 +637,8 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     @Override
     public void stateBacktracked(Search search) {
-        if (verboseVeritesting && !performanceMode)
-            System.out.println("stateBacktracked");
+//        if (verboseVeritesting && !performanceMode)
+//            System.out.println("stateBacktracked");
 
     }
 

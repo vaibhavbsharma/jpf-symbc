@@ -138,7 +138,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
             if (!BranchListener.newCoverageFound)
                 return;
 
-        BranchListener.newCoverageFound = false;
+
 
         if (IncrementalListener.solver == null) {//call super to generate test cases in case it is non-incremental mode and we do want to generate testcases.
             if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
@@ -181,6 +181,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
             ChoiceGenerator<?>[] cgs = ss.getChoiceGenerators();
             methodSequences.add(getMethodSequence(cgs, solution));
         }
+        BranchListener.newCoverageFound = false;
         //	}
     }
 

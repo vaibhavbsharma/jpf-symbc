@@ -51,7 +51,8 @@ public class IncrementalListener extends PropertyListenerAdapter {
     @Override
     public void choiceGeneratorAdvanced(VM vm, ChoiceGenerator<?> currentCG) {
         if (currentCG instanceof PCChoiceGenerator) {
-//            System.out.println("choiceGeneratorAdvanced: at " + currentCG.getInsn().getMethodInfo() + "#" + currentCG.getInsn().getPosition());
+            System.out.println("choiceGeneratorAdvanced: at " + currentCG.getInsn().getMethodInfo() + "#" + currentCG.getInsn().getPosition());
+            System.out.println("depth is = " + vm.getSearch().getDepth());
             if (IncrementalListener.solver != null) {
                 if (solver instanceof ProblemZ3BitVectorIncremental) {
                     solverHashStack.push(ProblemZ3BitVectorIncremental.Z3Wrapper.getInstance().getSolver().toString());
@@ -72,7 +73,7 @@ public class IncrementalListener extends PropertyListenerAdapter {
     @Override
     public void stateBacktracked(Search search) {
         if (search.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
-//            System.out.println("stateBacktracked");
+            System.out.println("stateBacktracked");
             if (IncrementalListener.solver != null) {
                 solver.pop();
 //                assert (solver.toString().hashCode() == solverHashStack.peek()) : "inconsistency detected in incremental solver state, every push must have a pop. Assumption Violated. Failing.";

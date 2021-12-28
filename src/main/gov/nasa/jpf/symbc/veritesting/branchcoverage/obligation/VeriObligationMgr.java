@@ -191,7 +191,7 @@ public class VeriObligationMgr {
 
                 Map<String, Object> solution = null;
                 if (sat) {
-                    if (IncrementalListener.solver != null) IncrementalListener.solver.push();
+//                    if (IncrementalListener.solver != null) IncrementalListener.solver.push();
                     if (!VeriBranchListener.ignoreCoverageCollection) assert (attributes.size() != 0);
 
                     /*List<Expression> greenExprs = ExprUtil.spfToGreenExpr((List<gov.nasa.jpf.symbc.numeric.Expression>) (List<?>) attributes);
@@ -199,13 +199,17 @@ public class VeriObligationMgr {
                         assert e instanceof IntVariable;*/
 
                     solution = pcCopy.solveWithValuations(attributes);
-                    if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
+//                    if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
                     if (solution.size() != 0) {
                         ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedCoverage, solution);
-                        oblgsNeedCoverage.removeAll(newCoveredOblgs);
-                        newCoveredOblgsOnPath.addAll(newCoveredOblgs);
-                        ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
-                        System.out.println("");
+                        if (newCoveredOblgs.size() == 0) //no coverage was found
+                            sat = false;
+                        else {
+                            oblgsNeedCoverage.removeAll(newCoveredOblgs);
+                            newCoveredOblgsOnPath.addAll(newCoveredOblgs);
+                            ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
+                            System.out.println("");
+                        }
                     } else sat = false;
                 }
                 System.out.println("The solution is " + solution.toString());
