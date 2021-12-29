@@ -217,13 +217,13 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 if (VeritestingListener.verboseVeritesting) {
                     System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = ");
                     Charset utf8 = StandardCharsets.UTF_8;
-                    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("../logs/Query_" + quertyCount + ".txt"), utf8)) {
-                        writer.write(solver.toString());
-                        writer.flush();
-                    } catch (IOException e) {
-                        System.out.println(e);
-                        assert false;
-                    }
+//                    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("../logs/Query_" + quertyCount + ".txt"), utf8)) {
+//                        writer.write(solver.toString());
+//                        writer.flush();
+//                    } catch (IOException e) {
+//                        System.out.println(e);
+//                        assert false;
+//                    }
 
                     System.out.printf("%.3f\n", singleSolveTimeMs / 1000000);
                 }
@@ -253,7 +253,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
             final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                System.out.println(line);
+//                System.out.println(line);
                 stringBuilder.append(line+"\n");
             }
 
