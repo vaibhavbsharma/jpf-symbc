@@ -20,6 +20,7 @@ mkdir $COVERAGEDIR/logs/log_cli/partialproblem
 
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheCollect.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheCollect_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheCollect_Path.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheCollect_Path_steps$MAX_STEPS.log
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode2_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode3_steps$MAX_STEPS.log

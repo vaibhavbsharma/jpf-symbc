@@ -18,6 +18,8 @@ echo "maxsteps is $MAX_STEPS"
 mkdir $COVERAGEDIR/logs/log_replace11
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/replaceCollect.jpf >& $COVERAGEDIR/logs/log_replace11/replaceCollect_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/replaceCollect_Path.jpf >& $COVERAGEDIR/logs/log_replace11/replaceCollect_Path_steps$MAX_STEPS.log
+
 
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/replaceJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_replace11/replaceJR_Collect.mode2_steps$MAX_STEPS.log

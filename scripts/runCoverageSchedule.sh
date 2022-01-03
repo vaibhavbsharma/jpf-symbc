@@ -19,6 +19,8 @@ echo "maxsteps is $MAX_STEPS"
 mkdir $COVERAGEDIR/logs/log_schedule2
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect.jpf>& $COVERAGEDIR/logs/log_schedule2/scheduleCollect_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Path.jpf>& $COVERAGEDIR/logs/log_schedule2/scheduleCollect_Path_steps$MAX_STEPS.log
+
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Prune.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleCollect_Prune_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Guide.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleCollect_Guide_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleCollect_Prune_Guide_steps$MAX_STEPS.log

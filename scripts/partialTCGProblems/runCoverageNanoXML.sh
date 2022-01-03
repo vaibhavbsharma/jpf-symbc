@@ -20,6 +20,7 @@ mkdir $COVERAGEDIR/logs/log_dumpxml
 mkdir $COVERAGEDIR/logs/log_dumpxml/partialproblem
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/partialproblem/NanoXMLCollect.jpf >& $COVERAGEDIR/logs/log_dumpxml/partialproblem/nanoXMLCollect_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/partialproblem/NanoXMLCollect_Path.jpf >& $COVERAGEDIR/logs/log_dumpxml/partialproblem/nanoXMLCollect_Path_steps$MAX_STEPS.log
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/partialproblem/NanoXMLJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_dumpxml/partialproblem/nanoXMLJRCollect.mode2_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/partialproblem/NanoXMLJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_dumpxml/partialproblem/nanoXMLJRCollect.mode3_steps$MAX_STEPS.log

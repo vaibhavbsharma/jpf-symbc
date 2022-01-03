@@ -18,6 +18,8 @@ echo "maxsteps is $MAX_STEPS"
 mkdir $COVERAGEDIR/logs/log_wbs
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBSCollect.jpf >& $COVERAGEDIR/logs/log_wbs/WBSCollect_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/wbs/WBSCollect_Path.jpf >& $COVERAGEDIR/logs/log_wbs/WBSCollect_Path_steps$MAX_STEPS.log
+
 #runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune.jpf >& $COVERAGEDIR/logs/log_wbs/WBSCollect_Prune_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Guide.jpf >& $COVERAGEDIR/logs/log_wbs/WBSCollect_Guide_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/veritesting/test_case_gen/wbs/WBSCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/log_wbs/WBSCollect_Prune_Guide_steps$MAX_STEPS.log

@@ -19,6 +19,8 @@ mkdir $COVERAGEDIR/logs/log_cli
 
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect.jpf >& $COVERAGEDIR/logs/log_cli/apacheCollect_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect_Path.jpf >& $COVERAGEDIR/logs/log_cli/apacheCollect_Path_steps$MAX_STEPS.log
+
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect_Prune.jpf >& $COVERAGEDIR/logs/log_cli/apacheCollect_Prune_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect_Guide.jpf >& $COVERAGEDIR/logs/log_cli/apacheCollect_Guide_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/apacheCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/log_cli/apacheCollect_Prune_Guide_steps$MAX_STEPS.log

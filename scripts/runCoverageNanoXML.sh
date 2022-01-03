@@ -19,6 +19,8 @@ echo "maxsteps is $MAX_STEPS"
 mkdir $COVERAGEDIR/logs/log_dumpxml
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLCollect.jpf >& $COVERAGEDIR/logs/log_dumpxml/NanoXMLCollect_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLCollect_Path.jpf >& $COVERAGEDIR/logs/log_dumpxml/NanoXMLCollect_Path_steps$MAX_STEPS.log
+
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLCollect_Prune.jpf >& $COVERAGEDIR/logs/log_dumpxml/NanoXMLCollect_Prune_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLCollect_Guide.jpf >& $COVERAGEDIR/logs/log_dumpxml/NanoXMLCollect_Guide_steps$MAX_STEPS.log
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/NanoXMLCollect_Prune_Guide.jpf >& $COVERAGEDIR/logs/log_dumpxml/NanoXMLCollect_Prune_Guide_steps$MAX_STEPS.log

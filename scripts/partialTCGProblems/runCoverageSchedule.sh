@@ -20,6 +20,8 @@ mkdir $COVERAGEDIR/logs/log_schedule2
 mkdir $COVERAGEDIR/logs/log_schedule2/partialproblem
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleCollect.jpf>& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleCollect_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleCollect_Path.jpf>& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleCollect_Path_steps$MAX_STEPS.log
+
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode2_steps$MAX_STEPS.log
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode3_steps$MAX_STEPS.log
