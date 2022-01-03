@@ -5,7 +5,7 @@ import static java.lang.Integer.numberOfTrailingZeros;
 public class TCG_PaperExample {
 
     public static void main(String[] args) {
-        separateBits_4(1);
+        separateBits_16(1);
     }
 
     public static int separateBits_4(int i) {
@@ -76,7 +76,7 @@ public class TCG_PaperExample {
         // HD, Figure 5-14
         int y;
         i = i << 24;
-        if (i == 0) return 8;
+//        if (i == 0) return 8;
         int n = 7;
 
         y = (i << 4);
@@ -122,7 +122,7 @@ public class TCG_PaperExample {
         // HD, Figure 5-14
         int y;
         i = i << 16;
-        if (i == 0) return 16;
+//        if (i == 0) return 16;
         int n = 15;
 
         y = (i << 8);

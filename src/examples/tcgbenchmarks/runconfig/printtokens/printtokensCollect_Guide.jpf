@@ -15,9 +15,10 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 #symbolic.dp=z3inc
 
-symbolic.dp=z3bitvectorinc
+symbolic.dp=z3bitvector
 
-listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
+#,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 #symbolic.optimizechoices=false
 

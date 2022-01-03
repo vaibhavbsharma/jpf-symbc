@@ -35,9 +35,10 @@ symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths(sym#sy
 #symbolic.dp=z3
 
 #symbolic.dp=z3inc
-symbolic.dp=z3bitvectorinc
+symbolic.dp=z3bitvector
 
-listener =.symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+listener =.symbc.VeritestingListener
+#,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 symbolic.optimizechoices=false
 
@@ -47,3 +48,5 @@ symbolic.optimizechoices=false
 
 veritestingMode=3
 performanceMode=true
+##flag to turn on or off depending on which the test cases that are generated in the spf mode are either for path coverage or for branch coverage
+#pathcoverage=true

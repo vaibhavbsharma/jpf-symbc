@@ -15,17 +15,18 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 #symbolic.dp=z3inc
 symbolic.dp=z3bitvector
 
-listener =.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
+listener =.symbc.VeritestingListener,.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
 #,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
-#symbolic.optimizechoices=false
+symbolic.optimizechoices=false
 
-branchCoverageOn=true
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/tcas/tcas.class
-coverageExclusions=LWBS.launch(IZZIZZIZZIZZIZZ)V
+veritestingMode=0
 
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/tcas/
 coverageExclusions=Ltcgbenchmarks/tcas/tcas.main([Ljava/lang/String)V
+performanceMode=true
 
-coverageMode=4
+coverageMode=1
 
 evaluationMode=true
+pathcoverage=true

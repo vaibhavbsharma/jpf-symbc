@@ -1,8 +1,9 @@
-target=tcgbenchmarks.replace.replace11
+target=tcgbenchmarks.nanoxmlTCG.DumpXML
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-#symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
-symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#con#con#con#con#con#con#con#con#con)
+#symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
+symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#con#con#con#con#con)
+
 
 vm.storage.class=nil
 symbolic.debug=false
@@ -25,9 +26,12 @@ symbolic.optimizechoices=false
 
 veritestingMode=0
 
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/replace/
+#branchCoverageOn=true
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/nanoxmlTCG/
+#coverageExclusions=Ltcgbenchmarks/nanoxmlTCG/DumpXML.main([Ljava/lang/String)V
 
 performanceMode=true
 
 coverageMode=1
 evaluationMode=true
+
