@@ -18,17 +18,18 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 symbolic.dp=z3bitvector
 
-## branch coverage with unit test for JR
-listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener
+listener =.symbc.VeritestingListener,.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
 #,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
-
 
 symbolic.optimizechoices=false
 
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/apachecli/CLI.class
+veritestingMode=0
+
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/apachecli/
 
 
-veritestingMode = 3
-coverageMode=5
 performanceMode=true
+
+coverageMode=1
 evaluationMode=true
+pathcoverage=true
