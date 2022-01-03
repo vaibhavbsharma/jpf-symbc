@@ -128,7 +128,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public static CoverageCriteria coverageCriteria = CoverageCriteria.UNDEFINED;
     public static boolean veritestingSuccessful = false;
-    public static boolean verboseVeritesting = true;
+    public static boolean verboseVeritesting = false;
     static int numberOfThreads = 0;
 
     //indicates whether we want to invoke z3bitvector frome the binary as apposed to the api
