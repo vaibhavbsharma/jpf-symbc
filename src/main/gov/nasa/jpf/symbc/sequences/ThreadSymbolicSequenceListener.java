@@ -140,11 +140,11 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
 
 
 
-        if (IncrementalListener.solver == null) {//call super to generate test cases in case it is non-incremental mode and we do want to generate testcases.
-            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
-                super.threadTerminated(vm, terminatedThread);
-            return;
-        }
+//        if (IncrementalListener.solver == null) {//call super to generate test cases in case it is non-incremental mode and we do want to generate testcases.
+//            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
+//                super.threadTerminated(vm, terminatedThread);
+//            return;
+//        }
         SystemState ss = vm.getSystemState();
 
         ChoiceGenerator<?> cg = vm.getChoiceGenerator();
@@ -254,6 +254,7 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
         // A method sequence is a vector of strings
         Vector<String> methodSequence = new Vector<String>();
         ChoiceGenerator cg = null;
+
         if (BranchListener.testCaseGenerationMode == TestCaseGenerationMode.UNIT_LEVEL)
             // explore the choice generator chain - unique for a given path.
             for (int i = 0; i < cgs.length; i++) {
@@ -353,6 +354,9 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
                 break;
             case '\n':
                 outputChar = "\\n";
+                break;
+            case '\b':
+                outputChar = "\\b";
                 break;
             case '\r':
                 outputChar = "\\r";

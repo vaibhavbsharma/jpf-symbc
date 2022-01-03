@@ -34,3 +34,4 @@ performanceMode=true
 
 coverageMode=1
 evaluationMode=true
+pathcoverage=true
