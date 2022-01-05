@@ -53,9 +53,11 @@ public class CoverageStatistics {
         String isBatch = coverageMode == CoverageMode.JR ? (batchCoverage ? "batch" : "single") : "NA";
         String envStepsStr = evnMaxSteps != null ? "_steps_" + evnMaxSteps : "";
 
-        statisticFileName = folderStr + "/" + benchmarkName + "_OblgOnlyStat_" + coverageMode + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
-        executionStatFileName = folderStr + "/" + benchmarkName + "_ExecStat_" + coverageMode + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
-        coveragePerThreadFileName = folderStr + "/" + benchmarkName + "_ThreadStat_" + coverageMode + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
+        String spfPath = coverageMode==CoverageMode.SPF && pathCoverage? "_Path": "";
+
+        statisticFileName = folderStr + "/" + benchmarkName + "_OblgOnlyStat_" + coverageMode + spfPath + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
+        executionStatFileName = folderStr + "/" + benchmarkName + "_ExecStat_" + coverageMode + spfPath  + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
+        coveragePerThreadFileName = folderStr + "/" + benchmarkName + "_ThreadStat_" + coverageMode + spfPath  + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
 
       /*  if (evnMaxSteps != null) {
             statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_mode" + veritestingMode + "_steps" + evnMaxSteps + ".txt";
