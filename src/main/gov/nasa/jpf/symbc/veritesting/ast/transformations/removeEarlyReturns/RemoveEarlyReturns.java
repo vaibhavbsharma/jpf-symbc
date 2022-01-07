@@ -337,17 +337,20 @@ Similar things can be done for SPF Cases.
         RemoveEarlyReturns rer = new RemoveEarlyReturns(region);
         StaticRegion condRegion = ConditionReturns.execute(region);
         if (verboseVeritesting)
-            System.out.println("region after conditional returns addition :\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
+            System.out.println("----region after conditional returns addition :\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
 
         if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
             condRegion = SeperateCmplxCondVisitor.execute(condRegion);
             condRegion = PrepareCoverageVisitor.execute(condRegion);
         }
 
+        if (verboseVeritesting)
+            System.out.println("----region after prepare coverage:\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
+
         StaticRegion internalJRVarRemovedRegion = CreateInternalJRSsaVars.execute(condRegion);
 
         if (verboseVeritesting)
-            System.out.println("region after conditional returns removal:\n" + PrettyPrintVisitor.print(internalJRVarRemovedRegion.staticStmt));
+            System.out.println("----region after conditional returns removal:\n" + PrettyPrintVisitor.print(internalJRVarRemovedRegion.staticStmt));
 
         StaticRegion result = rer.analyze(internalJRVarRemovedRegion);
 

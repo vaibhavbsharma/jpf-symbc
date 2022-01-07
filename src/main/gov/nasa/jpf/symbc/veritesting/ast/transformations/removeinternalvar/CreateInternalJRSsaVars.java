@@ -21,7 +21,14 @@ import java.util.*;
 
 public class CreateInternalJRSsaVars extends AstMapVisitor {
 
+    //specifies the last InternalJR var to allow creation of chain among these vars in terms of chained gammas
     InternalJRSsaVar lastInternalSsaVar = null;
+
+    //specifies the last perviously created internalSSA var in the order of the code. This is different than lastInternalSsaVar in that it is not used to create the phis of the different internalSsaVar
+    //but rather it is used to identify which lastPerviouslySsaVar that we have created on the path, so we'd enforce the obligation coverage to demand that none of the previousSSAVars are true which
+    // means no early return has happened before reaching that obligation.
+    InternalJRSsaVar lastPerviouslySsaVar = null;
+
 
     Expression innerPC;
 
@@ -33,9 +40,16 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
     public Stmt visit(AssignmentStmt a) {
         if (a.lhs instanceof InternalJRVar) {
             lastInternalSsaVar = new InternalJRSsaVar();
+            lastPerviouslySsaVar = lastInternalSsaVar;
             return new AssignmentStmt(lastInternalSsaVar, a.rhs);
         }
         return new AssignmentStmt(eva.accept(a.lhs), eva.accept(a.rhs));
+    }
+
+    @Override
+    public Stmt visit(StoreGlobalInstruction c) {
+        ((CreateInternalJRSsaVarsExpr)eva.theVisitor).lastPerviouslySsaVar = lastPerviouslySsaVar;
+        return new StoreGlobalInstruction((GlobalJRVar) eva.accept(c.lhs), eva.accept(c.rhs));
     }
 
 
@@ -81,16 +95,19 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
         } else if ((thenInternalSsaVar != null) && (elseInternalSsaVar != null)) {
             InternalJRSsaVar newSsaVar = new InternalJRSsaVar();
             lastInternalSsaVar = newSsaVar;
+            lastPerviouslySsaVar = newSsaVar;
             AssignmentStmt assignmentStmt = new AssignmentStmt(newSsaVar, new GammaVarExpr(thenCond, thenInternalSsaVar, elseInternalSsaVar));
             return new CompositionStmt(newIfStmt, assignmentStmt);
         } else if (thenInternalSsaVar != null) {
             InternalJRSsaVar newSsaVar = new InternalJRSsaVar();
             lastInternalSsaVar = newSsaVar;
+            lastPerviouslySsaVar = newSsaVar;
             AssignmentStmt assignmentStmt = new AssignmentStmt(newSsaVar, new GammaVarExpr(thenCond, thenInternalSsaVar, oldlastInternalSsaVarValue));
             return new CompositionStmt(newIfStmt, assignmentStmt);
         } else { //if (elseInternalSsaVar != null)
             InternalJRSsaVar newSsaVar = new InternalJRSsaVar();
             lastInternalSsaVar = newSsaVar;
+            lastPerviouslySsaVar = newSsaVar;
             AssignmentStmt assignmentStmt = new AssignmentStmt(newSsaVar, new GammaVarExpr(elseCond, elseInternalSsaVar, oldlastInternalSsaVarValue));
             return new CompositionStmt(newIfStmt, assignmentStmt);
         }
@@ -104,7 +121,7 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
 
 
     public static StaticRegion execute(StaticRegion region) throws StaticRegionException {
-        CreateInternalJRSsaVars conditionReturns = new CreateInternalJRSsaVars(new ExprMapVisitor());
+        CreateInternalJRSsaVars conditionReturns = new CreateInternalJRSsaVars(new CreateInternalJRSsaVarsExpr());
         Stmt stmt = region.staticStmt.accept(conditionReturns);
 
         return new StaticRegion(stmt, region, null);

@@ -23,6 +23,11 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
     // in this case, for these jrvar assignments we want to skip over and not create duplicated jrvars
     boolean branchHasJRVar = false;
 
+    // indicates that an early return in the previous statements possibly exists.
+    // This allows us when creating the obligations to specify that ER cannot have happened in the previous statements
+    // for this obligation to be covered.
+    boolean hasPreviousER = false;
+
 /*
     @Override
     public Stmt visit(AssignmentStmt a) {
@@ -34,6 +39,13 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
         return a;
     }
 */
+
+    @Override
+    public Stmt visit(ReturnInstruction c) {
+        hasPreviousER = true;
+        return c;
+    }
+
 
     @Override
     public Stmt visit(StoreGlobalInstruction a) {
@@ -79,18 +91,22 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
         eva.accept(a.condition);
 
         boolean conditionHasJRVar = ((PrepareCoverageExprVisitor) eva.theVisitor).hasJRVar;
-
+        boolean oldHasPreviousER = this.hasPreviousER;
+        boolean thenHasPreviousER;
+        boolean elseHasPreviousER;
         Stmt newThen;
         Stmt newElse;
 
         branchHasJRVar = false;
         newThen = a.thenStmt.accept(this);
         boolean thenHasJRVarAssignment = branchHasJRVar;
+        thenHasPreviousER = this.hasPreviousER;
+
 
         branchHasJRVar = false;
         newElse = a.elseStmt.accept(this);
         boolean elseHasJRVarAssignment = branchHasJRVar;
-
+        elseHasPreviousER = thenHasPreviousER ||this.hasPreviousER;
 
         Obligation thenOblg;
         Obligation elseOblg;
@@ -124,13 +140,29 @@ public class PrepareCoverageVisitor extends AstMapVisitor {
             if (!thenHasJRVarAssignment) {// then I'll add a JRVar assignment to indicate the branching/obligation
 //                newThen = new CompositionStmt(new AssignmentStmt(InternalJRVar.jrVar, new IntConstant(1)), a.thenStmt);
                 if (!isOblgCovered(thenOblg))
-                    newThen = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(thenOblg), new IntConstant(1)), newThen);
+                    if (!oldHasPreviousER) // no need to account for the possibility of returning early.
+                        newThen = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(thenOblg), new IntConstant(1)), newThen);
+                    else // we need to specify that not only that the obligation can be covered here, but it can only be covered if no early return has occured.
+                        newThen = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(thenOblg),
+                                     new GammaVarExpr(new Operation(Operation.Operator.EQ,
+                                             InternalJRVar.jrVar,
+                                             new IntConstant(0)),new IntConstant(1),
+                                             new IntConstant(0))),
+                                   newThen);
             }
             if (!elseHasJRVarAssignment) {// then I'll add a JRVar assignment to indicate the branching/obligation
                 if (!isOblgCovered(elseOblg))
-                    newElse = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(elseOblg), new IntConstant(1)), newElse);
+                    if(!thenHasPreviousER)
+                        newElse = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(elseOblg), new IntConstant(1)), newElse);
+                else
+                        newElse = new CompositionStmt(new StoreGlobalInstruction(new ObligationVar(elseOblg), new GammaVarExpr(new Operation(Operation.Operator.EQ,
+                                InternalJRVar.jrVar,
+                                new IntConstant(0)),new IntConstant(1),
+                                new IntConstant(0))),
+                        newElse);
             }
         }
+        this.hasPreviousER = elseHasPreviousER;
         return new IfThenElseStmt(a.original, a.condition, newThen,
                 newElse, a.genuine, a.isByteCodeReversed, a.generalOblg);
     }
