@@ -472,6 +472,9 @@ public class SymbolicSequenceListener extends PropertyListenerAdapter implements
 	   */
 	  private void printJUnitTestClass(PrintWriter pw){
 		  // imports
+		  pw.println("/*****IMPORTANT:" +
+				  "If this is a static class, ensure to write a state resetting function and invoke it where necessary" +
+				  "*******/");
 		  pw.println("import static org.junit.Assert.*;");
 		  pw.println("import org.junit.Before;");
 		  pw.println("import org.junit.Test;");

@@ -49,13 +49,6 @@ public class tcas {
         return b ? 1 : 0;
     }
 
-    public static Outputs getOutputs() {
-        int[] ret = new int[]{Cur_Vertical_Sep, b2I(High_Confidence), b2I(Two_of_Three_Reports_Valid),
-                Own_Tracked_Alt, Own_Tracked_Alt_Rate, Other_Tracked_Alt, Alt_Layer_Value, Up_Separation, Down_Separation, Other_RAC, Climb_Inhibit,
-                result_alt_sep_test, result_alim};
-        return new Outputs(ret);
-    }
-
     public static void initialize() {
         Positive_RA_Alt_Thresh_0 = 400;
         Positive_RA_Alt_Thresh_1 = 500;
@@ -270,56 +263,9 @@ public class tcas {
         Other_Capability = a11;
         Climb_Inhibit = a12;
 
-//		alt_sep_test();
-
         result_alt_sep_test = alt_sep_test();
         result_alim = ALIM();
 
-        // MWW assertions.  These come from ACSL safety property paper: http://people.rennes.inria.fr/Arnaud.Gotlieb/CT_ATM_gotlieb.pdf
-        // fails
-//		assert((Up_Separation > alim &&
-//				Down_Separation >= alim &&
-//				Own_Tracked_Alt > Other_Tracked_Alt) ?
-//				result != DOWNWARD_RA : true);
-
-        // passes
-
-        //passes
-//		assert((Up_Separation < alim &&
-//				Down_Separation >= alim) ?
-//				result != UPWARD_RA : true);
-
-        // fails
-//		assert((Up_Separation >= alim &&
-//				Down_Separation < alim) ?
-//				result != DOWNWARD_RA: true);
-
-
-		/*Cur_Vertical_Sep = a21;
-		if (a22 == 0) {
-			High_Confidence = false;
-		}
-		else {
-			High_Confidence = true;
-		}
-		if (a23 == 0) {
-			Two_of_Three_Reports_Valid = false;
-		}
-		else {
-			Two_of_Three_Reports_Valid = true;
-		}
-
-		Own_Tracked_Alt = a24;
-		Own_Tracked_Alt_Rate = a25;
-		Other_Tracked_Alt = a26;
-		Alt_Layer_Value = a27;
-		Up_Separation = a28;
-		Down_Separation = a29;
-		Other_RAC = a30;
-		Other_Capability = a31;
-		Climb_Inhibit = a32;
-
-		alt_sep_test();*/
 
     }
 
