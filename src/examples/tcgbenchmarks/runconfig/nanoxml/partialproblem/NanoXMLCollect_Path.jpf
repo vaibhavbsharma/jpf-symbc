@@ -2,7 +2,7 @@ target=tcgbenchmarks.nanoxmlTCG.DumpXML
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
 #symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
-symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#con#con#con#con#con)
+symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#sym#con#con#con#con)
 
 
 vm.storage.class=nil
