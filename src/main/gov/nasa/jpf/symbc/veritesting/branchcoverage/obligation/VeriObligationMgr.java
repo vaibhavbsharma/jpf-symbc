@@ -223,7 +223,8 @@ public class VeriObligationMgr {
         ArrayList<Obligation> coveredOblgs = new ArrayList<>();
         for (Obligation oblg : oblgsNeedCoverage) {
             PriorityQueue<Pair<Expression, Integer>> oblgQueue = symbolicOblgMap.get(oblg);
-            if (isOblgCoveredInPath(oblgQueue, solution)) coveredOblgs.add(oblg);
+            if (isOblgCoveredInPath(oblgQueue, solution))
+                coveredOblgs.add(oblg);
         }
         // if we have any new coverage then
         if (!evaluationMode)

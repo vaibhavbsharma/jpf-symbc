@@ -19,13 +19,16 @@ echo "maxsteps is $MAX_STEPS"
 mkdir $COVERAGEDIR/logs/log_tcas
 mkdir $COVERAGEDIR/logs/log_tcas/partialproblem
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASCollect.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCASCollect_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASCollect_Path.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCASCollect_Path_steps$MAX_STEPS.log
-#
-#
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCAS_JR_Collect.mode2_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCAS_JR_Collect.mode3_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCAS_JR_Collect.mode4_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCAS_JR_Collect.mode5_steps$MAX_STEPS.log
-
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASCollect.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCASCollect_steps$MAX_STEPS.log \
+&& echo "SPF branch finished" \
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASCollect_Path.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCASCollect_Path_steps$MAX_STEPS.log \
+&& echo "SPF path finished" \
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCAS_JR_Collect.mode2_steps$MAX_STEPS.log \
+&& echo "JR mode2 finished" \
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCAS_JR_Collect.mode3_steps$MAX_STEPS.log \
+&& echo "JR mode3 finished" \
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCAS_JR_Collect.mode4_steps$MAX_STEPS.log \
+&& echo "JR mode4 finished" \
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/tcas/partialproblem/TCASJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_tcas/partialproblem/TCAS_JR_Collect.mode5_steps$MAX_STEPS.log \
+&& echo "JR mode5 finished"
 

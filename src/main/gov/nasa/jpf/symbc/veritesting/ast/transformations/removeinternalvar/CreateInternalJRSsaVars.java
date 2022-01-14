@@ -41,14 +41,16 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
         if (a.lhs instanceof InternalJRVar) {
             lastInternalSsaVar = new InternalJRSsaVar();
             lastPerviouslySsaVar = lastInternalSsaVar;
-            return new AssignmentStmt(lastInternalSsaVar, a.rhs);
+//            return new AssignmentStmt(lastInternalSsaVar, a.rhs);
+            assert a.rhs instanceof IntConstant && ((IntConstant) a.rhs).getValue() == 1 : "unexpected assignment value to an internal JRVar. Failing.";
+            return new AssignmentStmt(lastInternalSsaVar, new GammaVarExpr(innerPC, a.rhs, new IntConstant(0)));
         }
         return new AssignmentStmt(eva.accept(a.lhs), eva.accept(a.rhs));
     }
 
     @Override
     public Stmt visit(StoreGlobalInstruction c) {
-        ((CreateInternalJRSsaVarsExpr)eva.theVisitor).lastPerviouslySsaVar = lastPerviouslySsaVar;
+        ((CreateInternalJRSsaVarsExpr) eva.theVisitor).lastPerviouslySsaVar = lastPerviouslySsaVar;
         return new StoreGlobalInstruction((GlobalJRVar) eva.accept(c.lhs), eva.accept(c.rhs));
     }
 
@@ -74,7 +76,7 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
 
         Stmt thenStmt = a.thenStmt.accept(this);
 
-        InternalJRSsaVar thenInternalSsaVar = lastInternalSsaVar!=null && lastInternalSsaVar.equals(oldlastInternalSsaVar)? null: lastInternalSsaVar;
+        InternalJRSsaVar thenInternalSsaVar = lastInternalSsaVar != null && lastInternalSsaVar.equals(oldlastInternalSsaVar) ? null : lastInternalSsaVar;
 
 //        lastInternalSsaVar = null;
         lastInternalSsaVar = oldlastInternalSsaVar;
@@ -83,7 +85,7 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
         innerPC = elseCond;
         Stmt elseStmt = a.elseStmt.accept(this);
 
-        InternalJRSsaVar elseInternalSsaVar = lastInternalSsaVar!=null && lastInternalSsaVar.equals(oldlastInternalSsaVar)? null: lastInternalSsaVar;
+        InternalJRSsaVar elseInternalSsaVar = lastInternalSsaVar != null && lastInternalSsaVar.equals(oldlastInternalSsaVar) ? null : lastInternalSsaVar;
 
         innerPC = oldInnerPC;
 

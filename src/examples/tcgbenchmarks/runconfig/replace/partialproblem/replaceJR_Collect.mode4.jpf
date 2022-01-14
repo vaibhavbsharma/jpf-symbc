@@ -2,7 +2,7 @@ target=tcgbenchmarks.replace.replace11
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
 #symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
-symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#sym#con#con#con#con#con#con)
+symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#con#con#con#con#con#con#con#con)
 
 vm.storage.class=nil
 symbolic.debug=false

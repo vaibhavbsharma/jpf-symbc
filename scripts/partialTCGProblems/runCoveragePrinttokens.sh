@@ -19,11 +19,15 @@ mkdir $COVERAGEDIR/logs/log_printtokens2
 mkdir $COVERAGEDIR/logs/log_printtokens2/partialproblem
 
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensCollect.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensCollect_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensCollect_Path.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensCollect_Path_steps$MAX_STEPS.log
-#
-#
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode2_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode3_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode4_steps$MAX_STEPS.log
-#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode5_steps$MAX_STEPS.log
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensCollect.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensCollect_steps$MAX_STEPS.log \
+&& echo "SPF branch finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensCollect_Path.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensCollect_Path_steps$MAX_STEPS.log \
+&& echo "SPF path finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode2_steps$MAX_STEPS.log \
+&& echo "JR mode2 finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode3_steps$MAX_STEPS.log \
+&& echo "JR mode3 finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode4_steps$MAX_STEPS.log \
+&& echo "JR mode4 finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode5_steps$MAX_STEPS.log \
+&& echo "JR mode5 finished"

@@ -191,8 +191,12 @@ public class PrettyPrintVisitor implements AstVisitor<Void> {
     @Override
     public Void visit(StoreGlobalInstruction c) {
         ind();
-        write(c.toString());; nl();
+        write(c.lhs); write(" := "); write(c.rhs); write("; "); nl();
         return null;
+
+        /*ind();
+        write(c.toString());; nl();
+        return null;*/
     }
 
 

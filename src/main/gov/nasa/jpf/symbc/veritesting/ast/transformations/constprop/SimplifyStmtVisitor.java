@@ -51,6 +51,7 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
     @Override
     public Stmt visit(AssignmentStmt a) {
         Expression rhs = eva.accept(a.rhs);
+//        if ((isConstant(rhs) || isVariable(rhs)) && !isJRVar(a.lhs)) { // do not simplify away JR Internal or global vars.
         if (isConstant(rhs) || isVariable(rhs)) {
             constantsTable.add((Variable) a.lhs, rhs);
             if (isVariable(rhs)) {
@@ -75,6 +76,10 @@ public class SimplifyStmtVisitor extends FixedPointAstMapVisitor {
             return SkipStmt.skip;
         }
         return new AssignmentStmt(a.lhs, rhs);
+    }
+
+    private boolean isJRVar(Expression rhs) {
+        return rhs instanceof GlobalJRVarSSAExpr || rhs instanceof InternalJRSsaVar;
     }
 
     @Override

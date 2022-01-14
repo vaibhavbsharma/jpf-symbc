@@ -322,7 +322,7 @@ Similar things can be done for SPF Cases.
 
 
         if (verboseVeritesting)
-            System.out.println("\nRegion after removeEarlyReturns: " +
+            System.out.println("\nRegion after removeEarlyReturns: \n" +
                     StmtPrintVisitor.print(resultStmt));
         // VarTypeTable varTypeTable = new VarTypeTable(region.varTypeTable);
 
