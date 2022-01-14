@@ -43,7 +43,10 @@ public class CreateInternalJRSsaVars extends AstMapVisitor {
             lastPerviouslySsaVar = lastInternalSsaVar;
 //            return new AssignmentStmt(lastInternalSsaVar, a.rhs);
             assert a.rhs instanceof IntConstant && ((IntConstant) a.rhs).getValue() == 1 : "unexpected assignment value to an internal JRVar. Failing.";
-            return new AssignmentStmt(lastInternalSsaVar, new GammaVarExpr(innerPC, a.rhs, new IntConstant(0)));
+            if(innerPC!=null)//includes the condition of the path on which the JR Internal variable is going to be set. which is used to indicate an early return statement has occured.
+                return new AssignmentStmt(lastInternalSsaVar, new GammaVarExpr(innerPC, a.rhs, new IntConstant(0)));
+            else //if no innerPC existed then this is perhaps an internal JR var that is representing an outermost return statement, like in inlining of a method that has only a single return statement at the end. in which case we just want to include the assignment with no condition.
+                return new AssignmentStmt(lastInternalSsaVar, a.rhs);
         }
         return new AssignmentStmt(eva.accept(a.lhs), eva.accept(a.rhs));
     }
