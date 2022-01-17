@@ -1,38 +1,38 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Eq-checksTCG" type="CompoundRunConfigurationType">
-    <toRun name="TestAndIte" type="JarApplication" />
-    <toRun name="FieldTest1" type="JarApplication" />
-    <toRun name="TestGoTo" type="JarApplication" />
-    <toRun name="HigherOrder1" type="JarApplication" />
-    <toRun name="ArrayTest3" type="JarApplication" />
-    <toRun name="FieldTest3" type="JarApplication" />
-    <toRun name="EarlyReturnsTest2" type="JarApplication" />
-    <toRun name="HigherOrder2" type="JarApplication" />
-    <toRun name="SymbolicStackInput" type="JarApplication" />
-    <toRun name="TestNestedIfBranch" type="JarApplication" />
-    <toRun name="TestComplexCondition1" type="JarApplication" />
-    <toRun name="EqSPFCasesTest1" type="JarApplication" />
-    <toRun name="FieldTest6" type="JarApplication" />
-    <toRun name="MethodInlining1" type="JarApplication" />
-    <toRun name="FieldTest2" type="JarApplication" />
-    <toRun name="EarlyReturnsTest1" type="JarApplication" />
-    <toRun name="HigherOrder3" type="JarApplication" />
-    <toRun name="TestOrIte" type="JarApplication" />
-    <toRun name="EqSPFCasesTest2" type="JarApplication" />
-    <toRun name="ArrayTest1" type="JarApplication" />
-    <toRun name="TestLocalOutputs" type="JarApplication" />
-    <toRun name="JBMCRegList1" type="JarApplication" />
-    <toRun name="ArrayTest2" type="JarApplication" />
-    <toRun name="TestLocalOutputs1" type="JarApplication" />
-    <toRun name="FieldTest5" type="JarApplication" />
-    <toRun name="TestERWithSideEffect" type="JarApplication" />
-    <toRun name="ArrayTest4" type="JarApplication" />
-    <toRun name="CGTest" type="JarApplication" />
-    <toRun name="ArrayTest7" type="JarApplication" />
-    <toRun name="ArrayTest5" type="JarApplication" />
-    <toRun name="ArrayTest6" type="JarApplication" />
-    <toRun name="FieldTest4" type="JarApplication" />
-    <toRun name="Simple1" type="JarApplication" />
-    <method v="2" />
+  <configuration default="false" name="Eq-checksTCG" type="CompoundRunConfigurationType" factoryName="Compound Run Configuration">
+    <toRun type="JarApplication" name="ArrayTest1" />
+    <toRun type="JarApplication" name="ArrayTest2" />
+    <toRun type="JarApplication" name="ArrayTest3" />
+    <toRun type="JarApplication" name="ArrayTest4" />
+    <toRun type="JarApplication" name="ArrayTest5" />
+    <toRun type="JarApplication" name="ArrayTest6" />
+    <toRun type="JarApplication" name="ArrayTest7" />
+    <toRun type="JarApplication" name="CGTest" />
+    <toRun type="JarApplication" name="EarlyReturnsTest1" />
+    <toRun type="JarApplication" name="EarlyReturnsTest2" />
+    <toRun type="JarApplication" name="EqSPFCasesTest1" />
+    <toRun type="JarApplication" name="EqSPFCasesTest2" />
+    <toRun type="JarApplication" name="FieldTest1" />
+    <toRun type="JarApplication" name="FieldTest2" />
+    <toRun type="JarApplication" name="FieldTest3" />
+    <toRun type="JarApplication" name="FieldTest4" />
+    <toRun type="JarApplication" name="FieldTest5" />
+    <toRun type="JarApplication" name="FieldTest6" />
+    <toRun type="JarApplication" name="HigherOrder1" />
+    <toRun type="JarApplication" name="HigherOrder2" />
+    <toRun type="JarApplication" name="HigherOrder3" />
+    <toRun type="JarApplication" name="JBMCRegList1" />
+    <toRun type="JarApplication" name="MethodInlining1" />
+    <toRun type="JarApplication" name="Simple1" />
+    <toRun type="JarApplication" name="SymbolicStackInput" />
+    <toRun type="JarApplication" name="TestAndIte" />
+    <toRun type="JarApplication" name="TestComplexCondition1" />
+    <toRun type="JarApplication" name="TestERWithSideEffect" />
+    <toRun type="JarApplication" name="TestGoTo" />
+    <toRun type="JarApplication" name="TestLocalOutputs" />
+    <toRun type="JarApplication" name="TestLocalOutputs1" />
+    <toRun type="JarApplication" name="TestNestedIfBranch" />
+    <toRun type="JarApplication" name="TestOrIte" />
+    <method />
   </configuration>
 </component>
