@@ -21,7 +21,7 @@ mkdir $COVERAGEDIR/logs/log_dumpxml/partialproblem
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/partialproblem/NanoXMLCollect.jpf >& $COVERAGEDIR/logs/log_dumpxml/partialproblem/nanoXMLCollect_steps$MAX_STEPS.log \
 && echo "SPF branch finished" \
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/partialproblem/NanoXMLCollect_Path.jpf >& $COVERAGEDIR/logs/log_dumpxml/partialproblem/nanoXMLCollect_Path_steps$MAX_STEPS.log \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/partialproblem/NanoXMLCollect_Path.jpf >& $COVERAGEDIR/logs/log_dumpxml/partialproblem/nanoXMLCollect_Path_steps$MAX_STEPS.log \
 && echo "SPF path finished" \
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/nanoxml/partialproblem/NanoXMLJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_dumpxml/partialproblem/nanoXMLJRCollect.mode2_steps$MAX_STEPS.log \
 && echo "JR mode2 finished" \

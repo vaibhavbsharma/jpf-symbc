@@ -1,9 +1,7 @@
-target=tcgbenchmarks.replace.replace11
+target=tcgbenchmarks.wbs.WBS
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-#symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
-symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#con#con#con#con#con#con#con)
-
+symbolic.method = tcgbenchmarks.wbs.WBS.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
 vm.storage.class=nil
 symbolic.debug=false
 
@@ -13,10 +11,11 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 #symbolic.dp=z3
 
-
 #symbolic.dp=z3inc
 
 symbolic.dp=z3bitvector
+
+#jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 listener =.symbc.VeritestingListener,.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
 #,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
@@ -25,10 +24,11 @@ symbolic.optimizechoices=false
 
 veritestingMode=0
 
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/replace/
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/wbs/
+coverageExclusions=Ltcgbenchmarks/wbs/WBS.launch(IZZIZZIZZIZZIZZ)V
 
 performanceMode=true
 
 coverageMode=1
 evaluationMode=true
-verboseVeritesting=true
+pathcoverage=true

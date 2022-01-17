@@ -21,7 +21,7 @@ mkdir $COVERAGEDIR/logs/log_siena/partialproblem
 
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaCollect.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaCollect_steps$MAX_STEPS.log \
 && echo "SPF branch finished" \
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaCollect_Path.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaCollect_Path_steps$MAX_STEPS.log \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaCollect_Path.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaCollect_Path_steps$MAX_STEPS.log \
 && echo "SPF path finished" \
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode2_steps$MAX_STEPS.log \
 && echo "JR mode2 finished" \

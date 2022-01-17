@@ -1,8 +1,7 @@
-target=tcgbenchmarks.replace.replace11
+target=tcgbenchmarks.schedule2_3.Schedule2
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-#symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
-symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#con#con#con#con#con#con#con)
+symbolic.method = tcgbenchmarks.schedule2_3.Schedule2.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
 
 vm.storage.class=nil
 symbolic.debug=false
@@ -25,10 +24,11 @@ symbolic.optimizechoices=false
 
 veritestingMode=0
 
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/replace/
+#branchCoverageOn=true
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/schedule2_3/
 
 performanceMode=true
 
 coverageMode=1
 evaluationMode=true
-verboseVeritesting=true
+pathcoverage=true
