@@ -30,4 +30,6 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partia
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode4_steps$MAX_STEPS.log \
 && echo "JR mode4 finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode5_steps$MAX_STEPS.log \
-&& echo "JR mode5 finished"
+&& echo "JR mode5 finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJR_Collect.mode3PlainJR_steps$MAX_STEPS.log \
+&& echo "JR mode3 PlainJR finished"

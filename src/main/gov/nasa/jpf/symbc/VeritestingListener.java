@@ -85,7 +85,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public static long totalSolverTime = 0, z3Time = 0;
     public static long parseTime = 0, regionSummaryParseTime = 0;
-    public static long solverAllocTime = 0;
+//    public static long solverAllocTime = 0;
     public static long cleanupTime = 0;
     public static int solverCount = 0;
     public static int maxStaticExplorationDepth = 1;

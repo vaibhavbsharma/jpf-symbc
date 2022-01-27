@@ -30,4 +30,6 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialp
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode4_steps$MAX_STEPS.log \
 && echo "JR mode4 finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode5_steps$MAX_STEPS.log \
-&& echo "JR mode5 finished"
+&& echo "JR mode5 finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/partialproblem/log_cli/apacheJR_Collect.mode3PlainJR_steps$MAX_STEPS.log \
+&& echo "JR mode3 PlainJR finished"

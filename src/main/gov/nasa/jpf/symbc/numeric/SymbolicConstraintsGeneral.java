@@ -116,7 +116,7 @@ public class SymbolicConstraintsGeneral {
         } else throw new RuntimeException("## Error: unknown decision procedure symbolic.dp=" + dp[0] + "\n(use choco or IAsolver or CVC3)");
 
 
-        VeritestingListener.solverAllocTime += (System.nanoTime() - t0);
+//        VeritestingListener.solverAllocTime += (System.nanoTime() - t0);
         long t1 = System.nanoTime();
         /*
          * Parse path condition to solver. Note: do not override the actual pb

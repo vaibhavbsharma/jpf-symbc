@@ -29,4 +29,7 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialpro
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJR_Collect.mode4_steps$MAX_STEPS.log \
 && echo "JR mode4 finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJR_Collect.mode5_steps$MAX_STEPS.log \
-&& echo "JR mode5 finished"
+&& echo "JR mode5 finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJR_Collect.mode3PlainJR_steps$MAX_STEPS.log \
+&& echo "JR mode3 PlainJR finished"
+
