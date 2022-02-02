@@ -598,7 +598,7 @@ public class BytecodeUtils {
                 pc = (new PreCondition()).addConstraints(pc, assumeString, expressionMap);
 
                 // should check PC for satisfiability
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(th)) {// not satisfiable
                     // System.out.println("Precondition not satisfiable");
                     th.getVM().getSystemState().setIgnored(true);
                 } else {

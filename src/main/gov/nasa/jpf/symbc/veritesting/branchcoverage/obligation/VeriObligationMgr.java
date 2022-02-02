@@ -12,15 +12,8 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.numeric.GreenConstraint;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
-import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
-import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
 import gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener;
-import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.ExprUtil;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
-import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SimplifyGreenVisitor;
-import gov.nasa.jpf.symbc.veritesting.ast.def.GlobalJRVar;
-import gov.nasa.jpf.symbc.veritesting.ast.def.GlobalJRVarSSAExpr;
-import gov.nasa.jpf.symbc.veritesting.ast.def.IfThenElseStmt;
 import gov.nasa.jpf.symbc.veritesting.ast.def.ObligationVar;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.globaljrvarssa.GlobalVarPsmMap;
 import gov.nasa.jpf.vm.ChoiceGenerator;
@@ -137,7 +130,7 @@ public class VeriObligationMgr {
      *
      * @return
      */
-    public static ArrayList<Obligation> collectVeritestingCoverage(ThreadInfo ti, LinkedHashSet<Obligation> oblgsNeedsCoverage) {
+    public static ArrayList<Obligation> collectVeriCoverageWithDisjunction(ThreadInfo ti, LinkedHashSet<Obligation> oblgsNeedsCoverage) {
 //        HashSet<Obligation> oblgsNeedsCoverage = getNeedsCoverageOblg();
         ArrayList<Obligation> coveredOblgsOnPath = new ArrayList<>();
         if (oblgsNeedsCoverage.size() > 0) {
@@ -153,6 +146,23 @@ public class VeriObligationMgr {
             }
         }
         return coveredOblgsOnPath;
+    }
+
+    public static Pair<Boolean, HashSet<Obligation>> collectVeriCoverageOnTheGo(ThreadInfo ti, PathCondition pc, LinkedHashSet<Obligation> oblgsNeedsCoverage) {
+        boolean sat = true;
+        Map<String, Object> solution = null;
+        List<String> attributes = new ArrayList<>();
+
+        attributes = VeriSymbolicSequenceListener.getMethodAttributes(ti.getVM().getChoiceGenerators());
+
+        ArrayList<Obligation> newCoveredOblgs = new ArrayList<>();
+        solution = pc.solveWithValuations(attributes);
+        if (solution.size() != 0) {
+            newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedsCoverage, solution);
+            if (newCoveredOblgs.size() != 0) //no coverage was found
+                ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
+        } else sat = false;
+        return new Pair<Boolean, HashSet<Obligation>>(sat, new HashSet<>(newCoveredOblgs));
     }
 
     public static LinkedHashSet<Obligation> getVeriNeedsCoverageOblg() {

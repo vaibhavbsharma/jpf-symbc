@@ -104,7 +104,7 @@ public class IFEQ extends gov.nasa.jpf.jvm.bytecode.IFEQ {
 
             if (conditionValue) {
                 pc._addDet(Comparator.EQ, sym_v, 0);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -120,7 +120,7 @@ public class IFEQ extends gov.nasa.jpf.jvm.bytecode.IFEQ {
                     }
                 } else
                     pc._addDet(Comparator.NE, sym_v, 0);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);

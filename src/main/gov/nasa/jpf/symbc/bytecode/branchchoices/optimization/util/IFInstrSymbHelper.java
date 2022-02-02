@@ -81,14 +81,14 @@ public class IFInstrSymbHelper {
             boolean neSat;
             if (IncrementalListener.solver != null) {
                 IncrementalListener.solver.push();
-                eqSat = eqPC.simplify();
+                eqSat = eqPC.simplify(ti);
                 IncrementalListener.solver.pop();
                 IncrementalListener.solver.push();
-                neSat = nePC.simplify();
+                neSat = nePC.simplify(ti);
                 IncrementalListener.solver.pop();
             } else {
-                eqSat = eqPC.simplify();
-                neSat = nePC.simplify();
+                eqSat = eqPC.simplify(ti);
+                neSat = nePC.simplify(ti);
             }
 
             if (eqSat) {
@@ -135,7 +135,7 @@ public class IFInstrSymbHelper {
                 } else
                     pc._addDet(trueComparator, v1, sym_v2);
                 if (IncrementalListener.solver != null)
-                    pc.simplify();
+                    pc.simplify(ti);
                 ((PCChoiceGenerator) curCg).setCurrentPC(pc);
                 return instr.getTarget();
             } else {
@@ -147,7 +147,7 @@ public class IFInstrSymbHelper {
                 } else
                     pc._addDet(falseComparator, v1, sym_v2);
                 if (IncrementalListener.solver != null)
-                    pc.simplify();
+                    pc.simplify(ti);
                 ((PCChoiceGenerator) curCg).setCurrentPC(pc);
                 return instr.getNext(ti);
             }
@@ -185,14 +185,14 @@ public class IFInstrSymbHelper {
             boolean neSat;
             if (IncrementalListener.solver != null) {
                 IncrementalListener.solver.push();
-                eqSat = eqPC.simplify();
+                eqSat = eqPC.simplify(ti);
                 IncrementalListener.solver.pop();
                 IncrementalListener.solver.push();
-                neSat = nePC.simplify();
+                neSat = nePC.simplify(ti);
                 IncrementalListener.solver.pop();
             } else {
-                eqSat = eqPC.simplify();
-                neSat = nePC.simplify();
+                eqSat = eqPC.simplify(ti);
+                neSat = nePC.simplify(ti);
             }
 
 
@@ -229,13 +229,13 @@ public class IFInstrSymbHelper {
             if (conditionValue) {
                 pc._addDet(trueComparator, sym_v, 0);
                 if (IncrementalListener.solver != null)
-                    pc.simplify();
+                    pc.simplify(ti);
                 ((PCChoiceGenerator) curCg).setCurrentPC(pc);
                 return instr.getTarget();
             } else {
                 pc._addDet(falseComparator, sym_v, 0);
                 if (IncrementalListener.solver != null)
-                    pc.simplify();
+                    pc.simplify(ti);
                 ((PCChoiceGenerator) curCg).setCurrentPC(pc);
                 return instr.getNext(ti);
             }

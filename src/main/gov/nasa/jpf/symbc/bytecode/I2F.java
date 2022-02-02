@@ -74,7 +74,7 @@ public class I2F extends gov.nasa.jpf.jvm.bytecode.I2F {
 					
 					pc._addDet(Comparator.EQ, sym_dval, sym_ival);
 					
-					if(!pc.simplify())  { // not satisfiable
+					if(!pc.simplify(th))  { // not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);

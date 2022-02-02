@@ -77,7 +77,7 @@ public class L2D extends gov.nasa.jpf.jvm.bytecode.L2D {
 				
 				pc._addDet(Comparator.EQ, sym_dval, sym_lval);
 				
-				if(!pc.simplify())  { // not satisfiable
+				if(!pc.simplify(th))  { // not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					//pc.solve();

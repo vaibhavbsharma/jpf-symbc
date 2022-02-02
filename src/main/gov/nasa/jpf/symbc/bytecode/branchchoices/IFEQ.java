@@ -96,7 +96,7 @@ public class IFEQ extends gov.nasa.jpf.jvm.bytecode.IFEQ {
 
             if (conditionValue) {
                 pc._addDet(Comparator.EQ, sym_v, 0);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";
@@ -112,7 +112,7 @@ public class IFEQ extends gov.nasa.jpf.jvm.bytecode.IFEQ {
                         pc._addDet(Comparator.LT, sym_v, 0);
                     }
                 } else pc._addDet(Comparator.NE, sym_v, 0);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";

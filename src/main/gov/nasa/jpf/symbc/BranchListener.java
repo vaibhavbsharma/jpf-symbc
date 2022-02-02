@@ -35,6 +35,9 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     // this is used to hold signature of methods that we know we do not want to cover its oblgations, like the setup for running multiple steps in WBS and TCAS
     //must not have simicolon in it
     public static HashSet<String> coverageExclusions = new HashSet<>();
+    //an optimization that allows collection of coverage and of test cases by utilizing solver calls already done during execution
+    // as opposed to waiting until the end of the path to ask
+    public static boolean tcgOnTheGo=true;
     boolean firstTime = true;
     public static boolean evaluationMode = false;
     public static String targetClass;
@@ -104,6 +107,10 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         if (coverageMode.ordinal() < 5)
             coverageStatistics = new CoverageStatistics();
+
+        if (conf.hasValue("tcgOnTheGo"))
+            tcgOnTheGo = conf.getBoolean("tcgOnTheGo");
+
     }
 
     private String setBenchmarkName(String target) {

@@ -91,7 +91,7 @@ public class IF_ICMPNE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPNE {
                         pc._addDet(Comparator.NE, sym_v1, v2);
                 } else
                     pc._addDet(Comparator.NE, v1, sym_v2);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -105,7 +105,7 @@ public class IF_ICMPNE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPNE {
                         pc._addDet(Comparator.EQ, sym_v1, v2);
                 } else
                     pc._addDet(Comparator.EQ, v1, sym_v2);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);

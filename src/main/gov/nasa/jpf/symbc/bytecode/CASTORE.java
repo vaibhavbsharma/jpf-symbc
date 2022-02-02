@@ -105,7 +105,7 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
 
             if (index < len) {
                 pc._addDet(Comparator.EQ, index, sym_index);
-                if (pc.simplify()) { // satisfiable
+                if (pc.simplify(ti)) { // satisfiable
                     ((PCChoiceGenerator) lastCG).setCurrentPC(pc);
                 } else {
                     ti.getVM().getSystemState().setIgnored(true);// backtrack
@@ -115,7 +115,7 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
             // now check for out of bounds exceptions
             else if (index == len) {
                 pc._addDet(Comparator.LT, sym_index, 0);
-                if (pc.simplify()) { // satisfiable
+                if (pc.simplify(ti)) { // satisfiable
                     ((PCChoiceGenerator) lastCG).setCurrentPC(pc);
                     return ti.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException");
                 } else {
@@ -124,7 +124,7 @@ public class CASTORE extends gov.nasa.jpf.jvm.bytecode.CASTORE {
                 }
             } else if (index == len + 1) {
                 pc._addDet(Comparator.GE, sym_index, len);
-                if (pc.simplify()) { // satisfiable
+                if (pc.simplify(ti)) { // satisfiable
                     ((PCChoiceGenerator) lastCG).setCurrentPC(pc);
                     return ti.createAndThrowException("java.lang.ArrayIndexOutOfBoundsException");
                 } else {

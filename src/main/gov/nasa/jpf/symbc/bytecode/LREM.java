@@ -91,7 +91,7 @@ public class LREM extends gov.nasa.jpf.jvm.bytecode.LREM {
 
         if (condition) { // check div by zero
             pc._addDet(Comparator.EQ, sym_v1, 0);
-            if (pc.simplify()) { // satisfiable
+            if (pc.simplify(th)) { // satisfiable
                 ((PCChoiceGenerator) cg).setCurrentPC(pc);
 
                 return th.createAndThrowException("java.lang.ArithmeticException", "rem by 0");
@@ -101,7 +101,7 @@ public class LREM extends gov.nasa.jpf.jvm.bytecode.LREM {
             }
         } else {
             pc._addDet(Comparator.NE, sym_v1, 0);
-            if (pc.simplify()) { // satisfiable
+            if (pc.simplify(th)) { // satisfiable
                 ((PCChoiceGenerator) cg).setCurrentPC(pc);
 
                 // set the result

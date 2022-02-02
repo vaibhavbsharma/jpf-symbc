@@ -873,7 +873,7 @@ public class SymbolicStringHandler {
 					String val = e1.asString();
 					pc.spc._addDet(comp, val, sym_v2);
 				}
-				if (!pc.simplify()) {// not satisfiable
+				if (!pc.simplify(th)) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					// pc.solve();
@@ -895,7 +895,7 @@ public class SymbolicStringHandler {
 					String val = e1.asString();
 					pc.spc._addDet(comp.not(), val, sym_v2);
 				}
-				if (!pc.simplify()) {// not satisfiable
+				if (!pc.simplify(th)) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1334,7 +1334,7 @@ public class SymbolicStringHandler {
 
 				if (conditionValue) {
 					pc.spc._addDet(StringComparator.ISLONG, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1346,7 +1346,7 @@ public class SymbolicStringHandler {
 					}
 				} else {
 					pc.spc._addDet(StringComparator.NOTLONG, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						throw new RuntimeException("ERROR: Long Format Type Exception");
@@ -1397,7 +1397,7 @@ public class SymbolicStringHandler {
 
 				if (conditionValue) {
 					pc.spc._addDet(StringComparator.ISBOOLEAN, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1409,7 +1409,7 @@ public class SymbolicStringHandler {
 					}
 				} else {
 					pc.spc._addDet(StringComparator.NOTBOOLEAN, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						throw new RuntimeException("ERROR: Boolean Format Type Exception"); 
@@ -1461,7 +1461,7 @@ public class SymbolicStringHandler {
 
 				if (conditionValue) {
 					pc.spc._addDet(StringComparator.ISINTEGER, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1473,7 +1473,7 @@ public class SymbolicStringHandler {
 					}
 				} else {
 					pc.spc._addDet(StringComparator.NOTINTEGER, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						throw new RuntimeException("ERROR: Integer Format Type Exception");
@@ -1516,7 +1516,7 @@ public class SymbolicStringHandler {
 
 			if (conditionValue) {
 				pc.spc._addDet(StringComparator.ISINTEGER, (StringExpression) sym_v3);
-				if (!pc.simplify()) {// not satisfiable
+				if (!pc.simplify(th)) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1527,7 +1527,7 @@ public class SymbolicStringHandler {
 				}
 			} else {
 				pc.spc._addDet(StringComparator.NOTINTEGER, (StringExpression) sym_v3);
-				if (!pc.simplify()) {// not satisfiable
+				if (!pc.simplify(th)) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					throw new RuntimeException("ERROR: Integer Format Type Exception");
@@ -1569,7 +1569,7 @@ public class SymbolicStringHandler {
 			assert pc != null;
 			if (conditionValue) {
 				pc.spc._addDet(StringComparator.ISFLOAT, (StringExpression) sym_v3);
-				if (!pc.simplify()) {// not satisfiable
+				if (!pc.simplify(th)) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1580,7 +1580,7 @@ public class SymbolicStringHandler {
 				}
 			} else {
 				pc.spc._addDet(StringComparator.NOTFLOAT, (StringExpression) sym_v3);
-				if (!pc.simplify()) {// not satisfiable
+				if (!pc.simplify(th)) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					throw new RuntimeException("ERROR: Possible Float Format Type Exception - Path Terminated");
@@ -1629,7 +1629,7 @@ public class SymbolicStringHandler {
 				assert pc != null;
 				if (conditionValue) {
 					pc.spc._addDet(StringComparator.ISFLOAT, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1641,7 +1641,7 @@ public class SymbolicStringHandler {
 					}
 				} else {
 					pc.spc._addDet(StringComparator.NOTFLOAT, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						throw new RuntimeException("ERROR: Possible Float Format Type Exception - Path Terminated");
@@ -1692,7 +1692,7 @@ public class SymbolicStringHandler {
 
 				if (conditionValue) {
 					pc.spc._addDet(StringComparator.ISDOUBLE, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1704,7 +1704,7 @@ public class SymbolicStringHandler {
 					}
 				} else {
 					pc.spc._addDet(StringComparator.NOTDOUBLE, (StringExpression) sym_v3);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						throw new RuntimeException("ERROR: Double Format Type Exception");
@@ -1751,7 +1751,7 @@ public class SymbolicStringHandler {
 
 				if (conditionValue) {
 					pc.spc._addDet(StringComparator.ISDOUBLE, sym_v1);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1762,7 +1762,7 @@ public class SymbolicStringHandler {
 					}
 				} else {
 					pc.spc._addDet(StringComparator.NOTDOUBLE, sym_v1);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						throw new RuntimeException("ERROR: Double Format Type Exception");
@@ -1807,7 +1807,7 @@ public class SymbolicStringHandler {
 
 				if (conditionValue) {
 					pc.spc._addDet(StringComparator.ISLONG, sym_v1);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1818,7 +1818,7 @@ public class SymbolicStringHandler {
 					}
 				} else {
 					pc.spc._addDet(StringComparator.NOTLONG, sym_v1);
-					if (!pc.simplify()) {// not satisfiable
+					if (!pc.simplify(th)) {// not satisfiable
 						th.getVM().getSystemState().setIgnored(true);
 					} else {
 						throw new RuntimeException("ERROR: Long Format Type Exception");
@@ -1859,7 +1859,7 @@ public class SymbolicStringHandler {
 
 			if (conditionValue) {
 				pc.spc._addDet(StringComparator.ISBOOLEAN, sym_v1);
-				if (!pc.simplify()) {// not satisfiable
+				if (!pc.simplify(th)) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -1870,7 +1870,7 @@ public class SymbolicStringHandler {
 				}
 			} else {
 				pc.spc._addDet(StringComparator.NOTBOOLEAN, sym_v1);
-				if (!pc.simplify()) {// not satisfiable
+				if (!pc.simplify(th)) {// not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					throw new RuntimeException("ERROR: Boolean Format Type Exception");

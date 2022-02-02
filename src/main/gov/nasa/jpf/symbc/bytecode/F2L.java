@@ -70,7 +70,7 @@ public class F2L extends gov.nasa.jpf.jvm.bytecode.F2L {
 				
 				pc._addDet(Comparator.EQ, sym_fval, sym_lval);
 				
-				if(!pc.simplify())  { // not satisfiable
+				if(!pc.simplify(th))  { // not satisfiable
 					th.getVM().getSystemState().setIgnored(true);
 				} else {
 					((PCChoiceGenerator) cg).setCurrentPC(pc);

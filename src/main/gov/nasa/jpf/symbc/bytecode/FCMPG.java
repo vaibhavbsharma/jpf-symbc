@@ -92,7 +92,7 @@ public class FCMPG extends gov.nasa.jpf.jvm.bytecode.FCMPG {
                 } else
                     pc._addDet(Comparator.LT, sym_v2, v1);
 
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(th)) {// not satisfiable
                     th.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -105,7 +105,7 @@ public class FCMPG extends gov.nasa.jpf.jvm.bytecode.FCMPG {
                         pc._addDet(Comparator.EQ, sym_v1, v2);
                 } else
                     pc._addDet(Comparator.EQ, v1, sym_v2);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(th)) {// not satisfiable
                     th.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -118,7 +118,7 @@ public class FCMPG extends gov.nasa.jpf.jvm.bytecode.FCMPG {
                         pc._addDet(Comparator.GT, v2, sym_v1);
                 } else
                     pc._addDet(Comparator.GT, sym_v2, v1);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(th)) {// not satisfiable
                     th.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);

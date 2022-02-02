@@ -111,7 +111,7 @@ public abstract class SwitchInstruction extends gov.nasa.jpf.jvm.bytecode.Switch
                 lastIdx = DEFAULT;
                 for (int i = 0; i < matches.length; i++)
                     pc._addDet(Comparator.NE, sym_v, matches[i]);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -120,7 +120,7 @@ public abstract class SwitchInstruction extends gov.nasa.jpf.jvm.bytecode.Switch
             } else {
                 lastIdx = idx;
                 pc._addDet(Comparator.EQ, sym_v, matches[idx]);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);

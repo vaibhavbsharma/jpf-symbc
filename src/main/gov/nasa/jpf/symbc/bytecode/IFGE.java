@@ -86,7 +86,7 @@ public class IFGE extends gov.nasa.jpf.jvm.bytecode.IFGE {
 
             if (conditionValue) {
                 pc._addDet(Comparator.GE, sym_v, 0);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -94,7 +94,7 @@ public class IFGE extends gov.nasa.jpf.jvm.bytecode.IFGE {
                 return getTarget();
             } else {
                 pc._addDet(Comparator.LT, sym_v, 0);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);

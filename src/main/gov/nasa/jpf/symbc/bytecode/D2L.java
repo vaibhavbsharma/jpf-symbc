@@ -81,7 +81,7 @@ public class D2L extends gov.nasa.jpf.jvm.bytecode.D2L {
 			
 			pc._addDet(Comparator.EQ, sym_dval, sym_ival);
 			
-			if(!pc.simplify())  { // not satisfiable
+			if(!pc.simplify(th))  { // not satisfiable
 				th.getVM().getSystemState().setIgnored(true);
 			} else {
 				//pc.solve();

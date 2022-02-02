@@ -3,16 +3,16 @@
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
  *
- * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License, 
+ * Symbolic Pathfinder (jpf-symbc) is licensed under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
- *        http://www.apache.org/licenses/LICENSE-2.0. 
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and 
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -37,6 +37,10 @@
 
 package gov.nasa.jpf.symbc.numeric;
 
+import gov.nasa.jpf.symbc.BranchListener;
+import gov.nasa.jpf.symbc.VeriBranchListener;
+import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
+import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.Instance;
 
 import java.util.HashMap;
@@ -53,14 +57,14 @@ import gov.nasa.jpf.symbc.arrays.StoreExpression;
 import gov.nasa.jpf.symbc.arrays.SelectExpression;
 import gov.nasa.jpf.symbc.concolic.PCAnalyzer;
 import gov.nasa.jpf.symbc.numeric.solvers.SolverTranslator;
-import gov.nasa.jpf.symbc.numeric.visitors.CollectVariableVisitor;
 import gov.nasa.jpf.symbc.string.StringPathCondition;
-import gov.nasa.jpf.symbc.concolic.*;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.MJIEnv;
 import za.ac.sun.cs.green.expr.IntVariable;
 import gov.nasa.jpf.vm.VM;
 import gov.nasa.jpf.symbc.VeritestingListener;
+
+import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
 
 // path condition contains mixed constraints of integers and reals
 
@@ -116,22 +120,22 @@ public class PathCondition implements Comparable<PathCondition> {
         return pc_new;
     }
 
-	// Added by Soha
-	public void _addDet(GreenConstraint greenConstraint) {
-		if (!this.hasConstraint(greenConstraint)) {
-			flagSolved = false;
-			Constraint t = (Constraint) greenConstraint;
-			t.and = header;
-			header = t;
-			count++;
-		}
-	}
+    // Added by Soha
+    public void _addDet(GreenConstraint greenConstraint) {
+        if (!this.hasConstraint(greenConstraint)) {
+            flagSolved = false;
+            Constraint t = (Constraint) greenConstraint;
+            t.and = header;
+            header = t;
+            count++;
+        }
+    }
 
     //Added by Aymeric
     public void _addDet(Comparator c, SelectExpression se, IntegerExpression ie) {
         Constraint t;
         flagSolved = false;
-        t  = new ArrayConstraint(se, c, ie);
+        t = new ArrayConstraint(se, c, ie);
         prependUnlessRepeated(t);
     }
 
@@ -139,7 +143,7 @@ public class PathCondition implements Comparable<PathCondition> {
     public void _addDet(Comparator c, StoreExpression se, ArrayExpression ae) {
         Constraint t;
         flagSolved = false;
-        t  = new ArrayConstraint(se, c, ae);
+        t = new ArrayConstraint(se, c, ae);
         prependUnlessRepeated(t);
     }
 
@@ -147,7 +151,7 @@ public class PathCondition implements Comparable<PathCondition> {
     public void _addDet(Comparator c, SelectExpression se, RealExpression re) {
         Constraint t;
         flagSolved = false;
-        t  = new RealArrayConstraint(se, c, re);
+        t = new RealArrayConstraint(se, c, re);
         prependUnlessRepeated(t);
     }
 
@@ -155,16 +159,16 @@ public class PathCondition implements Comparable<PathCondition> {
     public void _addDet(Comparator c, RealStoreExpression se, ArrayExpression ae) {
         Constraint t;
         flagSolved = false;
-        t  = new RealArrayConstraint(se, c, ae);
+        t = new RealArrayConstraint(se, c, ae);
         prependUnlessRepeated(t);
     }
 
     //Added by Aymeric
     public void _initializeArray(InitExpression ie, ArrayExpression ae) {
-      Constraint t;
-      flagSolved = false;
-      t = new ArrayConstraint(ie, Comparator.EQ, ae);
-      prependUnlessRepeated(t);
+        Constraint t;
+        flagSolved = false;
+        t = new ArrayConstraint(ie, Comparator.EQ, ae);
+        prependUnlessRepeated(t);
     }
 
     // Added by Gideon
@@ -264,7 +268,7 @@ public class PathCondition implements Comparable<PathCondition> {
     /**
      * Prepends the given constraint to this path condition, unless the constraint
      * is already included in this condition.
-     *
+     * <p>
      * Returns whether the condition was extended with the constraint.
      */
     public boolean prependUnlessRepeated(Constraint t) {
@@ -356,6 +360,27 @@ public class PathCondition implements Comparable<PathCondition> {
             return simplifyGreen();
     }
 
+    public boolean simplify(ThreadInfo ti) {
+        if (isReplay) {
+            return true;
+        }
+        if (SymbolicInstructionFactory.greenSolver == null)
+            if (BranchListener.testCaseGenerationMode != null && BranchListener.tcgOnTheGo) {
+                return simplifyWithTCG(ti);
+            } else
+                return simplifyOld();
+        else
+            return simplifyGreen();
+    }
+
+    private boolean simplifyWithTCG(ThreadInfo ti) {
+        if(coverageMode == CoverageMode.SPF){ // running coverage using SPF
+            return simplify();
+        } else { //we are running coverage using JR
+            return VeriBranchListener.collectNewCoverage(ti, this, true);
+        }
+    }
+
     private boolean solveWithSolution() {
         if (instance == null) {
             instance = SolverTranslator.createInstance(header);
@@ -399,16 +424,16 @@ public class PathCondition implements Comparable<PathCondition> {
     public boolean simplifyOld() {
         SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
         boolean result1;
-		long startTime = System.nanoTime();
+        long startTime = System.nanoTime();
         if (SymbolicInstructionFactory.concolicMode) {
             PCAnalyzer pa = new PCAnalyzer();
             result1 = pa.isSatisfiable(this, solver);
         } else
             result1 = solver.isSatisfiable(this);
         solverCalls++;
-		long t1 = System.nanoTime();
+        long t1 = System.nanoTime();
         solver.cleanup();
-		VeritestingListener.cleanupTime += (System.nanoTime() - t1);
+        VeritestingListener.cleanupTime += (System.nanoTime() - t1);
 
         if (SymbolicInstructionFactory.debugMode) {
             MinMax.Debug_no_path_constraints++;
@@ -419,8 +444,8 @@ public class PathCondition implements Comparable<PathCondition> {
             System.out.println("### PCs: total:" + MinMax.Debug_no_path_constraints + " sat:"
                     + MinMax.Debug_no_path_constraints_sat + " unsat:" + MinMax.Debug_no_path_constraints_unsat + "\n");
         }
-		long endTime = System.nanoTime();
-		VeritestingListener.totalSolverTime += (endTime - startTime);
+        long endTime = System.nanoTime();
+        VeritestingListener.totalSolverTime += (endTime - startTime);
         if (!result1)
             return false;
         boolean result2 = spc.simplify(); // TODO to review: used for strings
@@ -465,14 +490,13 @@ public class PathCondition implements Comparable<PathCondition> {
 
     /**
      * Indicates whether some other object is "equal to" this one.
-     * 
+     * <p>
      * Note: Technically, this routine is incomplete and should take the string path
      * condition stored in field {@code spc} into account.
-     * 
-     * @param obj
-     *            the reference object with which to compare
+     *
+     * @param obj the reference object with which to compare
      * @return {@code true} if this object is the same as the obj argument;
-     *         {@code false} otherwise.
+     * {@code false} otherwise.
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -504,11 +528,10 @@ public class PathCondition implements Comparable<PathCondition> {
      * hash codes of the path conditions. In the event that the hash codes are
      * equal, a lexicographic comparison is made between the constraints of the path
      * conditions.
-     * 
-     * @param pc
-     *            the path condition to compare to
+     *
+     * @param pc the path condition to compare to
      * @return -1 if this path condition is less than the other, +1 if it is
-     *         greater, and 0 if they are equal
+     * greater, and 0 if they are equal
      */
     @Override
     public int compareTo(PathCondition pc) {
@@ -539,10 +562,10 @@ public class PathCondition implements Comparable<PathCondition> {
 
     /**
      * Returns a hash code value for the object.
-     * 
+     * <p>
      * Note: Technically, this routine is incomplete and should take the string path
      * condition stored in field {@code spc} into account.
-     * 
+     *
      * @return a hash code value for this object
      * @see java.lang.Object#hashCode()
      */
@@ -596,7 +619,7 @@ public class PathCondition implements Comparable<PathCondition> {
      */
     public Map<String, Object> solveWithValuation(SymbolicInteger symInt, IntVariable intVar) {
         SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
-        Map<String, Object> result = solver.solveWithValuation(this,symInt, intVar);
+        Map<String, Object> result = solver.solveWithValuation(this, symInt, intVar);
         solver.cleanup();
         PathCondition.flagSolved = true;
         return result;
@@ -606,7 +629,7 @@ public class PathCondition implements Comparable<PathCondition> {
     //S.H.
     public Map<String, Object> solveWithValuations(List<SymbolicInteger> symInts, List<IntVariable> intVars) {
         SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
-        Map<String, Object> result = solver.solveWithValuation(this,symInts, intVars);
+        Map<String, Object> result = solver.solveWithValuation(this, symInts, intVars);
         solver.cleanup();
         PathCondition.flagSolved = true;
         return result;
@@ -615,7 +638,7 @@ public class PathCondition implements Comparable<PathCondition> {
     //S.H.
     public Map<String, Object> solveWithValuations(List<String> typeAgnosticVarList) {
         SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
-        Map<String, Object> result = solver.solveWithValuation(this,typeAgnosticVarList);
+        Map<String, Object> result = solver.solveWithValuation(this, typeAgnosticVarList);
         solver.cleanup();
         PathCondition.flagSolved = true;
         return result;

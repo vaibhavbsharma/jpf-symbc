@@ -137,8 +137,8 @@ public class SpfUtil {
         PathCondition nePC = pc.make_copy();
         eqPC._addDet(cmp, op1, op2);
         nePC._addDet(negCmp, op1, op2);
-        boolean eqSat = eqPC.simplify();
-        boolean neSat = nePC.simplify();
+        boolean eqSat = eqPC.simplify(ti);
+        boolean neSat = nePC.simplify(ti);
         // both should never be unsat
         assert !((!eqSat) && (!neSat));
         return eqSat && neSat;

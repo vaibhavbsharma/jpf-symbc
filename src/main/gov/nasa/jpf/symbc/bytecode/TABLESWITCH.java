@@ -108,7 +108,7 @@ public class TABLESWITCH extends SwitchInstruction implements gov.nasa.jpf.vm.by
             // this could be replaced safely with only one constraint:
             // pc._addDet(Comparator.GT, sym_v._minus(min), targets.length);
 
-            if (!pc.simplify()) {// not satisfiable
+            if (!pc.simplify(ti)) {// not satisfiable
                 ti.getVM().getSystemState().setIgnored(true);
             } else {
                 ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -117,7 +117,7 @@ public class TABLESWITCH extends SwitchInstruction implements gov.nasa.jpf.vm.by
         } else {
             lastIdx = idx;
             pc._addDet(Comparator.EQ, sym_v._minus(min), idx);
-            if (!pc.simplify()) {// not satisfiable
+            if (!pc.simplify(ti)) {// not satisfiable
                 ti.getVM().getSystemState().setIgnored(true);
             } else {
                 ((PCChoiceGenerator) cg).setCurrentPC(pc);

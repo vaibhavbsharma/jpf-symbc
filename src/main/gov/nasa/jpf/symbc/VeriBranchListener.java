@@ -14,8 +14,9 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
+import gov.nasa.jpf.symbc.numeric.PathCondition;
 import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
-import gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.StaticBranchChoiceGenerator;
+import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
 import gov.nasa.jpf.vm.ChoiceGenerator;
@@ -29,10 +30,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
-import static gov.nasa.jpf.symbc.VeritestingListener.spfCasesHeuristicsOn;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
-import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.collectVeritestingCoverage;
-import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.getVeriNeedsCoverageOblg;
+import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.*;
 
 public class VeriBranchListener extends BranchListener {
     public static HashSet<Obligation> newCoveredOblg = new HashSet<>();
@@ -72,7 +71,6 @@ public class VeriBranchListener extends BranchListener {
                 testCaseGenerationMode = TestCaseGenerationMode.UNIT_LEVEL;
             else testCaseGenerationMode = TestCaseGenerationMode.NONE;
         }
-
 
 
         //used to turn off test case generation, but still allow for collecting coverage. Particularly useful in equivalence checking of FSE benchmarks.
@@ -164,6 +162,7 @@ public class VeriBranchListener extends BranchListener {
             }
         }
     }
+
     @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (!evaluationMode) System.out.println("end of thread");
@@ -171,24 +170,33 @@ public class VeriBranchListener extends BranchListener {
         if (VeriBranchListener.ignoreCoverageCollection)
             return;
 
+        collectNewCoverage(terminatedThread, null, false);
+
+    }
+
+    public static boolean collectNewCoverage(ThreadInfo terminatedThread, PathCondition pc, boolean onTheGo) {
         newCoveredOblg.clear();
-        LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
-        if (veriOblgsNeedsCoverage.size() > 0) {
-            newCoveredOblg = new HashSet<>(collectVeritestingCoverage(terminatedThread, veriOblgsNeedsCoverage));
+        boolean sat = false;
+        if (!onTheGo) {
+            LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
+            if (veriOblgsNeedsCoverage.size() > 0) {
+                newCoveredOblg = new HashSet<>(collectVeriCoverageWithDisjunction(terminatedThread, veriOblgsNeedsCoverage));
+                for (Obligation oblg : newCoveredOblg)
+                    coverageStatistics.recordObligationCovered(oblg);
+                if (newCoveredOblg.size() != 0) //reset newCoverageFound, so we start new path collecting only new coverages.
+                    BranchListener.newCoverageFound = false;
+            }
+            return sat;
+        } else{
+            LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
+            Pair<Boolean, HashSet<Obligation>> satNewCoveragePair = collectVeriCoverageOnTheGo(terminatedThread,pc , veriOblgsNeedsCoverage);
+            newCoveredOblg = satNewCoveragePair.getSecond();
             for (Obligation oblg : newCoveredOblg)
                 coverageStatistics.recordObligationCovered(oblg);
-            if (newCoveredOblg.size()!=0) //reset newCoverageFound, so we start new path collecting only new coverages.
+            if (newCoveredOblg.size() != 0) //reset newCoverageFound, so we start new path collecting only new coverages.
                 BranchListener.newCoverageFound = false;
+            return satNewCoveragePair.getFirst();
         }
-
-        //the case where the path contains no veriObligations, the computation of allObligationCovered might not be
-        //reflective of the actual coverage, because the actually coverage by assumption is going to be checked with
-        //ThreadSymbolicSequenceListener, which is - according to recommended jpf setup- is fired after this listener.
-        // thus we need to provide VeriSymbolicSequenceListener to do the the same behaviour.
-        /*allObligationsCovered = ObligationMgr.isAllObligationCovered();
-        coverageStatistics.recordCoverageForThread();*/
-//        updateCoverageEndOfPath();
-//        newCoverageFound = false;
     }
 
     public static void updateCoverageEndOfPath() {

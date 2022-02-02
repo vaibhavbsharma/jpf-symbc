@@ -93,7 +93,7 @@ public class IF_ICMPLT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLT {
                         pc._addDet(Comparator.LT, sym_v1, sym_v2);
                     } else pc._addDet(Comparator.LT, sym_v1, v2);
                 } else pc._addDet(Comparator.LT, v1, sym_v2);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";
@@ -107,7 +107,7 @@ public class IF_ICMPLT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPLT {
                         pc._addDet(Comparator.GE, sym_v1, sym_v2);
                     } else pc._addDet(Comparator.GE, sym_v1, v2);
                 } else pc._addDet(Comparator.GE, v1, sym_v2);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";

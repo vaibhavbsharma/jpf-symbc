@@ -94,7 +94,7 @@ public class IF_ICMPGT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGT {
                         pc._addDet(Comparator.GT, sym_v1, v2);
                 } else
                     pc._addDet(Comparator.GT, v1, sym_v2);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -108,7 +108,7 @@ public class IF_ICMPGT extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGT {
                         pc._addDet(Comparator.LE, sym_v1, v2);
                 } else
                     pc._addDet(Comparator.LE, v1, sym_v2);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);

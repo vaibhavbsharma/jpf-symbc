@@ -89,7 +89,7 @@ public class FDIV extends gov.nasa.jpf.jvm.bytecode.FDIV {
 
         if (condition) { // check div by zero
             pc._addDet(Comparator.EQ, sym_v1, 0);
-            if (pc.simplify()) { // satisfiable
+            if (pc.simplify(th)) { // satisfiable
                 ((PCChoiceGenerator) cg).setCurrentPC(pc);
 
                 return th.createAndThrowException("java.lang.ArithmeticException", "div by 0");
@@ -99,7 +99,7 @@ public class FDIV extends gov.nasa.jpf.jvm.bytecode.FDIV {
             }
         } else {
             pc._addDet(Comparator.NE, sym_v1, 0);
-            if (pc.simplify()) { // satisfiable
+            if (pc.simplify(th)) { // satisfiable
                 ((PCChoiceGenerator) cg).setCurrentPC(pc);
 
                 // set the result

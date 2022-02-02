@@ -77,7 +77,7 @@ public class D2I extends gov.nasa.jpf.jvm.bytecode.D2I {
 			
 			pc._addDet(Comparator.EQ, sym_dval, sym_ival);
 			
-			if(!pc.simplify())  { // not satisfiable
+			if(!pc.simplify(th))  { // not satisfiable
 				th.getVM().getSystemState().setIgnored(true);
 			} else {
 				//pc.solve();

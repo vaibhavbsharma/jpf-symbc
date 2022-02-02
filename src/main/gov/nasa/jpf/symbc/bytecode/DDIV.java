@@ -129,7 +129,7 @@ public class DDIV extends gov.nasa.jpf.jvm.bytecode.DDIV {
 
         if (condition) { // check div by zero
             pc._addDet(Comparator.EQ, sym_v1, 0);
-            if (pc.simplify()) { // satisfiable
+            if (pc.simplify(th)) { // satisfiable
                 ((PCChoiceGenerator) cg).setCurrentPC(pc);
                 System.err.println("division by 0.0 NAN");
                 assert false;
@@ -140,7 +140,7 @@ public class DDIV extends gov.nasa.jpf.jvm.bytecode.DDIV {
             }
         } else {
             pc._addDet(Comparator.NE, sym_v1, 0);
-            if (pc.simplify()) { // satisfiable
+            if (pc.simplify(th)) { // satisfiable
                 ((PCChoiceGenerator) cg).setCurrentPC(pc);
 
                 // set the result

@@ -85,7 +85,7 @@ public class IFLT extends gov.nasa.jpf.jvm.bytecode.IFLT {
 
             if (conditionValue) {
                 pc._addDet(Comparator.LT, sym_v, 0);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";
@@ -95,7 +95,7 @@ public class IFLT extends gov.nasa.jpf.jvm.bytecode.IFLT {
                 return getTarget();
             } else {
                 pc._addDet(Comparator.GE, sym_v, 0);
-                if (!pc.simplify()) {// not satisfiable
+                if (!pc.simplify(ti)) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
                     assert cg instanceof BranchChoiceGenerator : "unexpected choice generator type";
