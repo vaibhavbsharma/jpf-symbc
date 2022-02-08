@@ -23,9 +23,12 @@ symbolic.optimizechoices=false
 veritestingMode=0
 
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/tcas/
-coverageExclusions=Ltcgbenchmarks/tcas/tcas.main([Ljava/lang/String)V
+coverageExclusions=tcgbenchmarks.tcas.tcas.main([Ljava/lang/String;)V
 performanceMode=true
 
 coverageMode=1
 
 evaluationMode=true
+
+tcgON=true
+tcgOnTheGo=true

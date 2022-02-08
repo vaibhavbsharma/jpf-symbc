@@ -75,6 +75,7 @@ public class ObligationMgr {
             return false; //this is an already covered obligation, so nothing new here, returning false.
         else {
             coveredArray[oblgIndex] = true;
+            System.out.println("printing spf covered obligation "+ oblg);
             return true; //this is a new coverage, thus returning true
         }
     }
@@ -93,8 +94,10 @@ public class ObligationMgr {
     }
 
     public static void addNewOblgsCoverage(ArrayList<Obligation> newCoveredOblgs) {
-        for (Obligation oblg : newCoveredOblgs)
+        for (Obligation oblg : newCoveredOblgs) {
             addNewCoverage(oblg);
+            System.out.println("printing jr covered obligation "+ oblg);
+        }
     }
 
     // SPF methods to manipulate covering at runtime. Must always be called with already existing obligation in the map.

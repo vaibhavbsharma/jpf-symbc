@@ -7,7 +7,7 @@ import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
-import gov.nasa.jpf.symbc.branchcoverage.CoverageStatistics;
+import gov.nasa.jpf.symbc.branchcoverage.statistics.CoverageStatistics;
 import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
@@ -16,6 +16,7 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
 import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
+import gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
@@ -29,8 +30,10 @@ import com.ibm.wala.ipa.callgraph.*;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
+import static gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener.addOnTheGoMethodSequence;
 import static gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr.*;
 
 public class VeriBranchListener extends BranchListener {
@@ -47,7 +50,7 @@ public class VeriBranchListener extends BranchListener {
         if (conf.hasValue("coverageMode")) {
             int coverageNum = conf.getInt("coverageMode");
             assert coverageNum > 4 : "coverageMode must be greater that 4 to support Veritesting";
-            if (conf.getInt("coverageMode") == 5) coverageMode = CoverageMode.JR;
+            if (conf.getInt("coverageMode") == 5) coverageMode = CoverageMode.JR_COLLECT;
             else if (conf.getInt("coverageMode") == 6) coverageMode = CoverageMode.JRCOLLECT_PRUNE;
             else if (conf.getInt("coverageMode") == 7) coverageMode = CoverageMode.JRCOLLECT_GUIDE;
             else if (conf.getInt("coverageMode") == 8) coverageMode = CoverageMode.JRCOLLECT_PRUNE_GUIDE;
@@ -147,7 +150,7 @@ public class VeriBranchListener extends BranchListener {
     }
 
 
-    public static void coverSPFCaseObligation(ObligationSide oblgSide, Instruction instruction) {
+    public static void coverSPFCaseObligation(ThreadInfo ti, ObligationSide oblgSide, Instruction instruction) {
         Obligation oblg = CoverageUtil.createOblgFromIfInst((IfInstruction) instruction, oblgSide);
         if (ObligationMgr.oblgExists(oblg)) {
             if (!evaluationMode) System.out.println("after: " + instruction + "---- obligation is: " + oblg);
@@ -155,14 +158,24 @@ public class VeriBranchListener extends BranchListener {
             if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
                 assert coverageStatistics != null : "coverageStatistics cannot be null, this is probably a configuration problem. Assumption violated. Failing.";
                 if (!evaluationMode) System.out.println("New coverage found -- " + oblg);
-                coverageStatistics.recordObligationCovered(oblg);
+                coverageStatistics.recordObligationCovered(oblg, false);
                 if (!newCoverageFound) {
                     newCoverageFound = true;
+                }
+                if (tcgOnTheGo){ //collect test cases for branch coverage
+                    if (!instructionExecutedInExeclusions(instruction)) {
+                        addOnTheGoMethodSequence(ti.getVM(), getOnTheGoSolution());
+                        newCoverageFound = false; // if we are in the onTheGo mode then, marking coverage to the end of the path is useless.
+                        System.out.println("printing spf testcases");
+                    }
                 }
             }
         }
     }
 
+    private static boolean instructionExecutedInExeclusions(Instruction executedInstruction) {
+        return coverageExclusions.stream().anyMatch(x->executedInstruction.getMethodInfo().toString().contains(x));
+    }
     @Override
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
         if (!evaluationMode) System.out.println("end of thread");
@@ -170,33 +183,35 @@ public class VeriBranchListener extends BranchListener {
         if (VeriBranchListener.ignoreCoverageCollection)
             return;
 
-        collectNewCoverage(terminatedThread, null, false);
-
+        collectNewCoverage(terminatedThread);
     }
 
-    public static boolean collectNewCoverage(ThreadInfo terminatedThread, PathCondition pc, boolean onTheGo) {
+    public static void collectNewCoverage(ThreadInfo terminatedThread) {
         newCoveredOblg.clear();
         boolean sat = false;
-        if (!onTheGo) {
             LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
             if (veriOblgsNeedsCoverage.size() > 0) {
                 newCoveredOblg = new HashSet<>(collectVeriCoverageWithDisjunction(terminatedThread, veriOblgsNeedsCoverage));
                 for (Obligation oblg : newCoveredOblg)
-                    coverageStatistics.recordObligationCovered(oblg);
+                    coverageStatistics.recordObligationCovered(oblg, terminatedThread.isTerminated());
                 if (newCoveredOblg.size() != 0) //reset newCoverageFound, so we start new path collecting only new coverages.
                     BranchListener.newCoverageFound = false;
             }
-            return sat;
-        } else{
-            LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
-            Pair<Boolean, HashSet<Obligation>> satNewCoveragePair = collectVeriCoverageOnTheGo(terminatedThread,pc , veriOblgsNeedsCoverage);
-            newCoveredOblg = satNewCoveragePair.getSecond();
-            for (Obligation oblg : newCoveredOblg)
-                coverageStatistics.recordObligationCovered(oblg);
-            if (newCoveredOblg.size() != 0) //reset newCoverageFound, so we start new path collecting only new coverages.
-                BranchListener.newCoverageFound = false;
-            return satNewCoveragePair.getFirst();
-        }
+    }
+
+
+
+    public static Map<String, Object> collectNewCoverageOnTheGo(ThreadInfo terminatedThread, PathCondition pc) {
+        newCoveredOblg.clear();
+        LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
+        Pair<HashSet<Obligation>, Pair<Map<String, Object>, Long>> oblgSolutionTimeTriple = collectVeriCoverageOnTheGo(terminatedThread,pc , veriOblgsNeedsCoverage);
+        coverageStatistics.recordSolving(terminatedThread.getPC(), oblgSolutionTimeTriple.getSecond().getSecond(), terminatedThread.isTerminated());
+        newCoveredOblg = oblgSolutionTimeTriple.getFirst();
+        for (Obligation oblg : newCoveredOblg)
+             coverageStatistics.recordObligationCovered(oblg, terminatedThread.isTerminated());
+        if (newCoveredOblg.size() != 0) //reset newCoverageFound, so we start new path collecting only new coverages.
+            BranchListener.newCoverageFound = false;
+        return oblgSolutionTimeTriple.getSecond().getFirst();
     }
 
     public static void updateCoverageEndOfPath() {

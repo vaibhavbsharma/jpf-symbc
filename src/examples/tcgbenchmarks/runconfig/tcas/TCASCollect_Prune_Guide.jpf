@@ -24,7 +24,7 @@ branchCoverageOn=true
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/tcas/tcas.class
 coverageExclusions=LWBS.launch(IZZIZZIZZIZZIZZ)V
 
-coverageExclusions=Ltcgbenchmarks/tcas/tcas.main([Ljava/lang/String)V
+coverageExclusions=tcgbenchmarks.tcas.tcas.main([Ljava/lang/String;)V
 
 coverageMode=4
 

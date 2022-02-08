@@ -26,7 +26,7 @@ symbolic.optimizechoices=false
 
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/tcas/
 
-coverageExclusions=Ltcgbenchmarks/tcas/tcas.main([Ljava/lang/String)V
+coverageExclusions=tcgbenchmarks.tcas.tcas.main([Ljava/lang/String;)V
 
 timedExperimentOn=true
 

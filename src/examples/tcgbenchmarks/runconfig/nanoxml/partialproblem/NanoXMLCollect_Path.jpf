@@ -36,3 +36,4 @@ coverageMode=1
 evaluationMode=true
 pathcoverage=true
 
+tcgON=true

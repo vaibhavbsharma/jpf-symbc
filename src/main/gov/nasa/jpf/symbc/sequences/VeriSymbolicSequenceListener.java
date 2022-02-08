@@ -81,8 +81,9 @@ public class VeriSymbolicSequenceListener extends ThreadSymbolicSequenceListener
         LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
         if (veriOblgsNeedsCoverage.size() ==0 || VeriBranchListener.newCoveredOblg.size() == 0) {
             super.threadTerminated(vm, terminatedThread);
-            VeriBranchListener.updateCoverageEndOfPath(); // we still want to update the coverage done by SPF only.
+             // we still want to update the coverage done by SPF only.
         }
+          VeriBranchListener.updateCoverageEndOfPath();
 //        VeriBranchListener.updateCoverageEndOfPath();
 //        super.threadTerminated(vm, terminatedThread);
     }

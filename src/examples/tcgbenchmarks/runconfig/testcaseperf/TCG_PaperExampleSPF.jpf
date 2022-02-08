@@ -5,7 +5,7 @@ vm.storage.class=nil
 symbolic.debug=false
 
 
-symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.separateBits_8(sym)
+symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.separateBits_4(sym)
 
 
 #listener = .symbc.SymbolicListener
@@ -32,6 +32,9 @@ targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/testcaseperf/
 performanceMode=true
 
 coverageMode=1
-evaluationMode=true
+evaluationMode=false
 #this is only valid in spf mode, can should indicate whether we want to generate test cases for all paths or not
 pathcoverage=false
+
+tcgON=true
+tcgOnTheGo=true

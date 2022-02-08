@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static gov.nasa.jpf.symbc.BranchListener.evaluationMode;
+import static gov.nasa.jpf.symbc.VeriBranchListener.recordSolvingInStatistics;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil.getWalaInstLineNum;
 
 public class VeriObligationMgr {
@@ -148,21 +149,22 @@ public class VeriObligationMgr {
         return coveredOblgsOnPath;
     }
 
-    public static Pair<Boolean, HashSet<Obligation>> collectVeriCoverageOnTheGo(ThreadInfo ti, PathCondition pc, LinkedHashSet<Obligation> oblgsNeedsCoverage) {
-        boolean sat = true;
+    public static Pair<HashSet<Obligation>, Pair<Map<String, Object>, Long>> collectVeriCoverageOnTheGo(ThreadInfo ti, PathCondition pc, LinkedHashSet<Obligation> oblgsNeedsCoverage) {
         Map<String, Object> solution = null;
         List<String> attributes = new ArrayList<>();
 
         attributes = VeriSymbolicSequenceListener.getMethodAttributes(ti.getVM().getChoiceGenerators());
 
         ArrayList<Obligation> newCoveredOblgs = new ArrayList<>();
+        long startTime = System.currentTimeMillis();
         solution = pc.solveWithValuations(attributes);
+        long endTime = (System.currentTimeMillis() - startTime);
         if (solution.size() != 0) {
             newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedsCoverage, solution);
             if (newCoveredOblgs.size() != 0) //no coverage was found
                 ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
-        } else sat = false;
-        return new Pair<Boolean, HashSet<Obligation>>(sat, new HashSet<>(newCoveredOblgs));
+        }
+        return new Pair(new HashSet<>(newCoveredOblgs), new Pair(solution, endTime));
     }
 
     public static LinkedHashSet<Obligation> getVeriNeedsCoverageOblg() {
@@ -207,8 +209,10 @@ public class VeriObligationMgr {
                     /*List<Expression> greenExprs = ExprUtil.spfToGreenExpr((List<gov.nasa.jpf.symbc.numeric.Expression>) (List<?>) attributes);
                     for (Expression e : greenExprs)
                         assert e instanceof IntVariable;*/
-
+                    long startTime = System.currentTimeMillis();
                     solution = pcCopy.solveWithValuations(attributes);
+                    long endTime = (System.currentTimeMillis() - startTime);
+                    recordSolvingInStatistics(ti.getPC(), endTime, ti.isTerminated());
 //                    if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
                     if (solution.size() != 0) {
                         ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedCoverage, solution);
@@ -238,13 +242,13 @@ public class VeriObligationMgr {
         }
         // if we have any new coverage then
         if (!evaluationMode)
-            if (solutionHash.contains(solution.toString()))
+            if (!BranchListener.tcgOnTheGo && solutionHash.contains(solution.toString()))
                 assert false : "solution/test case is duplicated, something went wrong. Failing.";
             else
                 solutionHash.add(solution.toString());
 
         if (coveredOblgs.size() == 0) {
-            System.out.println("---> useless execution for covering new JR obligations. SPF must have new branch obligation then.");
+            System.out.println("---> useless execution for covering new JR obligations. Either the setup uses onTheGo coverage or SPF must have new branch obligation then.");
         }
 
         //for a single solver output there can't exists multiple valuations for the arguments.

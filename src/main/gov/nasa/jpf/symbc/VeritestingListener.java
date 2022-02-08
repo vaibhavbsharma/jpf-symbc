@@ -5,6 +5,7 @@ import com.ibm.wala.util.shrike.gotoTransformation.GoToTransformer;
 import gov.nasa.jpf.JPFException;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
+import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.BranchChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
@@ -59,6 +60,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
+import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
 import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.SamePathOptimization.*;
 import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.StaticBranchChoiceGenerator.*;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
@@ -121,6 +123,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public static boolean performanceMode = false;
     // reads in a exclusionsFile configuration option, set to ${jpf-symbc}/MyJava60RegressionExclusions.txt by default
     public static String exclusionsFile;
+    public static boolean tcgON = false;
 
 
     // reads in an array of Strings, each of which is the name of a method whose regions we wish to report metrics for
@@ -276,6 +279,10 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             jpf.addPublisherExtension(ConsolePublisher.class, this);
             if (System.getenv("TIMEOUT_MINS") != null) {
                 timeout_mins = Integer.parseInt(System.getenv("TIMEOUT_MINS"));
+            }
+
+            if (conf.hasValue("tcgON")) {
+                tcgON = conf.getBoolean("tcgON");
             }
         }
     }
@@ -447,7 +454,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         if ((runMode != VeritestingMode.SPFCASES) && (runMode != VeritestingMode.EARLYRETURNS)) {
             checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
-            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+            if (tcgON && coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
                 VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
             runOnSamePath(ti, instructionToExecute, dynRegion);
             System.out.println("------------- Region was successfully veritested --------------- ");
@@ -575,13 +582,13 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (singlePathOptimization)
                 if (optimizedChoices(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
-                    if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+                    if (tcgON && coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
                         VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
                     veritestingSuccessful = true;
                     return;
                 }
 
-            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+            if (tcgON && coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
                 VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
 
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
@@ -681,7 +688,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         /*-------------- EARLY RETURN TRANSFORMATION ---------------*/
         if (runMode == VeritestingMode.EARLYRETURNS) {
             staticRegion = RemoveEarlyReturns.removeEarlyReturns(staticRegion);
-        } else if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+        } else if (tcgON && coverageMode != CoverageMode.JR_PLAIN) {
             staticRegion = SeperateCmplxCondVisitor.execute(staticRegion);
             staticRegion = PrepareCoverageVisitor.execute(staticRegion);
 //            staticRegion = CreateInternalJRSsaVars.execute(staticRegion);
@@ -748,7 +755,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             Pair<DynamicRegion, List<Obligation>> pair = SpfCasesPass2Visitor.execute(dynRegion);
             dynRegion = pair.getFirst();
 
-            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+            if (tcgON && coverageMode != CoverageMode.JR_PLAIN) {
                 dynRegion = ClearSPFCasesOblgVisitor.execute(dynRegion, pair.getSecond());
             }
 
@@ -890,7 +897,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         boolean cond1 = performanceMode && (runMode == VeritestingMode.VERITESTING ||
                 runMode == VeritestingMode.HIGHORDER || optimizedRegionPath || optimizedReturnPath ||
                 (choice != null && choice == STATIC_CHOICE && isOnlyStaticChoiceSat(dynRegion)));
-        if (cond1 || isPCSat(pc)) {
+        if (cond1 || isPCSat(pc, ti)) {
             currCG.setCurrentPC(pc);
             long t1 = System.nanoTime();
             // if we're running in incremental solving mode, then we need to ask this region summary to be

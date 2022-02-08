@@ -1,5 +1,6 @@
 package gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases;
 
+import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
@@ -18,8 +19,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import static gov.nasa.jpf.symbc.VeritestingListener.coverageCriteria;
-import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
+import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
+import static gov.nasa.jpf.symbc.VeritestingListener.*;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.NOT_TAKEN;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.TAKEN;
 import static za.ac.sun.cs.green.expr.Operation.Operator.OR;
@@ -79,7 +80,7 @@ public class SpfCasesPass2Visitor implements AstVisitor<Stmt> {
         spfCondition = new Operation(Operation.Operator.AND, oldSPFCondition, new Operation(Operation.Operator.NOT, a.condition));
         Stmt elseStmt = a.elseStmt.accept(this);
         if ((thenStmt instanceof SPFCaseStmt) && (elseStmt instanceof SPFCaseStmt)) { //attempting to collapse unnecessary nodes
-            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) { // we need to keep track of obligation statements that are on the path for spf, we should take them out of the summary as their satisfaction is incomplete if one would look only at the summary on this path
+            if (tcgON && coverageMode != CoverageMode.JR_PLAIN) { // we need to keep track of obligation statements that are on the path for spf, we should take them out of the summary as their satisfaction is incomplete if one would look only at the summary on this path
                 addOblgToSPF(a, TAKEN);
                 addOblgToSPF(a, NOT_TAKEN);
             }

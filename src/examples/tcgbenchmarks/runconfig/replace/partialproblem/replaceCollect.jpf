@@ -32,3 +32,6 @@ performanceMode=true
 coverageMode=1
 evaluationMode=true
 verboseVeritesting=true
+
+tcgON=true
+tcgOnTheGo=true

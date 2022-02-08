@@ -17,7 +17,7 @@ import gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.IFInstrSymbHe
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.branchcoverage.BranchCoverage;
-import gov.nasa.jpf.symbc.branchcoverage.CoverageStatistics;
+import gov.nasa.jpf.symbc.branchcoverage.statistics.CoverageStatistics;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
@@ -26,9 +26,12 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.vm.*;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr.*;
+import static gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener.addOnTheGoMethodSequence;
 
 public class BranchListener extends PropertyListenerAdapter implements PublisherExtension {
 
@@ -37,12 +40,17 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     public static HashSet<String> coverageExclusions = new HashSet<>();
     //an optimization that allows collection of coverage and of test cases by utilizing solver calls already done during execution
     // as opposed to waiting until the end of the path to ask
-    public static boolean tcgOnTheGo=true;
+    public static boolean tcgOnTheGo = false;
+    //holds the solution of a solver query to extract test cases from it. Unfortuntely due to how pathcondition class gets updated with getCurrentPC, and the fact that we do not know the cg during solving a PC,
+    //required this sort of hack where we are keeping the solution of the last query here. It gets cleared up once it is used, thus can only be used once, and that one time should also happen here.
+    public static Map<String, Object> onTheGoSolution = new HashMap<>();
+    //This flag is used to allow evaluation of PlainJR that uses the same solver call for generating the model, though we are not interested in the model at this point.
+    public static boolean useSolverModelPath = true;
     boolean firstTime = true;
     public static boolean evaluationMode = false;
     public static String targetClass;
     public static String targetAbsPath;
-    public static CoverageMode coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE; //1 for vanilla spf mode, 2 for Branch Coverage mode, 3 for guided SPF
+    public static CoverageMode coverageMode = CoverageMode.JR_PLAIN; //1 for vanilla spf mode, 2 for Branch Coverage mode, 3 for guided SPF
     public static TestCaseGenerationMode testCaseGenerationMode = TestCaseGenerationMode.SYSTEM_LEVEL;
     public static boolean interproceduralReachability = false;
 
@@ -91,6 +99,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             else if (conf.getInt("coverageMode") == 2) coverageMode = CoverageMode.COLLECT_PRUNE;
             else if (conf.getInt("coverageMode") == 3) coverageMode = CoverageMode.COLLECT_GUIDE;
             else if (conf.getInt("coverageMode") == 4) coverageMode = CoverageMode.COLLECT_PRUNE_GUIDE;
+            else if (conf.getInt("coverageMode") == 9) coverageMode = CoverageMode.JR_PLAIN;
             else if (!conf.hasValue("veritestingMode")) {
                 System.out.println("unknown mode. Failing");
                 assert false;
@@ -105,12 +114,21 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         if (conf.hasValue("pathcoverage"))
             pathCoverage = conf.getBoolean("pathcoverage");
 
-        if (coverageMode.ordinal() < 5)
-            coverageStatistics = new CoverageStatistics();
-
         if (conf.hasValue("tcgOnTheGo"))
             tcgOnTheGo = conf.getBoolean("tcgOnTheGo");
 
+        if (coverageMode.ordinal() < 5 || coverageMode == CoverageMode.JR_PLAIN)
+            coverageStatistics = new CoverageStatistics();
+
+
+
+    }
+
+    public static void setupAndRecordStats(Instruction instruction, long endTime, boolean terminated) {
+        if (coverageStatistics == null)
+            coverageStatistics = new CoverageStatistics();
+
+        recordSolvingInStatistics(instruction, endTime, terminated);
     }
 
     private String setBenchmarkName(String target) {
@@ -120,11 +138,15 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     }
 
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
+
         if (timeForExperiment > 0) {
             long currentTime = System.currentTimeMillis() / 1000;
             if (currentTime - startTime >= timeForExperiment) //ignore and report the results if time budget was hit.
                 ti.getVM().getSystemState().setIgnored(true);
         }
+
+        if(coverageMode == CoverageMode.JR_PLAIN)
+            return;
 
         if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE) // pruning only in pruning mode
             if (allObligationsCovered) {
@@ -167,6 +189,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     }
 
     protected void prunOrGuideSPF(ThreadInfo ti, Instruction instructionToExecute) {
+        if(coverageMode == CoverageMode.JR_PLAIN)
+            return;
 
         Obligation oblgThen = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.TAKEN);
         Obligation oblgElse = CoverageUtil.createOblgFromIfInst((IfInstruction) instructionToExecute, ObligationSide.NOT_TAKEN);
@@ -210,6 +234,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     // after the instruction is executed we only need to collect the covered obligation.
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction, Instruction executedInstruction) {
+        if(coverageMode == CoverageMode.JR_PLAIN)
+            return;
         if (currentThread.getVM().isIgnoredState()) {
             if (!evaluationMode) System.out.println("Path UNSAT- State Ignored.");
             return;
@@ -245,10 +271,19 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
             if (ObligationMgr.isNewCoverage(oblg)) { //has the side effect of creating a new coverage if not already covered.
                 assert coverageStatistics != null : "coverageStatistics cannot be null, this is probably a configuration problem. Assumption violated. Failing.";
                 if (!evaluationMode) System.out.println("New coverage found -- " + oblg);
-                coverageStatistics.recordObligationCovered(oblg);
+                coverageStatistics.recordObligationCovered(oblg, false);
                 if (!newCoverageFound) {
                     newCoverageFound = true;
                 }
+                if (tcgOnTheGo) { //collect test cases for branch coverage
+                    if (!instructionExecutedInExeclusions(executedInstruction)) {
+                        addOnTheGoMethodSequence(currentThread.getVM(), getOnTheGoSolution());
+                        newCoverageFound = false; // if we are in the onTheGo mode then, marking coverage to the end of the path is useless.
+                        System.out.println("printing spf testcases");
+                    }
+                    newCoverageFound = false; // if we are in the onTheGo mode then, marking coverage to the end of the path is useless.
+                }
+                // else, we'll collect the test cases at the end of the path
             }
             if (coverageMode == CoverageMode.COLLECT_PRUNE || coverageMode == CoverageMode.COLLECT_PRUNE_GUIDE)  //prune only in pruning mode.
                 if (ObligationMgr.intraproceduralInvokeReachable(oblg)) return;
@@ -258,6 +293,18 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         isSymBranchInst = false;
     }
 
+
+    private boolean instructionExecutedInExeclusions(Instruction executedInstruction) {
+        return coverageExclusions.stream().anyMatch(x -> executedInstruction.getMethodInfo().toString().contains(x));
+    }
+
+    public static void addOnTheGoSolution(Map<String, Object> solution) {
+        onTheGoSolution = solution;
+    }
+
+    public static Map<String, Object> getOnTheGoSolution() {
+        return onTheGoSolution;
+    }
 
     private void prunePath(ThreadInfo ti, Obligation oblg) {
 
@@ -273,7 +320,13 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
     }
 
+    public static void recordSolvingInStatistics(Instruction instruction, long time, boolean isEndOfThread) {
+        coverageStatistics.recordSolving(instruction, time, isEndOfThread);
+    }
+
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
+        if(coverageMode == CoverageMode.JR_PLAIN)
+            return;
         if (!evaluationMode) System.out.println("end of thread");
         if (VeriBranchListener.ignoreCoverageCollection)
             return;
@@ -297,6 +350,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     // -------- the publisher interface
     @Override
     public void publishFinished(Publisher publisher) {
+        if(coverageMode == CoverageMode.JR_PLAIN)
+            return;
         PrintWriter pw = publisher.getOut();
         publisher.publishTopicStart("Branch Coverage report:");
 

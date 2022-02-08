@@ -45,29 +45,27 @@ package gov.nasa.jpf.symbc.sequences;
 
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
-import gov.nasa.jpf.Property;
-import gov.nasa.jpf.PropertyListenerAdapter;
-import gov.nasa.jpf.jvm.bytecode.JVMInvokeInstruction;
-import gov.nasa.jpf.report.ConsolePublisher;
-import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.PublisherExtension;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.BranchListener;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
 import gov.nasa.jpf.symbc.VeriBranchListener;
+import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.branchcoverage.TestCaseGenerationMode;
-import gov.nasa.jpf.symbc.bytecode.BytecodeUtils;
-import gov.nasa.jpf.symbc.bytecode.INVOKESTATIC;
 import gov.nasa.jpf.symbc.concolic.PCAnalyzer;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
-import gov.nasa.jpf.symbc.string.StringSymbolic;
+import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 import gov.nasa.jpf.vm.*;
 
-import java.io.PrintWriter;
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.BranchListener.tcgOnTheGo;
+import static gov.nasa.jpf.symbc.VeriBranchListener.recordSolvingInStatistics;
+
 public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener implements PublisherExtension {
+
+    private static Vector<String> lastTestCaseOnThread = null;
 
     public ThreadSymbolicSequenceListener(Config conf, JPF jpf) {
         super(conf, jpf);
@@ -135,10 +133,20 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
         if (VeriBranchListener.ignoreCoverageCollection)
             return;
         if (!BranchListener.pathCoverage)
-            if (!BranchListener.newCoverageFound)
+            if (!BranchListener.newCoverageFound) {
+                if (tcgOnTheGo) { // add the last test case, and return
+                    if (lastTestCaseOnThread != null)
+                        methodSequences.add(lastTestCaseOnThread);
+                    lastTestCaseOnThread = null;
+                }
                 return;
-
-
+            }
+        assert VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE : "Listener should only be used if we are generating branch coverage/testcases. Failing.";
+        assert !BranchListener.tcgOnTheGo : "if onTheGo is turned on then, we must have covered JR obligations in the VeribranchListner, and covered the spf obligations when they are covered." +
+                "thus we cannot get to that point of execution, as newCoverageFound should be false.";
+       /* // if we are using on the go in spf mode, then we must have collected the unit tests and the coverages as well, without getting to the end of the path
+        if(BranchListener.tcgOnTheGo && BranchListener.coverageMode == CoverageMode.SPF)
+            return;*/
 
 //        if (IncrementalListener.solver == null) {//call super to generate test cases in case it is non-incremental mode and we do want to generate testcases.
 //            if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
@@ -173,7 +181,11 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
 
             Map<String, Object> solution = null;
             if (IncrementalListener.solver != null) IncrementalListener.solver.push();
+            long startTime = System.currentTimeMillis();
             solution = pc.solveWithValuations(attributes);
+            long endTime = (System.currentTimeMillis() - startTime);
+            recordSolvingInStatistics(terminatedThread.getPC(), endTime, terminatedThread.isTerminated());
+
             assert (pc.count() == 0 || solution.size() > 0) : "At least one solution is expected. Something went wrong. Failing.";
             if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
 
@@ -183,6 +195,13 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
         }
         BranchListener.newCoverageFound = false;
         //	}
+    }
+
+    public static void addOnTheGoMethodSequence(VM vm, Map<String, Object> solution) {
+        System.out.println("generating test case");
+        ChoiceGenerator<?>[] cgs = vm.getSystemState().getChoiceGenerators();
+        lastTestCaseOnThread = getMethodSequence(cgs, solution);
+//        methodSequences.add();
     }
 
     /**

@@ -5,7 +5,7 @@ vm.storage.class=nil
 symbolic.debug=false
 
 
-symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.separateBits_8(sym)
+symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.separateBits_4(sym)
 
 
 #listener = .symbc.SymbolicListener
@@ -30,7 +30,10 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/testcaseperf/
 
 
-veritestingMode = 3
+veritestingMode = 5
 coverageMode=5
 performanceMode=true
-evaluationMode=true
+evaluationMode=false
+
+tcgON=true
+tcgOnTheGo=false

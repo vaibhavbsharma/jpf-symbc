@@ -1,16 +1,16 @@
-package tcgbenchmarks.runconfig.TestCasePerf;
-
-import veritesting.Outputs;
+package tcgbenchmarks.testcaseperf;
 
 public class TestCasePerf {
 
+    private static int staticField2;
     int sideEffect = 0;
+    public static int staticField1 = 0;
 
     public static void main(String[] args) {
         /*veritesting.test_case_gen.A myA = new veritesting.test_case_gen.A();
         int myVal = myA.getIncA();
         System.out.println("my A value is = " + myVal);*/
-        singleBranchCov2(1, 1);
+//        singleBranchCov2(1, 1);
 //        doubleBranchCov(1, 1);
 //        doubleRec(1, 1);
 //        complexBranchCov(1,1);
@@ -25,30 +25,154 @@ public class TestCasePerf {
 //        mixOfRegions2PathsDepth3(1, 1);
 //        arrayLoadStore0(1, 1);
 //        testingSoundReach(1, 1);
-//        testingComplexConditions2(true, true);
+//        testingComplexConditions1(true, true);
 //        testingComplexConditions3(true, true, true, true);
 
 //        (new TestCasePerf()).testingER1(true, 1);
 //        (new TestCasePerf()).testERInline(true, 1);
 //        simpleRegion(1);
+//        testingComplexConditions3(true, true, true, true);
+//        (new TestCasePerf()).testingSoundReach2(1);
+
+//        TestCasePerf.staticFieldTest(1, 1);
+//        mwwTestAndIte(true, true, 1);
+//        (new TestCasePerf()).sheepAndGoat(1);
+
+//        TestCasePerf.separateBits_4(1);
+//        TestCasePerf.testOnTheGo(1);
+        TestCasePerf.testER(1);
     }
 
+
+
+  /*  public int sheepAndGoat(int i) {
+        int j = 0;
+
+//        System.out.println("initial value of i =" + Integer.toBinaryString(i));
+//        int hasZeroTrail = 0;
+
+        if (i > 1 && i < 4) {
+            while (i != 0) {
+                int trailHasZero = (i & 1);
+                if (trailHasZero == 0) {
+                    int numberOfTrailingZeros = Integer.numberOfTrailingZeros(i);
+                    i = i >> numberOfTrailingZeros;
+                } else {
+                    j = j >>> 1;
+                    j = j ^ (Integer.reverse(1));
+                    i = i >> 1;
+//                System.out.println("i value = " + Integer.toBinaryString(i) + "," + Debug.getSymbolicIntegerValue(i));
+//                System.out.println("j value = " + Integer.toBinaryString(j) + "," + Debug.getSymbolicIntegerValue(j));
+                }
+            }
+//            System.out.println("i value = " + Integer.toBinaryString(i) + "," + Debug.getSymbolicIntegerValue(i));
+//            System.out.println("j value = " + Integer.toBinaryString(j) + "," + Debug.getSymbolicIntegerValue(j));
+
+            return j;
+        }
+        //Debug.printPC("PC out loop");
+        return 1;
+    }*/
+
+
+    public static int testOnTheGo(int i){
+        int returnVal = 0;
+        if(i<10)
+            if(i>0)
+                returnVal = 1;
+            else
+                returnVal = staticMethod2(i);
+
+         if(returnVal ==1)
+             returnVal = 100;
+
+         return returnVal;
+    }
+
+
+    public static int separateBits_4(int i) {
+        int j = 0;
+
+        while (i != 0) {
+            int trailHasZero = (i & 1);
+            if (trailHasZero == 0) {
+                int numberOfTrailingZeros = numberOfTrailingZeros_4(i);
+                i = (i >> numberOfTrailingZeros);
+            } else {
+                j = (j >>> 1);
+                j = (j ^ 8);
+                i = (i >> 1);
+            }
+        }
+        System.out.println(Integer.toBinaryString(j));
+        System.out.println(j);
+
+        return j;
+    }
+
+    public static int numberOfTrailingZeros_4(int i) {
+        // HD, Figure 5-14
+        int y;
+        i = i << 28;
+        if (i == 0) return 4;
+        int n = 3;
+
+
+        y = (i << 2);
+        if (y != 0) {
+            n = (n - 2);
+            i = y;
+        }
+        return (n - ((((i << 1)) >>> 3)));
+    }
+
+    public static int mwwTestAndIte(boolean x, boolean y, int a) {
+//        int a = 0;
+        if (x && y) {
+            a = a + 1;
+        } else {
+            a = a - 1;
+        }
+        return a;
+    }
+
+    public static int testER(int i){
+        int methodCount = 0;
+        if (i > 0)
+            methodCount = 1;//staticMethod1(y);
+
+        if(i==10)
+            System.out.println("i=10");
+        else
+            System.out.println("i!=10");
+
+        if(i<10)
+            if(i>0)
+                return methodCount;
+            else
+                return staticMethod2(i);
+        return 1;
+    }
 
     public static int staticMethod2(int x) {
         int myCount = 0;
         if (x > 100) {
             myCount = 1;
         } else {
-            myCount = 3;
+            return (new A().a);
+//            myCount = 3;
         }
         return myCount;
     }
+
     public static int staticMethod1(int x) {
         int myCount = 0;
         if (x > 10) {
-            myCount = staticMethod2(x);
+//            myCount = 3; //staticMethod2(x);
+            staticField1 = 3;
         } else {
-            myCount = 2;
+//            myCount = 2;
+            staticField2 = 2;
         }
         return myCount;
     }
@@ -56,13 +180,16 @@ public class TestCasePerf {
     public static int simpleRegion(int y) {
         int methodCount = 0;
         if (y > 0)
-            methodCount = staticMethod1(y);
+            methodCount = 1;//staticMethod1(y);
+
+        if (y > 10)
+            methodCount = 2;//staticMethod1(y);
 
         return methodCount;
     }
 
 
-    private static int testingComplexConditions1(boolean a, boolean b) {
+    public static int testingComplexConditions1(boolean a, boolean b) {
         int z;
         if ((a && b)) {
             z = 1;
@@ -72,7 +199,7 @@ public class TestCasePerf {
         return z;
     }
 
-    private static int testingComplexConditions2(boolean a, boolean b) {
+    public static int testingComplexConditions2(boolean a, boolean b) {
         int z;
         if ((a || b)) {
             z = 1;
@@ -83,7 +210,7 @@ public class TestCasePerf {
     }
 
 
-    private static int testingComplexConditions3(boolean a, boolean b, boolean c, boolean d) {
+    public static int testingComplexConditions3(boolean a, boolean b, boolean c, boolean d) {
         int z;
         if ((a && c) || (b)) {
             z = 1;
@@ -93,11 +220,62 @@ public class TestCasePerf {
         return z;
     }
 
+    public static int testingComplexConditions4(boolean a, boolean b, boolean c, boolean d) {
+        int z;
+        if ((a || c) && (b)) {
+            z = 1;
+        } else {
+            z = 0;
+        }
+        return z;
+    }
+
+    public static int testingComplexConditions5(boolean a, boolean b, boolean c, boolean d) {
+        int z;
+        if (a && (b)) {
+            z = 1;
+        } else {
+            z = 0;
+        }
+        return z;
+    }
+
+    public static int testingComplexConditions6(boolean a, boolean b, boolean c, boolean d) {
+        int z;
+        if ((a && b) || (c && d)) {
+            z = 1;
+        } else {
+            z = 0;
+        }
+        return z;
+    }
+
+    private int testMultiplERInline(boolean a, int x) {
+        int z = 0;
+        if (x == 3)
+            z = testingER2(a, a, x);
+        return z;
+    }
+
+    private int methodER1(boolean a, int x) {
+        int z = 0;
+        if (a)
+            z = testingER2(a, a, x);
+        return z;
+    }
+
+    private int methodER2(boolean a, int x) {
+        int z = 0;
+        if (a)
+            z = testingER2(a, a, x);
+        return z;
+    }
+
     private int testERInline(boolean a, int x) {
         int z = 0;
         if (a)
-            z = testingER1(a, x);
-        assert !(a && x > 2) || this.sideEffect == 0;
+            z = testingER2(a, a, x);
+//        assert !(a && x > 2) || this.sideEffect == 0;
         return z;
     }
 
@@ -117,14 +295,12 @@ public class TestCasePerf {
     }
 
 
-    private int testingER2(boolean a, boolean b, int x) {
+    private static int testingER2(boolean a, boolean b, int x) {
         int z = 1;
         if (a) {
             return x + 1;
-        } else if (b)
-            return z;
-        else
-            return 5;
+        } else
+            return testingSoundReach2(x);
     }
 
     private int testingER3(boolean a, boolean b, int x) {
@@ -381,10 +557,37 @@ public class TestCasePerf {
         return z;
     }
 
-    private static int testingSoundReach2(int y) {
+    public static int testingSoundReach2(int y) {
         if (y > 100)
             return y + 10;
         else
             return y + 20;
     }
+
+    public static int staticFieldTest(int x, int y) {
+        A a = new A();
+        int output = 0;
+        if (x > 1) {
+//            staticField = x;
+            inlineForStatic(x, x);
+        } else {
+            a.bRef.inlineInB(y, y);
+        }
+        /*else
+            inlineForStatic(y, y);*/
+//            staticField = 1;
+
+        return 1;
+    }
+
+    public static void inlineForStatic(int x, int y) {
+        if (x > 2)
+            staticField1 = 1;
+        else staticField1 = x + 1;
+
+        /*if (y > 1)
+            staticField = y + 1;*/
+    }
+
+
 }

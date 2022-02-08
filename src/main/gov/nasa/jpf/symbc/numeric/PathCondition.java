@@ -43,9 +43,7 @@ import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.Instance;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
 import gov.nasa.jpf.symbc.arrays.ArrayConstraint;
@@ -65,6 +63,7 @@ import gov.nasa.jpf.vm.VM;
 import gov.nasa.jpf.symbc.VeritestingListener;
 
 import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
+import static gov.nasa.jpf.symbc.VeriBranchListener.collectNewCoverageOnTheGo;
 
 // path condition contains mixed constraints of integers and reals
 
@@ -365,28 +364,68 @@ public class PathCondition implements Comparable<PathCondition> {
             return true;
         }
         if (SymbolicInstructionFactory.greenSolver == null)
-            if (BranchListener.testCaseGenerationMode != null && BranchListener.tcgOnTheGo) {
-                return simplifyWithTCG(ti);
-            } else
+            if (VeritestingListener.tcgON) {
+                if ((coverageMode == CoverageMode.JR_PLAIN) || (!BranchListener.tcgOnTheGo)) {
+                    long startTime = System.currentTimeMillis();
+                    Map<String, Object> solution = solveWithValuations(new ArrayList<>());
+                    long endTime = (System.currentTimeMillis() - startTime);
+                    BranchListener.recordSolvingInStatistics(ti.getPC(), endTime, ti.isTerminated());
+                    return solution.size() > 0;
+                }
+                if (BranchListener.tcgOnTheGo) {
+                    //this collects coverage for JR when it is encountered.
+                    return simplifyWithTCG(ti);
+                }
+//                else assert false : "unexpected configuration.";
+//                else if (BranchListener.useSolverModelPath) {
+//                    //this path should be used by plain JR, where we want to use the solver call for getting the model
+//                    // rather than the true and false result.
+//                    long startTime = System.currentTimeMillis();
+//                    Map<String, Object> solution = solveWithValuations(new ArrayList<>());
+//                    long endTime = (System.currentTimeMillis() - startTime);
+//                    BranchListener.recordSolvingInStatistics(ti.getPC(), endTime, ti.isTerminated());
+//                    return solution.size() > 0;
+//                }
+            } else {
+            /*    //this is the plain JR mode that uses the old solving path that requires no model retrieval.
+                long startTime = System.currentTimeMillis();
+                boolean result = simplifyOld();
+                long endTime = (System.currentTimeMillis() - startTime);
+                BranchListener.setupAndRecordStats(ti.getPC(), endTime, ti.isTerminated());
+                return result*/
+                ;
                 return simplifyOld();
-        else
-            return simplifyGreen();
+            }
+        return simplifyGreen();
     }
 
-    private boolean simplifyWithTCG(ThreadInfo ti) {
-        if(coverageMode == CoverageMode.SPF){ // running coverage using SPF
-            return simplify();
+  /*  private boolean simplifyWithTCG(ThreadInfo ti) {
+        if (coverageMode == CoverageMode.SPF) { // running coverage using SPF
+           *//* List<String> attributes = new ArrayList<>();
+            attributes = getMethodAttributes(ti.getVM().getChoiceGenerators());
+            this.solution = solveWithValuations(attributes);
+            return solution.size() > 0;*//*
+            return simplifyOld();
         } else { //we are running coverage using JR
             return VeriBranchListener.collectNewCoverage(ti, this, true);
         }
     }
+*/
+
+    private boolean simplifyWithTCG(ThreadInfo ti) {
+        Map<String, Object> solution = collectNewCoverageOnTheGo(ti, this);
+        BranchListener.addOnTheGoSolution(solution);
+        return solution.size() > 0;
+    }
+
 
     private boolean solveWithSolution() {
         if (instance == null) {
             instance = SolverTranslator.createInstance(header);
         }
         boolean isSat = (Boolean) instance.request("sat");
-        /* && spc.simplify() */; // strings are not supported by Green for now
+        /* && spc.simplify() */
+        ; // strings are not supported by Green for now
         /*
          * This is untested and have shown a few issues so needs fixing first if (isSat)
          * { for (Variable v : instance.getSlicedVariables()) { Object o =

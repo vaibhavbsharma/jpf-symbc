@@ -1,28 +1,30 @@
-target=veritesting.test_case_gen.TestCasePerf
+target=tcgbenchmarks.testcaseperf.TestCasePerf
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
 vm.storage.class=nil
 symbolic.debug=false
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov2(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.singleBranchCov2(sym#sym)
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.singleBranchCov(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.singleBranchCov(sym#sym)
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleBranchCov(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.doubleBranchCov(sym#sym)
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.complexBranchCov(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.complexBranchCov(sym#sym)
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.unoptimalDFS(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.unoptimalDFS(sym#sym)
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.doubleLoopUnoptimalDFS(sym#sym)
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoop(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.doubleLoop(sym#sym)
 
-symbolic.method=veritesting.test_case_gen.TestCasePerf.doubleLoop(sym#sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.doubleLoop(sym#sym)
+symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.testER(sym)
 
 
-#symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions(sym#sym)
-symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths(sym#sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.mixOfRegions(sym#sym)
+listener =.symbc.VeritestingListener,.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
 
 #symbolic.dp=z3bitvector
 
@@ -37,16 +39,20 @@ symbolic.method=veritesting.test_case_gen.TestCasePerf.mixOfRegions2Paths(sym#sy
 #symbolic.dp=z3inc
 symbolic.dp=z3bitvector
 
-listener =.symbc.VeritestingListener
-#,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
-
 symbolic.optimizechoices=false
 
-#branchCoverageOn=true
-#targetAbsPath=${jpf-symbc}/build/examples/veritesting/test_case_gen
-#coverageMode=5
+veritestingMode=0
 
-veritestingMode=3
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/testcaseperf/
+
+
 performanceMode=true
-##flag to turn on or off depending on which the test cases that are generated in the spf mode are either for path coverage or for branch coverage
+
+coverageMode=1
+evaluationMode=false
+#this is only valid in spf mode, can should indicate whether we want to generate test cases for all paths or not
+pathcoverage=false
+
+tcgON=true
+tcgOnTheGo=false
 #pathcoverage=true

@@ -33,3 +33,6 @@ performanceMode=true
 
 coverageMode=1
 evaluationMode=true
+
+tcgON=true
+tcgOnTheGo=true

@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc.veritesting.ChoiceGenerator;
 
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.symbc.VeritestingListener;
+import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.bytecode.IFNONNULL;
 import gov.nasa.jpf.symbc.numeric.*;
@@ -20,6 +21,7 @@ import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.Operation;
 
+import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
 import static gov.nasa.jpf.symbc.VeriBranchListener.coverSPFCaseObligation;
 import static gov.nasa.jpf.symbc.VeritestingListener.*;
 import static gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide.NOT_TAKEN;
@@ -151,10 +153,10 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
                     throwException(new StaticRegionException("Error: Branch choice generator instantiated on non-branch instruction!"), INSTANTIATION);
             }
 
-            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+            if (tcgON && coverageMode != CoverageMode.JR_PLAIN) {
                 if (!ti.getVM().getSystemState().isIgnored()) {
                     ObligationSide oblgSide = nextInstruction == (((IfInstruction) instructionToExecute).getTarget()) ? TAKEN : NOT_TAKEN;
-                    coverSPFCaseObligation(oblgSide, instructionToExecute);
+                    coverSPFCaseObligation(ti, oblgSide, instructionToExecute);
                 }
             }
         }
@@ -174,10 +176,10 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
                 case OTHER:
                     throwException(new StaticRegionException("Error: Branch choice generator instantiated on non-branch instruction!"), INSTANTIATION);
             }
-            if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+            if (tcgON && coverageMode!=CoverageMode.JR_PLAIN) {
                 if (!ti.getVM().getSystemState().isIgnored()) {
                     ObligationSide oblgSide = nextInstruction == (((IfInstruction) instructionToExecute).getTarget()) ? TAKEN : NOT_TAKEN;
-                    coverSPFCaseObligation(oblgSide, instructionToExecute);
+                    coverSPFCaseObligation(ti, oblgSide, instructionToExecute);
                 }
             }
         }
@@ -223,7 +225,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
                         pc._addDet(byteCodeOp, sym_v1, v2);
                 } else
                     pc._addDet(byteCodeOp, v1, sym_v2);
-                boolean isPCSat = isPCSat(pc);
+                boolean isPCSat = isPCSat(pc, ti);
                 if (!isPCSat) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
@@ -240,7 +242,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
                         pc._addDet(byteCodeNegOp, sym_v1, v2);
                 } else
                     pc._addDet(byteCodeNegOp, v1, sym_v2);
-                boolean isPCSat = isPCSat(pc);
+                boolean isPCSat = isPCSat(pc, ti);
                 if (!isPCSat) {// not satisfiable
                     ti.getVM().getSystemState().setIgnored(true);
                 } else {
@@ -278,7 +280,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
         PathCondition pc = this.getCurrentPC();
         if (choice == ELSE_CHOICE || choice == HEURISTICS_ELSE_CHOICE) {
             pc._addDet(SpfUtil.getComparator(instruction), sym_v, 0);
-            boolean isPCSat = isPCSat(pc);
+            boolean isPCSat = isPCSat(pc, ti);
             if (!isPCSat) {// not satisfiable
                 ti.getVM().getSystemState().setIgnored(true);
             } else {
@@ -287,7 +289,7 @@ public class StaticBranchChoiceGenerator extends StaticPCChoiceGenerator {
             return ((IfInstruction) instruction).getTarget();
         } else {
             pc._addDet(SpfUtil.getNegComparator(instruction), sym_v, 0);
-            boolean isPCSat = isPCSat(pc);
+            boolean isPCSat = isPCSat(pc, ti);
             if (!isPCSat) {// not satisfiable
                 ti.getVM().getSystemState().setIgnored(true);
             } else {

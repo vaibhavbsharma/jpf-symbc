@@ -2,6 +2,7 @@ package gov.nasa.jpf.symbc.veritesting.ast.transformations.removeEarlyReturns;
 
 import com.ibm.wala.classLoader.IBytecodeMethod;
 import com.ibm.wala.shrikeCT.InvalidClassFileException;
+import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
@@ -19,8 +20,8 @@ import za.ac.sun.cs.green.expr.Operation;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import static gov.nasa.jpf.symbc.VeritestingListener.coverageCriteria;
-import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
+import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
+import static gov.nasa.jpf.symbc.VeritestingListener.*;
 
 /**
  * This class removes early return statements.
@@ -339,7 +340,7 @@ Similar things can be done for SPF Cases.
         if (verboseVeritesting)
             System.out.println("----region after conditional returns addition :\n" + PrettyPrintVisitor.print(condRegion.staticStmt));
 
-        if (coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+        if (tcgON && coverageMode != CoverageMode.JR_PLAIN) {
             condRegion = SeperateCmplxCondVisitor.execute(condRegion);
             condRegion = PrepareCoverageVisitor.execute(condRegion);
         }

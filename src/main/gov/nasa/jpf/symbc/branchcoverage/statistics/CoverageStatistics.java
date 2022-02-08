@@ -1,8 +1,9 @@
-package gov.nasa.jpf.symbc.branchcoverage;
+package gov.nasa.jpf.symbc.branchcoverage.statistics;
 
+import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
-import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
+import gov.nasa.jpf.vm.Instruction;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ import java.util.Set;
 
 import static gov.nasa.jpf.symbc.BranchListener.*;
 import static gov.nasa.jpf.symbc.VeriBranchListener.batchCoverage;
-import static gov.nasa.jpf.symbc.VeritestingListener.coverageCriteria;
+import static gov.nasa.jpf.symbc.VeritestingListener.tcgON;
 import static gov.nasa.jpf.symbc.VeritestingListener.veritestingMode;
 
 public class CoverageStatistics {
@@ -29,9 +30,15 @@ public class CoverageStatistics {
     public static BufferedWriter threadCoveragebw;
     public static PrintWriter threadCoverageout;
 
+    public static FileWriter solvingStatsFilefw;
+    public static BufferedWriter solvingStatsFilesbw;
+    public static PrintWriter solvingStatsFilepw;
+
+
     String statisticFileName;
     String executionStatFileName;
     String coveragePerThreadFileName;
+    String solvingStatsFileName;
 
     int threadCount = 0;
 
@@ -50,14 +57,17 @@ public class CoverageStatistics {
         new File(folderStr).mkdirs(); //creating a folder to hold results
 
 //        String JRorSPF = veritestingMode != 0 ? "JR" : "SPF";
-        String isBatch = coverageMode == CoverageMode.JR ? (batchCoverage ? "batch" : "single") : "NA";
+        String isBatch = coverageMode == CoverageMode.JR_COLLECT ? (batchCoverage ? "batch" : "single") : "NA";
+        String isOnTheGo = tcgON && coverageMode == CoverageMode.JR_PLAIN ? "NA" :
+                tcgOnTheGo ? "onTheGo_ON" : "onTheGo_OFF";
         String envStepsStr = evnMaxSteps != null ? "_steps_" + evnMaxSteps : "";
 
-        String spfPath = coverageMode==CoverageMode.SPF && pathCoverage? "_Path": "";
+        String spfPath = coverageMode == CoverageMode.SPF && pathCoverage ? "_Path" : "";
 
-        statisticFileName = folderStr + "/" + benchmarkName + "_OblgOnlyStat_" + coverageMode + spfPath + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
-        executionStatFileName = folderStr + "/" + benchmarkName + "_ExecStat_" + coverageMode + spfPath  + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
-        coveragePerThreadFileName = folderStr + "/" + benchmarkName + "_ThreadStat_" + coverageMode + spfPath  + "_mode" + veritestingMode + "_" + isBatch + envStepsStr + ".txt";
+        statisticFileName = folderStr + "/" + benchmarkName + "_OblgOnlyStat_" + coverageMode + spfPath + "_mode" + veritestingMode + "_" + isBatch + "_" + isOnTheGo + envStepsStr + ".txt";
+        executionStatFileName = folderStr + "/" + benchmarkName + "_ExecStat_" + coverageMode + spfPath + "_mode" + veritestingMode + "_" + isBatch + "_" + isOnTheGo + envStepsStr + ".txt";
+        coveragePerThreadFileName = folderStr + "/" + benchmarkName + "_ThreadStat_" + coverageMode + spfPath + "_mode" + veritestingMode + "_" + isBatch + "_" + isOnTheGo + envStepsStr + ".txt";
+        solvingStatsFileName = folderStr + "/" + benchmarkName + "_SolvingStat_" + coverageMode + spfPath + "_mode" + veritestingMode + "_" + isBatch + "_" + isOnTheGo + envStepsStr + ".txt";
 
       /*  if (evnMaxSteps != null) {
             statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_mode" + veritestingMode + "_steps" + evnMaxSteps + ".txt";
@@ -74,13 +84,13 @@ public class CoverageStatistics {
             statisticFilefw = new FileWriter(statisticFileName);
             statisticFilebw = new BufferedWriter(statisticFilefw);
             statisticFilepw = new PrintWriter(statisticFilebw);
-            statisticFilepw.println(time + "  Obligation ------> Time(ms)");
+            statisticFilepw.println(time + "  Obligation, isEndOfPathCoverage ------> Time(ms)");
             statisticFilepw.close();
 
             executionStatFilefw = new FileWriter(executionStatFileName);
             executionStatFilebw = new BufferedWriter(executionStatFilefw);
             executionStatFilepw = new PrintWriter(executionStatFilebw);
-            executionStatFilepw.println(time + "  Obligation ------> Execution Time(ms)");
+            executionStatFilepw.println(time + "  Obligation, isEndOfPathCoverage ------> Execution Time(ms)");
             executionStatFilepw.close();
 
 
@@ -91,13 +101,35 @@ public class CoverageStatistics {
             else threadCoverageout.println("ThreadNum , NewOblgCount");
             threadCoverageout.close();
 
+            solvingStatsFilefw = new FileWriter(solvingStatsFileName);
+            solvingStatsFilesbw = new BufferedWriter(solvingStatsFilefw);
+            solvingStatsFilepw = new PrintWriter(solvingStatsFilesbw);
+            solvingStatsFilepw.println("Instruction, Time(ms), #Thread, EndOfThread");
+            solvingStatsFilepw.close();
+
+
         } catch (IOException e) {
             System.out.println("PROBLEM writing to statistics file");
             assert false;
         }
     }
 
-    public void recordObligationCovered(Obligation oblg) {
+    public void recordSolving(Instruction instruction, long time, boolean isEndOfThread) {
+        try {
+            String instructionStr = instruction.getMethodInfo().toString() + " " +
+                    instruction.toString();
+            solvingStatsFilefw = new FileWriter(solvingStatsFileName, true);
+            solvingStatsFilesbw = new BufferedWriter(solvingStatsFilefw);
+            solvingStatsFilepw = new PrintWriter(solvingStatsFilesbw);
+            solvingStatsFilepw.println(instructionStr + "," + time + "," + threadCount + "," + isEndOfThread);
+            solvingStatsFilepw.close();
+        } catch (IOException e) {
+            System.out.println("PROBLEM writing to statistics file");
+            assert false;
+        }
+    }
+
+    public void recordObligationCovered(Obligation oblg, boolean isEndPathCovered) {
         ++newOblgPerThreadCount;
 
         long currentTime = System.currentTimeMillis();
@@ -118,14 +150,14 @@ public class CoverageStatistics {
             statisticFilefw = new FileWriter(statisticFileName, true);
             statisticFilebw = new BufferedWriter(statisticFilefw);
             statisticFilepw = new PrintWriter(statisticFilebw);
-            statisticFilepw.println(oblg + "," + coverageTime);
+            statisticFilepw.println(oblg + "," + isEndPathCovered + "," + coverageTime);
             statisticFilepw.close();
 
 
             executionStatFilefw = new FileWriter(executionStatFileName, true);
             executionStatFilebw = new BufferedWriter(executionStatFilefw);
             executionStatFilepw = new PrintWriter(executionStatFilebw);
-            executionStatFilepw.println(oblg + "," + (currentTime - timeZero));
+            executionStatFilepw.println(oblg + "," + isEndPathCovered + "," + (currentTime - timeZero));
             executionStatFilepw.close();
         } catch (IOException e) {
             System.out.println("problem writing to statistics file");

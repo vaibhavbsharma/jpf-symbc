@@ -5,8 +5,8 @@ public enum CoverageMode {
     COLLECT_PRUNE,
     COLLECT_GUIDE,
     COLLECT_PRUNE_GUIDE,
-    JR, //this is a coverage collection mode for SPF
+    JR_COLLECT, //this is a coverage collection mode for SPF
     JRCOLLECT_GUIDE,
     JRCOLLECT_PRUNE,
-    JRCOLLECT_PRUNE_GUIDE,
+    JRCOLLECT_PRUNE_GUIDE, JR_PLAIN,
 }

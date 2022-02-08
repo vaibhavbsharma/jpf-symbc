@@ -32,8 +32,11 @@ coverageExclusions=Ltcgbenchmarks/wbs/WBS.launch(IZZIZZIZZIZZIZZ)V
 
 timedExperimentOn=true
 
-veritestingMode=3
-#coverageMode=5
-performanceMode=true
 
-evaluationMode=true
+veritestingMode=3
+coverageMode=9
+performanceMode=true
+evaluationMode=false
+
+tcgON=true
+

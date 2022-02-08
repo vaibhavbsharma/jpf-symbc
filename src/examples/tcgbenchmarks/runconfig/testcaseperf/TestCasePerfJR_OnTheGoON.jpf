@@ -54,7 +54,11 @@ symbolic.debug=false
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.mwwTestAndIte(sym#sym#sym)
 #symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.sheepAndGoat(sym)
 
-symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.separateBits_4(sym)
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.separateBits_4(sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.testOnTheGo(sym)
+
+symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerf.testER(sym)
 
 
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
@@ -65,7 +69,7 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 symbolic.dp=z3bitvector
 #symbolic.dp=z3inc
 
-listener =.symbc.VeritestingListener
+listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener
 #,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 ## branch coverage with unit test for JR
@@ -81,13 +85,10 @@ listener =.symbc.VeritestingListener
 #listener =.symbc.SymbolicListener
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks
 
+veritestingMode = 5
 coverageMode=5
-veritestingMode=3
+performanceMode=true
+evaluationMode=false
 
-symbolic.min_int=0
-symbolic.max_int=15
-
-# must be added to avoid redundant constraints on the path condition.
-performanceMode=false
-
-symbolic.optimizechoices=false
+tcgON=true
+tcgOnTheGo=true

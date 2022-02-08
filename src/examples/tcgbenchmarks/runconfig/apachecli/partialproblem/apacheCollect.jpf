@@ -30,5 +30,11 @@ targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/apachecli/
 
 performanceMode=true
 
+
 coverageMode=1
 evaluationMode=true
+#this is only valid in spf mode, can should indicate whether we want to generate test cases for all paths or not
+pathcoverage=false
+
+tcgON=true
+tcgOnTheGo=true

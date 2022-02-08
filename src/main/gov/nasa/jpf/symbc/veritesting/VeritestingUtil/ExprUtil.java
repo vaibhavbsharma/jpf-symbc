@@ -5,6 +5,7 @@ import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
 import gov.nasa.jpf.symbc.numeric.solvers.SolverTranslator;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
 import gov.nasa.jpf.symbc.veritesting.ast.def.*;
+import gov.nasa.jpf.vm.ThreadInfo;
 import za.ac.sun.cs.green.expr.*;
 import za.ac.sun.cs.green.expr.Expression;
 import za.ac.sun.cs.green.expr.RealConstant;
@@ -141,7 +142,7 @@ public class ExprUtil {
     This method tries to avoid a solver call to check satisfiability of the path condition if running in
     performance mode. It avoids the solver call if the isSatisfiable method returns false.
      */
-    public static boolean isPCSat(PathCondition pc) throws StaticRegionException {
+    public static boolean isPCSat(PathCondition pc, ThreadInfo ti) throws StaticRegionException {
         long startTime = System.nanoTime();
         boolean isPCSat = isSatisfiable(pc);
         StatisticManager.constPropTime += (System.nanoTime() - startTime);
@@ -160,7 +161,7 @@ public class ExprUtil {
                 startTime = System.nanoTime();
                 if (IncrementalListener.solver != null)
                     IncrementalListener.solver.push();
-                isPCSat = pc.simplify();
+                isPCSat = pc.simplify(ti);
                 if (IncrementalListener.solver != null)
                     IncrementalListener.solver.pop();
                 StatisticManager.PCSatSolverTime += (System.nanoTime() - startTime);
@@ -170,7 +171,7 @@ public class ExprUtil {
             startTime = System.nanoTime();
             if (IncrementalListener.solver != null)
                 IncrementalListener.solver.push();
-            isPCSat = pc.simplify();
+            isPCSat = pc.simplify(ti);
             if (IncrementalListener.solver != null)
                 IncrementalListener.solver.pop();
             StatisticManager.PCSatSolverTime += (System.nanoTime() - startTime);

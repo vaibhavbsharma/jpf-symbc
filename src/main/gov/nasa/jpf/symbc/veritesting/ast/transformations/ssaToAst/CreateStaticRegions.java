@@ -24,6 +24,7 @@ import za.ac.sun.cs.green.expr.*;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.VeritestingListener.tcgON;
 import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.DONTKNOW;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.STATIC;
@@ -678,7 +679,7 @@ public class CreateStaticRegions {
         currentCondition.removeLast();
         SSAConditionalBranchInstruction ssaInst = SSAUtil.getLastBranchInstruction(currentBlock);
         Stmt returnStmt;
-        if (VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+        if (tcgON && VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
             Obligation generalOblg = VeriObligationMgr.createOblg(ssaInst, ObligationSide.GENERAL, ir);
             returnStmt = compose(this.thenConditionSetup.get(currentBlock), new IfThenElseStmt(ssaInst, condExpr, thenStmt, elseStmt, true, WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (ssaInst).getOperator()), generalOblg), false);
         }
@@ -746,7 +747,7 @@ else
         SSAConditionalBranchInstruction ssaInst = SSAUtil.getLastBranchInstruction(currentBlock);
         Stmt returnStmt;
         Obligation generalOblg = VeriObligationMgr.createOblg(ssaInst, ObligationSide.GENERAL, ir);
-        if(VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+        if(tcgON && VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
         returnStmt = compose(this.thenConditionSetup.get(currentBlock),
                 new IfThenElseStmt(ssaInst, condExpr, thenStmt, elseStmt,true,
                         WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (ssaInst).getOperator()), generalOblg),
