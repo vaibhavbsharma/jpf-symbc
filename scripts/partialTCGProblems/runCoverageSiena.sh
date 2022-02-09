@@ -33,10 +33,10 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialprobl
 && echo "JR mode4 onTheGoON finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode5_steps$MAX_STEPS.log \
 && echo "JR mode5 onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJR_Collect.mode3PlainJR_steps$MAX_STEPS.log \
-&& echo "JR mode3 PlainJR finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode3_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode3_onTheGoOFF_steps$MAX_STEPS.log \
 && echo "JR mode3 onTheGoOFF finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
+&& echo "JR mode3 PlainJR finished" \
 
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaCollect.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaCollect_steps$MAX_STEPS.log \
 #&& echo "SPF branch onTheGoON finished" \
