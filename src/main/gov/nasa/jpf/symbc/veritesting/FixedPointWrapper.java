@@ -1,6 +1,7 @@
 package gov.nasa.jpf.symbc.veritesting;
 
 import gov.nasa.jpf.symbc.VeritestingListener;
+import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicRegion;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.Environment.DynamicTable;
 import gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArraySSAVisitor;
@@ -13,8 +14,8 @@ import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 
-import static gov.nasa.jpf.symbc.VeritestingListener.coverageCriteria;
-import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
+import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
+import static gov.nasa.jpf.symbc.VeritestingListener.*;
 
 /**
  * This class is called multiple times over different transformations. What it does is that it keeps a common state among all
@@ -159,7 +160,7 @@ public class FixedPointWrapper {
         intermediateRegion = substitutionVisitor.execute();
         collectTransformationState(substitutionVisitor);
 
-        if(coverageCriteria== CoverageCriteria.BRANCHCOVERAGE) {
+        if(tcgON && !(coverageMode == CoverageMode.JR_PLAIN)) {
             if (verboseVeritesting)
                 System.out.println("\n--------------- GLOBAL INTERNAL VAR SSA TRANSFORMATION ---------------\n");
             GlobalVarSSAVisitor globalVarSSAVisitor = new GlobalVarSSAVisitor(ti, intermediateRegion);

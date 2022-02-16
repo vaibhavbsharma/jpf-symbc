@@ -2,6 +2,7 @@ target=tcgbenchmarks.replace.replace11
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
 #symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
+##four symbolic input is the maximum that we can do for the partial problem, otherwise mode 4&5 will take more than an hour
 symbolic.method = tcgbenchmarks.replace.replace11.mainProcess(sym#sym#sym#sym#con#con#con#con#con#con#con)
 
 

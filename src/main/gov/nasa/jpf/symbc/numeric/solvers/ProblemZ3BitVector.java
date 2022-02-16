@@ -45,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import com.microsoft.z3.*;
@@ -52,6 +53,8 @@ import com.microsoft.z3.*;
 import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.SymbolicInstructionFactory;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
+
+import static gov.nasa.jpf.symbc.branchcoverage.statistics.CoverageStatistics.solvingFileName;
 
 public class ProblemZ3BitVector extends ProblemGeneral {
     /*SH: used to collect all function declarations (query variables) while constructing the solver and the context. */
@@ -163,7 +166,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         String dpVarStr = dpVar.toString();
         String[] valuations;
         try {
-            if(!VeritestingListener.useZ3BitVectorBinarySolver) {
+            if (!VeritestingListener.useZ3BitVectorBinarySolver) {
                 Model model = null;
                 solver.check();
                 model = solver.getModel();
@@ -188,48 +191,50 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         }
     }
 
-    public String printSMTLibv2String(){
-    	return solver.toString();
+    public String printSMTLibv2String() {
+        return solver.toString();
     }
 
     @Override
     public Boolean solve() {
         try {
-        	boolean result = false;
-        	if(SymbolicInstructionFactory.debugMode == true){
+            boolean result = false;
+            if (SymbolicInstructionFactory.debugMode == true) {
 
-           	    System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        		System.out.println(solver.toString());
-        		long z3time = 0;
+                System.out.println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                System.out.println(solver.toString());
                 long t1 = System.nanoTime();
                 result = solver.check() == Status.SATISFIABLE ? true : false;
-                z3time += System.nanoTime()-t1;
+                long z3time = System.nanoTime() - t1;
+                VeritestingListener.z3Time += z3time;
                 System.out.println("\nSolving time of z3 bitvector is " + TimeUnit.NANOSECONDS.toMillis(z3time) + " ms");
                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n");
-        	}
-        	else{
-                long t1 = System.nanoTime();
-                if(VeritestingListener.useZ3BitVectorBinarySolver)
+            } else {
+                long t1 = System.currentTimeMillis();
+                if (VeritestingListener.useZ3BitVectorBinarySolver)
                     result = checkBinarySolver();
                 else
                     result = solver.check() == Status.SATISFIABLE ? true : false;
-                float singleSolveTimeMs = (System.nanoTime() - t1);
+                long endTime = System.currentTimeMillis();
+                long singleSolveTimeMs = (endTime - t1);
                 if (VeritestingListener.verboseVeritesting) {
-                    System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = ");
-                    Charset utf8 = StandardCharsets.UTF_8;
-//                    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("../logs/Query_" + quertyCount + ".txt"), utf8)) {
-//                        writer.write(solver.toString());
-//                        writer.flush();
-//                    } catch (IOException e) {
-//                        System.out.println(e);
+                    System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = " + singleSolveTimeMs);
+                  /*  if (quertyCount > 36 && quertyCount < 43) {
+                        Charset utf8 = StandardCharsets.UTF_8;
+                        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("../logs/Query_" + solvingFileName + "_" + quertyCount + ".txt"), utf8)) {
+                            writer.write(solver.toString());
+                            writer.flush();
+                        } catch (IOException e) {
+                            System.out.println(e);
+                            assert false;
+                        }
+                    }*/
+//                    else if (quertyCount > 43)
 //                        assert false;
-//                    }
-
-                    System.out.printf("%.3f\n", singleSolveTimeMs / 1000000);
                 }
                 VeritestingListener.z3Time += singleSolveTimeMs;
                 VeritestingListener.solverCount++;
-        	}
+            }
             return result;
         } catch (Exception e) {
             e.printStackTrace();
@@ -254,15 +259,16 @@ public class ProblemZ3BitVector extends ProblemGeneral {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
 //                System.out.println(line);
-                stringBuilder.append(line+"\n");
+                stringBuilder.append(line + "\n");
             }
 
         } catch (Exception e) {
-            assert false: "problem running z3 process. Failing.";
+            assert false : "problem running z3 process. Failing.";
         }
 
         model = stringBuilder.toString();
         tempFile.deleteOnExit();
+//        System.out.println("tempfile = " + tempFile);
         return model.startsWith("sat");
     }
 
@@ -420,10 +426,10 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         }
     }
 
-    public Object logical_not(Object exp){
-        try{
-            if(exp instanceof BoolExpr)
-                return ctx.mkNot((BoolExpr)exp);
+    public Object logical_not(Object exp) {
+        try {
+            if (exp instanceof BoolExpr)
+                return ctx.mkNot((BoolExpr) exp);
             else throw new RuntimeException("## Error Z3: logical_not(Object) expected a BoolExpr.\n");
         } catch (Exception e) {
             e.printStackTrace();
@@ -639,7 +645,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     @Override
     public Object logical_or(Object exp1, Object exp2) {
         try {
-            if (exp1 instanceof BoolExpr && exp2 instanceof  BoolExpr) {
+            if (exp1 instanceof BoolExpr && exp2 instanceof BoolExpr) {
                 return ctx.mkOr((BoolExpr) exp1, (BoolExpr) exp2);
             } else {
                 throw new RuntimeException("## Error Z3: logical_or(Object, Object) expected 2 BoolExprs.");
@@ -653,7 +659,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     @Override
     public Object logical_and(Object exp1, Object exp2) {
         try {
-            if (exp1 instanceof BoolExpr && exp2 instanceof  BoolExpr) {
+            if (exp1 instanceof BoolExpr && exp2 instanceof BoolExpr) {
                 return ctx.mkAnd((BoolExpr) exp1, (BoolExpr) exp2);
             } else {
                 throw new RuntimeException("## Error Z3: logical_and(Object, Object) expected 2 BoolExprs.");
@@ -756,7 +762,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
             if (exp1 instanceof BitVecExpr && exp2 instanceof BitVecExpr) {
                 return ctx.mkBVSub((BitVecExpr) exp1, (BitVecExpr) exp2);
             } else if (exp1 instanceof ArithExpr && exp2 instanceof ArithExpr) {
-                return ctx.mkSub(new ArithExpr[] { (ArithExpr) exp1, (ArithExpr) exp2 });
+                return ctx.mkSub(new ArithExpr[]{(ArithExpr) exp1, (ArithExpr) exp2});
             } else if (exp1 instanceof FPExpr && exp2 instanceof FPExpr) {
                 return ctx.mkFPSub(ctx.mkFPRoundNearestTiesToEven(), (FPExpr) exp1, (FPExpr) exp2);
             } else {
@@ -1442,16 +1448,16 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     }
 
     public Object power(Object exp1, Object exp2) {
-		return ctx.mkPower((ArithExpr)exp1, (ArithExpr)exp2);
-	}
+        return ctx.mkPower((ArithExpr) exp1, (ArithExpr) exp2);
+    }
 
-	public Object power(Object exp1, double exp2) {
-		return ctx.mkPower((ArithExpr)exp1, ctx.mkReal("" + exp2));
-	}
+    public Object power(Object exp1, double exp2) {
+        return ctx.mkPower((ArithExpr) exp1, ctx.mkReal("" + exp2));
+    }
 
-	public Object power(double exp1, Object exp2) {
-		return ctx.mkPower(ctx.mkReal("" + exp1), (ArithExpr)exp2);
-	}
+    public Object power(double exp1, Object exp2) {
+        return ctx.mkPower(ctx.mkReal("" + exp1), (ArithExpr) exp2);
+    }
 
     private int bvCount = 0;
 
@@ -1459,7 +1465,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     @Override
     public Object makeArrayVar(String name) {
         try {
-			Sort sort = ctx.mkBitVecSort(this.bitVectorLength);
+            Sort sort = ctx.mkBitVecSort(this.bitVectorLength);
             return ctx.mkArrayConst(name, sort, sort);
         } catch (Exception e) {
             e.printStackTrace();
@@ -1489,7 +1495,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     @Override
     public Object select(Object exp1, Object exp2) {
         try {
-            return ctx.mkSelect((ArrayExpr)exp1, (BitVecExpr)exp2);
+            return ctx.mkSelect((ArrayExpr) exp1, (BitVecExpr) exp2);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("## Error Z3 : Exception caught in Z3 JNI: " + e);
@@ -1499,7 +1505,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     @Override
     public Object store(Object exp1, Object exp2, Object exp3) {
         try {
-            return ctx.mkStore((ArrayExpr)exp1, (BitVecExpr)exp2, (BitVecExpr)exp3);
+            return ctx.mkStore((ArrayExpr) exp1, (BitVecExpr) exp2, (BitVecExpr) exp3);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("## Error Z3 : Exception caught in Z3 JNI: " + e);
@@ -1509,7 +1515,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     @Override
     public Object realSelect(Object exp1, Object exp2) {
         try {
-            return ctx.mkSelect((ArrayExpr)exp1, (BitVecExpr)exp2);
+            return ctx.mkSelect((ArrayExpr) exp1, (BitVecExpr) exp2);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("## Error Z3 : Exception caught in Z3 JNI: " + e);
@@ -1520,9 +1526,9 @@ public class ProblemZ3BitVector extends ProblemGeneral {
     public Object realStore(Object exp1, Object exp2, Object exp3) {
         try {
             if (useFpForReals) {
-                return ctx.mkStore((ArrayExpr)exp1, (BitVecExpr)exp2, (FPExpr)exp3);
+                return ctx.mkStore((ArrayExpr) exp1, (BitVecExpr) exp2, (FPExpr) exp3);
             }
-            return ctx.mkStore((ArrayExpr)exp1, (BitVecExpr)exp2, (RealExpr)exp3);
+            return ctx.mkStore((ArrayExpr) exp1, (BitVecExpr) exp2, (RealExpr) exp3);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("## Error Z3 : Exception caught in Z3 JNI: " + e);
@@ -1531,17 +1537,17 @@ public class ProblemZ3BitVector extends ProblemGeneral {
 
     @Override
     public Object init_array(Object exp1, Object exp2) {
-      try {
-        // forall i. exp1[i] == exp2
-        Expr[] foralls = new Expr[1];
-        String name = ((ArrayExpr)exp1).toString() + "!init";
-        foralls[0] = ctx.mkBVConst(name, this.bitVectorLength);
-        Expr body = ctx.mkEq(ctx.mkSelect((ArrayExpr)exp1, (BitVecExpr)foralls[0]), (BitVecExpr)exp2);
-        return ctx.mkForall(foralls, body, 1, null, null, null, null);
-      } catch (Exception e) {
-          e.printStackTrace();
-          throw new RuntimeException("## Error Z3 : Exception caught in Z3 JNI: " + e);
-      }
+        try {
+            // forall i. exp1[i] == exp2
+            Expr[] foralls = new Expr[1];
+            String name = ((ArrayExpr) exp1).toString() + "!init";
+            foralls[0] = ctx.mkBVConst(name, this.bitVectorLength);
+            Expr body = ctx.mkEq(ctx.mkSelect((ArrayExpr) exp1, (BitVecExpr) foralls[0]), (BitVecExpr) exp2);
+            return ctx.mkForall(foralls, body, 1, null, null, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("## Error Z3 : Exception caught in Z3 JNI: " + e);
+        }
     }
 
     @Override

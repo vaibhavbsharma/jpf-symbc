@@ -365,35 +365,29 @@ public class PathCondition implements Comparable<PathCondition> {
         }
         if (SymbolicInstructionFactory.greenSolver == null)
             if (VeritestingListener.tcgON) {
-                if ((coverageMode == CoverageMode.JR_PLAIN) || (!BranchListener.tcgOnTheGo)) {
+                if ((coverageMode == CoverageMode.JR_PLAIN)) {
                     long startTime = System.currentTimeMillis();
                     Map<String, Object> solution = solveWithValuations(new ArrayList<>());
-                    long endTime = (System.currentTimeMillis() - startTime);
-                    BranchListener.recordSolvingInStatistics(ti.getPC(), endTime, ti.isTerminated());
+//                    boolean result = simplifyOld();
+                    long solvingTime = System.currentTimeMillis()-startTime;
+                    BranchListener.recordSolvingInStatistics(ti.getPC(), solvingTime, ti.isTerminated(), false);
+                    return solution.size() > 0;
+                }
+                if (!BranchListener.tcgOnTheGo) {
+                    long startTime = System.currentTimeMillis();
+                    Map<String, Object> solution = solveWithValuations(new ArrayList<>());
+                    long solvingTime = System.currentTimeMillis()-startTime;
+                    BranchListener.recordSolvingInStatistics(ti.getPC(), solvingTime, ti.isTerminated(), false);
                     return solution.size() > 0;
                 }
                 if (BranchListener.tcgOnTheGo) {
                     //this collects coverage for JR when it is encountered.
                     return simplifyWithTCG(ti);
                 }
-//                else assert false : "unexpected configuration.";
-//                else if (BranchListener.useSolverModelPath) {
-//                    //this path should be used by plain JR, where we want to use the solver call for getting the model
-//                    // rather than the true and false result.
-//                    long startTime = System.currentTimeMillis();
-//                    Map<String, Object> solution = solveWithValuations(new ArrayList<>());
-//                    long endTime = (System.currentTimeMillis() - startTime);
-//                    BranchListener.recordSolvingInStatistics(ti.getPC(), endTime, ti.isTerminated());
-//                    return solution.size() > 0;
-//                }
+
             } else {
-            /*    //this is the plain JR mode that uses the old solving path that requires no model retrieval.
-                long startTime = System.currentTimeMillis();
-                boolean result = simplifyOld();
-                long endTime = (System.currentTimeMillis() - startTime);
-                BranchListener.setupAndRecordStats(ti.getPC(), endTime, ti.isTerminated());
-                return result*/
-                ;
+                //this assert needs to be removed, it is here to just verify that tcg is working as expected.
+//                assert false : "solving using an unsupported control flow. Failing.";
                 return simplifyOld();
             }
         return simplifyGreen();

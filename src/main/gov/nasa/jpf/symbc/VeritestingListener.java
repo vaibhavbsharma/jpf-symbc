@@ -7,6 +7,7 @@ import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
+import gov.nasa.jpf.symbc.branchcoverage.statistics.CoverageStatistics;
 import gov.nasa.jpf.symbc.bytecode.branchchoices.optimization.util.BranchChoiceGenerator;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
@@ -61,6 +62,7 @@ import java.util.concurrent.TimeUnit;
 
 
 import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
+import static gov.nasa.jpf.symbc.BranchListener.tcgStaticDur;
 import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.SamePathOptimization.*;
 import static gov.nasa.jpf.symbc.veritesting.ChoiceGenerator.StaticBranchChoiceGenerator.*;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.INSTANTIATION;
@@ -87,7 +89,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public static long totalSolverTime = 0, z3Time = 0;
     public static long parseTime = 0, regionSummaryParseTime = 0;
-//    public static long solverAllocTime = 0;
+    //    public static long solverAllocTime = 0;
     public static long cleanupTime = 0;
     public static int solverCount = 0;
     public static int maxStaticExplorationDepth = 1;
@@ -454,7 +456,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         if ((runMode != VeritestingMode.SPFCASES) && (runMode != VeritestingMode.EARLYRETURNS)) {
             checkRegionStackInputOutput(ti, staticRegion, instructionToExecute);
             DynamicRegion dynRegion = runVeritesting(ti, instructionToExecute, staticRegion, key);
-            if (tcgON && coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+            if (tcgON && !(coverageMode == CoverageMode.JR_PLAIN))
                 VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
             runOnSamePath(ti, instructionToExecute, dynRegion);
             System.out.println("------------- Region was successfully veritested --------------- ");
@@ -582,13 +584,13 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
             if (singlePathOptimization)
                 if (optimizedChoices(ti, instructionToExecute, (StaticBranchChoiceGenerator) newCG)) { //if we were able to
-                    if (tcgON && coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+                    if (tcgON && !(coverageMode == CoverageMode.JR_PLAIN))
                         VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
                     veritestingSuccessful = true;
                     return;
                 }
 
-            if (tcgON && coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+            if (tcgON && !(coverageMode == CoverageMode.JR_PLAIN))
                 VeriObligationMgr.addSymbolicOblgMap(dynRegion.gpsm);
 
             newCG.makeVeritestingCG(ti, instructionToExecute, key);
@@ -623,7 +625,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
 //        if (verboseVeritesting && !performanceMode)
-            System.out.println("threadTerminated: " + ++numberOfThreads);
+        System.out.println("threadTerminated: " + ++numberOfThreads);
         npaths++;
         super.threadTerminated(vm, terminatedThread);
     }
@@ -652,7 +654,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     @Override
     public void stateBacktracked(Search search) {
 //        if (verboseVeritesting && !performanceMode)
-//            System.out.println("stateBacktracked");
+        System.out.println("stateBacktracked");
 
     }
 
@@ -1033,7 +1035,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         long runEndTime = System.nanoTime();
         PrintWriter pw = publisher.getOut();
         publisher.publishTopicStart("VeritestingListener report:");
-        long dynRunTime = (runEndTime - runStartTime) - (jitAnalysis ? JITAnalysis.staticAnalysisDur : staticAnalysisDur);
+        long staticTime = jitAnalysis ? (coverageMode != CoverageMode.JR_PLAIN ? tcgStaticDur + JITAnalysis.staticAnalysisDur : JITAnalysis.staticAnalysisDur) : staticAnalysisDur;
+        long dynRunTime = (runEndTime - runStartTime) - staticTime;
+
 
         writeRegionDigest();
 
@@ -1044,23 +1048,24 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         pw.println(statisticManager.printAllExceptionStatistics());
 
         pw.println("\n/************************ Printing Time Decomposition Statistics *****************");
-        pw.println("static analysis time = " + TimeUnit.NANOSECONDS.toMillis(jitAnalysis ? JITAnalysis.staticAnalysisDur : staticAnalysisDur) + " msec");
+        pw.println("static analysis time = " + TimeUnit.NANOSECONDS.toMillis(staticTime) + " msec");
         pw.println("Veritesting Dyn Time = " + TimeUnit.NANOSECONDS.toMillis(dynRunTime) + " msec");
         pw.println("Veritesting fix-point Time = " + TimeUnit.NANOSECONDS.toMillis(FixedPointWrapper.fixedPointTime) + " msec");
         pw.println("GoTo rewrite instances = " + GoToTransformer.goToUpdatedClasses.size());
 
         pw.println("\n/************************ Printing Solver Statistics *****************");
         pw.println("Total Solver Queries Count = " + solverCount);
-        pw.println("Total Solver Time = " + TimeUnit.NANOSECONDS.toMillis(totalSolverTime) + " msec");
+        pw.println("Total Solver Time = " + (tcgON ? totalSolverTime : TimeUnit.NANOSECONDS.toMillis(totalSolverTime)) + " msec");
         pw.println("Total Solver Parse Time = " + TimeUnit.NANOSECONDS.toMillis(parseTime) + " msec");
         pw.println("Region Summary Parse Time = " + TimeUnit.NANOSECONDS.toMillis(regionSummaryParseTime) + " msec");
         pw.println("Total Solver Clean up Time = " + TimeUnit.NANOSECONDS.toMillis(cleanupTime) + " msec");
+        pw.println("TCG_CheckModelDur = " + TimeUnit.NANOSECONDS.toMillis(CoverageStatistics.checkModelDur));
+        pw.println("Z3 Time = " + z3Time);
         pw.println("PCSatSolverCount = " + StatisticManager.PCSatSolverCount);
         pw.println("PCSatSolverTime = " + TimeUnit.NANOSECONDS.toMillis(StatisticManager.PCSatSolverTime) + " msec");
         pw.println("Constant Propagation Time for PC sat. checks = " + TimeUnit.NANOSECONDS.toMillis(StatisticManager.constPropTime));
         pw.println("Array SPF Case count = " + StatisticManager.ArraySPFCaseCount);
         pw.println("If-removed count = " + StatisticManager.ifRemovedCount);
-
         pw.println(statisticManager.printAccumulativeStatistics());
         pw.println(statisticManager.printInstantiationStatistics());
 
@@ -1106,14 +1111,17 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     }
 
     private String getMetricsVector(long dynRunTime) {
-        return (TimeUnit.NANOSECONDS.toMillis((jitAnalysis ? JITAnalysis.staticAnalysisDur : staticAnalysisDur)) + TimeUnit.NANOSECONDS.toMillis(dynRunTime)) + "," +
-                TimeUnit.NANOSECONDS.toMillis(jitAnalysis ? JITAnalysis.staticAnalysisDur : staticAnalysisDur) + "," +
+        long staticTime = jitAnalysis ? (coverageMode != CoverageMode.JR_PLAIN ? tcgStaticDur + JITAnalysis.staticAnalysisDur : JITAnalysis.staticAnalysisDur) : staticAnalysisDur;
+        return (TimeUnit.NANOSECONDS.toMillis(staticTime) + TimeUnit.NANOSECONDS.toMillis(dynRunTime)) + "," +
+                TimeUnit.NANOSECONDS.toMillis(staticTime) + "," +
                 TimeUnit.NANOSECONDS.toMillis(dynRunTime) + "," +
                 npaths + "," +
                 solverCount + "," +
-                TimeUnit.NANOSECONDS.toMillis(totalSolverTime) + "," +
+                (tcgON ? totalSolverTime : TimeUnit.NANOSECONDS.toMillis(totalSolverTime)) + "," +
                 TimeUnit.NANOSECONDS.toMillis(parseTime) + "," +
                 TimeUnit.NANOSECONDS.toMillis(cleanupTime) + "," +
+                TimeUnit.NANOSECONDS.toMillis(CoverageStatistics.checkModelDur) + "," +
+                z3Time + "," +
                 statisticManager.getDistinctVeriRegionNum() + "," +
                 statisticManager.getDistinctSpfRegionNum() + "," +
                 statisticManager.getConcreteRegionNum() + "," +

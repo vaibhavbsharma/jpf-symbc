@@ -9,6 +9,7 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.CoverageUtil;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
+import gov.nasa.jpf.symbc.branchcoverage.statistics.CoverageStatistics;
 import gov.nasa.jpf.symbc.numeric.GreenConstraint;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
@@ -158,13 +159,13 @@ public class VeriObligationMgr {
         ArrayList<Obligation> newCoveredOblgs = new ArrayList<>();
         long startTime = System.currentTimeMillis();
         solution = pc.solveWithValuations(attributes);
-        long endTime = (System.currentTimeMillis() - startTime);
+        long solvingTime = (System.currentTimeMillis() - startTime);
         if (solution.size() != 0) {
             newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedsCoverage, solution);
             if (newCoveredOblgs.size() != 0) //no coverage was found
                 ObligationMgr.addNewOblgsCoverage(newCoveredOblgs);
         }
-        return new Pair(new HashSet<>(newCoveredOblgs), new Pair(solution, endTime));
+        return new Pair(new HashSet<>(newCoveredOblgs), new Pair(solution, solvingTime));
     }
 
     public static LinkedHashSet<Obligation> getVeriNeedsCoverageOblg() {
@@ -211,8 +212,8 @@ public class VeriObligationMgr {
                         assert e instanceof IntVariable;*/
                     long startTime = System.currentTimeMillis();
                     solution = pcCopy.solveWithValuations(attributes);
-                    long endTime = (System.currentTimeMillis() - startTime);
-                    recordSolvingInStatistics(ti.getPC(), endTime, ti.isTerminated());
+                    long solvingTime = (System.currentTimeMillis() - startTime);
+                    recordSolvingInStatistics(ti.getPC(), solvingTime, ti.isTerminated(), false);
 //                    if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
                     if (solution.size() != 0) {
                         ArrayList<Obligation> newCoveredOblgs = checkSolutionsWithObligations(ti.getVM(), oblgsNeedCoverage, solution);
@@ -234,6 +235,7 @@ public class VeriObligationMgr {
     }
 
     private static ArrayList<Obligation> checkSolutionsWithObligations(VM vm, HashSet<Obligation> oblgsNeedCoverage, Map<String, Object> solution) {
+        long startTime = System.nanoTime();
         ArrayList<Obligation> coveredOblgs = new ArrayList<>();
         for (Obligation oblg : oblgsNeedCoverage) {
             PriorityQueue<Pair<Expression, Integer>> oblgQueue = symbolicOblgMap.get(oblg);
@@ -257,6 +259,7 @@ public class VeriObligationMgr {
             if (BranchListener.testCaseGenerationMode != TestCaseGenerationMode.NONE)
                 VeriSymbolicSequenceListener.collectVeriTests(vm, solution);
 
+        CoverageStatistics.checkModelDur += System.nanoTime() - startTime;
         return coveredOblgs;
     }
 

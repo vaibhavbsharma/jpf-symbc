@@ -1,5 +1,6 @@
 package gov.nasa.jpf.symbc.branchcoverage.statistics;
 
+import gov.nasa.jpf.symbc.VeritestingListener;
 import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationMgr;
@@ -33,12 +34,14 @@ public class CoverageStatistics {
     public static FileWriter solvingStatsFilefw;
     public static BufferedWriter solvingStatsFilesbw;
     public static PrintWriter solvingStatsFilepw;
+    public static long checkModelDur;
 
 
     String statisticFileName;
     String executionStatFileName;
     String coveragePerThreadFileName;
     String solvingStatsFileName;
+    public static String solvingFileName;
 
     int threadCount = 0;
 
@@ -47,6 +50,7 @@ public class CoverageStatistics {
 
     //contains the normalized time after which we will record the coverage.
     static Long timeNormVal = null;
+    private int count;
 
     public CoverageStatistics() {
         LocalDateTime time = LocalDateTime.now();
@@ -59,7 +63,7 @@ public class CoverageStatistics {
 //        String JRorSPF = veritestingMode != 0 ? "JR" : "SPF";
         String isBatch = coverageMode == CoverageMode.JR_COLLECT ? (batchCoverage ? "batch" : "single") : "NA";
         String isOnTheGo = tcgON && coverageMode == CoverageMode.JR_PLAIN ? "NA" :
-                tcgOnTheGo ? "onTheGo_ON" : "onTheGo_OFF";
+                tcgOnTheGo ? "onTheGoON" : "onTheGoOFF";
         String envStepsStr = evnMaxSteps != null ? "_steps_" + evnMaxSteps : "";
 
         String spfPath = coverageMode == CoverageMode.SPF && pathCoverage ? "_Path" : "";
@@ -68,6 +72,7 @@ public class CoverageStatistics {
         executionStatFileName = folderStr + "/" + benchmarkName + "_ExecStat_" + coverageMode + spfPath + "_mode" + veritestingMode + "_" + isBatch + "_" + isOnTheGo + envStepsStr + ".txt";
         coveragePerThreadFileName = folderStr + "/" + benchmarkName + "_ThreadStat_" + coverageMode + spfPath + "_mode" + veritestingMode + "_" + isBatch + "_" + isOnTheGo + envStepsStr + ".txt";
         solvingStatsFileName = folderStr + "/" + benchmarkName + "_SolvingStat_" + coverageMode + spfPath + "_mode" + veritestingMode + "_" + isBatch + "_" + isOnTheGo + envStepsStr + ".txt";
+        solvingFileName = spfPath + "_mode" + veritestingMode + "_" + isBatch + "_" + isOnTheGo + envStepsStr;
 
       /*  if (evnMaxSteps != null) {
             statisticFileName = folderStr + "/" + benchmarkName + "OblgOnlyStat_" + coverageMode + "_mode" + veritestingMode + "_steps" + evnMaxSteps + ".txt";
@@ -114,14 +119,16 @@ public class CoverageStatistics {
         }
     }
 
-    public void recordSolving(Instruction instruction, long time, boolean isEndOfThread) {
+    public void recordSolving(Instruction instruction, long solvingTime, boolean isEndOfThread, boolean skipTime) {
         try {
+            if(!skipTime)
+                VeritestingListener.totalSolverTime += solvingTime;
             String instructionStr = instruction.getMethodInfo().toString() + " " +
                     instruction.toString();
             solvingStatsFilefw = new FileWriter(solvingStatsFileName, true);
             solvingStatsFilesbw = new BufferedWriter(solvingStatsFilefw);
             solvingStatsFilepw = new PrintWriter(solvingStatsFilesbw);
-            solvingStatsFilepw.println(instructionStr + "," + time + "," + threadCount + "," + isEndOfThread);
+            solvingStatsFilepw.println(instructionStr + "," + solvingTime + "," + threadCount + "," + isEndOfThread);
             solvingStatsFilepw.close();
         } catch (IOException e) {
             System.out.println("PROBLEM writing to statistics file");
@@ -163,6 +170,10 @@ public class CoverageStatistics {
             System.out.println("problem writing to statistics file");
             assert false;
         }
+//        if(count++ >=10) {
+//            System.out.println("recording the first obligation is done.");
+//            assert false;
+//        }
     }
 
     public void recordCoverageForThread() {
@@ -216,5 +227,9 @@ public class CoverageStatistics {
             coverageStr += (oblg + "," + threadOblgMap.get(oblg) + " \n");
         }
         return coverageStr;
+    }
+
+    public void incrementThreadCount() {
+        ++threadCount;
     }
 }

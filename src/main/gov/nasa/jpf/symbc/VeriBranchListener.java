@@ -16,7 +16,6 @@ import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.numeric.PCChoiceGenerator;
 import gov.nasa.jpf.symbc.numeric.PathCondition;
 import gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener;
-import gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.Pair;
 import gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
@@ -104,6 +103,7 @@ public class VeriBranchListener extends BranchListener {
 
         try {
             if (firstTime) {
+                long tcgStaticTimeStart = System.nanoTime();
                 System.out.println("---- CoverageMode = " + coverageMode + ", solver = " + solver + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS") != null ? ", STEPS " + System.getenv("MAX_STEPS") : ""));
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
@@ -115,6 +115,8 @@ public class VeriBranchListener extends BranchListener {
                     printReachability();
                     printOblgToBBMap();
                 }
+                long tcgStaticTimeEnd = System.nanoTime();
+                tcgStaticDur = tcgStaticTimeEnd- tcgStaticTimeStart;
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
                 if (instructionToExecute instanceof IfInstruction && (!VeritestingListener.veritestingSuccessful)) {
@@ -205,7 +207,7 @@ public class VeriBranchListener extends BranchListener {
         newCoveredOblg.clear();
         LinkedHashSet<Obligation> veriOblgsNeedsCoverage = getVeriNeedsCoverageOblg();
         Pair<HashSet<Obligation>, Pair<Map<String, Object>, Long>> oblgSolutionTimeTriple = collectVeriCoverageOnTheGo(terminatedThread,pc , veriOblgsNeedsCoverage);
-        coverageStatistics.recordSolving(terminatedThread.getPC(), oblgSolutionTimeTriple.getSecond().getSecond(), terminatedThread.isTerminated());
+        coverageStatistics.recordSolving(terminatedThread.getPC(), oblgSolutionTimeTriple.getSecond().getSecond(), terminatedThread.isTerminated(), false);
         newCoveredOblg = oblgSolutionTimeTriple.getFirst();
         for (Obligation oblg : newCoveredOblg)
              coverageStatistics.recordObligationCovered(oblg, terminatedThread.isTerminated());

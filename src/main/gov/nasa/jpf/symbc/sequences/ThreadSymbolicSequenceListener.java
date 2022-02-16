@@ -183,9 +183,8 @@ public class ThreadSymbolicSequenceListener extends SymbolicSequenceListener imp
             if (IncrementalListener.solver != null) IncrementalListener.solver.push();
             long startTime = System.currentTimeMillis();
             solution = pc.solveWithValuations(attributes);
-            long endTime = (System.currentTimeMillis() - startTime);
-            recordSolvingInStatistics(terminatedThread.getPC(), endTime, terminatedThread.isTerminated());
-
+            long solvingTime = (System.currentTimeMillis() - startTime);
+            recordSolvingInStatistics(terminatedThread.getPC(), solvingTime, terminatedThread.isTerminated(), false);
             assert (pc.count() == 0 || solution.size() > 0) : "At least one solution is expected. Something went wrong. Failing.";
             if (IncrementalListener.solver != null) IncrementalListener.solver.pop();
 

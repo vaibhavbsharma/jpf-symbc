@@ -9,6 +9,7 @@ import com.ibm.wala.util.graph.Graph;
 import com.ibm.wala.util.graph.dominators.Dominators;
 import com.ibm.wala.util.graph.dominators.NumberedDominators;
 import gov.nasa.jpf.symbc.VeritestingListener;
+import gov.nasa.jpf.symbc.branchcoverage.CoverageMode;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.Obligation;
 import gov.nasa.jpf.symbc.branchcoverage.obligation.ObligationSide;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
@@ -24,6 +25,7 @@ import za.ac.sun.cs.green.expr.*;
 
 import java.util.*;
 
+import static gov.nasa.jpf.symbc.BranchListener.coverageMode;
 import static gov.nasa.jpf.symbc.VeritestingListener.tcgON;
 import static gov.nasa.jpf.symbc.VeritestingListener.verboseVeritesting;
 import static gov.nasa.jpf.symbc.veritesting.StaticRegionException.ExceptionPhase.DONTKNOW;
@@ -679,7 +681,7 @@ public class CreateStaticRegions {
         currentCondition.removeLast();
         SSAConditionalBranchInstruction ssaInst = SSAUtil.getLastBranchInstruction(currentBlock);
         Stmt returnStmt;
-        if (tcgON && VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE) {
+        if (tcgON && !(coverageMode == CoverageMode.JR_PLAIN)) {
             Obligation generalOblg = VeriObligationMgr.createOblg(ssaInst, ObligationSide.GENERAL, ir);
             returnStmt = compose(this.thenConditionSetup.get(currentBlock), new IfThenElseStmt(ssaInst, condExpr, thenStmt, elseStmt, true, WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (ssaInst).getOperator()), generalOblg), false);
         }
@@ -747,7 +749,7 @@ else
         SSAConditionalBranchInstruction ssaInst = SSAUtil.getLastBranchInstruction(currentBlock);
         Stmt returnStmt;
         Obligation generalOblg = VeriObligationMgr.createOblg(ssaInst, ObligationSide.GENERAL, ir);
-        if(tcgON && VeritestingListener.coverageCriteria == CoverageCriteria.BRANCHCOVERAGE)
+        if(tcgON && !(coverageMode == CoverageMode.JR_PLAIN))
         returnStmt = compose(this.thenConditionSetup.get(currentBlock),
                 new IfThenElseStmt(ssaInst, condExpr, thenStmt, elseStmt,true,
                         WalaUtil.negationOfCondInst((Operation) condExpr, (IConditionalBranchInstruction.Operator) (ssaInst).getOperator()), generalOblg),

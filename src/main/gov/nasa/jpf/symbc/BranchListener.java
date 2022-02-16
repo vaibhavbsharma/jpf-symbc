@@ -69,6 +69,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     protected static Long startTime = System.currentTimeMillis() / 1000;
     protected static int timeForExperiment = 60 * 60; //180 * 60; //minutes * seconds -- set to 0 if you want to run indefinitely.
+    public static long tcgStaticDur;
 
     public BranchListener(Config conf, JPF jpf) {
         jpf.addPublisherExtension(ConsolePublisher.class, this);
@@ -124,12 +125,6 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     }
 
-    public static void setupAndRecordStats(Instruction instruction, long endTime, boolean terminated) {
-        if (coverageStatistics == null)
-            coverageStatistics = new CoverageStatistics();
-
-        recordSolvingInStatistics(instruction, endTime, terminated);
-    }
 
     private String setBenchmarkName(String target) {
         int classIndex = target.lastIndexOf(".");
@@ -157,6 +152,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
         try {
             if (firstTime) {
+                long tcgStaticTimeStart = System.nanoTime();
                 System.out.println("---- CoverageMode = " + coverageMode + ", solver = " + solver + ", benchmark= " + benchmarkName + (System.getenv("MAX_STEPS") != null ? ", STEPS " + System.getenv("MAX_STEPS") : ""));
                 BranchCoverage.createObligations(ti);
                 ObligationMgr.finishedCollection();
@@ -168,6 +164,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
                     printReachability();
                     printOblgToBBMap();
                 }
+                long tcgStaticTimeEnd = System.nanoTime();
+                tcgStaticDur = tcgStaticTimeEnd- tcgStaticTimeStart;
                 System.out.println("|-|-|-|-|-|-|-|-|-|-|-|-finished obligation collection|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-");
             } else {
                 if (instructionToExecute instanceof IfInstruction) {
@@ -320,13 +318,15 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
         }
     }
 
-    public static void recordSolvingInStatistics(Instruction instruction, long time, boolean isEndOfThread) {
-        coverageStatistics.recordSolving(instruction, time, isEndOfThread);
+    public static void recordSolvingInStatistics(Instruction instruction, long solvingTime, boolean isEndOfThread, boolean skipTime) {
+        coverageStatistics.recordSolving(instruction, solvingTime, isEndOfThread, skipTime);
     }
 
     public void threadTerminated(VM vm, ThreadInfo terminatedThread) {
-        if(coverageMode == CoverageMode.JR_PLAIN)
+        if(coverageMode == CoverageMode.JR_PLAIN) {
+            coverageStatistics.incrementThreadCount();
             return;
+        }
         if (!evaluationMode) System.out.println("end of thread");
         if (VeriBranchListener.ignoreCoverageCollection)
             return;
