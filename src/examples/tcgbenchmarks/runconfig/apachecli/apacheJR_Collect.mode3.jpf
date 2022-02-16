@@ -18,6 +18,7 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 symbolic.dp=z3bitvector
 
+
 ## branch coverage with unit test for JR
 listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener
 #,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
@@ -32,3 +33,7 @@ veritestingMode = 3
 coverageMode=5
 performanceMode=true
 evaluationMode=true
+
+
+tcgON=true
+tcgOnTheGo=true

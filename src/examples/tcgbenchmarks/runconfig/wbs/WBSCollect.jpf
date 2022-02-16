@@ -18,7 +18,6 @@ symbolic.dp=z3bitvector
 #jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 listener =.symbc.VeritestingListener,.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
-#,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 symbolic.optimizechoices=false
 
@@ -31,3 +30,6 @@ performanceMode=true
 
 coverageMode=1
 evaluationMode=true
+
+tcgON=true
+tcgOnTheGo=true

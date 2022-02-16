@@ -14,6 +14,7 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 #symbolic.dp=z3
 
 
+
 #symbolic.dp=z3inc
 
 symbolic.dp=z3bitvector
@@ -32,3 +33,5 @@ performanceMode=true
 coverageMode=1
 evaluationMode=true
 pathcoverage=true
+
+tcgON=true

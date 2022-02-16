@@ -11,7 +11,8 @@ shopt -s expand_aliases
 
 COVERAGEDIR=/media/soha/DATA/git/jrTCG
 
-MAX_STEPS=4 && export MAX_STEPS
+##maximum steps that we spf can do within an hour is 3
+MAX_STEPS=3 && export MAX_STEPS
 
 echo "maxsteps is $MAX_STEPS"
 

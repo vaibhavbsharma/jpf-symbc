@@ -27,7 +27,11 @@ symbolic.optimizechoices=false
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/siena/
 
 
-veritestingMode=3
+veritestingMode=2
 coverageMode=5
 performanceMode=true
 evaluationMode=true
+
+
+tcgON=true
+tcgOnTheGo=true

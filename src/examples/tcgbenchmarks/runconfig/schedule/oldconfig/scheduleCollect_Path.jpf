@@ -1,7 +1,7 @@
-target=tcgbenchmarks.siena.SENPDriver
+target=tcgbenchmarks.schedule2_3.Schedule2
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.siena.SENPDriver.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
+symbolic.method = tcgbenchmarks.schedule2_3.Schedule2.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
 
 vm.storage.class=nil
 symbolic.debug=false
@@ -24,10 +24,13 @@ symbolic.optimizechoices=false
 
 veritestingMode=0
 
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/siena/
+#branchCoverageOn=true
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/schedule2_3/
 
 performanceMode=true
 
 coverageMode=1
 evaluationMode=true
 pathcoverage=true
+
+tcgON=true

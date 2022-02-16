@@ -17,6 +17,7 @@ jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 symbolic.dp=z3bitvector
 
+
 listener =.symbc.VeritestingListener,.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
 #,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
@@ -29,5 +30,11 @@ targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/apachecli/
 
 performanceMode=true
 
+
 coverageMode=1
 evaluationMode=true
+#this is only valid in spf mode, can should indicate whether we want to generate test cases for all paths or not
+pathcoverage=false
+
+tcgON=true
+tcgOnTheGo=true

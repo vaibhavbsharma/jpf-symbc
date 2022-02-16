@@ -1,9 +1,7 @@
-target=tcgbenchmarks.nanoxmlTCG.DumpXML
+target=tcgbenchmarks.siena.SENPDriver
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
-symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
-#symbolic.method = tcgbenchmarks.nanoxmlTCG.DumpXML.mainProcess(sym#sym#sym#sym#con#con#con#con#con)
-
+symbolic.method = tcgbenchmarks.siena.SENPDriver.mainProcess(sym#sym#sym#sym#sym#sym#sym#sym#sym)
 
 vm.storage.class=nil
 symbolic.debug=false
@@ -13,6 +11,7 @@ symbolic.debug=false
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
 #symbolic.dp=z3
+
 
 
 #symbolic.dp=z3inc
@@ -26,12 +25,12 @@ symbolic.optimizechoices=false
 
 veritestingMode=0
 
-#branchCoverageOn=true
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/nanoxmlTCG/
-#coverageExclusions=Ltcgbenchmarks/nanoxmlTCG/DumpXML.main([Ljava/lang/String)V
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/siena/
 
 performanceMode=true
 
 coverageMode=1
 evaluationMode=true
 pathcoverage=true
+
+tcgON=true

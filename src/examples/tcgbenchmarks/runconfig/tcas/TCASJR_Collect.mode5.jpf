@@ -31,3 +31,8 @@ veritestingMode=5
 coverageMode=5
 performanceMode=true
 evaluationMode=true
+
+
+
+tcgON=true
+tcgOnTheGo=true
