@@ -30,9 +30,14 @@ mkdir $COVERAGEDIR/logs/log_cli/partialproblem
 #&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode5_steps$MAX_STEPS.log \
 #&& echo "JR mode5 onTheGoON finished" \
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode3_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode3_onTheGoOFF_steps$MAX_STEPS.log \
-&& echo "JR mode3 onTheGoOFF finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode3_steps$MAX_STEPS.log \
-&& echo "JR mode3 onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
-&& echo "JR mode3 PlainJR finished"
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode3_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode3_onTheGoOFF_steps$MAX_STEPS.log \
+#&& echo "JR mode3 onTheGoOFF finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode3_steps$MAX_STEPS.log \
+#&& echo "JR mode3 onTheGoON finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
+#&& echo "JR mode3 PlainJR finished"
+
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode4_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode4_onTheGoOFF_steps$MAX_STEPS.log \
+&& echo "JR mode4 onTheGoOFF finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/apachecli/partialproblem/apacheJR_Collect.mode5_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_cli/partialproblem/apacheJRCollect.mode5_onTheGoOFF_steps$MAX_STEPS.log \
+&& echo "JR mode5 onTheGoOFF finished" \

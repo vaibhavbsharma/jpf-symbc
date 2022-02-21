@@ -1,12 +1,9 @@
-target=tcgbenchmarks.testcaseperf.TCG_PaperExample
+target=tcgbenchmarks.wbs.WBS
 classpath=${jpf-symbc}/build/examples
 sourcepath=${jpf-symbc}/src/examples
+symbolic.method = tcgbenchmarks.wbs.WBS.launch(sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym#sym)
 vm.storage.class=nil
 symbolic.debug=false
-
-
-symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.separateBits_4(sym)
-
 
 #listener = .symbc.SymbolicListener
 
@@ -25,11 +22,10 @@ listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symb
 
 symbolic.optimizechoices=false
 
+targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/wbs/
+coverageExclusions=Ltcgbenchmarks/wbs/WBS.launch(IZZIZZIZZIZZIZZ)V
 
-#branchCoverageOn=true
-targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/testcaseperf/
-
-veritestingMode=3
+veritestingMode=5
 coverageMode=5
 performanceMode=true
 
@@ -37,4 +33,4 @@ evaluationMode=true
 
 
 tcgON=true
-tcgOnTheGo=true
+tcgOnTheGo=false

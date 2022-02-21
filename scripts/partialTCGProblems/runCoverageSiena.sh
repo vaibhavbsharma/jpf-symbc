@@ -32,10 +32,14 @@ mkdir $COVERAGEDIR/logs/log_siena/partialproblem
 #&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode5_steps$MAX_STEPS.log \
 #&& echo "JR mode5 onTheGoON finished" \
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode3_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode3_onTheGoOFF_steps$MAX_STEPS.log \
-&& echo "JR mode3 onTheGoOFF finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode3_steps$MAX_STEPS.log \
-&& echo "JR mode3 onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
-&& echo "JR mode3 PlainJR finished"
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode3_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode3_onTheGoOFF_steps$MAX_STEPS.log \
+#&& echo "JR mode3 onTheGoOFF finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode3_steps$MAX_STEPS.log \
+#&& echo "JR mode3 onTheGoON finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
+#&& echo "JR mode3 PlainJR finished"
 
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode4_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode4_onTheGoOFF_steps$MAX_STEPS.log \
+&& echo "JR mode4 onTheGoOFF finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/siena/partialproblem/sienaJR_Collect.mode5_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_siena/partialproblem/sienaJRCollect.mode5_onTheGoOFF_steps$MAX_STEPS.log \
+&& echo "JR mode5 onTheGoOFF finished" \

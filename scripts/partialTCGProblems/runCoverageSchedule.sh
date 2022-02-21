@@ -32,9 +32,15 @@ mkdir $COVERAGEDIR/logs/log_schedule2/partialproblem
 #&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode5_steps$MAX_STEPS.log \
 #&& echo "JR mode5 onTheGoON finished" \
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode3_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode3_onTheGoOFF_steps$MAX_STEPS.log \
-&& echo "JR mode3 onTheGoOFF finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode3_steps$MAX_STEPS.log \
-&& echo "JR mode3 onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
-&& echo "JR mode3 PlainJR finished"
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode3_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode3_onTheGoOFF_steps$MAX_STEPS.log \
+#&& echo "JR mode3 onTheGoOFF finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode3_steps$MAX_STEPS.log \
+#&& echo "JR mode3 onTheGoON finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
+#&& echo "JR mode3 PlainJR finished"
+
+
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode4_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode4_onTheGoOFF_steps$MAX_STEPS.log \
+&& echo "JR mode4 onTheGoOFF finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/partialproblem/scheduleJR_Collect.mode5_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_schedule2/partialproblem/scheduleJRCollect.mode5_onTheGoOFF_steps$MAX_STEPS.log \
+&& echo "JR mode5 onTheGoOFF finished" \
