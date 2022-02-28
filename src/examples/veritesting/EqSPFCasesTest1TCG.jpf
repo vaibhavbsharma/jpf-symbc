@@ -34,4 +34,11 @@ SPFCasesHeuristics=false
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 coverageMode=5
 targetAbsPath=${jpf-symbc}/build/examples/veritesting
-listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener
+
+symbolic.dp=z3bitvector
+coverageMode=5
+evaluationMode=true
+
+tcgON=true
+tcgOnTheGo=true

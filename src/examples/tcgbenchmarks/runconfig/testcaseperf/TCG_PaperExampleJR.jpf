@@ -33,8 +33,8 @@ veritestingMode=3
 coverageMode=5
 performanceMode=true
 
-evaluationMode=true
+evaluationMode=false
 
 
-tcgON=true
-tcgOnTheGo=true
+tcgON=false
+tcgOnTheGo=false

@@ -20,7 +20,7 @@ veritestingMode = 4
 performanceMode = false
 symbolic.lazy = true
 
-symbolic.dp=z3bitvectorinc
+#symbolic.dp=z3bitvectorinc
 #listener = .symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
 
 symbolic.optimizechoices=false
@@ -30,5 +30,11 @@ jitAnalysis = true
 jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 coverageMode=5
 targetAbsPath=${jpf-symbc}/build/examples/veritesting
-listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+listener =.symbc.VeritestingListener,.symbc.VeriBranchListener,gov.nasa.jpf.symbc.sequences.VeriSymbolicSequenceListener
 
+symbolic.dp=z3bitvector
+coverageMode=5
+evaluationMode=true
+
+tcgON=true
+tcgOnTheGo=true
