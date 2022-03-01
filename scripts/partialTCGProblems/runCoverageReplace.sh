@@ -25,18 +25,12 @@ mkdir $COVERAGEDIR/logs/log_replace11/partialproblem
 #&& echo "SPF branch onTheGoON finished" \
 runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode2_steps$MAX_STEPS.log \
 && echo "JR mode2 onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode2_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode2_onTheGoOFF_steps$MAX_STEPS.log \
-&& echo "JR mode2 onTheGoOFF finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode2PlainJR.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode2PlainJR_steps$MAX_STEPS.log \
 && echo "JR mode2 PlainJR finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode4_steps$MAX_STEPS.log \
 && echo "JR mode4 onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode4_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode4_onTheGoOFF_steps$MAX_STEPS.log \
-&& echo "JR mode4 onTheGoOFF finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode4PlainJR.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode4PlainJR_steps$MAX_STEPS.log \
 && echo "JR mode4 PlainJR finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode5_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode5_onTheGoOFF_steps$MAX_STEPS.log \
-&& echo "JR mode5 onTheGoOFF finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode5_steps$MAX_STEPS.log \
 && echo "JR mode5 onTheGoON finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode5PlainJR.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode5PlainJR_steps$MAX_STEPS.log \
@@ -47,3 +41,16 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialpro
 #&& echo "JR mode3 onTheGoON finished" \
 #&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
 #&& echo "JR mode3 PlainJR finished" \
+
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode3_steps$MAX_STEPS.log \
+#&& echo "JR mode3 onTheGoON finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
+#&& echo "JR mode3 PlainJR finished" \
+
+
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode2_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode2_onTheGoOFF_steps$MAX_STEPS.log \
+#&& echo "JR mode2 onTheGoOFF finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode4_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode4_onTheGoOFF_steps$MAX_STEPS.log \
+#&& echo "JR mode4 onTheGoOFF finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/replace/partialproblem/replaceJR_Collect.mode5_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_replace11/partialproblem/replaceJRCollect.mode5_onTheGoOFF_steps$MAX_STEPS.log \
+#&& echo "JR mode5 onTheGoOFF finished" \
