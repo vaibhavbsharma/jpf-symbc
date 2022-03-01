@@ -30,7 +30,6 @@ symbolic.optimizechoices=false
 
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/replace/
 
-timedExperimentOn=true
 
 veritestingMode=5
 coverageMode=9

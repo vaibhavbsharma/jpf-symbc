@@ -28,8 +28,6 @@ targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/tcas/
 
 coverageExclusions=tcgbenchmarks.tcas.tcas.main([Ljava/lang/String;)V
 
-timedExperimentOn=true
-
 
 veritestingMode=3
 coverageMode=9

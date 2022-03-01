@@ -30,7 +30,6 @@ symbolic.optimizechoices=false
 
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/printtokens2_3/
 
-timedExperimentOn=true
 
 veritestingMode=3
 coverageMode=9

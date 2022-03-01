@@ -28,7 +28,6 @@ symbolic.optimizechoices=false
 
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/apachecli/CLI.class
 
-timedExperimentOn=true
 
 veritestingMode=5
 coverageMode=9

@@ -30,7 +30,6 @@ symbolic.optimizechoices=false
 targetAbsPath=${jpf-symbc}/build/examples/tcgbenchmarks/nanoxmlTCG/
 #coverageExclusions=Ltcgbenchmarks/nanoxmlTCG/DumpXML.main([Ljava/lang/String)V
 
-timedExperimentOn=true
 
 veritestingMode=5
 coverageMode=9
