@@ -67,8 +67,8 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
 
     public static String solver;
 
-    protected static Long startTime = System.currentTimeMillis() / 1000;
-    protected static int timeForExperiment = 60 * 60; //180 * 60; //minutes * seconds -- set to 0 if you want to run indefinitely.
+    protected static Long startTime = System.currentTimeMillis();
+    protected static int timeForExperiment = 60 * 60 * 1000; //180 * 60; //minutes * seconds -- set to 0 if you want to run indefinitely.
     public static long tcgStaticDur;
 
     public BranchListener(Config conf, JPF jpf) {
@@ -135,7 +135,7 @@ public class BranchListener extends PropertyListenerAdapter implements Publisher
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
 
         if (timeForExperiment > 0) {
-            long currentTime = System.currentTimeMillis() / 1000;
+            long currentTime = System.currentTimeMillis();
             if (currentTime - startTime >= timeForExperiment) //ignore and report the results if time budget was hit.
                 ti.getVM().getSystemState().setIgnored(true);
         }

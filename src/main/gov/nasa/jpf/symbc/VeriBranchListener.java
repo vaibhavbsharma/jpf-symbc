@@ -96,7 +96,7 @@ public class VeriBranchListener extends BranchListener {
 */
 
         if (timeForExperiment > 0) {
-            long currentTime = System.currentTimeMillis() / 1000;
+            long currentTime = System.currentTimeMillis();
             if (currentTime - startTime >= timeForExperiment) //ignore and report the results if time budget was hit.
                 ti.getVM().getSystemState().setIgnored(true);
         }
