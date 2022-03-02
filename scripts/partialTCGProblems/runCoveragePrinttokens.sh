@@ -18,14 +18,16 @@ echo "maxsteps is $MAX_STEPS"
 mkdir $COVERAGEDIR/logs/log_printtokens2
 mkdir $COVERAGEDIR/logs/log_printtokens2/partialproblem
 
-#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensCollect_Path.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensCollect_Path_steps$MAX_STEPS.log \
-#&& echo "SPF path finished" \
-
-
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode2_steps$MAX_STEPS.log \
+runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensCollect.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensCollect_steps$MAX_STEPS.log \
+&& echo "SPF finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode2_steps$MAX_STEPS.log \
 && echo "JR mode2 onTheGoON finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode2PlainJR.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode2PlainJR_steps$MAX_STEPS.log \
 && echo "JR mode2 PlainJR finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode3_steps$MAX_STEPS.log \
+&& echo "JR mode3 onTheGoON finished" \
+&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
+&& echo "JR mode3 PlainJR finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode4_steps$MAX_STEPS.log \
 && echo "JR mode4 onTheGoON finished" \
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode4PlainJR.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode4PlainJR_steps$MAX_STEPS.log \
@@ -35,10 +37,7 @@ runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partia
 && runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode5PlainJR.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode5PlainJR_steps$MAX_STEPS.log \
 && echo "JR mode5 PlainJR finished"
 
-#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode3_steps$MAX_STEPS.log \
-#&& echo "JR mode3 onTheGoON finished" \
-#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode3PlainJR.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode3PlainJR_steps$MAX_STEPS.log \
-#&& echo "JR mode3 PlainJR finished" \
+
 
 #&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/printtokens/partialproblem/printtokensJR_Collect.mode2_onTheGoOFF.jpf >& $COVERAGEDIR/logs/log_printtokens2/partialproblem/printtokensJRCollect.mode2_onTheGoOFF_steps$MAX_STEPS.log \
 #&& echo "JR mode2 onTheGoOFF finished" \

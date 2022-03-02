@@ -219,7 +219,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 long singleSolveTimeMs = (endTime - t1);
                 if (VeritestingListener.verboseVeritesting) {
                     System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = " + singleSolveTimeMs);
-                  /*  if (quertyCount > 36 && quertyCount < 43) {
+                    if (quertyCount > 1809 && quertyCount < 1826) {
                         Charset utf8 = StandardCharsets.UTF_8;
                         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("../logs/Query_" + solvingFileName + "_" + quertyCount + ".txt"), utf8)) {
                             writer.write(solver.toString());
@@ -228,8 +228,8 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                             System.out.println(e);
                             assert false;
                         }
-                    }*/
-//                    else if (quertyCount > 43)
+                    }
+//                    else if (quertyCount > 1825)
 //                        assert false;
                 }
                 VeritestingListener.z3Time += singleSolveTimeMs;

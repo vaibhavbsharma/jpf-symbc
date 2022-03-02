@@ -324,7 +324,7 @@ public class tcas {
         if (maxSteps-- > 0) sym8(601, -1, 0, -1, 0, 0, 0, 301, 400, 0, 0, 1);
         if (maxSteps-- > 0) sym9(601, -1, 0, -1, 0, 0, 0, 301, 400, 0, 0, 1);
         if (maxSteps-- > 0) sym10(601, -1, 0, -1, 0, 0, 0, 301, 400, 0, 0, 1);
-        assert (result_alim >= -1);
+//        assert (result_alim >= -1);
     }
 
 }

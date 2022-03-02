@@ -11,7 +11,7 @@ shopt -s expand_aliases
 
 COVERAGEDIR=/media/soha/DATA/git/jrTCG
 
-MAX_STEPS=6 && export MAX_STEPS
+MAX_STEPS=5 && export MAX_STEPS
 
 echo "maxsteps is $MAX_STEPS"
 
