@@ -18,17 +18,45 @@ echo "maxsteps is $MAX_STEPS"
 
 mkdir $COVERAGEDIR/logs/log_schedule2
 
-runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect.jpf>& $COVERAGEDIR/logs/log_schedule2/scheduleCollect_steps$MAX_STEPS.log \
-&& echo "SPF branch onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode2_steps$MAX_STEPS.log \
-&& echo "JR mode2 onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode4_steps$MAX_STEPS.log \
-&& echo "JR mode4 onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode5_steps$MAX_STEPS.log \
-&& echo "JR mode5 onTheGoON finished" \
-&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode3_steps$MAX_STEPS.log \
-&& echo "JR mode3 onTheGoON finished" \
+#runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect.jpf>& $COVERAGEDIR/logs/log_schedule2/scheduleCollect_steps$MAX_STEPS.log \
+#&& echo "SPF branch onTheGoON finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode2_steps$MAX_STEPS.log \
+#&& echo "JR mode2 onTheGoON finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode4.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode4_steps$MAX_STEPS.log \
+#&& echo "JR mode4 onTheGoON finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode5_steps$MAX_STEPS.log \
+#&& echo "JR mode5 onTheGoON finished" \
+#&& runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode3.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode3_steps$MAX_STEPS.log \
+#&& echo "JR mode3 onTheGoON finished" \
 
 
 #runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode3NoBatch.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJR_Collect.mode3NoBatch_steps$MAX_STEPS.log \
 #&& echo "JR mode3 NoBatch finished"
+
+
+for i in {1..3} ; do
+  sleep 10
+  date
+  runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleCollect.jpf>& $COVERAGEDIR/logs/log_schedule2/scheduleCollect_steps$MAX_STEPS.log
+  echo "SPF branch onTheGoON finished"
+done
+
+date
+
+for i in {1..3} ; do
+  sleep 10
+  date
+  runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode2.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode2_steps$MAX_STEPS.log
+  echo "JR mode2 onTheGoON finished"
+done
+
+date
+
+for i in {1..3} ; do
+  sleep 10
+  date
+  runCoverage $COVERAGEDIR/src/examples/tcgbenchmarks/runconfig/schedule/scheduleJR_Collect.mode5.jpf >& $COVERAGEDIR/logs/log_schedule2/scheduleJRCollect.mode5_steps$MAX_STEPS.log
+  echo "JR mode5 onTheGoON finished"
+done
+
+date
