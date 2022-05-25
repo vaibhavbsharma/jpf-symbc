@@ -217,7 +217,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                     result = solver.check() == Status.SATISFIABLE ? true : false;
                 long endTime = System.currentTimeMillis();
                 long singleSolveTimeMs = (endTime - t1);
-                if (VeritestingListener.verboseVeritesting) {
+             /*   if (VeritestingListener.verboseVeritesting) {
                     System.out.print("Query #" + ++quertyCount + " is = " + result + ", singleSolveTimeMs for Query = " + singleSolveTimeMs);
                     if (quertyCount > 1809 && quertyCount < 1826) {
                         Charset utf8 = StandardCharsets.UTF_8;
@@ -231,7 +231,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                     }
 //                    else if (quertyCount > 1825)
 //                        assert false;
-                }
+                }*/
                 VeritestingListener.z3Time += singleSolveTimeMs;
                 VeritestingListener.solverCount++;
             }
