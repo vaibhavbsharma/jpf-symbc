@@ -1,11 +1,14 @@
 .hg
 .hgignore
+.idea
+.run
 local.properties
 .version
 nbproject/private/*
 build/*
 dist/*
 tmp/*
+classes/*
 trace
 *.class
 *.orig
@@ -15,3 +18,5 @@ trace
 logs/
 out/
 !.idea/*
+*.log
+src/examples/strings/CRIME_secret.txt.enc

@@ -49,7 +49,7 @@ public class Z3String3Processor {
 		Params params = context1.mkParams();
 		//params.add("candidate_models", true);
 		//params.add("fail_if_inconclusive", false);
-//		params.add("smt.string_solver", "z3str3");
+		//params.add("smt.string_solver", "z3str3");
 
 		// SymbolicInstructionFactory populated these public vars since z3str3 was specified.
 		params.add("str.aggressive_length_testing", SymbolicInstructionFactory.z3str3_aggressive_length_testing);
@@ -120,10 +120,13 @@ public class Z3String3Processor {
 				for(String s : solutions) {
 					if(!s.contains(" Int ")) {
 						System.out.println(s.trim());
-						String value = s.substring(s.indexOf("\""), s.length() - 1);
-						String[] parts = s.split(" ");
+						int begin = s.indexOf("\"");
+						if(begin >= 0) {
+							String value = s.substring(begin, s.length() - 1);
+							String[] parts = s.split(" ");
 
-						model.put(parts[1], value);
+							model.put(parts[1], value);
+						}
 					}
 					else{
 						System.out.println(s.trim());
