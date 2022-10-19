@@ -24,6 +24,5 @@ public class Main {
         counter++;
       }
     assert (counter != 121);
-    assert true;
   }
 }
