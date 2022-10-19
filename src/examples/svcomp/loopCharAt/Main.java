@@ -1,16 +1,14 @@
 package svcomp.loopCharAt;
 /*
- * JR Regression:
  * Origin of the benchmark:
- *     license: MIT (see /java/jayhorn-recursive/LICENSE)
- *     repo: https://github.com/jayhorn/cav_experiments.git
- *     branch: master
- *     root directory: benchmarks/recursive
- * The benchmark was taken from the repo: 24 January 2018
-
-This example is inspired by the motivating example on page 1085 in
-Thanassis Avgerinos, Alexandre Rebert, Sang Kil Cha, and David Brumley. 2014.
-Enhancing symbolic execution with veritesting. In Proceedings of the 36th International Conference on Software Engineering (ICSE 2014). Association for Computing Machinery, New York, NY, USA, 1083–1094. https://doi.org/10.1145/2568225.2568293
+ *     inspired by the motivating example on page 1085 in Thanassis Avgerinos,
+ *     Alexandre Rebert, Sang Kil Cha, and David Brumley. 2014.
+ *     Enhancing symbolic execution with veritesting.
+ *     license: MIT (see /java/java-ranger/LICENSE-2.0)
+ *     repo: https://github.com/vaibhavbsharma/java-ranger
+ *     branch: svcomp2021
+ *     root directory: examples/svcomp
+ * The benchmark was taken from the repo: 18 October 2022
  */
 
 import org.sosy_lab.sv_benchmarks.Verifier;
