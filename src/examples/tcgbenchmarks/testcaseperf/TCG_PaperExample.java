@@ -8,6 +8,41 @@ public class TCG_PaperExample {
         separateBits_8(1);
     }
 
+
+    public static int separateBits_2(int i) {
+        int j = 0;
+        if (i >= -2 && i <= 3) {
+//        if (i >= -2 && i <=2) {
+            while (i != 0) {
+                int trailHasZero = (i & 1);
+                if (trailHasZero == 0) {
+                    int numberOfTrailingZeros = numberOfTrailingZeros_4(i);
+                    i = (i >> numberOfTrailingZeros);
+                } else {
+                    j = (j >>> 1);
+                    j = (j ^ 2);
+                    i = (i >>> 1);
+                }
+            }
+//            System.out.println(Integer.toBinaryString(j));
+//            System.out.println(j);
+        }
+        return j;
+    }
+
+    public static int numberOfTrailingZeros_2(int i) {
+        // HD, Figure 5-14
+        i = i << 30;
+        if (i == 0)
+            return 2;
+
+        if ( i << 1 != 0) {
+            return 0;
+        }
+        return 1;
+//        return (n - ((((i << 1)) >>> 3)));
+    }
+
     public static int separateBits_4(int i) {
         int j = 0;
         if (i >= -8 && i <= 7) {
@@ -17,8 +52,7 @@ public class TCG_PaperExample {
                 if (trailHasZero == 0) {
                     int numberOfTrailingZeros = numberOfTrailingZeros_4(i);
                     i = (i >> numberOfTrailingZeros);
-                }
-                else {
+                } else {
                     j = (j >>> 1);
                     j = (j ^ 8);
                     i = (i >>> 1);
@@ -34,7 +68,8 @@ public class TCG_PaperExample {
         // HD, Figure 5-14
         int y;
         i = i << 28;
-        if (i == 0) return 4;
+        if (i == 0)
+            return 4;
         int n = 3;
 
 
@@ -153,7 +188,7 @@ public class TCG_PaperExample {
         int j = 0;
 //        if (i >= -2147483648 && i <= 2147483647) {
 //        if (i >= -1 && i < 20) {
-       if (i >= -3 && i < 5) {
+        if (i >= -3 && i < 5) {
             while (i != 0) {
                 int trailHasZero = (i & 1);
                 if (trailHasZero == 0) {
@@ -174,13 +209,33 @@ public class TCG_PaperExample {
     public static int numberOfTrailingZeros(int i) {
         // HD, Figure 5-14
         int y;
-        if (i == 0) return 32;
+        if (i == 0)
+            return 32;
         int n = 31;
-        y = i <<16; if (y != 0) { n = n -16; i = y; }
-        y = i << 8; if (y != 0) { n = n - 8; i = y; }
-        y = i << 4; if (y != 0) { n = n - 4; i = y; }
-        y = i << 2; if (y != 0) { n = n - 2; i = y; }
-        y = i << 1; if (y != 0) { n = n - 1; }
+        y = i << 16;
+        if (y != 0) {
+            n = n - 16;
+            i = y;
+        }
+        y = i << 8;
+        if (y != 0) {
+            n = n - 8;
+            i = y;
+        }
+        y = i << 4;
+        if (y != 0) {
+            n = n - 4;
+            i = y;
+        }
+        y = i << 2;
+        if (y != 0) {
+            n = n - 2;
+            i = y;
+        }
+        y = i << 1;
+        if (y != 0) {
+            n = n - 1;
+        }
 
         return n;
 
