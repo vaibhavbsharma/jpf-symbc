@@ -1,0 +1,29 @@
+target=UnsatAddition02
+classpath=${jpf-symbc}/build/classes,${jpf-symbc}/build/examples
+symbolic.dp=z3bitvector
+symbolic.min_int=-10000
+symbolic.max_int=2147483647
+symbolic.min_double=-10000.0
+symbolic.max_double=10000.0
+symbolic.bvlength=64
+search.depth_limit=100
+symbolic.strings=true
+symbolic.string_dp=z3str
+symbolic.string_dp_timeout_ms=3000
+symbolic.lazy=on
+symbolic.arrays=true
+veritestingMode = 5
+performanceMode = false
+
+symbolic.dp=z3bitvector
+listener = .symbc.VeritestingListener
+#listener = .symbc.SymbolicListener
+
+#symbolic.optimizechoices=false
+
+#vm.storage.class=nil
+#symbolic.debug=false
+
+symbolic.method=UnsatAddition02.callIntermediate(sym#sym)
+
+recursiveDepth = 1

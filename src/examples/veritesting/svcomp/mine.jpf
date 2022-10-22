@@ -1,0 +1,17 @@
+target=veritesting.svcomp.Main
+classpath = ${jpf-symbc}/build/classes,${jpf-symbc}/build/examples
+
+symbolic.dp=z3bitvector
+symbolic.min_int=-10000
+symbolic.max_int=10000
+symbolic.min_double=-10000.0
+symbolic.max_double=10000.0
+symbolic.bvlength=64
+search.depth_limit=12
+symbolic.strings=false
+symbolic.string_dp=z3str
+symbolic.string_dp_timeout_ms=3000
+symbolic.lazy=on
+symbolic.arrays=true
+veritestingMode = 5
+listener = .symbc.VeritestingListener
