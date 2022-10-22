@@ -5,7 +5,38 @@ import static java.lang.Integer.numberOfTrailingZeros;
 public class TCG_PaperExample {
 
     public static void main(String[] args) {
-        separateBits_8(1);
+        getSetBits(1);
+    }
+
+
+    //assume i is a 4-bit number, i.e., (i >= -8 && i <= 7)
+    public static int getSetBits(int i) {
+        int numOfSetBits = 0;
+        while (i != 0) {
+            if ((i & 1) == 0) {
+                int numOfZeros = getTrailingZeros(i);
+                i = (i >> numOfZeros);
+            } else {
+                i = (i >>> 1);
+                numOfSetBits++;
+            }
+        }
+        return numOfSetBits;
+    }
+
+    public static int getTrailingZeros(int i) {
+        i = i << 28;
+        int numOfZeros = 3;
+        int temp = (i << 2);
+        if (temp != 0) {
+            numOfZeros = 1;
+            i = temp;
+        }
+        temp = (i << 1);
+        if (temp != 0)
+            numOfZeros = (numOfZeros - 1);
+
+        return numOfZeros;
     }
 
     public static int separateBits_4(int i) {
@@ -17,8 +48,7 @@ public class TCG_PaperExample {
                 if (trailHasZero == 0) {
                     int numberOfTrailingZeros = numberOfTrailingZeros_4(i);
                     i = (i >> numberOfTrailingZeros);
-                }
-                else {
+                } else {
                     j = (j >>> 1);
                     j = (j ^ 8);
                     i = (i >>> 1);
@@ -153,7 +183,7 @@ public class TCG_PaperExample {
         int j = 0;
 //        if (i >= -2147483648 && i <= 2147483647) {
 //        if (i >= -1 && i < 20) {
-       if (i >= -3 && i < 5) {
+        if (i >= -3 && i < 5) {
             while (i != 0) {
                 int trailHasZero = (i & 1);
                 if (trailHasZero == 0) {
@@ -176,11 +206,30 @@ public class TCG_PaperExample {
         int y;
         if (i == 0) return 32;
         int n = 31;
-        y = i <<16; if (y != 0) { n = n -16; i = y; }
-        y = i << 8; if (y != 0) { n = n - 8; i = y; }
-        y = i << 4; if (y != 0) { n = n - 4; i = y; }
-        y = i << 2; if (y != 0) { n = n - 2; i = y; }
-        y = i << 1; if (y != 0) { n = n - 1; }
+        y = i << 16;
+        if (y != 0) {
+            n = n - 16;
+            i = y;
+        }
+        y = i << 8;
+        if (y != 0) {
+            n = n - 8;
+            i = y;
+        }
+        y = i << 4;
+        if (y != 0) {
+            n = n - 4;
+            i = y;
+        }
+        y = i << 2;
+        if (y != 0) {
+            n = n - 2;
+            i = y;
+        }
+        y = i << 1;
+        if (y != 0) {
+            n = n - 1;
+        }
 
         return n;
 
