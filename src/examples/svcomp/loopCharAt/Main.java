@@ -1,16 +1,12 @@
 package svcomp.loopCharAt;
-/*
- * Origin of the benchmark:
- *     inspired by the motivating example on page 1085 in Thanassis Avgerinos,
- *     Alexandre Rebert, Sang Kil Cha, and David Brumley. 2014.
- *     Enhancing symbolic execution with veritesting.
- *     license: MIT (see /java/java-ranger/LICENSE-2.0)
- *     repo: https://github.com/vaibhavbsharma/java-ranger
- *     branch: svcomp2021
- *     root directory: examples/svcomp
- * The benchmark was taken from the repo: 18 October 2022
- */
+// SPDX-FileCopyrightText: Java-Ranger authors 2022
+// SPDX-License-Identifier: Apache-2.0
+// inspired by the motivating example on page 1085 in Thanassis Avgerinos,
+// Alexandre Rebert, Sang Kil Cha, and David Brumley. 2014.
+//    Enhancing symbolic execution with veritesting.
 
+// This file is part of the SV-Benchmarks collection of verification tasks:
+// https://gitlab.com/sosy-lab/benchmarking/sv-benchmarks
 import org.sosy_lab.sv_benchmarks.Verifier;
 
 public class Main {
