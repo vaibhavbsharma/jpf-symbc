@@ -69,7 +69,7 @@
 #target=svcomp.StringBuilderConstructors02.Main
 #target=svcomp.UnsatFibonacci01.Main
 target=svcomp.loopCharAt.Main
-
+target=svcomp.char1.Main
 
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
@@ -97,4 +97,4 @@ listener = .symbc.VeritestingListener
 #symbolic.arrays=true
 #,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 #symbolic.optimizechoices=false
-#symbolic.debug=true
+symbolic.debug=true
