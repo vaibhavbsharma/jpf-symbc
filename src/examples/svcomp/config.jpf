@@ -50,7 +50,7 @@
 #target=svcomp.securibench.Basic38.Main
 #target=svcomp.StringValueOf08.Main
 #target=svcomp.CharSequenceToString.Main
-target=svcomp.URLDecoder01.Main
+#target=svcomp.URLDecoder01.Main
 #target=svcomp.bug_test_gen_119.Main
 #target=svcomp.RegexMatches01.Main
 #target=svcomp.RegexSubstitution02.Main
@@ -67,6 +67,9 @@ target=svcomp.URLDecoder01.Main
 #target=svcomp.StringBuilderCapLen03.Main
 #target=svcomp.StringCompare04.Main
 #target=svcomp.StringBuilderConstructors02.Main
+#target=svcomp.UnsatFibonacci01.Main
+target=svcomp.loopCharAt.Main
+
 
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
@@ -84,8 +87,8 @@ symbolic.jrarrays=true
 veritestingMode = 5
 recursiveDepth= 200
 singlePathOptimization=true
-#listener = .symbc.VeritestingListener
-listener = .symbc.SymbolicListener
+listener = .symbc.VeritestingListener
+#listener = .symbc.SymbolicListener
 #,.symbc.SymbolicListener
 
 #symbolic.string_dp_timeout_ms=3000
