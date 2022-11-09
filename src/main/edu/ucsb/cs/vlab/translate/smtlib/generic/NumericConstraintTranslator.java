@@ -118,15 +118,25 @@ public abstract class NumericConstraintTranslator extends NormalFormTranslator<C
 
 			String a = manager.numExpr.collect((IntegerExpression) l);
 			String b = manager.numExpr.collect((IntegerExpression) r);
+			Comparator cmp = c.getComparator();
 
 			if(CHARS.contains(l.getClass()) || CHARS.contains(r.getClass())) {
-				try {
-					a = "\"" + String.valueOf((char) Integer.parseInt(a)) + "\"";
-				} catch(NumberFormatException e) {}
+				if (l instanceof SymbolicCharAtInteger
+						&& r instanceof IntegerConstant
+						&& (cmp.toString().equals(" >= ") || cmp.toString().equals(" <= ")) ){
+					try {
+						a = "(str.to_code " + a + ")";
+					} catch(NumberFormatException e) {}
+				}
+				else {
+					try {
+						a = "\"" + String.valueOf((char) Integer.parseInt(a)) + "\"";
+					} catch(NumberFormatException e) {}
 
-				try {
-					b = "\"" + String.valueOf((char) Integer.parseInt(b)) + "\"";
-				} catch(NumberFormatException e) {}				
+					try {
+						b = "\"" + String.valueOf((char) Integer.parseInt(b)) + "\"";
+					} catch(NumberFormatException e) {}
+				}
 			}
 
 			arg1 = a;
