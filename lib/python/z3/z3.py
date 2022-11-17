@@ -6,12 +6,15 @@
 # Author: Leonardo de Moura (leonardo)
 ############################################
 
-"""Z3 is a high performance theorem prover developed at Microsoft Research. Z3 is used in many applications such as: software/hardware verification and testing, constraint solving, analysis of hybrid systems, security, biology (in silico analysis), and geometrical problems.
+"""Z3 is a high performance theorem prover developed at Microsoft Research.
 
-Several online tutorials for Z3Py are available at:
-http://rise4fun.com/Z3Py/tutorial/guide
+Z3 is used in many applications such as: software/hardware verification and testing,
+constraint solving, analysis of hybrid systems, security, biology (in silico analysis),
+and geometrical problems.
 
-Please send feedback, comments and/or corrections on the Issue tracker for https://github.com/Z3prover/z3.git. Your comments are very valuable.
+
+Please send feedback, comments and/or corrections on the Issue tracker for
+https://github.com/Z3prover/z3.git. Your comments are very valuable.
 
 Small example:
 
@@ -50,61 +53,73 @@ import sys
 import io
 import math
 import copy
+if sys.version_info.major >= 3:
+    from typing import Iterable
 
 Z3_DEBUG = __debug__
+
 
 def z3_debug():
     global Z3_DEBUG
     return Z3_DEBUG
 
-if sys.version < '3':
+
+if sys.version_info.major < 3:
     def _is_int(v):
         return isinstance(v, (int, long))
 else:
     def _is_int(v):
         return isinstance(v, int)
 
+
 def enable_trace(msg):
     Z3_enable_trace(msg)
+
 
 def disable_trace(msg):
     Z3_disable_trace(msg)
 
+
 def get_version_string():
-  major = ctypes.c_uint(0)
-  minor = ctypes.c_uint(0)
-  build = ctypes.c_uint(0)
-  rev = ctypes.c_uint(0)
-  Z3_get_version(major, minor, build, rev)
-  return "%s.%s.%s" % (major.value, minor.value, build.value)
+    major = ctypes.c_uint(0)
+    minor = ctypes.c_uint(0)
+    build = ctypes.c_uint(0)
+    rev = ctypes.c_uint(0)
+    Z3_get_version(major, minor, build, rev)
+    return "%s.%s.%s" % (major.value, minor.value, build.value)
+
 
 def get_version():
-  major = ctypes.c_uint(0)
-  minor = ctypes.c_uint(0)
-  build = ctypes.c_uint(0)
-  rev = ctypes.c_uint(0)
-  Z3_get_version(major, minor, build, rev)
-  return (major.value, minor.value, build.value, rev.value)
+    major = ctypes.c_uint(0)
+    minor = ctypes.c_uint(0)
+    build = ctypes.c_uint(0)
+    rev = ctypes.c_uint(0)
+    Z3_get_version(major, minor, build, rev)
+    return (major.value, minor.value, build.value, rev.value)
+
 
 def get_full_version():
-  return Z3_get_full_version()
+    return Z3_get_full_version()
 
-# We use _z3_assert instead of the assert command because we want to
-# produce nice error messages in Z3Py at rise4fun.com
+
 def _z3_assert(cond, msg):
     if not cond:
         raise Z3Exception(msg)
 
+
 def _z3_check_cint_overflow(n, name):
     _z3_assert(ctypes.c_int(n).value == n, name + " is too large")
+
 
 def open_log(fname):
     """Log interaction to a file. This function must be invoked immediately after init(). """
     Z3_open_log(fname)
 
+
 def append_log(s):
     """Append user-defined string to interaction log. """
     Z3_append_log(s)
+
 
 def to_symbol(s, ctx=None):
     """Convert an integer or string into a Z3 symbol."""
@@ -112,6 +127,7 @@ def to_symbol(s, ctx=None):
         return Z3_mk_int_symbol(_get_ctx(ctx).ref(), s)
     else:
         return Z3_mk_string_symbol(_get_ctx(ctx).ref(), s)
+
 
 def _symbol2py(ctx, s):
     """Convert a Z3 symbol back into a Python object. """
@@ -123,40 +139,43 @@ def _symbol2py(ctx, s):
 # Hack for having nary functions that can receive one argument that is the
 # list of arguments.
 # Use this when function takes a single list of arguments
+
+
 def _get_args(args):
-     try:
-       if len(args) == 1 and (isinstance(args[0], tuple) or isinstance(args[0], list)):
+    try:
+        if len(args) == 1 and (isinstance(args[0], tuple) or isinstance(args[0], list)):
             return args[0]
-       elif len(args) == 1 and (isinstance(args[0], set) or isinstance(args[0], AstVector)):
+        elif len(args) == 1 and (isinstance(args[0], set) or isinstance(args[0], AstVector)):
             return [arg for arg in args[0]]
-       else:
+        else:
             return args
-     except:  # len is not necessarily defined when args is not a sequence (use reflection?)
+    except TypeError:  # len is not necessarily defined when args is not a sequence (use reflection?)
         return args
 
 # Use this when function takes multiple arguments
+
+
 def _get_args_ast_list(args):
     try:
-        if isinstance(args, set) or isinstance(args, AstVector) or isinstance(args, tuple):
+        if isinstance(args, (set, AstVector, tuple)):
             return [arg for arg in args]
         else:
             return args
-    except:
+    except Exception:
         return args
+
 
 def _to_param_value(val):
     if isinstance(val, bool):
-        if val == True:
-            return "true"
-        else:
-            return "false"
-    else:
-        return str(val)
+        return "true" if val else "false"
+    return str(val)
+
 
 def z3_error_handler(c, e):
     # Do nothing error handler, just avoid exit(0)
     # The wrappers in z3core.py will raise a Z3Exception if an error is detected
     return
+
 
 class Context:
     """A Context manages all other Z3 objects, global configuration options, etc.
@@ -169,6 +188,7 @@ class Context:
     computation.
     The initialization method receives global configuration options for the new context.
     """
+
     def __init__(self, *args, **kws):
         if z3_debug():
             _z3_assert(len(args) % 2 == 0, "Argument list must have an even number of elements.")
@@ -208,6 +228,8 @@ class Context:
 
 # Global Z3 context
 _main_ctx = None
+
+
 def main_ctx():
     """Return a reference to the global Z3 context.
 
@@ -228,14 +250,17 @@ def main_ctx():
         _main_ctx = Context()
     return _main_ctx
 
+
 def _get_ctx(ctx):
     if ctx is None:
         return main_ctx()
     else:
         return ctx
 
+
 def get_ctx(ctx):
     return _get_ctx(ctx)
+
 
 def set_param(*args, **kws):
     """Set Z3 global (or module) parameters.
@@ -260,15 +285,18 @@ def set_param(*args, **kws):
             Z3_global_param_set(str(prev), _to_param_value(a))
             prev = None
 
+
 def reset_params():
     """Reset all global (or module) parameters.
     """
     Z3_global_param_reset_all()
 
+
 def set_option(*args, **kws):
     """Alias for 'set_param' for backward compatibility.
     """
     return set_param(*args, **kws)
+
 
 def get_param(name):
     """Return the value of a Z3 global (or module) parameter
@@ -289,8 +317,11 @@ def get_param(name):
 #########################################
 
 # Mark objects that use pretty printer
+
+
 class Z3PPObject:
     """Superclass for all Z3 objects that have support for pretty printing."""
+
     def use_pp(self):
         return True
 
@@ -304,15 +335,16 @@ class Z3PPObject:
 
 class AstRef(Z3PPObject):
     """AST are Direct Acyclic Graphs (DAGs) used to represent sorts, declarations and expressions."""
+
     def __init__(self, ast, ctx=None):
-        self.ast  = ast
-        self.ctx  = _get_ctx(ctx)
+        self.ast = ast
+        self.ctx = _get_ctx(ctx)
         Z3_inc_ref(self.ctx.ref(), self.as_ast())
 
     def __del__(self):
         if self.ctx.ref() is not None and self.ast is not None:
-           Z3_dec_ref(self.ctx.ref(), self.as_ast())
-           self.ast = None
+            Z3_dec_ref(self.ctx.ref(), self.as_ast())
+            self.ast = None
 
     def __deepcopy__(self, memo={}):
         return _to_ast_ref(self.ast, self.ctx)
@@ -338,7 +370,7 @@ class AstRef(Z3PPObject):
         elif is_false(self):
             return False
         elif is_eq(self) and self.num_args() == 2:
-           return self.arg(0).eq(self.arg(1))
+            return self.arg(0).eq(self.arg(1))
         else:
             raise Z3Exception("Symbolic expressions cannot be cast to concrete Boolean values.")
 
@@ -409,6 +441,7 @@ class AstRef(Z3PPObject):
         """
         return Z3_get_ast_hash(self.ctx_ref(), self.as_ast())
 
+
 def is_ast(a):
     """Return `True` if `a` is an AST node.
 
@@ -429,6 +462,7 @@ def is_ast(a):
     """
     return isinstance(a, AstRef)
 
+
 def eq(a, b):
     """Return `True` if `a` and `b` are structurally identical AST nodes.
 
@@ -447,10 +481,12 @@ def eq(a, b):
         _z3_assert(is_ast(a) and is_ast(b), "Z3 ASTs expected")
     return a.eq(b)
 
+
 def _ast_kind(ctx, a):
     if is_ast(a):
         a = a.as_ast()
     return Z3_get_ast_kind(ctx.ref(), a)
+
 
 def _ctx_from_ast_arg_list(args, default_ctx=None):
     ctx = None
@@ -465,8 +501,10 @@ def _ctx_from_ast_arg_list(args, default_ctx=None):
         ctx = default_ctx
     return ctx
 
+
 def _ctx_from_ast_args(*args):
     return _ctx_from_ast_arg_list(args)
+
 
 def _to_func_decl_array(args):
     sz = len(args)
@@ -475,6 +513,7 @@ def _to_func_decl_array(args):
         _args[i] = args[i].as_func_decl()
     return _args, sz
 
+
 def _to_ast_array(args):
     sz = len(args)
     _args = (Ast * sz)()
@@ -482,12 +521,14 @@ def _to_ast_array(args):
         _args[i] = args[i].as_ast()
     return _args, sz
 
+
 def _to_ref_array(ref, args):
     sz = len(args)
     _args = (ref * sz)()
     for i in range(sz):
         _args[i] = args[i].as_ast()
     return _args, sz
+
 
 def _to_ast_ref(a, ctx):
     k = _ast_kind(ctx, a)
@@ -508,8 +549,10 @@ def _to_ast_ref(a, ctx):
 def _sort_kind(ctx, s):
     return Z3_get_sort_kind(ctx.ref(), s)
 
+
 class SortRef(AstRef):
     """A Sort is essentially a type. Every Z3 expression has a sort. A sort is an AST node."""
+
     def as_ast(self):
         return Z3_sort_to_ast(self.ctx_ref(), self.ast)
 
@@ -517,7 +560,8 @@ class SortRef(AstRef):
         return Z3_get_ast_id(self.ctx_ref(), self.as_ast())
 
     def kind(self):
-        """Return the Z3 internal kind of a sort. This method can be used to test if `self` is one of the Z3 builtin sorts.
+        """Return the Z3 internal kind of a sort.
+        This method can be used to test if `self` is one of the Z3 builtin sorts.
 
         >>> b = BoolSort()
         >>> b.kind() == Z3_BOOL_SORT
@@ -593,6 +637,7 @@ class SortRef(AstRef):
         """ Hash code. """
         return AstRef.__hash__(self)
 
+
 def is_sort(s):
     """Return `True` if `s` is a Z3 sort.
 
@@ -604,6 +649,7 @@ def is_sort(s):
     True
     """
     return isinstance(s, SortRef)
+
 
 def _to_sort_ref(s, ctx):
     if z3_debug():
@@ -629,10 +675,14 @@ def _to_sort_ref(s, ctx):
         return ReSortRef(s, ctx)
     elif k == Z3_SEQ_SORT:
         return SeqSortRef(s, ctx)
+    elif k == Z3_CHAR_SORT:
+        return CharSortRef(s, ctx)
     return SortRef(s, ctx)
+
 
 def _sort(ctx, a):
     return _to_sort_ref(Z3_get_sort(ctx.ref(), a), ctx)
+
 
 def DeclareSort(name, ctx=None):
     """Create a new uninterpreted sort named `name`.
@@ -658,6 +708,7 @@ def DeclareSort(name, ctx=None):
 #
 #########################################
 
+
 class FuncDeclRef(AstRef):
     """Function declaration. Every constant and function have an associated declaration.
 
@@ -665,6 +716,7 @@ class FuncDeclRef(AstRef):
     the sort (i.e., type) of each of its arguments. Note that, in Z3,
     a constant is a function with 0 arguments.
     """
+
     def as_ast(self):
         return Z3_func_decl_to_ast(self.ctx_ref(), self.ast)
 
@@ -686,7 +738,8 @@ class FuncDeclRef(AstRef):
         return _symbol2py(self.ctx, Z3_get_decl_name(self.ctx_ref(), self.ast))
 
     def arity(self):
-        """Return the number of arguments of a function declaration. If `self` is a constant, then `self.arity()` is 0.
+        """Return the number of arguments of a function declaration.
+        If `self` is a constant, then `self.arity()` is 0.
 
         >>> f = Function('f', IntSort(), RealSort(), BoolSort())
         >>> f.arity()
@@ -695,7 +748,8 @@ class FuncDeclRef(AstRef):
         return int(Z3_get_arity(self.ctx_ref(), self.ast))
 
     def domain(self, i):
-        """Return the sort of the argument `i` of a function declaration. This method assumes that `0 <= i < self.arity()`.
+        """Return the sort of the argument `i` of a function declaration.
+        This method assumes that `0 <= i < self.arity()`.
 
         >>> f = Function('f', IntSort(), RealSort(), BoolSort())
         >>> f.domain(0)
@@ -708,7 +762,8 @@ class FuncDeclRef(AstRef):
         return _to_sort_ref(Z3_get_domain(self.ctx_ref(), self.ast, i), self.ctx)
 
     def range(self):
-        """Return the sort of the range of a function declaration. For constants, this is the sort of the constant.
+        """Return the sort of the range of a function declaration.
+        For constants, this is the sort of the constant.
 
         >>> f = Function('f', IntSort(), RealSort(), BoolSort())
         >>> f.range()
@@ -717,7 +772,8 @@ class FuncDeclRef(AstRef):
         return _to_sort_ref(Z3_get_range(self.ctx_ref(), self.ast), self.ctx)
 
     def kind(self):
-        """Return the internal kind of a function declaration. It can be used to identify Z3 built-in functions such as addition, multiplication, etc.
+        """Return the internal kind of a function declaration.
+        It can be used to identify Z3 built-in functions such as addition, multiplication, etc.
 
         >>> x = Int('x')
         >>> d = (x + 1).decl()
@@ -731,25 +787,25 @@ class FuncDeclRef(AstRef):
     def params(self):
         ctx = self.ctx
         n = Z3_get_decl_num_parameters(self.ctx_ref(), self.ast)
-        result = [ None for i in range(n) ]
+        result = [None for i in range(n)]
         for i in range(n):
             k = Z3_get_decl_parameter_kind(self.ctx_ref(), self.ast, i)
             if k == Z3_PARAMETER_INT:
-               result[i] = Z3_get_decl_int_parameter(self.ctx_ref(), self.ast, i)
+                result[i] = Z3_get_decl_int_parameter(self.ctx_ref(), self.ast, i)
             elif k == Z3_PARAMETER_DOUBLE:
-               result[i] = Z3_get_decl_double_parameter(self.ctx_ref(), self.ast, i)
+                result[i] = Z3_get_decl_double_parameter(self.ctx_ref(), self.ast, i)
             elif k == Z3_PARAMETER_RATIONAL:
-               result[i] = Z3_get_decl_rational_parameter(self.ctx_ref(), self.ast, i)
+                result[i] = Z3_get_decl_rational_parameter(self.ctx_ref(), self.ast, i)
             elif k == Z3_PARAMETER_SYMBOL:
-               result[i] = Z3_get_decl_symbol_parameter(self.ctx_ref(), self.ast, i)
+                result[i] = Z3_get_decl_symbol_parameter(self.ctx_ref(), self.ast, i)
             elif k == Z3_PARAMETER_SORT:
-               result[i] = SortRef(Z3_get_decl_sort_parameter(self.ctx_ref(), self.ast, i), ctx)
+                result[i] = SortRef(Z3_get_decl_sort_parameter(self.ctx_ref(), self.ast, i), ctx)
             elif k == Z3_PARAMETER_AST:
-               result[i] = ExprRef(Z3_get_decl_ast_parameter(self.ctx_ref(), self.ast, i), ctx)
+                result[i] = ExprRef(Z3_get_decl_ast_parameter(self.ctx_ref(), self.ast, i), ctx)
             elif k == Z3_PARAMETER_FUNC_DECL:
-               result[i] = FuncDeclRef(Z3_get_decl_func_decl_parameter(self.ctx_ref(), self.ast, i), ctx)
+                result[i] = FuncDeclRef(Z3_get_decl_func_decl_parameter(self.ctx_ref(), self.ast, i), ctx)
             else:
-               assert(False)
+                assert(False)
         return result
 
     def __call__(self, *args):
@@ -779,10 +835,11 @@ class FuncDeclRef(AstRef):
         for i in range(num):
             # self.domain(i).cast(args[i]) may create a new Z3 expression,
             # then we must save in 'saved' to prevent it from being garbage collected.
-            tmp      = self.domain(i).cast(args[i])
+            tmp = self.domain(i).cast(args[i])
             saved.append(tmp)
             _args[i] = tmp.as_ast()
         return _to_expr_ref(Z3_mk_app(self.ctx_ref(), self.ast, len(args), _args), self.ctx)
+
 
 def is_func_decl(a):
     """Return `True` if `a` is a Z3 function declaration.
@@ -796,6 +853,7 @@ def is_func_decl(a):
     """
     return isinstance(a, FuncDeclRef)
 
+
 def Function(name, *sig):
     """Create a new Z3 uninterpreted function with the given sorts.
 
@@ -807,16 +865,17 @@ def Function(name, *sig):
     if z3_debug():
         _z3_assert(len(sig) > 0, "At least two arguments expected")
     arity = len(sig) - 1
-    rng   = sig[arity]
+    rng = sig[arity]
     if z3_debug():
         _z3_assert(is_sort(rng), "Z3 sort expected")
-    dom   = (Sort * arity)()
+    dom = (Sort * arity)()
     for i in range(arity):
         if z3_debug():
             _z3_assert(is_sort(sig[i]), "Z3 sort expected")
         dom[i] = sig[i].ast
     ctx = rng.ctx
     return FuncDeclRef(Z3_mk_func_decl(ctx.ref(), to_symbol(name, ctx), arity, dom, rng.ast), ctx)
+
 
 def FreshFunction(*sig):
     """Create a new fresh Z3 uninterpreted function with the given sorts.
@@ -834,11 +893,12 @@ def FreshFunction(*sig):
             _z3_assert(is_sort(sig[i]), "Z3 sort expected")
         dom[i] = sig[i].ast
     ctx = rng.ctx
-    return FuncDeclRef(Z3_mk_fresh_func_decl(ctx.ref(), 'f', arity, dom, rng.ast), ctx)
+    return FuncDeclRef(Z3_mk_fresh_func_decl(ctx.ref(), "f", arity, dom, rng.ast), ctx)
 
 
 def _to_func_decl_ref(a, ctx):
     return FuncDeclRef(a, ctx)
+
 
 def RecFunction(name, *sig):
     """Create a new Z3 recursive with the given sorts."""
@@ -846,10 +906,10 @@ def RecFunction(name, *sig):
     if z3_debug():
         _z3_assert(len(sig) > 0, "At least two arguments expected")
     arity = len(sig) - 1
-    rng   = sig[arity]
+    rng = sig[arity]
     if z3_debug():
         _z3_assert(is_sort(rng), "Z3 sort expected")
-    dom   = (Sort * arity)()
+    dom = (Sort * arity)()
     for i in range(arity):
         if z3_debug():
             _z3_assert(is_sort(sig[i]), "Z3 sort expected")
@@ -857,10 +917,11 @@ def RecFunction(name, *sig):
     ctx = rng.ctx
     return FuncDeclRef(Z3_mk_rec_func_decl(ctx.ref(), to_symbol(name, ctx), arity, dom, rng.ast), ctx)
 
+
 def RecAddDefinition(f, args, body):
     """Set the body of a recursive function.
        Recursive definitions can be simplified if they are applied to ground
-       arguments.       
+       arguments.
     >>> ctx = Context()
     >>> fac = RecFunction('fac', IntSort(ctx), IntSort(ctx))
     >>> n = Int('n', ctx)
@@ -875,7 +936,7 @@ def RecAddDefinition(f, args, body):
     120
     """
     if is_app(args):
-       args = [args]
+        args = [args]
     ctx = body.ctx
     args = _get_args(args)
     n = len(args)
@@ -890,6 +951,7 @@ def RecAddDefinition(f, args, body):
 #
 #########################################
 
+
 class ExprRef(AstRef):
     """Constraints, formulas and terms are expressions in Z3.
 
@@ -900,6 +962,7 @@ class ExprRef(AstRef):
     For quantifier free problems, all expressions are
     function applications.
     """
+
     def as_ast(self):
         return self.ast
 
@@ -1038,6 +1101,29 @@ class ExprRef(AstRef):
         else:
             return []
 
+    def from_string(self, s):
+        pass
+
+    def serialize(self):
+        s = Solver()
+        f = Function('F', self.sort(), BoolSort(self.ctx))
+        s.add(f(self))
+        return s.sexpr()
+
+def deserialize(st):
+    """inverse function to the serialize method on ExprRef.
+    It is made available to make it easier for users to serialize expressions back and forth between
+    strings. Solvers can be serialized using the 'sexpr()' method.
+    """
+    s = Solver()
+    s.from_string(st)
+    if len(s.assertions()) != 1:
+        raise Z3Exception("single assertion expected")
+    fml = s.assertions()[0]
+    if fml.num_args() != 1:
+        raise Z3Exception("dummy function 'F' expected")
+    return fml.arg(0)
+
 def _to_expr_ref(a, ctx):
     if isinstance(a, Pattern):
         return PatternRef(a, ctx)
@@ -1081,9 +1167,12 @@ def _to_expr_ref(a, ctx):
         return FPRMRef(a, ctx)
     if sk == Z3_SEQ_SORT:
         return SeqRef(a, ctx)
+    if sk == Z3_CHAR_SORT:
+        return CharRef(a, ctx)
     if sk == Z3_RE_SORT:
         return ReRef(a, ctx)
     return ExprRef(a, ctx)
+
 
 def _coerce_expr_merge(s, a):
     if is_expr(a):
@@ -1103,10 +1192,15 @@ def _coerce_expr_merge(s, a):
     else:
         return s
 
+
 def _coerce_exprs(a, b, ctx=None):
     if not is_expr(a) and not is_expr(b):
         a = _py2expr(a, ctx)
         b = _py2expr(b, ctx)
+    if isinstance(a, str) and isinstance(b, SeqRef):
+        a = StringVal(a, b.ctx)
+    if isinstance(b, str) and isinstance(a, SeqRef):
+        b = StringVal(b, a.ctx)
     s = None
     s = _coerce_expr_merge(s, a)
     s = _coerce_expr_merge(s, b)
@@ -1115,11 +1209,12 @@ def _coerce_exprs(a, b, ctx=None):
     return (a, b)
 
 
-def _reduce(f, l, a):
-    r = a
-    for e in l:
-        r = f(r, e)
-    return r
+def _reduce(func, sequence, initial):
+    result = initial
+    for element in sequence:
+        result = func(result, element)
+    return result
+
 
 def _coerce_expr_list(alist, ctx=None):
     has_expr = False
@@ -1128,9 +1223,10 @@ def _coerce_expr_list(alist, ctx=None):
             has_expr = True
             break
     if not has_expr:
-        alist = [ _py2expr(a, ctx) for a in alist ]
+        alist = [_py2expr(a, ctx) for a in alist]
     s = _reduce(_coerce_expr_merge, alist, None)
-    return [ s.cast(a) for a in alist ]
+    return [s.cast(a) for a in alist]
+
 
 def is_expr(a):
     """Return `True` if `a` is a Z3 expression.
@@ -1153,6 +1249,7 @@ def is_expr(a):
     True
     """
     return isinstance(a, ExprRef)
+
 
 def is_app(a):
     """Return `True` if `a` is a Z3 function application.
@@ -1179,6 +1276,7 @@ def is_app(a):
     k = _ast_kind(a.ctx, a)
     return k == Z3_NUMERAL_AST or k == Z3_APP_AST
 
+
 def is_const(a):
     """Return `True` if `a` is Z3 constant/variable expression.
 
@@ -1196,6 +1294,7 @@ def is_const(a):
     False
     """
     return is_app(a) and a.num_args() == 0
+
 
 def is_var(a):
     """Return `True` if `a` is variable.
@@ -1220,6 +1319,7 @@ def is_var(a):
     True
     """
     return is_expr(a) and _ast_kind(a.ctx, a) == Z3_VAR_AST
+
 
 def get_var_index(a):
     """Return the de-Bruijn index of the Z3 bounded variable `a`.
@@ -1253,6 +1353,7 @@ def get_var_index(a):
         _z3_assert(is_var(a), "Z3 bound variable expected")
     return int(Z3_get_index_value(a.ctx.ref(), a.as_ast()))
 
+
 def is_app_of(a, k):
     """Return `True` if `a` is an application of the given kind `k`.
 
@@ -1264,6 +1365,7 @@ def is_app_of(a, k):
     False
     """
     return is_app(a) and a.decl().kind() == k
+
 
 def If(a, b, c, ctx=None):
     """Create a Z3 if-then-else expression.
@@ -1287,6 +1389,7 @@ def If(a, b, c, ctx=None):
             _z3_assert(a.ctx == b.ctx, "Context mismatch")
         return _to_expr_ref(Z3_mk_ite(ctx.ref(), a.as_ast(), b.as_ast(), c.as_ast()), ctx)
 
+
 def Distinct(*args):
     """Create a Z3 distinct expression.
 
@@ -1302,13 +1405,14 @@ def Distinct(*args):
     >>> simplify(Distinct(x, y, z), blast_distinct=True)
     And(Not(x == y), Not(x == z), Not(y == z))
     """
-    args  = _get_args(args)
-    ctx   = _ctx_from_ast_arg_list(args)
+    args = _get_args(args)
+    ctx = _ctx_from_ast_arg_list(args)
     if z3_debug():
         _z3_assert(ctx is not None, "At least one of the arguments must be a Z3 expression")
-    args  = _coerce_expr_list(args, ctx)
+    args = _coerce_expr_list(args, ctx)
     _args, sz = _to_ast_array(args)
     return BoolRef(Z3_mk_distinct(ctx.ref(), sz, _args), ctx)
+
 
 def _mk_bin(f, a, b):
     args = (Ast * 2)()
@@ -1317,6 +1421,7 @@ def _mk_bin(f, a, b):
     args[0] = a.as_ast()
     args[1] = b.as_ast()
     return f(a.ctx.ref(), 2, args)
+
 
 def Const(name, sort):
     """Create a constant of the given sort.
@@ -1328,6 +1433,7 @@ def Const(name, sort):
         _z3_assert(isinstance(sort, SortRef), "Z3 sort expected")
     ctx = sort.ctx
     return _to_expr_ref(Z3_mk_const(ctx.ref(), to_symbol(name, ctx), sort.ast), ctx)
+
 
 def Consts(names, sort):
     """Create several constants of the given sort.
@@ -1343,10 +1449,12 @@ def Consts(names, sort):
         names = names.split(" ")
     return [Const(name, sort) for name in names]
 
-def FreshConst(sort, prefix='c'):
+
+def FreshConst(sort, prefix="c"):
     """Create a fresh constant of a specified sort"""
     ctx = _get_ctx(sort.ctx)
     return _to_expr_ref(Z3_mk_fresh_const(ctx.ref(), prefix, sort.ast), ctx)
+
 
 def Var(idx, s):
     """Create a Z3 free variable. Free variables are used to create quantified formulas.
@@ -1360,6 +1468,7 @@ def Var(idx, s):
         _z3_assert(is_sort(s), "Z3 sort expected")
     return _to_expr_ref(Z3_mk_bound(s.ctx_ref(), idx, s.ast), s.ctx)
 
+
 def RealVar(idx, ctx=None):
     """
     Create a real free variable. Free variables are used to create quantified formulas.
@@ -1370,6 +1479,7 @@ def RealVar(idx, ctx=None):
     """
     return Var(idx, RealSort(ctx))
 
+
 def RealVarVector(n, ctx=None):
     """
     Create a list of Real free variables.
@@ -1379,7 +1489,7 @@ def RealVarVector(n, ctx=None):
     >>> x2
     Var(2)
     """
-    return [ RealVar(i, ctx) for i in range(n) ]
+    return [RealVar(i, ctx) for i in range(n)]
 
 #########################################
 #
@@ -1387,8 +1497,10 @@ def RealVarVector(n, ctx=None):
 #
 #########################################
 
+
 class BoolSortRef(SortRef):
     """Boolean sort."""
+
     def cast(self, val):
         """Try to cast `val` as a Boolean.
 
@@ -1406,9 +1518,10 @@ class BoolSortRef(SortRef):
             return BoolVal(val, self.ctx)
         if z3_debug():
             if not is_expr(val):
-               _z3_assert(is_expr(val), "True, False or Z3 Boolean expression expected. Received %s of type %s" % (val, type(val)))
+                msg = "True, False or Z3 Boolean expression expected. Received %s of type %s"
+                _z3_assert(is_expr(val), msg % (val, type(val)))
             if not self.eq(val.sort()):
-               _z3_assert(self.eq(val.sort()), "Value cannot be converted into a Z3 Boolean value")
+                _z3_assert(self.eq(val.sort()), "Value cannot be converted into a Z3 Boolean value")
         return val
 
     def subsort(self, other):
@@ -1423,6 +1536,7 @@ class BoolSortRef(SortRef):
 
 class BoolRef(ExprRef):
     """All Boolean expressions are instances of this class."""
+
     def sort(self):
         return BoolSortRef(Z3_get_sort(self.ctx_ref(), self.as_ast()), self.ctx)
 
@@ -1456,6 +1570,7 @@ def is_bool(a):
     """
     return isinstance(a, BoolRef)
 
+
 def is_true(a):
     """Return `True` if `a` is the Z3 true expression.
 
@@ -1473,6 +1588,7 @@ def is_true(a):
     """
     return is_app_of(a, Z3_OP_TRUE)
 
+
 def is_false(a):
     """Return `True` if `a` is the Z3 false expression.
 
@@ -1486,6 +1602,7 @@ def is_false(a):
     """
     return is_app_of(a, Z3_OP_FALSE)
 
+
 def is_and(a):
     """Return `True` if `a` is a Z3 and expression.
 
@@ -1496,6 +1613,7 @@ def is_and(a):
     False
     """
     return is_app_of(a, Z3_OP_AND)
+
 
 def is_or(a):
     """Return `True` if `a` is a Z3 or expression.
@@ -1508,6 +1626,7 @@ def is_or(a):
     """
     return is_app_of(a, Z3_OP_OR)
 
+
 def is_implies(a):
     """Return `True` if `a` is a Z3 implication expression.
 
@@ -1518,6 +1637,7 @@ def is_implies(a):
     False
     """
     return is_app_of(a, Z3_OP_IMPLIES)
+
 
 def is_not(a):
     """Return `True` if `a` is a Z3 not expression.
@@ -1530,6 +1650,7 @@ def is_not(a):
     """
     return is_app_of(a, Z3_OP_NOT)
 
+
 def is_eq(a):
     """Return `True` if `a` is a Z3 equality expression.
 
@@ -1538,6 +1659,7 @@ def is_eq(a):
     True
     """
     return is_app_of(a, Z3_OP_EQ)
+
 
 def is_distinct(a):
     """Return `True` if `a` is a Z3 distinct expression.
@@ -1549,6 +1671,7 @@ def is_distinct(a):
     True
     """
     return is_app_of(a, Z3_OP_DISTINCT)
+
 
 def BoolSort(ctx=None):
     """Return the Boolean Z3 sort. If `ctx=None`, then the global context is used.
@@ -1567,6 +1690,7 @@ def BoolSort(ctx=None):
     ctx = _get_ctx(ctx)
     return BoolSortRef(Z3_mk_bool_sort(ctx.ref()), ctx)
 
+
 def BoolVal(val, ctx=None):
     """Return the Boolean value `True` or `False`. If `ctx=None`, then the global context is used.
 
@@ -1580,10 +1704,11 @@ def BoolVal(val, ctx=None):
     True
     """
     ctx = _get_ctx(ctx)
-    if val == False:
-        return BoolRef(Z3_mk_false(ctx.ref()), ctx)
-    else:
+    if val:
         return BoolRef(Z3_mk_true(ctx.ref()), ctx)
+    else:
+        return BoolRef(Z3_mk_false(ctx.ref()), ctx)
+
 
 def Bool(name, ctx=None):
     """Return a Boolean constant named `name`. If `ctx=None`, then the global context is used.
@@ -1595,6 +1720,7 @@ def Bool(name, ctx=None):
     """
     ctx = _get_ctx(ctx)
     return BoolRef(Z3_mk_const(ctx.ref(), to_symbol(name, ctx), BoolSort(ctx).ast), ctx)
+
 
 def Bools(names, ctx=None):
     """Return a tuple of Boolean constants.
@@ -1611,6 +1737,7 @@ def Bools(names, ctx=None):
         names = names.split(" ")
     return [Bool(name, ctx) for name in names]
 
+
 def BoolVector(prefix, sz, ctx=None):
     """Return a list of Boolean constants of size `sz`.
 
@@ -1623,9 +1750,10 @@ def BoolVector(prefix, sz, ctx=None):
     >>> And(P)
     And(p__0, p__1, p__2)
     """
-    return [ Bool('%s__%s' % (prefix, i)) for i in range(sz) ]
+    return [Bool("%s__%s" % (prefix, i)) for i in range(sz)]
 
-def FreshBool(prefix='b', ctx=None):
+
+def FreshBool(prefix="b", ctx=None):
     """Return a fresh Boolean constant in the given context using the given prefix.
 
     If `ctx=None`, then the global context is used.
@@ -1637,6 +1765,7 @@ def FreshBool(prefix='b', ctx=None):
     """
     ctx = _get_ctx(ctx)
     return BoolRef(Z3_mk_fresh_const(ctx.ref(), prefix, BoolSort(ctx).ast), ctx)
+
 
 def Implies(a, b, ctx=None):
     """Create a Z3 implies expression.
@@ -1651,6 +1780,7 @@ def Implies(a, b, ctx=None):
     b = s.cast(b)
     return BoolRef(Z3_mk_implies(ctx.ref(), a.as_ast(), b.as_ast()), ctx)
 
+
 def Xor(a, b, ctx=None):
     """Create a Z3 Xor expression.
 
@@ -1658,13 +1788,14 @@ def Xor(a, b, ctx=None):
     >>> Xor(p, q)
     Xor(p, q)
     >>> simplify(Xor(p, q))
-    Not(p) == q
+    Not(p == q)
     """
     ctx = _get_ctx(_ctx_from_ast_arg_list([a, b], ctx))
     s = BoolSort(ctx)
     a = s.cast(a)
     b = s.cast(b)
     return BoolRef(Z3_mk_xor(ctx.ref(), a.as_ast(), b.as_ast()), ctx)
+
 
 def Not(a, ctx=None):
     """Create a Z3 not expression or probe.
@@ -1684,11 +1815,13 @@ def Not(a, ctx=None):
         a = s.cast(a)
         return BoolRef(Z3_mk_not(ctx.ref(), a.as_ast()), ctx)
 
+
 def mk_not(a):
     if is_not(a):
         return a.arg(0)
     else:
         return Not(a)
+
 
 def _has_probe(args):
     """Return `True` if one of the elements of the given collection is a Z3 probe."""
@@ -1696,6 +1829,7 @@ def _has_probe(args):
         if is_probe(arg):
             return True
     return False
+
 
 def And(*args):
     """Create a Z3 and-expression or and-probe.
@@ -1709,25 +1843,26 @@ def And(*args):
     """
     last_arg = None
     if len(args) > 0:
-        last_arg = args[len(args)-1]
+        last_arg = args[len(args) - 1]
     if isinstance(last_arg, Context):
-        ctx = args[len(args)-1]
-        args = args[:len(args)-1]
+        ctx = args[len(args) - 1]
+        args = args[:len(args) - 1]
     elif len(args) == 1 and isinstance(args[0], AstVector):
         ctx = args[0].ctx
         args = [a for a in args[0]]
     else:
         ctx = None
     args = _get_args(args)
-    ctx  = _get_ctx(_ctx_from_ast_arg_list(args, ctx))
+    ctx = _get_ctx(_ctx_from_ast_arg_list(args, ctx))
     if z3_debug():
         _z3_assert(ctx is not None, "At least one of the arguments must be a Z3 expression or probe")
     if _has_probe(args):
         return _probe_and(args, ctx)
     else:
-        args  = _coerce_expr_list(args, ctx)
+        args = _coerce_expr_list(args, ctx)
         _args, sz = _to_ast_array(args)
         return BoolRef(Z3_mk_and(ctx.ref(), sz, _args), ctx)
+
 
 def Or(*args):
     """Create a Z3 or-expression or or-probe.
@@ -1741,23 +1876,23 @@ def Or(*args):
     """
     last_arg = None
     if len(args) > 0:
-        last_arg = args[len(args)-1]
+        last_arg = args[len(args) - 1]
     if isinstance(last_arg, Context):
-        ctx = args[len(args)-1]
-        args = args[:len(args)-1]
+        ctx = args[len(args) - 1]
+        args = args[:len(args) - 1]
     elif len(args) == 1 and isinstance(args[0], AstVector):
         ctx = args[0].ctx
         args = [a for a in args[0]]
     else:
         ctx = None
     args = _get_args(args)
-    ctx  = _get_ctx(_ctx_from_ast_arg_list(args, ctx))
+    ctx = _get_ctx(_ctx_from_ast_arg_list(args, ctx))
     if z3_debug():
         _z3_assert(ctx is not None, "At least one of the arguments must be a Z3 expression or probe")
     if _has_probe(args):
         return _probe_or(args, ctx)
     else:
-        args  = _coerce_expr_list(args, ctx)
+        args = _coerce_expr_list(args, ctx)
         _args, sz = _to_ast_array(args)
         return BoolRef(Z3_mk_or(ctx.ref(), sz, _args), ctx)
 
@@ -1767,15 +1902,18 @@ def Or(*args):
 #
 #########################################
 
+
 class PatternRef(ExprRef):
     """Patterns are hints for quantifier instantiation.
 
     """
+
     def as_ast(self):
         return Z3_pattern_to_ast(self.ctx_ref(), self.ast)
 
     def get_id(self):
         return Z3_get_ast_id(self.ctx_ref(), self.as_ast())
+
 
 def is_pattern(a):
     """Return `True` if `a` is a Z3 pattern (hint for quantifier instantiation.
@@ -1793,6 +1931,7 @@ def is_pattern(a):
     f(Var(0))
     """
     return isinstance(a, PatternRef)
+
 
 def MultiPattern(*args):
     """Create a Z3 multi-pattern using the given expressions `*args`
@@ -1812,10 +1951,11 @@ def MultiPattern(*args):
     """
     if z3_debug():
         _z3_assert(len(args) > 0, "At least one argument expected")
-        _z3_assert(all([ is_expr(a) for a in args ]), "Z3 expressions expected")
+        _z3_assert(all([is_expr(a) for a in args]), "Z3 expressions expected")
     ctx = args[0].ctx
     args, sz = _to_ast_array(args)
     return PatternRef(Z3_mk_pattern(ctx.ref(), sz, args), ctx)
+
 
 def _to_pattern(arg):
     if is_pattern(arg):
@@ -1828,6 +1968,7 @@ def _to_pattern(arg):
 # Quantifiers
 #
 #########################################
+
 
 class QuantifierRef(BoolRef):
     """Universally and Existentially quantified formulas."""
@@ -1891,9 +2032,7 @@ class QuantifierRef(BoolRef):
         """
         if z3_debug():
             _z3_assert(self.is_lambda(), "quantifier should be a lambda expression")
-        arg = self.sort().domain().cast(arg)
-        return _to_expr_ref(Z3_mk_select(self.ctx_ref(), self.as_ast(), arg.as_ast()), self.ctx)
-    
+        return _array_select(self, arg)
 
     def weight(self):
         """Return the weight annotation of `self`.
@@ -2013,7 +2152,8 @@ class QuantifierRef(BoolRef):
         >>> q.children()
         [f(Var(0)) == 0]
         """
-        return [ self.body() ]
+        return [self.body()]
+
 
 def is_quantifier(a):
     """Return `True` if `a` is a Z3 quantifier.
@@ -2028,10 +2168,11 @@ def is_quantifier(a):
     """
     return isinstance(a, QuantifierRef)
 
+
 def _mk_quantifier(is_forall, vs, body, weight=1, qid="", skid="", patterns=[], no_patterns=[]):
     if z3_debug():
         _z3_assert(is_bool(body) or is_app(vs) or (len(vs) > 0 and is_app(vs[0])), "Z3 expression expected")
-        _z3_assert(is_const(vs) or (len(vs) > 0 and all([ is_const(v) for v in vs])), "Invalid bounded variable(s)")
+        _z3_assert(is_const(vs) or (len(vs) > 0 and all([is_const(v) for v in vs])), "Invalid bounded variable(s)")
         _z3_assert(all([is_pattern(a) or is_expr(a) for a in patterns]), "Z3 patterns expected")
         _z3_assert(all([is_expr(p) for p in no_patterns]), "no patterns are Z3 expressions")
     if is_app(vs):
@@ -2040,27 +2181,28 @@ def _mk_quantifier(is_forall, vs, body, weight=1, qid="", skid="", patterns=[], 
     else:
         ctx = vs[0].ctx
     if not is_expr(body):
-       body = BoolVal(body, ctx)
+        body = BoolVal(body, ctx)
     num_vars = len(vs)
     if num_vars == 0:
         return body
     _vs = (Ast * num_vars)()
     for i in range(num_vars):
-        ## TODO: Check if is constant
+        # TODO: Check if is constant
         _vs[i] = vs[i].as_ast()
-    patterns = [ _to_pattern(p) for p in patterns ]
+    patterns = [_to_pattern(p) for p in patterns]
     num_pats = len(patterns)
     _pats = (Pattern * num_pats)()
     for i in range(num_pats):
         _pats[i] = patterns[i].ast
     _no_pats, num_no_pats = _to_ast_array(no_patterns)
-    qid  = to_symbol(qid, ctx)
+    qid = to_symbol(qid, ctx)
     skid = to_symbol(skid, ctx)
     return QuantifierRef(Z3_mk_quantifier_const_ex(ctx.ref(), is_forall, weight, qid, skid,
                                                    num_vars, _vs,
                                                    num_pats, _pats,
                                                    num_no_pats, _no_pats,
                                                    body.as_ast()), ctx)
+
 
 def ForAll(vs, body, weight=1, qid="", skid="", patterns=[], no_patterns=[]):
     """Create a Z3 forall formula.
@@ -2078,6 +2220,7 @@ def ForAll(vs, body, weight=1, qid="", skid="", patterns=[], no_patterns=[]):
     ForAll([x, y], f(x, y) >= x)
     """
     return _mk_quantifier(True, vs, body, weight, qid, skid, patterns, no_patterns)
+
 
 def Exists(vs, body, weight=1, qid="", skid="", patterns=[], no_patterns=[]):
     """Create a Z3 exists formula.
@@ -2099,6 +2242,7 @@ def Exists(vs, body, weight=1, qid="", skid="", patterns=[], no_patterns=[]):
     """
     return _mk_quantifier(False, vs, body, weight, qid, skid, patterns, no_patterns)
 
+
 def Lambda(vs, body):
     """Create a Z3 lambda expression.
 
@@ -2115,7 +2259,7 @@ def Lambda(vs, body):
     num_vars = len(vs)
     _vs = (Ast * num_vars)()
     for i in range(num_vars):
-        ## TODO: Check if is constant
+        # TODO: Check if is constant
         _vs[i] = vs[i].as_ast()
     return QuantifierRef(Z3_mk_lambda_const(ctx.ref(), num_vars, _vs, body.as_ast()), ctx)
 
@@ -2124,6 +2268,7 @@ def Lambda(vs, body):
 # Arithmetic
 #
 #########################################
+
 
 class ArithSortRef(SortRef):
     """Real and Integer sorts."""
@@ -2156,6 +2301,9 @@ class ArithSortRef(SortRef):
         """
         return self.kind() == Z3_INT_SORT
 
+    def is_bool(self):
+        return False
+
     def subsort(self, other):
         """Return `True` if `self` is a subsort of `other`."""
         return self.is_int() and is_arith_sort(other) and other.is_real()
@@ -2187,14 +2335,16 @@ class ArithSortRef(SortRef):
             if val_s.is_bool() and self.is_real():
                 return ToReal(If(val, 1, 0))
             if z3_debug():
-                _z3_assert(False, "Z3 Integer/Real expression expected" )
+                _z3_assert(False, "Z3 Integer/Real expression expected")
         else:
             if self.is_int():
                 return IntVal(val, self.ctx)
             if self.is_real():
                 return RealVal(val, self.ctx)
             if z3_debug():
-                _z3_assert(False, "int, long, float, string (numeral), or Z3 Integer/Real expression expected. Got %s" % self)
+                msg = "int, long, float, string (numeral), or Z3 Integer/Real expression expected. Got %s"
+                _z3_assert(False, msg % self)
+
 
 def is_arith_sort(s):
     """Return `True` if s is an arithmetical sort (type).
@@ -2210,6 +2360,7 @@ def is_arith_sort(s):
     True
     """
     return isinstance(s, ArithSortRef)
+
 
 class ArithRef(ExprRef):
     """Integer and Real expressions."""
@@ -2283,7 +2434,7 @@ class ArithRef(ExprRef):
         Real
         """
         if isinstance(other, BoolRef):
-           return If(other, self, 0)
+            return If(other, self, 0)
         a, b = _coerce_exprs(self, other)
         return ArithRef(_mk_bin(Z3_mk_mul, a, b), self.ctx)
 
@@ -2495,6 +2646,7 @@ class ArithRef(ExprRef):
         a, b = _coerce_exprs(self, other)
         return BoolRef(Z3_mk_ge(self.ctx_ref(), a.as_ast(), b.as_ast()), self.ctx)
 
+
 def is_arith(a):
     """Return `True` if `a` is an arithmetical expression.
 
@@ -2515,6 +2667,7 @@ def is_arith(a):
     """
     return isinstance(a, ArithRef)
 
+
 def is_int(a):
     """Return `True` if `a` is an integer expression.
 
@@ -2532,6 +2685,7 @@ def is_int(a):
     False
     """
     return is_arith(a) and a.is_int()
+
 
 def is_real(a):
     """Return `True` if `a` is a real expression.
@@ -2551,11 +2705,14 @@ def is_real(a):
     """
     return is_arith(a) and a.is_real()
 
+
 def _is_numeral(ctx, a):
     return Z3_is_numeral_ast(ctx.ref(), a)
 
+
 def _is_algebraic(ctx, a):
     return Z3_is_algebraic_number(ctx.ref(), a)
+
 
 def is_int_value(a):
     """Return `True` if `a` is an integer value of sort Int.
@@ -2580,6 +2737,7 @@ def is_int_value(a):
     """
     return is_arith(a) and a.is_int() and _is_numeral(a.ctx, a.as_ast())
 
+
 def is_rational_value(a):
     """Return `True` if `a` is rational value of sort Real.
 
@@ -2601,6 +2759,7 @@ def is_rational_value(a):
     """
     return is_arith(a) and a.is_real() and _is_numeral(a.ctx, a.as_ast())
 
+
 def is_algebraic_value(a):
     """Return `True` if `a` is an algebraic value of sort Real.
 
@@ -2614,6 +2773,7 @@ def is_algebraic_value(a):
     """
     return is_arith(a) and a.is_real() and _is_algebraic(a.ctx, a.as_ast())
 
+
 def is_add(a):
     """Return `True` if `a` is an expression of the form b + c.
 
@@ -2624,6 +2784,7 @@ def is_add(a):
     False
     """
     return is_app_of(a, Z3_OP_ADD)
+
 
 def is_mul(a):
     """Return `True` if `a` is an expression of the form b * c.
@@ -2636,6 +2797,7 @@ def is_mul(a):
     """
     return is_app_of(a, Z3_OP_MUL)
 
+
 def is_sub(a):
     """Return `True` if `a` is an expression of the form b - c.
 
@@ -2646,6 +2808,7 @@ def is_sub(a):
     False
     """
     return is_app_of(a, Z3_OP_SUB)
+
 
 def is_div(a):
     """Return `True` if `a` is an expression of the form b / c.
@@ -2663,6 +2826,7 @@ def is_div(a):
     """
     return is_app_of(a, Z3_OP_DIV)
 
+
 def is_idiv(a):
     """Return `True` if `a` is an expression of the form b div c.
 
@@ -2673,6 +2837,7 @@ def is_idiv(a):
     False
     """
     return is_app_of(a, Z3_OP_IDIV)
+
 
 def is_mod(a):
     """Return `True` if `a` is an expression of the form b % c.
@@ -2685,6 +2850,7 @@ def is_mod(a):
     """
     return is_app_of(a, Z3_OP_MOD)
 
+
 def is_le(a):
     """Return `True` if `a` is an expression of the form b <= c.
 
@@ -2695,6 +2861,7 @@ def is_le(a):
     False
     """
     return is_app_of(a, Z3_OP_LE)
+
 
 def is_lt(a):
     """Return `True` if `a` is an expression of the form b < c.
@@ -2707,6 +2874,7 @@ def is_lt(a):
     """
     return is_app_of(a, Z3_OP_LT)
 
+
 def is_ge(a):
     """Return `True` if `a` is an expression of the form b >= c.
 
@@ -2717,6 +2885,7 @@ def is_ge(a):
     False
     """
     return is_app_of(a, Z3_OP_GE)
+
 
 def is_gt(a):
     """Return `True` if `a` is an expression of the form b > c.
@@ -2729,6 +2898,7 @@ def is_gt(a):
     """
     return is_app_of(a, Z3_OP_GT)
 
+
 def is_is_int(a):
     """Return `True` if `a` is an expression of the form IsInt(b).
 
@@ -2739,6 +2909,7 @@ def is_is_int(a):
     False
     """
     return is_app_of(a, Z3_OP_IS_INT)
+
 
 def is_to_real(a):
     """Return `True` if `a` is an expression of the form ToReal(b).
@@ -2754,6 +2925,7 @@ def is_to_real(a):
     """
     return is_app_of(a, Z3_OP_TO_REAL)
 
+
 def is_to_int(a):
     """Return `True` if `a` is an expression of the form ToInt(b).
 
@@ -2767,6 +2939,7 @@ def is_to_int(a):
     False
     """
     return is_app_of(a, Z3_OP_TO_INT)
+
 
 class IntNumRef(ArithRef):
     """Integer values."""
@@ -2799,6 +2972,7 @@ class IntNumRef(ArithRef):
         '1010'
         """
         return Z3_get_numeral_binary_string(self.ctx_ref(), self.as_ast())
+
 
 class RatNumRef(ArithRef):
     """Rational values."""
@@ -2896,6 +3070,7 @@ class RatNumRef(ArithRef):
         """
         return Fraction(self.numerator_as_long(), self.denominator_as_long())
 
+
 class AlgebraicNumRef(ArithRef):
     """Algebraic irrational values."""
 
@@ -2910,8 +3085,10 @@ class AlgebraicNumRef(ArithRef):
         2965821/2097152
         """
         return RatNumRef(Z3_get_algebraic_number_upper(self.ctx_ref(), self.as_ast(), precision), self.ctx)
+
     def as_decimal(self, prec):
-        """Return a string representation of the algebraic number `self` in decimal notation using `prec` decimal places
+        """Return a string representation of the algebraic number `self` in decimal notation
+        using `prec` decimal places.
 
         >>> x = simplify(Sqrt(2))
         >>> x.as_decimal(10)
@@ -2927,6 +3104,7 @@ class AlgebraicNumRef(ArithRef):
     def index(self):
         return Z3_algebraic_get_i(self.ctx_ref(), self.as_ast())
 
+
 def _py2expr(a, ctx=None):
     if isinstance(a, bool):
         return BoolVal(a, ctx)
@@ -2934,10 +3112,13 @@ def _py2expr(a, ctx=None):
         return IntVal(a, ctx)
     if isinstance(a, float):
         return RealVal(a, ctx)
+    if isinstance(a, str):
+        return StringVal(a, ctx)
     if is_expr(a):
         return a
     if z3_debug():
         _z3_assert(False, "Python bool, int, long or float expected")
+
 
 def IntSort(ctx=None):
     """Return the integer sort in the given context. If `ctx=None`, then the global context is used.
@@ -2955,6 +3136,7 @@ def IntSort(ctx=None):
     ctx = _get_ctx(ctx)
     return ArithSortRef(Z3_mk_int_sort(ctx.ref()), ctx)
 
+
 def RealSort(ctx=None):
     """Return the real sort in the given context. If `ctx=None`, then the global context is used.
 
@@ -2971,6 +3153,7 @@ def RealSort(ctx=None):
     ctx = _get_ctx(ctx)
     return ArithSortRef(Z3_mk_real_sort(ctx.ref()), ctx)
 
+
 def _to_int_str(val):
     if isinstance(val, float):
         return str(int(val))
@@ -2986,6 +3169,7 @@ def _to_int_str(val):
     if z3_debug():
         _z3_assert(False, "Python value cannot be used as a Z3 integer")
 
+
 def IntVal(val, ctx=None):
     """Return a Z3 integer value. If `ctx=None`, then the global context is used.
 
@@ -2996,6 +3180,7 @@ def IntVal(val, ctx=None):
     """
     ctx = _get_ctx(ctx)
     return IntNumRef(Z3_mk_numeral(ctx.ref(), _to_int_str(val), IntSort(ctx).ast), ctx)
+
 
 def RealVal(val, ctx=None):
     """Return a Z3 real value.
@@ -3015,6 +3200,7 @@ def RealVal(val, ctx=None):
     ctx = _get_ctx(ctx)
     return RatNumRef(Z3_mk_numeral(ctx.ref(), str(val), RealSort(ctx).ast), ctx)
 
+
 def RatVal(a, b, ctx=None):
     """Return a Z3 rational a/b.
 
@@ -3028,7 +3214,8 @@ def RatVal(a, b, ctx=None):
     if z3_debug():
         _z3_assert(_is_int(a) or isinstance(a, str), "First argument cannot be converted into an integer")
         _z3_assert(_is_int(b) or isinstance(b, str), "Second argument cannot be converted into an integer")
-    return simplify(RealVal(a, ctx)/RealVal(b, ctx))
+    return simplify(RealVal(a, ctx) / RealVal(b, ctx))
+
 
 def Q(a, b, ctx=None):
     """Return a Z3 rational a/b.
@@ -3040,7 +3227,8 @@ def Q(a, b, ctx=None):
     >>> Q(3,5).sort()
     Real
     """
-    return simplify(RatVal(a, b))
+    return simplify(RatVal(a, b, ctx=ctx))
+
 
 def Int(name, ctx=None):
     """Return an integer constant named `name`. If `ctx=None`, then the global context is used.
@@ -3054,6 +3242,7 @@ def Int(name, ctx=None):
     ctx = _get_ctx(ctx)
     return ArithRef(Z3_mk_const(ctx.ref(), to_symbol(name, ctx), IntSort(ctx).ast), ctx)
 
+
 def Ints(names, ctx=None):
     """Return a tuple of Integer constants.
 
@@ -3066,6 +3255,7 @@ def Ints(names, ctx=None):
         names = names.split(" ")
     return [Int(name, ctx) for name in names]
 
+
 def IntVector(prefix, sz, ctx=None):
     """Return a list of integer constants of size `sz`.
 
@@ -3076,9 +3266,10 @@ def IntVector(prefix, sz, ctx=None):
     x__0 + x__1 + x__2
     """
     ctx = _get_ctx(ctx)
-    return [ Int('%s__%s' % (prefix, i), ctx) for i in range(sz) ]
+    return [Int("%s__%s" % (prefix, i), ctx) for i in range(sz)]
 
-def FreshInt(prefix='x', ctx=None):
+
+def FreshInt(prefix="x", ctx=None):
     """Return a fresh integer constant in the given context using the given prefix.
 
     >>> x = FreshInt()
@@ -3091,6 +3282,7 @@ def FreshInt(prefix='x', ctx=None):
     ctx = _get_ctx(ctx)
     return ArithRef(Z3_mk_fresh_const(ctx.ref(), prefix, IntSort(ctx).ast), ctx)
 
+
 def Real(name, ctx=None):
     """Return a real constant named `name`. If `ctx=None`, then the global context is used.
 
@@ -3102,6 +3294,7 @@ def Real(name, ctx=None):
     """
     ctx = _get_ctx(ctx)
     return ArithRef(Z3_mk_const(ctx.ref(), to_symbol(name, ctx), RealSort(ctx).ast), ctx)
+
 
 def Reals(names, ctx=None):
     """Return a tuple of real constants.
@@ -3117,6 +3310,7 @@ def Reals(names, ctx=None):
         names = names.split(" ")
     return [Real(name, ctx) for name in names]
 
+
 def RealVector(prefix, sz, ctx=None):
     """Return a list of real constants of size `sz`.
 
@@ -3129,9 +3323,10 @@ def RealVector(prefix, sz, ctx=None):
     Real
     """
     ctx = _get_ctx(ctx)
-    return [ Real('%s__%s' % (prefix, i), ctx) for i in range(sz) ]
+    return [Real("%s__%s" % (prefix, i), ctx) for i in range(sz)]
 
-def FreshReal(prefix='b', ctx=None):
+
+def FreshReal(prefix="b", ctx=None):
     """Return a fresh real constant in the given context using the given prefix.
 
     >>> x = FreshReal()
@@ -3143,6 +3338,7 @@ def FreshReal(prefix='b', ctx=None):
     """
     ctx = _get_ctx(ctx)
     return ArithRef(Z3_mk_fresh_const(ctx.ref(), prefix, RealSort(ctx).ast), ctx)
+
 
 def ToReal(a):
     """ Return the Z3 expression ToReal(a).
@@ -3161,6 +3357,7 @@ def ToReal(a):
     ctx = a.ctx
     return ArithRef(Z3_mk_int2real(ctx.ref(), a.as_ast()), ctx)
 
+
 def ToInt(a):
     """ Return the Z3 expression ToInt(a).
 
@@ -3178,6 +3375,7 @@ def ToInt(a):
     ctx = a.ctx
     return ArithRef(Z3_mk_real2int(ctx.ref(), a.as_ast()), ctx)
 
+
 def IsInt(a):
     """ Return the Z3 predicate IsInt(a).
 
@@ -3194,6 +3392,7 @@ def IsInt(a):
     ctx = a.ctx
     return BoolRef(Z3_mk_is_int(ctx.ref(), a.as_ast()), ctx)
 
+
 def Sqrt(a, ctx=None):
     """ Return a Z3 expression which represents the square root of a.
 
@@ -3205,6 +3404,7 @@ def Sqrt(a, ctx=None):
         ctx = _get_ctx(ctx)
         a = RealVal(a, ctx)
     return a ** "1/2"
+
 
 def Cbrt(a, ctx=None):
     """ Return a Z3 expression which represents the cubic root of a.
@@ -3223,6 +3423,7 @@ def Cbrt(a, ctx=None):
 # Bit-Vectors
 #
 #########################################
+
 
 class BitVecSortRef(SortRef):
     """Bit-vector sort."""
@@ -3256,6 +3457,7 @@ class BitVecSortRef(SortRef):
         else:
             return BitVecVal(val, self)
 
+
 def is_bv_sort(s):
     """Return True if `s` is a Z3 bit-vector sort.
 
@@ -3265,6 +3467,7 @@ def is_bv_sort(s):
     False
     """
     return isinstance(s, BitVecSortRef)
+
 
 class BitVecRef(ExprRef):
     """Bit-vector expressions."""
@@ -3678,6 +3881,7 @@ class BitVecRef(ExprRef):
         a, b = _coerce_exprs(self, other)
         return BitVecRef(Z3_mk_bvshl(self.ctx_ref(), b.as_ast(), a.as_ast()), self.ctx)
 
+
 class BitVecNumRef(BitVecRef):
     """Bit-vector values."""
 
@@ -3693,7 +3897,8 @@ class BitVecNumRef(BitVecRef):
         return int(self.as_string())
 
     def as_signed_long(self):
-        """Return a Z3 bit-vector numeral as a Python long (bignum) numeral. The most significant bit is assumed to be the sign.
+        """Return a Z3 bit-vector numeral as a Python long (bignum) numeral.
+        The most significant bit is assumed to be the sign.
 
         >>> BitVecVal(4, 3).as_signed_long()
         -4
@@ -3719,7 +3924,7 @@ class BitVecNumRef(BitVecRef):
 
     def as_binary_string(self):
         return Z3_get_numeral_binary_string(self.ctx_ref(), self.as_ast())
-    
+
 
 def is_bv(a):
     """Return `True` if `a` is a Z3 bit-vector expression.
@@ -3734,6 +3939,7 @@ def is_bv(a):
     """
     return isinstance(a, BitVecRef)
 
+
 def is_bv_value(a):
     """Return `True` if `a` is a Z3 bit-vector numeral value.
 
@@ -3747,6 +3953,7 @@ def is_bv_value(a):
     True
     """
     return is_bv(a) and _is_numeral(a.ctx, a.as_ast())
+
 
 def BV2Int(a, is_signed=False):
     """Return the Z3 expression BV2Int(a).
@@ -3767,8 +3974,9 @@ def BV2Int(a, is_signed=False):
     if z3_debug():
         _z3_assert(is_bv(a), "First argument must be a Z3 bit-vector expression")
     ctx = a.ctx
-    ## investigate problem with bv2int
+    # investigate problem with bv2int
     return ArithRef(Z3_mk_bv2int(ctx.ref(), a.as_ast(), is_signed), ctx)
+
 
 def Int2BV(a, num_bits):
     """Return the z3 expression Int2BV(a, num_bits).
@@ -3777,6 +3985,7 @@ def Int2BV(a, num_bits):
     """
     ctx = a.ctx
     return BitVecRef(Z3_mk_int2bv(ctx.ref(), num_bits, a.as_ast()), ctx)
+
 
 def BitVecSort(sz, ctx=None):
     """Return a Z3 bit-vector sort of the given size. If `ctx=None`, then the global context is used.
@@ -3791,6 +4000,7 @@ def BitVecSort(sz, ctx=None):
     """
     ctx = _get_ctx(ctx)
     return BitVecSortRef(Z3_mk_bv_sort(ctx.ref(), sz), ctx)
+
 
 def BitVecVal(val, bv, ctx=None):
     """Return a bit-vector value with the given number of bits. If `ctx=None`, then the global context is used.
@@ -3807,6 +4017,7 @@ def BitVecVal(val, bv, ctx=None):
     else:
         ctx = _get_ctx(ctx)
         return BitVecNumRef(Z3_mk_numeral(ctx.ref(), _to_int_str(val), BitVecSort(bv, ctx).ast), ctx)
+
 
 def BitVec(name, bv, ctx=None):
     """Return a bit-vector constant named `name`. `bv` may be the number of bits of a bit-vector sort.
@@ -3831,6 +4042,7 @@ def BitVec(name, bv, ctx=None):
         bv = BitVecSort(bv, ctx)
     return BitVecRef(Z3_mk_const(ctx.ref(), to_symbol(name, ctx), bv.ast), ctx)
 
+
 def BitVecs(names, bv, ctx=None):
     """Return a tuple of bit-vector constants of size bv.
 
@@ -3850,6 +4062,7 @@ def BitVecs(names, bv, ctx=None):
     if isinstance(names, str):
         names = names.split(" ")
     return [BitVec(name, bv, ctx) for name in names]
+
 
 def Concat(*args):
     """Create a Z3 bit-vector concatenation expression.
@@ -3882,22 +4095,29 @@ def Concat(*args):
         return SeqRef(Z3_mk_seq_concat(ctx.ref(), sz, v), ctx)
 
     if is_re(args[0]):
-       if z3_debug():
-           _z3_assert(all([is_re(a) for a in args]), "All arguments must be regular expressions.")
-       v = (Ast * sz)()
-       for i in range(sz):
-           v[i] = args[i].as_ast()
-       return ReRef(Z3_mk_re_concat(ctx.ref(), sz, v), ctx)
+        if z3_debug():
+            _z3_assert(all([is_re(a) for a in args]), "All arguments must be regular expressions.")
+        v = (Ast * sz)()
+        for i in range(sz):
+            v[i] = args[i].as_ast()
+        return ReRef(Z3_mk_re_concat(ctx.ref(), sz, v), ctx)
 
     if z3_debug():
         _z3_assert(all([is_bv(a) for a in args]), "All arguments must be Z3 bit-vector expressions.")
-    r   = args[0]
+    r = args[0]
     for i in range(sz - 1):
-        r = BitVecRef(Z3_mk_concat(ctx.ref(), r.as_ast(), args[i+1].as_ast()), ctx)
+        r = BitVecRef(Z3_mk_concat(ctx.ref(), r.as_ast(), args[i + 1].as_ast()), ctx)
     return r
 
+
 def Extract(high, low, a):
-    """Create a Z3 bit-vector extraction expression, or create a string extraction expression.
+    """Create a Z3 bit-vector extraction expression.
+    Extract is overloaded to also work on sequence extraction.
+    The functions SubString and SubSeq are redirected to Extract.
+    For this case, the arguments are reinterpreted as:
+        high - is a sequence (string)
+        low  - is an offset
+        a    - is the length to be extracted
 
     >>> x = BitVec('x', 8)
     >>> Extract(6, 2, x)
@@ -3915,13 +4135,16 @@ def Extract(high, low, a):
         return SeqRef(Z3_mk_seq_extract(s.ctx_ref(), s.as_ast(), offset.as_ast(), length.as_ast()), s.ctx)
     if z3_debug():
         _z3_assert(low <= high, "First argument must be greater than or equal to second argument")
-        _z3_assert(_is_int(high) and high >= 0 and _is_int(low) and low >= 0, "First and second arguments must be non negative integers")
+        _z3_assert(_is_int(high) and high >= 0 and _is_int(low) and low >= 0,
+                   "First and second arguments must be non negative integers")
         _z3_assert(is_bv(a), "Third argument must be a Z3 bit-vector expression")
     return BitVecRef(Z3_mk_extract(a.ctx_ref(), high, low, a.as_ast()), a.ctx)
+
 
 def _check_bv_args(a, b):
     if z3_debug():
         _z3_assert(is_bv(a) or is_bv(b), "First or second argument must be a Z3 bit-vector expression")
+
 
 def ULE(a, b):
     """Create the Z3 expression (unsigned) `other <= self`.
@@ -3940,6 +4163,7 @@ def ULE(a, b):
     a, b = _coerce_exprs(a, b)
     return BoolRef(Z3_mk_bvule(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
 
+
 def ULT(a, b):
     """Create the Z3 expression (unsigned) `other < self`.
 
@@ -3956,6 +4180,7 @@ def ULT(a, b):
     _check_bv_args(a, b)
     a, b = _coerce_exprs(a, b)
     return BoolRef(Z3_mk_bvult(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
+
 
 def UGE(a, b):
     """Create the Z3 expression (unsigned) `other >= self`.
@@ -3974,6 +4199,7 @@ def UGE(a, b):
     a, b = _coerce_exprs(a, b)
     return BoolRef(Z3_mk_bvuge(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
 
+
 def UGT(a, b):
     """Create the Z3 expression (unsigned) `other > self`.
 
@@ -3990,6 +4216,7 @@ def UGT(a, b):
     _check_bv_args(a, b)
     a, b = _coerce_exprs(a, b)
     return BoolRef(Z3_mk_bvugt(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
+
 
 def UDiv(a, b):
     """Create the Z3 expression (unsigned) division `self / other`.
@@ -4011,6 +4238,7 @@ def UDiv(a, b):
     a, b = _coerce_exprs(a, b)
     return BitVecRef(Z3_mk_bvudiv(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
 
+
 def URem(a, b):
     """Create the Z3 expression (unsigned) remainder `self % other`.
 
@@ -4031,6 +4259,7 @@ def URem(a, b):
     a, b = _coerce_exprs(a, b)
     return BitVecRef(Z3_mk_bvurem(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
 
+
 def SRem(a, b):
     """Create the Z3 expression signed remainder.
 
@@ -4050,6 +4279,7 @@ def SRem(a, b):
     _check_bv_args(a, b)
     a, b = _coerce_exprs(a, b)
     return BitVecRef(Z3_mk_bvsrem(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
+
 
 def LShR(a, b):
     """Create the Z3 expression logical right shift.
@@ -4082,6 +4312,7 @@ def LShR(a, b):
     a, b = _coerce_exprs(a, b)
     return BitVecRef(Z3_mk_bvlshr(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
 
+
 def RotateLeft(a, b):
     """Return an expression representing `a` rotated to the left `b` times.
 
@@ -4097,6 +4328,7 @@ def RotateLeft(a, b):
     a, b = _coerce_exprs(a, b)
     return BitVecRef(Z3_mk_ext_rotate_left(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
 
+
 def RotateRight(a, b):
     """Return an expression representing `a` rotated to the right `b` times.
 
@@ -4111,6 +4343,7 @@ def RotateRight(a, b):
     _check_bv_args(a, b)
     a, b = _coerce_exprs(a, b)
     return BitVecRef(Z3_mk_ext_rotate_right(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
+
 
 def SignExt(n, a):
     """Return a bit-vector expression with `n` extra sign-bits.
@@ -4141,6 +4374,7 @@ def SignExt(n, a):
         _z3_assert(is_bv(a), "Second argument must be a Z3 bit-vector expression")
     return BitVecRef(Z3_mk_sign_ext(a.ctx_ref(), n, a.as_ast()), a.ctx)
 
+
 def ZeroExt(n, a):
     """Return a bit-vector expression with `n` extra zero-bits.
 
@@ -4168,6 +4402,7 @@ def ZeroExt(n, a):
         _z3_assert(is_bv(a), "Second argument must be a Z3 bit-vector expression")
     return BitVecRef(Z3_mk_zero_ext(a.ctx_ref(), n, a.as_ast()), a.ctx)
 
+
 def RepeatBitVec(n, a):
     """Return an expression representing `n` copies of `a`.
 
@@ -4191,11 +4426,13 @@ def RepeatBitVec(n, a):
         _z3_assert(is_bv(a), "Second argument must be a Z3 bit-vector expression")
     return BitVecRef(Z3_mk_repeat(a.ctx_ref(), n, a.as_ast()), a.ctx)
 
+
 def BVRedAnd(a):
     """Return the reduction-and expression of `a`."""
     if z3_debug():
         _z3_assert(is_bv(a), "First argument must be a Z3 bit-vector expression")
     return BitVecRef(Z3_mk_bvredand(a.ctx_ref(), a.as_ast()), a.ctx)
+
 
 def BVRedOr(a):
     """Return the reduction-or expression of `a`."""
@@ -4203,17 +4440,20 @@ def BVRedOr(a):
         _z3_assert(is_bv(a), "First argument must be a Z3 bit-vector expression")
     return BitVecRef(Z3_mk_bvredor(a.ctx_ref(), a.as_ast()), a.ctx)
 
+
 def BVAddNoOverflow(a, b, signed):
     """A predicate the determines that bit-vector addition does not overflow"""
     _check_bv_args(a, b)
     a, b = _coerce_exprs(a, b)
     return BoolRef(Z3_mk_bvadd_no_overflow(a.ctx_ref(), a.as_ast(), b.as_ast(), signed), a.ctx)
 
+
 def BVAddNoUnderflow(a, b):
     """A predicate the determines that signed bit-vector addition does not underflow"""
     _check_bv_args(a, b)
     a, b = _coerce_exprs(a, b)
     return BoolRef(Z3_mk_bvadd_no_underflow(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
+
 
 def BVSubNoOverflow(a, b):
     """A predicate the determines that bit-vector subtraction does not overflow"""
@@ -4228,17 +4468,20 @@ def BVSubNoUnderflow(a, b, signed):
     a, b = _coerce_exprs(a, b)
     return BoolRef(Z3_mk_bvsub_no_underflow(a.ctx_ref(), a.as_ast(), b.as_ast(), signed), a.ctx)
 
+
 def BVSDivNoOverflow(a, b):
     """A predicate the determines that bit-vector signed division does not overflow"""
     _check_bv_args(a, b)
     a, b = _coerce_exprs(a, b)
     return BoolRef(Z3_mk_bvsdiv_no_overflow(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
 
+
 def BVSNegNoOverflow(a):
     """A predicate the determines that bit-vector unary negation does not overflow"""
     if z3_debug():
         _z3_assert(is_bv(a), "First argument must be a Z3 bit-vector expression")
     return BoolRef(Z3_mk_bvneg_no_overflow(a.ctx_ref(), a.as_ast()), a.ctx)
+
 
 def BVMulNoOverflow(a, b, signed):
     """A predicate the determines that bit-vector multiplication does not overflow"""
@@ -4252,7 +4495,6 @@ def BVMulNoUnderflow(a, b):
     _check_bv_args(a, b)
     a, b = _coerce_exprs(a, b)
     return BoolRef(Z3_mk_bvmul_no_underflow(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
-
 
 
 #########################################
@@ -4273,6 +4515,11 @@ class ArraySortRef(SortRef):
         """
         return _to_sort_ref(Z3_get_array_sort_domain(self.ctx_ref(), self.ast), self.ctx)
 
+    def domain_n(self, i):
+        """Return the domain of the array sort `self`.
+        """
+        return _to_sort_ref(Z3_get_array_sort_domain_n(self.ctx_ref(), self.ast, i), self.ctx)
+    
     def range(self):
         """Return the range of the array sort `self`.
 
@@ -4281,6 +4528,7 @@ class ArraySortRef(SortRef):
         Bool
         """
         return _to_sort_ref(Z3_get_array_sort_range(self.ctx_ref(), self.ast), self.ctx)
+
 
 class ArrayRef(ExprRef):
     """Array expressions. """
@@ -4303,6 +4551,10 @@ class ArrayRef(ExprRef):
         """
         return self.sort().domain()
 
+    def domain_n(self, i):
+        """Shorthand for self.sort().domain_n(i)`."""
+        return self.sort().domain_n(i)
+
     def range(self):
         """Shorthand for `self.sort().range()`.
 
@@ -4322,12 +4574,21 @@ class ArrayRef(ExprRef):
         >>> a[i].sexpr()
         '(select a i)'
         """
-        arg = self.domain().cast(arg)
-        return _to_expr_ref(Z3_mk_select(self.ctx_ref(), self.as_ast(), arg.as_ast()), self.ctx)
+        return _array_select(self, arg)
 
     def default(self):
         return _to_expr_ref(Z3_mk_array_default(self.ctx_ref(), self.as_ast()), self.ctx)
 
+
+def _array_select(ar, arg):
+    if isinstance(arg, tuple):
+        args = [ar.domain_n(i).cast(arg[i]) for i in range(len(arg))]
+        _args, sz = _to_ast_array(args)
+        return _to_expr_ref(Z3_mk_select_n(ar.ctx_ref(), ar.as_ast(), sz, _args), ar.ctx)
+    arg = ar.domain().cast(arg)
+    return _to_expr_ref(Z3_mk_select(ar.ctx_ref(), ar.as_ast(), arg.as_ast()), ar.ctx)
+
+    
 def is_array_sort(a):
     return Z3_get_sort_kind(a.ctx.ref(), Z3_get_sort(a.ctx.ref(), a.ast)) == Z3_ARRAY_SORT
 
@@ -4345,6 +4606,7 @@ def is_array(a):
     """
     return isinstance(a, ArrayRef)
 
+
 def is_const_array(a):
     """Return `True` if `a` is a Z3 constant array.
 
@@ -4357,6 +4619,7 @@ def is_const_array(a):
     """
     return is_app_of(a, Z3_OP_CONST_ARRAY)
 
+
 def is_K(a):
     """Return `True` if `a` is a Z3 constant array.
 
@@ -4368,6 +4631,7 @@ def is_K(a):
     False
     """
     return is_app_of(a, Z3_OP_CONST_ARRAY)
+
 
 def is_map(a):
     """Return `True` if `a` is a Z3 map array expression.
@@ -4384,6 +4648,7 @@ def is_map(a):
     """
     return is_app_of(a, Z3_OP_ARRAY_MAP)
 
+
 def is_default(a):
     """Return `True` if `a` is a Z3 default array expression.
     >>> d = Default(K(IntSort(), 10))
@@ -4391,6 +4656,7 @@ def is_default(a):
     True
     """
     return is_app_of(a, Z3_OP_ARRAY_DEFAULT)
+
 
 def get_map_func(a):
     """Return the function declaration associated with a Z3 map array expression.
@@ -4407,7 +4673,14 @@ def get_map_func(a):
     """
     if z3_debug():
         _z3_assert(is_map(a), "Z3 array map expression expected.")
-    return FuncDeclRef(Z3_to_func_decl(a.ctx_ref(), Z3_get_decl_ast_parameter(a.ctx_ref(), a.decl().ast, 0)), a.ctx)
+    return FuncDeclRef(
+        Z3_to_func_decl(
+            a.ctx_ref(),
+            Z3_get_decl_ast_parameter(a.ctx_ref(), a.decl().ast, 0),
+        ),
+        ctx=a.ctx,
+    )
+
 
 def ArraySort(*sig):
     """Return the Z3 array sort with the given domain and range sorts.
@@ -4441,7 +4714,8 @@ def ArraySort(*sig):
         dom[i] = sig[i].ast
     return ArraySortRef(Z3_mk_array_sort_n(ctx.ref(), arity, dom, r.ast), ctx)
 
-def Array(name, dom, rng):
+
+def Array(name, *sorts):
     """Return an array constant named `name` with the given domain and range sorts.
 
     >>> a = Array('a', IntSort(), IntSort())
@@ -4450,11 +4724,12 @@ def Array(name, dom, rng):
     >>> a[0]
     a[0]
     """
-    s = ArraySort(dom, rng)
+    s = ArraySort(sorts)
     ctx = s.ctx
     return ArrayRef(Z3_mk_const(ctx.ref(), to_symbol(name, ctx), s.ast), ctx)
 
-def Update(a, i, v):
+
+def Update(a, *args):
     """Return a Z3 store array expression.
 
     >>> a    = Array('a', IntSort(), IntSort())
@@ -4470,10 +4745,21 @@ def Update(a, i, v):
     """
     if z3_debug():
         _z3_assert(is_array_sort(a), "First argument must be a Z3 array expression")
-    i = a.sort().domain().cast(i)
-    v = a.sort().range().cast(v)
+    args = _get_args(args)
     ctx = a.ctx
-    return _to_expr_ref(Z3_mk_store(ctx.ref(), a.as_ast(), i.as_ast(), v.as_ast()), ctx)
+    if len(args) <= 1:
+        raise Z3Exception("array update requires index and value arguments")
+    if len(args) == 2:
+        i = args[0]
+        v = args[1]
+        i = a.sort().domain().cast(i)
+        v = a.sort().range().cast(v)
+        return _to_expr_ref(Z3_mk_store(ctx.ref(), a.as_ast(), i.as_ast(), v.as_ast()), ctx)
+    v = a.sort().range().cast(args[-1])
+    idxs = [a.sort().domain_n(i).cast(args[i]) for i in range(len(args)-1)]
+    _args, sz = _to_ast_array(idxs)
+    return _to_expr_ref(Z3_mk_store_n(ctx.ref(), a.as_ast(), sz, _args, v.as_ast()), ctx)
+
 
 def Default(a):
     """ Return a default value for array expression.
@@ -4486,7 +4772,7 @@ def Default(a):
     return a.default()
 
 
-def Store(a, i, v):
+def Store(a, *args):
     """Return a Z3 store array expression.
 
     >>> a    = Array('a', IntSort(), IntSort())
@@ -4500,9 +4786,10 @@ def Store(a, i, v):
     >>> prove(Implies(i != j, s[j] == a[j]))
     proved
     """
-    return Update(a, i, v)
+    return Update(a, args)
 
-def Select(a, i):
+
+def Select(a, *args):
     """Return a Z3 select array expression.
 
     >>> a = Array('a', IntSort(), IntSort())
@@ -4512,9 +4799,10 @@ def Select(a, i):
     >>> eq(Select(a, i), a[i])
     True
     """
+    args = _get_args(args)
     if z3_debug():
         _z3_assert(is_array_sort(a), "First argument must be a Z3 array expression")
-    return a[i]
+    return a[args]
 
 
 def Map(f, *args):
@@ -4539,6 +4827,7 @@ def Map(f, *args):
     ctx = f.ctx
     return ArrayRef(Z3_mk_map(ctx.ref(), f.ast, sz, _args), ctx)
 
+
 def K(dom, v):
     """Return a Z3 constant array expression.
 
@@ -4560,6 +4849,7 @@ def K(dom, v):
         v = _py2expr(v, ctx)
     return ArrayRef(Z3_mk_const_array(ctx.ref(), dom.ast, v.as_ast()), ctx)
 
+
 def Ext(a, b):
     """Return extensionality index for one-dimensional arrays.
     >> a, b = Consts('a b', SetSort(IntSort()))
@@ -4568,13 +4858,15 @@ def Ext(a, b):
     """
     ctx = a.ctx
     if z3_debug():
-        _z3_assert(is_array_sort(a) and is_array(b), "arguments must be arrays")
+        _z3_assert(is_array_sort(a) and (is_array(b) or b.is_lambda()), "arguments must be arrays")
     return _to_expr_ref(Z3_mk_array_ext(ctx.ref(), a.as_ast(), b.as_ast()), ctx)
+
 
 def SetHasSize(a, k):
     ctx = a.ctx
     k = _py2expr(k, ctx)
     return _to_expr_ref(Z3_mk_set_has_size(ctx.ref(), a.as_ast(), k.as_ast()), ctx)
+
 
 def is_select(a):
     """Return `True` if `a` is a Z3 array select application.
@@ -4587,6 +4879,7 @@ def is_select(a):
     True
     """
     return is_app_of(a, Z3_OP_SELECT)
+
 
 def is_store(a):
     """Return `True` if `a` is a Z3 array store application.
@@ -4610,6 +4903,7 @@ def SetSort(s):
     """ Create a set sort over element sort s"""
     return ArraySort(s, BoolSort())
 
+
 def EmptySet(s):
     """Create the empty set
     >>> EmptySet(IntSort())
@@ -4618,6 +4912,7 @@ def EmptySet(s):
     ctx = s.ctx
     return ArrayRef(Z3_mk_empty_set(ctx.ref(), s.ast), ctx)
 
+
 def FullSet(s):
     """Create the full set
     >>> FullSet(IntSort())
@@ -4625,6 +4920,7 @@ def FullSet(s):
     """
     ctx = s.ctx
     return ArrayRef(Z3_mk_full_set(ctx.ref(), s.ast), ctx)
+
 
 def SetUnion(*args):
     """ Take the union of sets
@@ -4638,6 +4934,7 @@ def SetUnion(*args):
     _args, sz = _to_ast_array(args)
     return ArrayRef(Z3_mk_set_union(ctx.ref(), sz, _args), ctx)
 
+
 def SetIntersect(*args):
     """ Take the union of sets
     >>> a = Const('a', SetSort(IntSort()))
@@ -4650,15 +4947,17 @@ def SetIntersect(*args):
     _args, sz = _to_ast_array(args)
     return ArrayRef(Z3_mk_set_intersect(ctx.ref(), sz, _args), ctx)
 
+
 def SetAdd(s, e):
     """ Add element e to set s
     >>> a = Const('a', SetSort(IntSort()))
     >>> SetAdd(a, 1)
     Store(a, 1, True)
     """
-    ctx = _ctx_from_ast_arg_list([s,e])
+    ctx = _ctx_from_ast_arg_list([s, e])
     e = _py2expr(e, ctx)
     return ArrayRef(Z3_mk_set_add(ctx.ref(), s.as_ast(), e.as_ast()), ctx)
+
 
 def SetDel(s, e):
     """ Remove element e to set s
@@ -4666,9 +4965,10 @@ def SetDel(s, e):
     >>> SetDel(a, 1)
     Store(a, 1, False)
     """
-    ctx = _ctx_from_ast_arg_list([s,e])
+    ctx = _ctx_from_ast_arg_list([s, e])
     e = _py2expr(e, ctx)
     return ArrayRef(Z3_mk_set_del(ctx.ref(), s.as_ast(), e.as_ast()), ctx)
+
 
 def SetComplement(s):
     """ The complement of set s
@@ -4678,6 +4978,7 @@ def SetComplement(s):
     """
     ctx = s.ctx
     return ArrayRef(Z3_mk_set_complement(ctx.ref(), s.as_ast()), ctx)
+
 
 def SetDifference(a, b):
     """ The set difference of a and b
@@ -4689,15 +4990,17 @@ def SetDifference(a, b):
     ctx = _ctx_from_ast_arg_list([a, b])
     return ArrayRef(Z3_mk_set_difference(ctx.ref(), a.as_ast(), b.as_ast()), ctx)
 
+
 def IsMember(e, s):
     """ Check if e is a member of set s
     >>> a = Const('a', SetSort(IntSort()))
     >>> IsMember(1, a)
     a[1]
     """
-    ctx = _ctx_from_ast_arg_list([s,e])
+    ctx = _ctx_from_ast_arg_list([s, e])
     e = _py2expr(e, ctx)
     return BoolRef(Z3_mk_set_member(ctx.ref(), e.as_ast(), s.as_ast()), ctx)
+
 
 def IsSubset(a, b):
     """ Check if a is a subset of b
@@ -4718,7 +5021,12 @@ def IsSubset(a, b):
 
 def _valid_accessor(acc):
     """Return `True` if acc is pair of the form (String, Datatype or Sort). """
-    return isinstance(acc, tuple) and len(acc) == 2 and isinstance(acc[0], str) and (isinstance(acc[1], Datatype) or is_sort(acc[1]))
+    if not isinstance(acc, tuple):
+        return False
+    if len(acc) != 2:
+        return False
+    return isinstance(acc[0], str) and (isinstance(acc[1], Datatype) or is_sort(acc[1]))
+
 
 class Datatype:
     """Helper class for declaring Z3 datatypes.
@@ -4746,9 +5054,10 @@ class Datatype:
     >>> simplify(car(n))
     1
     """
+
     def __init__(self, name, ctx=None):
-        self.ctx          = _get_ctx(ctx)
-        self.name         = name
+        self.ctx = _get_ctx(ctx)
+        self.name = name
         self.constructors = []
 
     def __deepcopy__(self, memo={}):
@@ -4760,18 +5069,22 @@ class Datatype:
         if z3_debug():
             _z3_assert(isinstance(name, str), "String expected")
             _z3_assert(isinstance(rec_name, str), "String expected")
-            _z3_assert(all([_valid_accessor(a) for a in args]), "Valid list of accessors expected. An accessor is a pair of the form (String, Datatype|Sort)")
+            _z3_assert(
+                all([_valid_accessor(a) for a in args]),
+                "Valid list of accessors expected. An accessor is a pair of the form (String, Datatype|Sort)",
+            )
         self.constructors.append((name, rec_name, args))
 
     def declare(self, name, *args):
         """Declare constructor named `name` with the given accessors `args`.
-        Each accessor is a pair `(name, sort)`, where `name` is a string and `sort` a Z3 sort or a reference to the datatypes being declared.
+        Each accessor is a pair `(name, sort)`, where `name` is a string and `sort` a Z3 sort
+        or a reference to the datatypes being declared.
 
         In the following example `List.declare('cons', ('car', IntSort()), ('cdr', List))`
         declares the constructor named `cons` that builds a new List using an integer and a List.
-        It also declares the accessors `car` and `cdr`. The accessor `car` extracts the integer of a `cons` cell,
-        and `cdr` the list of a `cons` cell. After all constructors were declared, we use the method create() to create
-        the actual datatype in Z3.
+        It also declares the accessors `car` and `cdr`. The accessor `car` extracts the integer
+        of a `cons` cell, and `cdr` the list of a `cons` cell. After all constructors were declared,
+        we use the method create() to create the actual datatype in Z3.
 
         >>> List = Datatype('List')
         >>> List.declare('cons', ('car', IntSort()), ('cdr', List))
@@ -4802,23 +5115,30 @@ class Datatype:
         """
         return CreateDatatypes([self])[0]
 
+
 class ScopedConstructor:
     """Auxiliary object used to create Z3 datatypes."""
+
     def __init__(self, c, ctx):
-        self.c   = c
+        self.c = c
         self.ctx = ctx
+
     def __del__(self):
         if self.ctx.ref() is not None:
-           Z3_del_constructor(self.ctx.ref(), self.c)
+            Z3_del_constructor(self.ctx.ref(), self.c)
+
 
 class ScopedConstructorList:
     """Auxiliary object used to create Z3 datatypes."""
+
     def __init__(self, c, ctx):
-        self.c   = c
+        self.c = c
         self.ctx = ctx
+
     def __del__(self):
         if self.ctx.ref() is not None:
-           Z3_del_constructor_list(self.ctx.ref(), self.c)
+            Z3_del_constructor_list(self.ctx.ref(), self.c)
+
 
 def CreateDatatypes(*ds):
     """Create mutually recursive Z3 datatypes using 1 or more Datatype helper objects.
@@ -4851,60 +5171,63 @@ def CreateDatatypes(*ds):
     if z3_debug():
         _z3_assert(len(ds) > 0, "At least one Datatype must be specified")
         _z3_assert(all([isinstance(d, Datatype) for d in ds]), "Arguments must be Datatypes")
-        _z3_assert(all([d.ctx == ds[0].ctx for d in  ds]), "Context mismatch")
+        _z3_assert(all([d.ctx == ds[0].ctx for d in ds]), "Context mismatch")
         _z3_assert(all([d.constructors != [] for d in ds]), "Non-empty Datatypes expected")
     ctx = ds[0].ctx
-    num    = len(ds)
-    names  = (Symbol * num)()
-    out    = (Sort * num)()
+    num = len(ds)
+    names = (Symbol * num)()
+    out = (Sort * num)()
     clists = (ConstructorList * num)()
     to_delete = []
     for i in range(num):
-        d        = ds[i]
+        d = ds[i]
         names[i] = to_symbol(d.name, ctx)
-        num_cs   = len(d.constructors)
-        cs       = (Constructor * num_cs)()
+        num_cs = len(d.constructors)
+        cs = (Constructor * num_cs)()
         for j in range(num_cs):
-            c      = d.constructors[j]
-            cname  = to_symbol(c[0], ctx)
-            rname  = to_symbol(c[1], ctx)
-            fs     = c[2]
+            c = d.constructors[j]
+            cname = to_symbol(c[0], ctx)
+            rname = to_symbol(c[1], ctx)
+            fs = c[2]
             num_fs = len(fs)
             fnames = (Symbol * num_fs)()
-            sorts  = (Sort   * num_fs)()
-            refs   = (ctypes.c_uint * num_fs)()
+            sorts = (Sort * num_fs)()
+            refs = (ctypes.c_uint * num_fs)()
             for k in range(num_fs):
                 fname = fs[k][0]
                 ftype = fs[k][1]
                 fnames[k] = to_symbol(fname, ctx)
                 if isinstance(ftype, Datatype):
                     if z3_debug():
-                        _z3_assert(ds.count(ftype) == 1, "One and only one occurrence of each datatype is expected")
+                        _z3_assert(
+                            ds.count(ftype) == 1,
+                            "One and only one occurrence of each datatype is expected",
+                        )
                     sorts[k] = None
-                    refs[k]  = ds.index(ftype)
+                    refs[k] = ds.index(ftype)
                 else:
                     if z3_debug():
                         _z3_assert(is_sort(ftype), "Z3 sort expected")
                     sorts[k] = ftype.ast
-                    refs[k]  = 0
+                    refs[k] = 0
             cs[j] = Z3_mk_constructor(ctx.ref(), cname, rname, num_fs, fnames, sorts, refs)
             to_delete.append(ScopedConstructor(cs[j], ctx))
         clists[i] = Z3_mk_constructor_list(ctx.ref(), num_cs, cs)
         to_delete.append(ScopedConstructorList(clists[i], ctx))
     Z3_mk_datatypes(ctx.ref(), num, names, out, clists)
     result = []
-    ## Create a field for every constructor, recognizer and accessor
+    # Create a field for every constructor, recognizer and accessor
     for i in range(num):
         dref = DatatypeSortRef(out[i], ctx)
         num_cs = dref.num_constructors()
         for j in range(num_cs):
-            cref       = dref.constructor(j)
-            cref_name  = cref.name()
+            cref = dref.constructor(j)
+            cref_name = cref.name()
             cref_arity = cref.arity()
             if cref.arity() == 0:
                 cref = cref()
             setattr(dref, cref_name, cref)
-            rref  = dref.recognizer(j)
+            rref = dref.recognizer(j)
             setattr(dref, "is_" + cref_name, rref)
             for k in range(cref_arity):
                 aref = dref.accessor(j, k)
@@ -4912,8 +5235,10 @@ def CreateDatatypes(*ds):
         result.append(dref)
     return tuple(result)
 
+
 class DatatypeSortRef(SortRef):
     """Datatype sorts."""
+
     def num_constructors(self):
         """Return the number of constructors in the given Z3 datatype.
 
@@ -4975,7 +5300,8 @@ class DatatypeSortRef(SortRef):
         return FuncDeclRef(Z3_get_datatype_sort_recognizer(self.ctx_ref(), self.ast, idx), self.ctx)
 
     def accessor(self, i, j):
-        """In Z3, each constructor has 0 or more accessor. The number of accessors is equal to the arity of the constructor.
+        """In Z3, each constructor has 0 or more accessor.
+        The number of accessors is equal to the arity of the constructor.
 
         >>> List = Datatype('List')
         >>> List.declare('cons', ('car', IntSort()), ('cdr', List))
@@ -5001,24 +5327,31 @@ class DatatypeSortRef(SortRef):
         if z3_debug():
             _z3_assert(i < self.num_constructors(), "Invalid constructor index")
             _z3_assert(j < self.constructor(i).arity(), "Invalid accessor index")
-        return FuncDeclRef(Z3_get_datatype_sort_constructor_accessor(self.ctx_ref(), self.ast, i, j), self.ctx)
+        return FuncDeclRef(
+            Z3_get_datatype_sort_constructor_accessor(self.ctx_ref(), self.ast, i, j),
+            ctx=self.ctx,
+        )
+
 
 class DatatypeRef(ExprRef):
     """Datatype expressions."""
+
     def sort(self):
         """Return the datatype sort of the datatype expression `self`."""
         return DatatypeSortRef(Z3_get_sort(self.ctx_ref(), self.as_ast()), self.ctx)
 
-def TupleSort(name, sorts, ctx = None):
+
+def TupleSort(name, sorts, ctx=None):
     """Create a named tuple sort base on a set of underlying sorts
     Example:
         >>> pair, mk_pair, (first, second) = TupleSort("pair", [IntSort(), StringSort()])
     """
     tuple = Datatype(name, ctx)
-    projects = [ ('project%d' % i, sorts[i]) for i in range(len(sorts)) ]
+    projects = [("project%d" % i, sorts[i]) for i in range(len(sorts))]
     tuple.declare(name, *projects)
     tuple = tuple.create()
     return tuple, tuple.constructor(0), [tuple.accessor(0, i) for i in range(len(sorts))]
+
 
 def DisjointSum(name, sorts, ctx=None):
     """Create a named tagged union sort base on a set of underlying sorts
@@ -5045,10 +5378,10 @@ def EnumSort(name, values, ctx=None):
         _z3_assert(len(values) > 0, "At least one value expected")
     ctx = _get_ctx(ctx)
     num = len(values)
-    _val_names   = (Symbol * num)()
+    _val_names = (Symbol * num)()
     for i in range(num):
         _val_names[i] = to_symbol(values[i])
-    _values  = (FuncDecl * num)()
+    _values = (FuncDecl * num)()
     _testers = (FuncDecl * num)()
     name = to_symbol(name)
     S = DatatypeSortRef(Z3_mk_enumeration_sort(ctx.ref(), name, num, _val_names, _values, _testers), ctx)
@@ -5064,13 +5397,15 @@ def EnumSort(name, values, ctx=None):
 #
 #########################################
 
+
 class ParamsRef:
     """Set of parameters used to configure Solvers, Tactics and Simplifiers in Z3.
 
     Consider using the function `args2params` to create instances of this object.
     """
+
     def __init__(self, ctx=None, params=None):
-        self.ctx    = _get_ctx(ctx)
+        self.ctx = _get_ctx(ctx)
         if params is None:
             self.params = Z3_mk_params(self.ctx.ref())
         else:
@@ -5082,7 +5417,7 @@ class ParamsRef:
 
     def __del__(self):
         if self.ctx.ref() is not None:
-           Z3_params_dec_ref(self.ctx.ref(), self.params)
+            Z3_params_dec_ref(self.ctx.ref(), self.params)
 
     def set(self, name, val):
         """Set parameter name with value val."""
@@ -5108,6 +5443,7 @@ class ParamsRef:
         _z3_assert(isinstance(ds, ParamDescrsRef), "parameter description set expected")
         Z3_params_validate(self.ctx.ref(), self.params, ds.descr)
 
+
 def args2params(arguments, keywords, ctx=None):
     """Convert python arguments into a Z3_params object.
     A ':' is added to the keywords, and '_' is replaced with '-'
@@ -5118,7 +5454,7 @@ def args2params(arguments, keywords, ctx=None):
     if z3_debug():
         _z3_assert(len(arguments) % 2 == 0, "Argument list must have an even number of elements.")
     prev = None
-    r    = ParamsRef(ctx)
+    r = ParamsRef(ctx)
     for a in arguments:
         if prev is None:
             prev = a
@@ -5130,13 +5466,15 @@ def args2params(arguments, keywords, ctx=None):
         r.set(k, v)
     return r
 
+
 class ParamDescrsRef:
     """Set of parameter descriptions for Solvers, Tactics and Simplifiers in Z3.
     """
+
     def __init__(self, descr, ctx=None):
         _z3_assert(isinstance(descr, ParamDescrs), "parameter description object expected")
-        self.ctx    = _get_ctx(ctx)
-        self.descr  = descr
+        self.ctx = _get_ctx(ctx)
+        self.descr = descr
         Z3_param_descrs_inc_ref(self.ctx.ref(), self.descr)
 
     def __deepcopy__(self, memo={}):
@@ -5144,7 +5482,7 @@ class ParamDescrsRef:
 
     def __del__(self):
         if self.ctx.ref() is not None:
-           Z3_param_descrs_dec_ref(self.ctx.ref(), self.descr)
+            Z3_param_descrs_dec_ref(self.ctx.ref(), self.descr)
 
     def size(self):
         """Return the size of in the parameter description `self`.
@@ -5186,6 +5524,7 @@ class ParamDescrsRef:
 #
 #########################################
 
+
 class Goal(Z3PPObject):
     """Goal is a collection of constraints we want to find a solution or show to be unsatisfiable (infeasible).
 
@@ -5196,22 +5535,21 @@ class Goal(Z3PPObject):
 
     def __init__(self, models=True, unsat_cores=False, proofs=False, ctx=None, goal=None):
         if z3_debug():
-            _z3_assert(goal is None or ctx is not None, "If goal is different from None, then ctx must be also different from None")
-        self.ctx    = _get_ctx(ctx)
-        self.goal   = goal
+            _z3_assert(goal is None or ctx is not None,
+                       "If goal is different from None, then ctx must be also different from None")
+        self.ctx = _get_ctx(ctx)
+        self.goal = goal
         if self.goal is None:
-            self.goal   = Z3_mk_goal(self.ctx.ref(), models, unsat_cores, proofs)
+            self.goal = Z3_mk_goal(self.ctx.ref(), models, unsat_cores, proofs)
         Z3_goal_inc_ref(self.ctx.ref(), self.goal)
-
-    def __deepcopy__(self, memo={}):
-        return Goal(False, False, False, self.ctx, self.goal)
 
     def __del__(self):
         if self.goal is not None and self.ctx.ref() is not None:
             Z3_goal_dec_ref(self.ctx.ref(), self.goal)
 
     def depth(self):
-        """Return the depth of the goal `self`. The depth corresponds to the number of tactics applied to `self`.
+        """Return the depth of the goal `self`.
+        The depth corresponds to the number of tactics applied to `self`.
 
         >>> x, y = Ints('x y')
         >>> g = Goal()
@@ -5339,7 +5677,7 @@ class Goal(Z3PPObject):
         [x > 0, x < 2]
         """
         args = _get_args(args)
-        s    = BoolSort(self.ctx)
+        s = BoolSort(self.ctx)
         for arg in args:
             arg = s.cast(arg)
             Z3_goal_assert(self.ctx.ref(), self.goal, arg.as_ast())
@@ -5413,7 +5751,7 @@ class Goal(Z3PPObject):
         """Return a textual representation of the s-expression representing the goal."""
         return Z3_goal_to_string(self.ctx.ref(), self.goal)
 
-    def dimacs(self, include_names = True):
+    def dimacs(self, include_names=True):
         """Return a textual representation of the goal in DIMACS format."""
         return Z3_goal_to_dimacs_string(self.ctx.ref(), self.goal, include_names)
 
@@ -5463,7 +5801,7 @@ class Goal(Z3PPObject):
         >>> g
         [x + 1 >= 2]
         """
-        t = Tactic('simplify')
+        t = Tactic("simplify")
         return t.apply(self, *arguments, **keywords)[0]
 
     def as_expr(self):
@@ -5486,13 +5824,15 @@ class Goal(Z3PPObject):
         elif sz == 1:
             return self.get(0)
         else:
-            return And([ self.get(i) for i in range(len(self)) ], self.ctx)
+            return And([self.get(i) for i in range(len(self))], self.ctx)
 
 #########################################
 #
 # AST Vector
 #
 #########################################
+
+
 class AstVector(Z3PPObject):
     """A collection (vector) of ASTs."""
 
@@ -5504,11 +5844,8 @@ class AstVector(Z3PPObject):
         else:
             self.vector = v
             assert ctx is not None
-            self.ctx    = ctx
+            self.ctx = ctx
         Z3_ast_vector_inc_ref(self.ctx.ref(), self.vector)
-
-    def __deepcopy__(self, memo={}):
-        return AstVector(self.vector, self.ctx)
 
     def __del__(self):
         if self.vector is not None and self.ctx.ref() is not None:
@@ -5548,8 +5885,13 @@ class AstVector(Z3PPObject):
             return _to_ast_ref(Z3_ast_vector_get(self.ctx.ref(), self.vector, i), self.ctx)
 
         elif isinstance(i, slice):
-            return [_to_ast_ref(Z3_ast_vector_get(self.ctx.ref(), self.vector, ii), self.ctx) for ii in range(*i.indices(self.__len__()))]
-
+            result = []
+            for ii in range(*i.indices(self.__len__())):
+                result.append(_to_ast_ref(
+                    Z3_ast_vector_get(self.ctx.ref(), self.vector, ii),
+                    self.ctx,
+                ))
+            return result
 
     def __setitem__(self, i, v):
         """Update AST at position `i`.
@@ -5626,7 +5968,10 @@ class AstVector(Z3PPObject):
         >>> B
         [x]
         """
-        return AstVector(Z3_ast_vector_translate(self.ctx.ref(), self.vector, other_ctx.ref()), other_ctx)
+        return AstVector(
+            Z3_ast_vector_translate(self.ctx.ref(), self.vector, other_ctx.ref()),
+            ctx=other_ctx,
+        )
 
     def __copy__(self):
         return self.translate(self.ctx)
@@ -5646,6 +5991,8 @@ class AstVector(Z3PPObject):
 # AST Map
 #
 #########################################
+
+
 class AstMap:
     """A mapping from ASTs to ASTs."""
 
@@ -5657,7 +6004,7 @@ class AstMap:
         else:
             self.map = m
             assert ctx is not None
-            self.ctx    = ctx
+            self.ctx = ctx
         Z3_ast_map_inc_ref(self.ctx.ref(), self.map)
 
     def __deepcopy__(self, memo={}):
@@ -5770,12 +6117,13 @@ class AstMap:
 #
 #########################################
 
+
 class FuncEntry:
     """Store the value of the interpretation of a function in a particular point."""
 
     def __init__(self, entry, ctx):
         self.entry = entry
-        self.ctx   = ctx
+        self.ctx = ctx
         Z3_func_entry_inc_ref(self.ctx.ref(), self.entry)
 
     def __deepcopy__(self, memo={}):
@@ -5783,7 +6131,7 @@ class FuncEntry:
 
     def __del__(self):
         if self.ctx.ref() is not None:
-           Z3_func_entry_dec_ref(self.ctx.ref(), self.entry)
+            Z3_func_entry_dec_ref(self.ctx.ref(), self.entry)
 
     def num_args(self):
         """Return the number of arguments in the given entry.
@@ -5871,24 +6219,22 @@ class FuncEntry:
         >>> e.as_list()
         [1, 2, 20]
         """
-        args = [ self.arg_value(i) for i in range(self.num_args())]
+        args = [self.arg_value(i) for i in range(self.num_args())]
         args.append(self.value())
         return args
 
     def __repr__(self):
         return repr(self.as_list())
 
+
 class FuncInterp(Z3PPObject):
     """Stores the interpretation of a function in a Z3 model."""
 
     def __init__(self, f, ctx):
-        self.f   = f
+        self.f = f
         self.ctx = ctx
         if self.f is not None:
             Z3_func_interp_inc_ref(self.ctx.ref(), self.f)
-
-    def __deepcopy__(self, memo={}):
-        return FuncInterp(self.f, self.ctx)
 
     def __del__(self):
         if self.f is not None and self.ctx.ref() is not None:
@@ -5991,12 +6337,13 @@ class FuncInterp(Z3PPObject):
         >>> m[f].as_list()
         [[2, 0], 1]
         """
-        r = [ self.entry(i).as_list() for i in range(self.num_entries())]
+        r = [self.entry(i).as_list() for i in range(self.num_entries())]
         r.append(self.else_value())
         return r
 
     def __repr__(self):
         return obj_to_string(self)
+
 
 class ModelRef(Z3PPObject):
     """Model/Solution of a satisfiability problem (aka system of constraints)."""
@@ -6004,12 +6351,12 @@ class ModelRef(Z3PPObject):
     def __init__(self, m, ctx):
         assert ctx is not None
         self.model = m
-        self.ctx   = ctx
+        self.ctx = ctx
         Z3_model_inc_ref(self.ctx.ref(), self.model)
 
     def __del__(self):
         if self.ctx.ref() is not None:
-           Z3_model_dec_ref(self.ctx.ref(), self.model)
+            Z3_model_dec_ref(self.ctx.ref(), self.model)
 
     def __repr__(self):
         return obj_to_string(self)
@@ -6019,7 +6366,9 @@ class ModelRef(Z3PPObject):
         return Z3_model_to_string(self.ctx.ref(), self.model)
 
     def eval(self, t, model_completion=False):
-        """Evaluate the expression `t` in the model `self`. If `model_completion` is enabled, then a default interpretation is automatically added for symbols that do not have an interpretation in the model `self`.
+        """Evaluate the expression `t` in the model `self`.
+        If `model_completion` is enabled, then a default interpretation is automatically added
+        for symbols that do not have an interpretation in the model `self`.
 
         >>> x = Int('x')
         >>> s = Solver()
@@ -6086,7 +6435,9 @@ class ModelRef(Z3PPObject):
         >>> len(m)
         2
         """
-        return int(Z3_model_get_num_consts(self.ctx.ref(), self.model)) + int(Z3_model_get_num_funcs(self.ctx.ref(), self.model))
+        num_consts = int(Z3_model_get_num_consts(self.ctx.ref(), self.model))
+        num_funcs = int(Z3_model_get_num_funcs(self.ctx.ref(), self.model))
+        return num_consts + num_funcs
 
     def get_interp(self, decl):
         """Return the interpretation for a given declaration or constant.
@@ -6175,7 +6526,7 @@ class ModelRef(Z3PPObject):
         >>> m.sorts()
         [A, B]
         """
-        return [ self.get_sort(i) for i in range(self.num_sorts()) ]
+        return [self.get_sort(i) for i in range(self.num_sorts())]
 
     def get_universe(self, s):
         """Return the interpretation for the uninterpreted sort `s` in the model `self`.
@@ -6188,7 +6539,7 @@ class ModelRef(Z3PPObject):
         sat
         >>> m = s.model()
         >>> m.get_universe(A)
-        [A!val!0, A!val!1]
+        [A!val!1, A!val!0]
         """
         if z3_debug():
             _z3_assert(isinstance(s, SortRef), "Z3 sort expected")
@@ -6198,7 +6549,8 @@ class ModelRef(Z3PPObject):
             return None
 
     def __getitem__(self, idx):
-        """If `idx` is an integer, then the declaration at position `idx` in the model `self` is returned. If `idx` is a declaration, then the actual interpretation is returned.
+        """If `idx` is an integer, then the declaration at position `idx` in the model `self` is returned.
+        If `idx` is a declaration, then the actual interpretation is returned.
 
         The elements can be retrieved using position or the actual declaration.
 
@@ -6260,13 +6612,35 @@ class ModelRef(Z3PPObject):
             r.append(FuncDeclRef(Z3_model_get_func_decl(self.ctx.ref(), self.model, i), self.ctx))
         return r
 
+    def update_value(self, x, value):
+        """Update the interpretation of a constant"""
+        if is_expr(x):
+            x = x.decl()
+        if is_func_decl(x) and x.arity() != 0 and isinstance(value, FuncInterp):
+            fi1 = value.f
+            fi2 = Z3_add_func_interp(x.ctx_ref(), self.model, x.ast, value.else_value().ast);
+            fi2 = FuncInterp(fi2, x.ctx)
+            for i in range(value.num_entries()):
+                e = value.entry(i)
+                n = Z3_func_entry_get_num_args(x.ctx_ref(), e.entry)
+                v = AstVector()
+                for j in range(n):
+                    v.push(entry.arg_value(j))                    
+                val = Z3_func_entry_get_value(x.ctx_ref(), e.entry)
+                Z3_func_interp_add_entry(x.ctx_ref(), fi2.f, v.vector, val)
+            return
+        if not is_func_decl(x) or x.arity() != 0:
+            raise Z3Exception("Expecting 0-ary function or constant expression")
+        value = _py2expr(value)
+        Z3_add_const_interp(x.ctx_ref(), self.model, x.ast, value.ast)
+
     def translate(self, target):
         """Translate `self` to the context `target`. That is, return a copy of `self` in the context `target`.
         """
         if z3_debug():
             _z3_assert(isinstance(target, Context), "argument must be a Z3 context")
         model = Z3_model_translate(self.ctx.ref(), self.model, target.ref())
-        return Model(model, target)
+        return ModelRef(model, target)
 
     def __copy__(self):
         return self.translate(self.ctx)
@@ -6274,13 +6648,16 @@ class ModelRef(Z3PPObject):
     def __deepcopy__(self, memo={}):
         return self.translate(self.ctx)
 
-def Model(ctx = None):
+
+def Model(ctx=None):
     ctx = _get_ctx(ctx)
     return ModelRef(Z3_mk_model(ctx.ref()), ctx)
+
 
 def is_as_array(n):
     """Return true if n is a Z3 expression of the form (_ as-array f)."""
     return isinstance(n, ExprRef) and Z3_is_as_array(n.ctx.ref(), n.as_ast())
+
 
 def get_as_array_func(n):
     """Return the function declaration f associated with a Z3 expression of the form (_ as-array f)."""
@@ -6293,12 +6670,14 @@ def get_as_array_func(n):
 # Statistics
 #
 #########################################
+
+
 class Statistics:
     """Statistics for `Solver.check()`."""
 
     def __init__(self, stats, ctx):
         self.stats = stats
-        self.ctx   = ctx
+        self.ctx = ctx
         Z3_stats_inc_ref(self.ctx.ref(), self.stats)
 
     def __deepcopy__(self, memo={}):
@@ -6306,7 +6685,7 @@ class Statistics:
 
     def __del__(self):
         if self.ctx.ref() is not None:
-           Z3_stats_dec_ref(self.ctx.ref(), self.stats)
+            Z3_stats_dec_ref(self.ctx.ref(), self.stats)
 
     def __repr__(self):
         if in_html_mode():
@@ -6318,10 +6697,10 @@ class Statistics:
                     out.write(u('<tr style="background-color:#CFCFCF">'))
                     even = False
                 else:
-                    out.write(u('<tr>'))
+                    out.write(u("<tr>"))
                     even = True
-                out.write(u('<td>%s</td><td>%s</td></tr>' % (k, v)))
-            out.write(u('</table>'))
+                out.write(u("<td>%s</td><td>%s</td></tr>" % (k, v)))
+            out.write(u("</table>"))
             return out.getvalue()
         else:
             return Z3_stats_to_string(self.ctx.ref(), self.stats)
@@ -6413,7 +6792,7 @@ class Statistics:
         >>> st.nlsat_stages
         2
         """
-        key = name.replace('_', ' ')
+        key = name.replace("_", " ")
         try:
             return self.get_key_value(key)
         except Z3Exception:
@@ -6424,6 +6803,8 @@ class Statistics:
 # Solver
 #
 #########################################
+
+
 class CheckSatResult:
     """Represents the result of a satisfiability check: sat, unsat, unknown.
 
@@ -6470,16 +6851,21 @@ class CheckSatResult:
         set_html_mode(in_html)
         return res
 
-sat     = CheckSatResult(Z3_L_TRUE)
-unsat   = CheckSatResult(Z3_L_FALSE)
+
+sat = CheckSatResult(Z3_L_TRUE)
+unsat = CheckSatResult(Z3_L_FALSE)
 unknown = CheckSatResult(Z3_L_UNDEF)
 
+
 class Solver(Z3PPObject):
-    """Solver API provides methods for implementing the main SMT 2.0 commands: push, pop, check, get-model, etc."""
+    """
+    Solver API provides methods for implementing the main SMT 2.0 commands:
+    push, pop, check, get-model, etc.
+    """
 
     def __init__(self, solver=None, ctx=None, logFile=None):
         assert solver is None or ctx is not None
-        self.ctx    = _get_ctx(ctx)
+        self.ctx = _get_ctx(ctx)
         self.backtrack_level = 4000000000
         self.solver = None
         if solver is None:
@@ -6495,7 +6881,8 @@ class Solver(Z3PPObject):
             Z3_solver_dec_ref(self.ctx.ref(), self.solver)
 
     def set(self, *args, **keys):
-        """Set a configuration option. The method `help()` return a string containing all available options.
+        """Set a configuration option.
+        The method `help()` return a string containing all available options.
 
         >>> s = Solver()
         >>> # The option MBQI can be set using three different approaches.
@@ -6529,7 +6916,7 @@ class Solver(Z3PPObject):
         Z3_solver_push(self.ctx.ref(), self.solver)
 
     def pop(self, num=1):
-        """Backtrack \c num backtracking points.
+        """Backtrack \\c num backtracking points.
 
         >>> x = Int('x')
         >>> s = Solver()
@@ -6555,16 +6942,16 @@ class Solver(Z3PPObject):
 
         >>> s = Solver()
         >>> s.num_scopes()
-        0L
+        0
         >>> s.push()
         >>> s.num_scopes()
-        1L
+        1
         >>> s.push()
         >>> s.num_scopes()
-        2L
+        2
         >>> s.pop()
         >>> s.num_scopes()
-        1L
+        1
         """
         return Z3_solver_get_num_scopes(self.ctx.ref(), self.solver)
 
@@ -6592,7 +6979,7 @@ class Solver(Z3PPObject):
         [x > 0, x < 2]
         """
         args = _get_args(args)
-        s    = BoolSort(self.ctx)
+        s = BoolSort(self.ctx)
         for arg in args:
             if isinstance(arg, Goal) or isinstance(arg, AstVector):
                 for f in arg:
@@ -6775,9 +7162,10 @@ class Solver(Z3PPObject):
         _z3_assert(isinstance(assumptions, AstVector), "ast vector expected")
         _z3_assert(isinstance(variables, AstVector), "ast vector expected")
         consequences = AstVector(None, self.ctx)
-        r = Z3_solver_get_consequences(self.ctx.ref(), self.solver, assumptions.vector, variables.vector, consequences.vector)
+        r = Z3_solver_get_consequences(self.ctx.ref(), self.solver, assumptions.vector,
+                                       variables.vector, consequences.vector)
         sz = len(consequences)
-        consequences = [ consequences[i] for i in range(sz) ]
+        consequences = [consequences[i] for i in range(sz)]
         return CheckSatResult(r), consequences
 
     def from_file(self, filename):
@@ -6788,7 +7176,7 @@ class Solver(Z3PPObject):
         """Parse assertions from a string"""
         Z3_solver_from_string(self.ctx.ref(), self.solver, s)
 
-    def cube(self, vars = None):
+    def cube(self, vars=None):
         """Get set of cubes
         The method takes an optional set of variables that restrict which
         variables may be used as a starting point for cubing.
@@ -6797,8 +7185,8 @@ class Solver(Z3PPObject):
         """
         self.cube_vs = AstVector(None, self.ctx)
         if vars is not None:
-           for v in vars:
-               self.cube_vs.push(v)
+            for v in vars:
+                self.cube_vs.push(v)
         while True:
             lvl = self.backtrack_level
             self.backtrack_level = 4000000000
@@ -6856,21 +7244,6 @@ class Solver(Z3PPObject):
         """Return trail of the solver state after a check() call.
         """
         return AstVector(Z3_solver_get_trail(self.ctx.ref(), self.solver), self.ctx)
-
-    def value(self, e):
-        """Return value of term in solver, if any is given.
-        """
-        return _to_expr_ref(Z3_solver_get_implied_value(self.ctx.ref(), self.solver, e.as_ast()), self.ctx)
-
-    def lower(self, e):
-        """Return lower bound known to solver based on the last call.
-        """
-        return _to_expr_ref(Z3_solver_get_implied_lower(self.ctx.ref(), self.solver, e.as_ast()), self.ctx)
-    
-    def upper(self, e):
-        """Return upper bound known to solver based on the last call.
-        """
-        return _to_expr_ref(Z3_solver_get_implied_upper(self.ctx.ref(), self.solver, e.as_ast()), self.ctx)
 
     def statistics(self):
         """Return statistics for the last `check()`.
@@ -6935,7 +7308,8 @@ class Solver(Z3PPObject):
         return self.translate(self.ctx)
 
     def sexpr(self):
-        """Return a formatted string (in Lisp-like format) with all added constraints. We say the string is in s-expression format.
+        """Return a formatted string (in Lisp-like format) with all added constraints.
+        We say the string is in s-expression format.
 
         >>> x = Int('x')
         >>> s = Solver()
@@ -6963,7 +7337,10 @@ class Solver(Z3PPObject):
             e = es[sz1].as_ast()
         else:
             e = BoolVal(True, self.ctx).as_ast()
-        return Z3_benchmark_to_smtlib_string(self.ctx.ref(), "benchmark generated from python API", "", "unknown", "", sz1, v, e)
+        return Z3_benchmark_to_smtlib_string(
+            self.ctx.ref(), "benchmark generated from python API", "", "unknown", "", sz1, v, e,
+        )
+
 
 def SolverFor(logic, ctx=None, logFile=None):
     """Create a solver customized for the given logic.
@@ -6985,6 +7362,7 @@ def SolverFor(logic, ctx=None, logFile=None):
     logic = to_symbol(logic)
     return Solver(Z3_mk_solver_for_logic(ctx.ref(), logic), ctx, logFile)
 
+
 def SimpleSolver(ctx=None, logFile=None):
     """Return a simple general purpose solver with limited amount of preprocessing.
 
@@ -7003,12 +7381,13 @@ def SimpleSolver(ctx=None, logFile=None):
 #
 #########################################
 
+
 class Fixedpoint(Z3PPObject):
     """Fixedpoint API provides methods for solving with recursive predicates"""
 
     def __init__(self, fixedpoint=None, ctx=None):
         assert fixedpoint is None or ctx is not None
-        self.ctx    = _get_ctx(ctx)
+        self.ctx = _get_ctx(ctx)
         self.fixedpoint = None
         if fixedpoint is None:
             self.fixedpoint = Z3_mk_fixedpoint(self.ctx.ref())
@@ -7041,7 +7420,7 @@ class Fixedpoint(Z3PPObject):
     def assert_exprs(self, *args):
         """Assert constraints as background axioms for the fixedpoint solver."""
         args = _get_args(args)
-        s    = BoolSort(self.ctx)
+        s = BoolSort(self.ctx)
         for arg in args:
             if isinstance(arg, Goal) or isinstance(arg, AstVector):
                 for f in arg:
@@ -7068,7 +7447,7 @@ class Fixedpoint(Z3PPObject):
         """Assert constraints as background axioms for the fixedpoint solver. Alias for assert_expr."""
         self.assert_exprs(*args)
 
-    def add_rule(self, head, body = None, name = None):
+    def add_rule(self, head, body=None, name=None):
         """Assert rules defining recursive predicates to the fixedpoint solver.
         >>> a = Bool('a')
         >>> b = Bool('b')
@@ -7088,14 +7467,14 @@ class Fixedpoint(Z3PPObject):
             Z3_fixedpoint_add_rule(self.ctx.ref(), self.fixedpoint, head.as_ast(), name)
         else:
             body = _get_args(body)
-            f    = self.abstract(Implies(And(body, self.ctx),head))
+            f = self.abstract(Implies(And(body, self.ctx), head))
             Z3_fixedpoint_add_rule(self.ctx.ref(), self.fixedpoint, f.as_ast(), name)
 
-    def rule(self, head, body = None, name = None):
+    def rule(self, head, body=None, name=None):
         """Assert rules defining recursive predicates to the fixedpoint solver. Alias for add_rule."""
         self.add_rule(head, body, name)
 
-    def fact(self, head, name = None):
+    def fact(self, head, name=None):
         """Assert facts defining recursive predicates to the fixedpoint solver. Alias for add_rule."""
         self.add_rule(head, None, name)
 
@@ -7121,20 +7500,20 @@ class Fixedpoint(Z3PPObject):
             r = Z3_fixedpoint_query(self.ctx.ref(), self.fixedpoint, query.as_ast())
         return CheckSatResult(r)
 
-    def query_from_lvl (self, lvl, *query):
+    def query_from_lvl(self, lvl, *query):
         """Query the fixedpoint engine whether formula is derivable starting at the given query level.
         """
         query = _get_args(query)
         sz = len(query)
         if sz >= 1 and isinstance(query[0], FuncDecl):
-            _z3_assert (False, "unsupported")
+            _z3_assert(False, "unsupported")
         else:
             if sz == 1:
                 query = query[0]
             else:
                 query = And(query)
             query = self.abstract(query, False)
-            r = Z3_fixedpoint_query_from_lvl (self.ctx.ref(), self.fixedpoint, query.as_ast(), lvl)
+            r = Z3_fixedpoint_query_from_lvl(self.ctx.ref(), self.fixedpoint, query.as_ast(), lvl)
         return CheckSatResult(r)
 
     def update_rule(self, head, body, name):
@@ -7143,7 +7522,7 @@ class Fixedpoint(Z3PPObject):
             name = ""
         name = to_symbol(name, self.ctx)
         body = _get_args(body)
-        f    = self.abstract(Implies(And(body, self.ctx),head))
+        f = self.abstract(Implies(And(body, self.ctx), head))
         Z3_fixedpoint_update_rule(self.ctx.ref(), self.fixedpoint, f.as_ast(), name)
 
     def get_answer(self):
@@ -7164,21 +7543,25 @@ class Fixedpoint(Z3PPObject):
         """retrieve rule names along the counterexample trace"""
         # this is a hack as I don't know how to return a list of symbols from C++;
         # obtain names as a single string separated by semicolons
-        names = _symbol2py (self.ctx, Z3_fixedpoint_get_rule_names_along_trace(self.ctx.ref(), self.fixedpoint))
+        names = _symbol2py(self.ctx, Z3_fixedpoint_get_rule_names_along_trace(self.ctx.ref(), self.fixedpoint))
         # split into individual names
-        return names.split (';')
+        return names.split(";")
 
     def get_num_levels(self, predicate):
         """Retrieve number of levels used for predicate in PDR engine"""
         return Z3_fixedpoint_get_num_levels(self.ctx.ref(), self.fixedpoint, predicate.ast)
 
     def get_cover_delta(self, level, predicate):
-        """Retrieve properties known about predicate for the level'th unfolding. -1 is treated as the limit (infinity)"""
+        """Retrieve properties known about predicate for the level'th unfolding.
+        -1 is treated as the limit (infinity)
+        """
         r = Z3_fixedpoint_get_cover_delta(self.ctx.ref(), self.fixedpoint, level, predicate.ast)
         return _to_expr_ref(r, self.ctx)
 
     def add_cover(self, level, predicate, property):
-        """Add property to predicate for the level'th unfolding. -1 is treated as infinity (infinity)"""
+        """Add property to predicate for the level'th unfolding.
+        -1 is treated as infinity (infinity)
+        """
         Z3_fixedpoint_add_cover(self.ctx.ref(), self.fixedpoint, level, predicate.ast, property.ast)
 
     def register_relation(self, *relations):
@@ -7218,7 +7601,8 @@ class Fixedpoint(Z3PPObject):
         return self.sexpr()
 
     def sexpr(self):
-        """Return a formatted string (in Lisp-like format) with all added constraints. We say the string is in s-expression format.
+        """Return a formatted string (in Lisp-like format) with all added constraints.
+        We say the string is in s-expression format.
         """
         return Z3_fixedpoint_to_string(self.ctx.ref(), self.fixedpoint, 0, (Ast * 0)())
 
@@ -7275,12 +7659,14 @@ class FiniteDomainSortRef(SortRef):
         else:
             raise Z3Exception("Failed to retrieve finite domain sort size")
 
+
 def FiniteDomainSort(name, sz, ctx=None):
     """Create a named finite domain sort of a given size sz"""
     if not isinstance(name, Symbol):
         name = to_symbol(name)
     ctx = _get_ctx(ctx)
     return FiniteDomainSortRef(Z3_mk_finite_domain_sort(ctx.ref(), name, sz), ctx)
+
 
 def is_finite_domain_sort(s):
     """Return True if `s` is a Z3 finite-domain sort.
@@ -7303,6 +7689,7 @@ class FiniteDomainRef(ExprRef):
     def as_string(self):
         """Return a Z3 floating point expression as a Python string."""
         return Z3_ast_to_string(self.ctx_ref(), self.as_ast())
+
 
 def is_finite_domain(a):
     """Return `True` if `a` is a Z3 finite-domain expression.
@@ -7353,9 +7740,10 @@ def FiniteDomainVal(val, sort, ctx=None):
     100
     """
     if z3_debug():
-        _z3_assert(is_finite_domain_sort(sort), "Expected finite-domain sort" )
+        _z3_assert(is_finite_domain_sort(sort), "Expected finite-domain sort")
     ctx = sort.ctx
     return FiniteDomainNumRef(Z3_mk_numeral(ctx.ref(), _to_int_str(val), sort.ast), ctx)
+
 
 def is_finite_domain_value(a):
     """Return `True` if `a` is a Z3 finite-domain value.
@@ -7411,12 +7799,24 @@ class OptimizeObjective:
         return "%s:%s" % (self._value, self._is_max)
 
 
+_on_models = {}
+
+
+def _global_on_model(ctx):
+    (fn, mdl) = _on_models[ctx]
+    fn(mdl)
+
+
+_on_model_eh = on_model_eh_type(_global_on_model)
+
+
 class Optimize(Z3PPObject):
     """Optimize API provides methods for solving using objective functions and weighted soft constraints"""
 
     def __init__(self, ctx=None):
-        self.ctx    = _get_ctx(ctx)
+        self.ctx = _get_ctx(ctx)
         self.optimize = Z3_mk_optimize(self.ctx.ref())
+        self._on_models_id = None
         Z3_optimize_inc_ref(self.ctx.ref(), self.optimize)
 
     def __deepcopy__(self, memo={}):
@@ -7425,9 +7825,12 @@ class Optimize(Z3PPObject):
     def __del__(self):
         if self.optimize is not None and self.ctx.ref() is not None:
             Z3_optimize_dec_ref(self.ctx.ref(), self.optimize)
+        if self._on_models_id is not None:
+            del _on_models[self._on_models_id]
 
     def set(self, *args, **keys):
-        """Set a configuration option. The method `help()` return a string containing all available options.
+        """Set a configuration option.
+        The method `help()` return a string containing all available options.
         """
         p = args2params(args, keys, self.ctx)
         Z3_optimize_set_params(self.ctx.ref(), self.optimize, p.params)
@@ -7443,7 +7846,7 @@ class Optimize(Z3PPObject):
     def assert_exprs(self, *args):
         """Assert constraints as background axioms for the optimize solver."""
         args = _get_args(args)
-        s    = BoolSort(self.ctx)
+        s = BoolSort(self.ctx)
         for arg in args:
             if isinstance(arg, Goal) or isinstance(arg, AstVector):
                 for f in arg:
@@ -7489,7 +7892,7 @@ class Optimize(Z3PPObject):
         _z3_assert(isinstance(p, BoolRef) and is_const(p), "Boolean expression expected")
         Z3_optimize_assert_and_track(self.ctx.ref(), self.optimize, a.as_ast(), p.as_ast())
 
-    def add_soft(self, arg, weight = "1", id = None):
+    def add_soft(self, arg, weight="1", id=None):
         """Add soft constraint with optional weight and optional identifier.
            If no weight is supplied, then the penalty for violating the soft constraint
            is 1.
@@ -7505,16 +7908,29 @@ class Optimize(Z3PPObject):
         if id is None:
             id = ""
         id = to_symbol(id, self.ctx)
-        v = Z3_optimize_assert_soft(self.ctx.ref(), self.optimize, arg.as_ast(), weight, id)
-        return OptimizeObjective(self, v, False)
+
+        def asoft(a):
+            v = Z3_optimize_assert_soft(self.ctx.ref(), self.optimize, a.as_ast(), weight, id)
+            return OptimizeObjective(self, v, False)
+        if sys.version_info.major >= 3 and isinstance(arg, Iterable):
+            return [asoft(a) for a in arg]
+        return asoft(arg)
 
     def maximize(self, arg):
         """Add objective function to maximize."""
-        return OptimizeObjective(self, Z3_optimize_maximize(self.ctx.ref(), self.optimize, arg.as_ast()), True)
+        return OptimizeObjective(
+            self,
+            Z3_optimize_maximize(self.ctx.ref(), self.optimize, arg.as_ast()),
+            is_max=True,
+        )
 
     def minimize(self, arg):
         """Add objective function to minimize."""
-        return OptimizeObjective(self, Z3_optimize_minimize(self.ctx.ref(), self.optimize, arg.as_ast()), False)
+        return OptimizeObjective(
+            self,
+            Z3_optimize_minimize(self.ctx.ref(), self.optimize, arg.as_ast()),
+            is_max=False,
+        )
 
     def push(self):
         """create a backtracking point for added rules, facts and assertions"""
@@ -7588,7 +8004,8 @@ class Optimize(Z3PPObject):
         return self.sexpr()
 
     def sexpr(self):
-        """Return a formatted string (in Lisp-like format) with all added constraints. We say the string is in s-expression format.
+        """Return a formatted string (in Lisp-like format) with all added constraints.
+        We say the string is in s-expression format.
         """
         return Z3_optimize_to_string(self.ctx.ref(), self.optimize)
 
@@ -7597,7 +8014,19 @@ class Optimize(Z3PPObject):
         """
         return Statistics(Z3_optimize_get_statistics(self.ctx.ref(), self.optimize), self.ctx)
 
-
+    def set_on_model(self, on_model):
+        """Register a callback that is invoked with every incremental improvement to
+        objective values. The callback takes a model as argument.
+        The life-time of the model is limited to the callback so the
+        model has to be (deep) copied if it is to be used after the callback
+        """
+        id = len(_on_models) + 41
+        mdl = Model(self.ctx)
+        _on_models[id] = (on_model, mdl)
+        self._on_models_id = id
+        Z3_optimize_register_model_eh(
+            self.ctx.ref(), self.optimize, mdl.model, ctypes.c_void_p(id), _on_model_eh,
+        )
 
 
 #########################################
@@ -7606,11 +8035,13 @@ class Optimize(Z3PPObject):
 #
 #########################################
 class ApplyResult(Z3PPObject):
-    """An ApplyResult object contains the subgoals produced by a tactic when applied to a goal. It also contains model and proof converters."""
+    """An ApplyResult object contains the subgoals produced by a tactic when applied to a goal.
+    It also contains model and proof converters.
+    """
 
     def __init__(self, result, ctx):
         self.result = result
-        self.ctx    = ctx
+        self.ctx = ctx
         Z3_apply_result_inc_ref(self.ctx.ref(), self.result)
 
     def __deepcopy__(self, memo={}):
@@ -7663,7 +8094,6 @@ class ApplyResult(Z3PPObject):
         """Return a textual representation of the s-expression representing the set of subgoals in `self`."""
         return Z3_apply_result_to_string(self.ctx.ref(), self.result)
 
-
     def as_expr(self):
         """Return a Z3 expression consisting of all subgoals.
 
@@ -7688,20 +8118,25 @@ class ApplyResult(Z3PPObject):
         elif sz == 1:
             return self[0].as_expr()
         else:
-            return Or([ self[i].as_expr() for i in range(len(self)) ])
+            return Or([self[i].as_expr() for i in range(len(self))])
 
 #########################################
 #
 # Tactics
 #
 #########################################
-class Tactic:
-    """Tactics transform, solver and/or simplify sets of constraints (Goal). A Tactic can be converted into a Solver using the method solver().
 
-    Several combinators are available for creating new tactics using the built-in ones: Then(), OrElse(), FailIf(), Repeat(), When(), Cond().
+
+class Tactic:
+    """Tactics transform, solver and/or simplify sets of constraints (Goal).
+    A Tactic can be converted into a Solver using the method solver().
+
+    Several combinators are available for creating new tactics using the built-in ones:
+    Then(), OrElse(), FailIf(), Repeat(), When(), Cond().
     """
+
     def __init__(self, tactic, ctx=None):
-        self.ctx    = _get_ctx(ctx)
+        self.ctx = _get_ctx(ctx)
         self.tactic = None
         if isinstance(tactic, TacticObj):
             self.tactic = tactic
@@ -7747,7 +8182,7 @@ class Tactic:
         [[y >= 1]]
         """
         if z3_debug():
-            _z3_assert(isinstance(goal, Goal) or isinstance(goal, BoolRef), "Z3 Goal or Boolean expressions expected")
+            _z3_assert(isinstance(goal, (Goal, BoolRef)), "Z3 Goal or Boolean expressions expected")
         goal = _to_goal(goal)
         if len(arguments) > 0 or len(keywords) > 0:
             p = args2params(arguments, keywords, self.ctx)
@@ -7773,19 +8208,22 @@ class Tactic:
         """Return the parameter description set."""
         return ParamDescrsRef(Z3_tactic_get_param_descrs(self.ctx.ref(), self.tactic), self.ctx)
 
+
 def _to_goal(a):
     if isinstance(a, BoolRef):
-        goal = Goal(ctx = a.ctx)
+        goal = Goal(ctx=a.ctx)
         goal.add(a)
         return goal
     else:
         return a
+
 
 def _to_tactic(t, ctx=None):
     if isinstance(t, Tactic):
         return t
     else:
         return Tactic(t, ctx)
+
 
 def _and_then(t1, t2, ctx=None):
     t1 = _to_tactic(t1, ctx)
@@ -7794,12 +8232,14 @@ def _and_then(t1, t2, ctx=None):
         _z3_assert(t1.ctx == t2.ctx, "Context mismatch")
     return Tactic(Z3_tactic_and_then(t1.ctx.ref(), t1.tactic, t2.tactic), t1.ctx)
 
+
 def _or_else(t1, t2, ctx=None):
     t1 = _to_tactic(t1, ctx)
     t2 = _to_tactic(t2, ctx)
     if z3_debug():
         _z3_assert(t1.ctx == t2.ctx, "Context mismatch")
     return Tactic(Z3_tactic_or_else(t1.ctx.ref(), t1.tactic, t2.tactic), t1.ctx)
+
 
 def AndThen(*ts, **ks):
     """Return a tactic that applies the tactics in `*ts` in sequence.
@@ -7813,12 +8253,13 @@ def AndThen(*ts, **ks):
     """
     if z3_debug():
         _z3_assert(len(ts) >= 2, "At least two arguments expected")
-    ctx = ks.get('ctx', None)
+    ctx = ks.get("ctx", None)
     num = len(ts)
     r = ts[0]
     for i in range(num - 1):
-        r = _and_then(r, ts[i+1], ctx)
+        r = _and_then(r, ts[i + 1], ctx)
     return r
+
 
 def Then(*ts, **ks):
     """Return a tactic that applies the tactics in `*ts` in sequence. Shorthand for AndThen(*ts, **ks).
@@ -7831,6 +8272,7 @@ def Then(*ts, **ks):
     Not(y <= 1)
     """
     return AndThen(*ts, **ks)
+
 
 def OrElse(*ts, **ks):
     """Return a tactic that applies the tactics in `*ts` until one of them succeeds (it doesn't fail).
@@ -7845,12 +8287,13 @@ def OrElse(*ts, **ks):
     """
     if z3_debug():
         _z3_assert(len(ts) >= 2, "At least two arguments expected")
-    ctx = ks.get('ctx', None)
+    ctx = ks.get("ctx", None)
     num = len(ts)
     r = ts[0]
     for i in range(num - 1):
-        r = _or_else(r, ts[i+1], ctx)
+        r = _or_else(r, ts[i + 1], ctx)
     return r
+
 
 def ParOr(*ts, **ks):
     """Return a tactic that applies the tactics in `*ts` in parallel until one of them succeeds (it doesn't fail).
@@ -7862,16 +8305,18 @@ def ParOr(*ts, **ks):
     """
     if z3_debug():
         _z3_assert(len(ts) >= 2, "At least two arguments expected")
-    ctx = _get_ctx(ks.get('ctx', None))
-    ts  = [ _to_tactic(t, ctx) for t in ts ]
-    sz  = len(ts)
+    ctx = _get_ctx(ks.get("ctx", None))
+    ts = [_to_tactic(t, ctx) for t in ts]
+    sz = len(ts)
     _args = (TacticObj * sz)()
     for i in range(sz):
         _args[i] = ts[i].tactic
     return Tactic(Z3_tactic_par_or(ctx.ref(), sz, _args), ctx)
 
+
 def ParThen(t1, t2, ctx=None):
-    """Return a tactic that applies t1 and then t2 to every subgoal produced by t1. The subgoals are processed in parallel.
+    """Return a tactic that applies t1 and then t2 to every subgoal produced by t1.
+    The subgoals are processed in parallel.
 
     >>> x, y = Ints('x y')
     >>> t = ParThen(Tactic('split-clause'), Tactic('propagate-values'))
@@ -7884,9 +8329,11 @@ def ParThen(t1, t2, ctx=None):
         _z3_assert(t1.ctx == t2.ctx, "Context mismatch")
     return Tactic(Z3_tactic_par_and_then(t1.ctx.ref(), t1.tactic, t2.tactic), t1.ctx)
 
+
 def ParAndThen(t1, t2, ctx=None):
     """Alias for ParThen(t1, t2, ctx)."""
     return ParThen(t1, t2, ctx)
+
 
 def With(t, *args, **keys):
     """Return a tactic that applies tactic `t` using the given configuration options.
@@ -7896,10 +8343,11 @@ def With(t, *args, **keys):
     >>> t((x + 1)*(y + 2) == 0)
     [[2*x + y + x*y == -2]]
     """
-    ctx = keys.pop('ctx', None)
+    ctx = keys.pop("ctx", None)
     t = _to_tactic(t, ctx)
     p = args2params(args, keys, t.ctx)
     return Tactic(Z3_tactic_using_params(t.ctx.ref(), t.tactic, p.params), t.ctx)
+
 
 def WithParams(t, p):
     """Return a tactic that applies tactic `t` using the given configuration options.
@@ -7914,8 +8362,10 @@ def WithParams(t, p):
     t = _to_tactic(t, None)
     return Tactic(Z3_tactic_using_params(t.ctx.ref(), t.tactic, p.params), t.ctx)
 
+
 def Repeat(t, max=4294967295, ctx=None):
-    """Return a tactic that keeps applying `t` until the goal is not modified anymore or the maximum number of iterations `max` is reached.
+    """Return a tactic that keeps applying `t` until the goal is not modified anymore
+    or the maximum number of iterations `max` is reached.
 
     >>> x, y = Ints('x y')
     >>> c = And(Or(x == 0, x == 1), Or(y == 0, y == 1), x > y)
@@ -7933,6 +8383,7 @@ def Repeat(t, max=4294967295, ctx=None):
     t = _to_tactic(t, ctx)
     return Tactic(Z3_tactic_repeat(t.ctx.ref(), t.tactic, max), t.ctx)
 
+
 def TryFor(t, ms, ctx=None):
     """Return a tactic that applies `t` to a given goal for `ms` milliseconds.
 
@@ -7940,6 +8391,7 @@ def TryFor(t, ms, ctx=None):
     """
     t = _to_tactic(t, ctx)
     return Tactic(Z3_tactic_try_for(t.ctx.ref(), t.tactic, ms), t.ctx)
+
 
 def tactics(ctx=None):
     """Return a list of all available tactics in Z3.
@@ -7949,7 +8401,8 @@ def tactics(ctx=None):
     True
     """
     ctx = _get_ctx(ctx)
-    return [ Z3_get_tactic_name(ctx.ref(), i) for i in range(Z3_get_num_tactics(ctx.ref())) ]
+    return [Z3_get_tactic_name(ctx.ref(), i) for i in range(Z3_get_num_tactics(ctx.ref()))]
+
 
 def tactic_description(name, ctx=None):
     """Return a short description for the tactic named `name`.
@@ -7958,6 +8411,7 @@ def tactic_description(name, ctx=None):
     """
     ctx = _get_ctx(ctx)
     return Z3_tactic_get_descr(ctx.ref(), name)
+
 
 def describe_tactics():
     """Display a (tabular) description of all available tactics in Z3."""
@@ -7969,19 +8423,23 @@ def describe_tactics():
                 print('<tr style="background-color:#CFCFCF">')
                 even = False
             else:
-                print('<tr>')
+                print("<tr>")
                 even = True
-            print('<td>%s</td><td>%s</td></tr>' % (t, insert_line_breaks(tactic_description(t), 40)))
-        print('</table>')
+            print("<td>%s</td><td>%s</td></tr>" % (t, insert_line_breaks(tactic_description(t), 40)))
+        print("</table>")
     else:
         for t in tactics():
-            print('%s : %s' % (t, tactic_description(t)))
+            print("%s : %s" % (t, tactic_description(t)))
+
 
 class Probe:
-    """Probes are used to inspect a goal (aka problem) and collect information that may be used to decide which solver and/or preprocessing step will be used."""
+    """Probes are used to inspect a goal (aka problem) and collect information that may be used
+    to decide which solver and/or preprocessing step will be used.
+    """
+
     def __init__(self, probe, ctx=None):
-        self.ctx    = _get_ctx(ctx)
-        self.probe  = None
+        self.ctx = _get_ctx(ctx)
+        self.probe = None
         if isinstance(probe, ProbeObj):
             self.probe = probe
         elif isinstance(probe, float):
@@ -8010,7 +8468,8 @@ class Probe:
             Z3_probe_dec_ref(self.ctx.ref(), self.probe)
 
     def __lt__(self, other):
-        """Return a probe that evaluates to "true" when the value returned by `self` is less than the value returned by `other`.
+        """Return a probe that evaluates to "true" when the value returned by `self`
+        is less than the value returned by `other`.
 
         >>> p = Probe('size') < 10
         >>> x = Int('x')
@@ -8023,7 +8482,8 @@ class Probe:
         return Probe(Z3_probe_lt(self.ctx.ref(), self.probe, _to_probe(other, self.ctx).probe), self.ctx)
 
     def __gt__(self, other):
-        """Return a probe that evaluates to "true" when the value returned by `self` is greater than the value returned by `other`.
+        """Return a probe that evaluates to "true" when the value returned by `self`
+        is greater than the value returned by `other`.
 
         >>> p = Probe('size') > 10
         >>> x = Int('x')
@@ -8036,7 +8496,8 @@ class Probe:
         return Probe(Z3_probe_gt(self.ctx.ref(), self.probe, _to_probe(other, self.ctx).probe), self.ctx)
 
     def __le__(self, other):
-        """Return a probe that evaluates to "true" when the value returned by `self` is less than or equal to the value returned by `other`.
+        """Return a probe that evaluates to "true" when the value returned by `self`
+        is less than or equal to the value returned by `other`.
 
         >>> p = Probe('size') <= 2
         >>> x = Int('x')
@@ -8049,7 +8510,8 @@ class Probe:
         return Probe(Z3_probe_le(self.ctx.ref(), self.probe, _to_probe(other, self.ctx).probe), self.ctx)
 
     def __ge__(self, other):
-        """Return a probe that evaluates to "true" when the value returned by `self` is greater than or equal to the value returned by `other`.
+        """Return a probe that evaluates to "true" when the value returned by `self`
+        is greater than or equal to the value returned by `other`.
 
         >>> p = Probe('size') >= 2
         >>> x = Int('x')
@@ -8062,7 +8524,8 @@ class Probe:
         return Probe(Z3_probe_ge(self.ctx.ref(), self.probe, _to_probe(other, self.ctx).probe), self.ctx)
 
     def __eq__(self, other):
-        """Return a probe that evaluates to "true" when the value returned by `self` is equal to the value returned by `other`.
+        """Return a probe that evaluates to "true" when the value returned by `self`
+        is equal to the value returned by `other`.
 
         >>> p = Probe('size') == 2
         >>> x = Int('x')
@@ -8075,7 +8538,8 @@ class Probe:
         return Probe(Z3_probe_eq(self.ctx.ref(), self.probe, _to_probe(other, self.ctx).probe), self.ctx)
 
     def __ne__(self, other):
-        """Return a probe that evaluates to "true" when the value returned by `self` is not equal to the value returned by `other`.
+        """Return a probe that evaluates to "true" when the value returned by `self`
+        is not equal to the value returned by `other`.
 
         >>> p = Probe('size') != 2
         >>> x = Int('x')
@@ -8112,9 +8576,10 @@ class Probe:
         1.0
         """
         if z3_debug():
-            _z3_assert(isinstance(goal, Goal) or isinstance(goal, BoolRef), "Z3 Goal or Boolean expression expected")
+            _z3_assert(isinstance(goal, (Goal, BoolRef)), "Z3 Goal or Boolean expression expected")
         goal = _to_goal(goal)
         return Z3_probe_apply(self.ctx.ref(), self.probe, goal.goal)
+
 
 def is_probe(p):
     """Return `True` if `p` is a Z3 probe.
@@ -8126,11 +8591,13 @@ def is_probe(p):
     """
     return isinstance(p, Probe)
 
+
 def _to_probe(p, ctx=None):
     if is_probe(p):
         return p
     else:
         return Probe(p, ctx)
+
 
 def probes(ctx=None):
     """Return a list of all available probes in Z3.
@@ -8140,7 +8607,8 @@ def probes(ctx=None):
     True
     """
     ctx = _get_ctx(ctx)
-    return [ Z3_get_probe_name(ctx.ref(), i) for i in range(Z3_get_num_probes(ctx.ref())) ]
+    return [Z3_get_probe_name(ctx.ref(), i) for i in range(Z3_get_num_probes(ctx.ref()))]
+
 
 def probe_description(name, ctx=None):
     """Return a short description for the probe named `name`.
@@ -8149,6 +8617,7 @@ def probe_description(name, ctx=None):
     """
     ctx = _get_ctx(ctx)
     return Z3_probe_get_descr(ctx.ref(), name)
+
 
 def describe_probes():
     """Display a (tabular) description of all available probes in Z3."""
@@ -8160,13 +8629,14 @@ def describe_probes():
                 print('<tr style="background-color:#CFCFCF">')
                 even = False
             else:
-                print('<tr>')
+                print("<tr>")
                 even = True
-            print('<td>%s</td><td>%s</td></tr>' % (p, insert_line_breaks(probe_description(p), 40)))
-        print('</table>')
+            print("<td>%s</td><td>%s</td></tr>" % (p, insert_line_breaks(probe_description(p), 40)))
+        print("</table>")
     else:
         for p in probes():
-            print('%s : %s' % (p, probe_description(p)))
+            print("%s : %s" % (p, probe_description(p)))
+
 
 def _probe_nary(f, args, ctx):
     if z3_debug():
@@ -8174,19 +8644,24 @@ def _probe_nary(f, args, ctx):
     num = len(args)
     r = _to_probe(args[0], ctx)
     for i in range(num - 1):
-        r = Probe(f(ctx.ref(), r.probe, _to_probe(args[i+1], ctx).probe), ctx)
+        r = Probe(f(ctx.ref(), r.probe, _to_probe(args[i + 1], ctx).probe), ctx)
     return r
+
 
 def _probe_and(args, ctx):
     return _probe_nary(Z3_probe_and, args, ctx)
 
+
 def _probe_or(args, ctx):
     return _probe_nary(Z3_probe_or, args, ctx)
 
-def FailIf(p, ctx=None):
-    """Return a tactic that fails if the probe `p` evaluates to true. Otherwise, it returns the input goal unmodified.
 
-    In the following example, the tactic applies 'simplify' if and only if there are more than 2 constraints in the goal.
+def FailIf(p, ctx=None):
+    """Return a tactic that fails if the probe `p` evaluates to true.
+    Otherwise, it returns the input goal unmodified.
+
+    In the following example, the tactic applies 'simplify' if and only if there are
+    more than 2 constraints in the goal.
 
     >>> t = OrElse(FailIf(Probe('size') > 2), Tactic('simplify'))
     >>> x, y = Ints('x y')
@@ -8202,8 +8677,10 @@ def FailIf(p, ctx=None):
     p = _to_probe(p, ctx)
     return Tactic(Z3_tactic_fail_if(p.ctx.ref(), p.probe), p.ctx)
 
+
 def When(p, t, ctx=None):
-    """Return a tactic that applies tactic `t` only if probe `p` evaluates to true. Otherwise, it returns the input goal unmodified.
+    """Return a tactic that applies tactic `t` only if probe `p` evaluates to true.
+    Otherwise, it returns the input goal unmodified.
 
     >>> t = When(Probe('size') > 2, Tactic('simplify'))
     >>> x, y = Ints('x y')
@@ -8220,6 +8697,7 @@ def When(p, t, ctx=None):
     t = _to_tactic(t, ctx)
     return Tactic(Z3_tactic_when(t.ctx.ref(), p.probe, t.tactic), t.ctx)
 
+
 def Cond(p, t1, t2, ctx=None):
     """Return a tactic that applies tactic `t1` to a goal if probe `p` evaluates to true, and `t2` otherwise.
 
@@ -8235,6 +8713,7 @@ def Cond(p, t1, t2, ctx=None):
 # Utils
 #
 #########################################
+
 
 def simplify(a, *arguments, **keywords):
     """Simplify the expression `a` using the given options.
@@ -8260,16 +8739,20 @@ def simplify(a, *arguments, **keywords):
     else:
         return _to_expr_ref(Z3_simplify(a.ctx_ref(), a.as_ast()), a.ctx)
 
+
 def help_simplify():
     """Return a string describing all options available for Z3 `simplify` procedure."""
     print(Z3_simplify_get_help(main_ctx().ref()))
+
 
 def simplify_param_descrs():
     """Return the set of parameter descriptions for Z3 `simplify` procedure."""
     return ParamDescrsRef(Z3_simplify_get_param_descrs(main_ctx().ref()), main_ctx())
 
+
 def substitute(t, *m):
-    """Apply substitution m on t, m is a list of pairs of the form (from, to). Every occurrence in t of from is replaced with to.
+    """Apply substitution m on t, m is a list of pairs of the form (from, to).
+    Every occurrence in t of from is replaced with to.
 
     >>> x = Int('x')
     >>> y = Int('y')
@@ -8285,14 +8768,16 @@ def substitute(t, *m):
             m = m1
     if z3_debug():
         _z3_assert(is_expr(t), "Z3 expression expected")
-        _z3_assert(all([isinstance(p, tuple) and is_expr(p[0]) and is_expr(p[1]) and p[0].sort().eq(p[1].sort()) for p in m]), "Z3 invalid substitution, expression pairs expected.")
+        _z3_assert(all([isinstance(p, tuple) and is_expr(p[0]) and is_expr(p[1]) and p[0].sort().eq(
+            p[1].sort()) for p in m]), "Z3 invalid substitution, expression pairs expected.")
     num = len(m)
     _from = (Ast * num)()
-    _to   = (Ast * num)()
+    _to = (Ast * num)()
     for i in range(num):
         _from[i] = m[i][0].as_ast()
-        _to[i]   = m[i][1].as_ast()
+        _to[i] = m[i][1].as_ast()
     return _to_expr_ref(Z3_substitute(t.ctx.ref(), t.as_ast(), num, _from, _to), t.ctx)
+
 
 def substitute_vars(t, *m):
     """Substitute the free variables in t with the expression in m.
@@ -8309,10 +8794,11 @@ def substitute_vars(t, *m):
         _z3_assert(is_expr(t), "Z3 expression expected")
         _z3_assert(all([is_expr(n) for n in m]), "Z3 invalid substitution, list of expressions expected.")
     num = len(m)
-    _to   = (Ast * num)()
+    _to = (Ast * num)()
     for i in range(num):
         _to[i] = m[i].as_ast()
     return _to_expr_ref(Z3_substitute_vars(t.ctx.ref(), t.as_ast(), num, _to), t.ctx)
+
 
 def Sum(*args):
     """Create the sum of the Z3 expressions.
@@ -8326,13 +8812,13 @@ def Sum(*args):
     >>> Sum(A)
     a__0 + a__1 + a__2 + a__3 + a__4
     """
-    args  = _get_args(args)
+    args = _get_args(args)
     if len(args) == 0:
         return 0
-    ctx   = _ctx_from_ast_arg_list(args)
+    ctx = _ctx_from_ast_arg_list(args)
     if ctx is None:
         return _reduce(lambda a, b: a + b, args, 0)
-    args  = _coerce_expr_list(args, ctx)
+    args = _coerce_expr_list(args, ctx)
     if is_bv(args[0]):
         return _reduce(lambda a, b: a + b, args, 0)
     else:
@@ -8352,18 +8838,23 @@ def Product(*args):
     >>> Product(A)
     a__0*a__1*a__2*a__3*a__4
     """
-    args  = _get_args(args)
+    args = _get_args(args)
     if len(args) == 0:
         return 1
-    ctx   = _ctx_from_ast_arg_list(args)
+    ctx = _ctx_from_ast_arg_list(args)
     if ctx is None:
         return _reduce(lambda a, b: a * b, args, 1)
-    args  = _coerce_expr_list(args, ctx)
+    args = _coerce_expr_list(args, ctx)
     if is_bv(args[0]):
         return _reduce(lambda a, b: a * b, args, 1)
     else:
         _args, sz = _to_ast_array(args)
         return ArithRef(Z3_mk_mul(ctx.ref(), sz, _args), ctx)
+
+def Abs(arg):
+    """Create the absolute value of an arithmetic expression"""
+    return If(arg > 0, arg, -arg)
+    
 
 def AtMost(*args):
     """Create an at-most Pseudo-Boolean k constraint.
@@ -8371,10 +8862,10 @@ def AtMost(*args):
     >>> a, b, c = Bools('a b c')
     >>> f = AtMost(a, b, c, 2)
     """
-    args  = _get_args(args)
+    args = _get_args(args)
     if z3_debug():
         _z3_assert(len(args) > 1, "Non empty list of arguments expected")
-    ctx   = _ctx_from_ast_arg_list(args)
+    ctx = _ctx_from_ast_arg_list(args)
     if z3_debug():
         _z3_assert(ctx is not None, "At least one of the arguments must be a Z3 expression")
     args1 = _coerce_expr_list(args[:-1], ctx)
@@ -8382,16 +8873,17 @@ def AtMost(*args):
     _args, sz = _to_ast_array(args1)
     return BoolRef(Z3_mk_atmost(ctx.ref(), sz, _args, k), ctx)
 
+
 def AtLeast(*args):
     """Create an at-most Pseudo-Boolean k constraint.
 
     >>> a, b, c = Bools('a b c')
     >>> f = AtLeast(a, b, c, 2)
     """
-    args  = _get_args(args)
+    args = _get_args(args)
     if z3_debug():
         _z3_assert(len(args) > 1, "Non empty list of arguments expected")
-    ctx   = _ctx_from_ast_arg_list(args)
+    ctx = _ctx_from_ast_arg_list(args)
     if z3_debug():
         _z3_assert(ctx is not None, "At least one of the arguments must be a Z3 expression")
     args1 = _coerce_expr_list(args[:-1], ctx)
@@ -8399,21 +8891,23 @@ def AtLeast(*args):
     _args, sz = _to_ast_array(args1)
     return BoolRef(Z3_mk_atleast(ctx.ref(), sz, _args, k), ctx)
 
+
 def _reorder_pb_arg(arg):
     a, b = arg
     if not _is_int(b) and _is_int(a):
         return b, a
     return arg
 
-def _pb_args_coeffs(args, default_ctx = None):
-    args  = _get_args_ast_list(args)
+
+def _pb_args_coeffs(args, default_ctx=None):
+    args = _get_args_ast_list(args)
     if len(args) == 0:
-       return _get_ctx(default_ctx), 0, (Ast * 0)(), (ctypes.c_int * 0)()
+        return _get_ctx(default_ctx), 0, (Ast * 0)(), (ctypes.c_int * 0)()
     args = [_reorder_pb_arg(arg) for arg in args]
     args, coeffs = zip(*args)
     if z3_debug():
         _z3_assert(len(args) > 0, "Non empty list of arguments expected")
-    ctx   = _ctx_from_ast_arg_list(args)
+    ctx = _ctx_from_ast_arg_list(args)
     if z3_debug():
         _z3_assert(ctx is not None, "At least one of the arguments must be a Z3 expression")
     args = _coerce_expr_list(args, ctx)
@@ -8422,7 +8916,8 @@ def _pb_args_coeffs(args, default_ctx = None):
     for i in range(len(coeffs)):
         _z3_check_cint_overflow(coeffs[i], "coefficient")
         _coeffs[i] = coeffs[i]
-    return ctx, sz, _args, _coeffs
+    return ctx, sz, _args, _coeffs, args
+
 
 def PbLe(args, k):
     """Create a Pseudo-Boolean inequality k constraint.
@@ -8431,8 +8926,9 @@ def PbLe(args, k):
     >>> f = PbLe(((a,1),(b,3),(c,2)), 3)
     """
     _z3_check_cint_overflow(k, "k")
-    ctx, sz, _args, _coeffs = _pb_args_coeffs(args)
+    ctx, sz, _args, _coeffs, args = _pb_args_coeffs(args)
     return BoolRef(Z3_mk_pble(ctx.ref(), sz, _args, _coeffs, k), ctx)
+
 
 def PbGe(args, k):
     """Create a Pseudo-Boolean inequality k constraint.
@@ -8441,17 +8937,18 @@ def PbGe(args, k):
     >>> f = PbGe(((a,1),(b,3),(c,2)), 3)
     """
     _z3_check_cint_overflow(k, "k")
-    ctx, sz, _args, _coeffs = _pb_args_coeffs(args)
+    ctx, sz, _args, _coeffs, args = _pb_args_coeffs(args)
     return BoolRef(Z3_mk_pbge(ctx.ref(), sz, _args, _coeffs, k), ctx)
 
-def PbEq(args, k, ctx = None):
+
+def PbEq(args, k, ctx=None):
     """Create a Pseudo-Boolean inequality k constraint.
 
     >>> a, b, c = Bools('a b c')
     >>> f = PbEq(((a,1),(b,3),(c,2)), 3)
     """
     _z3_check_cint_overflow(k, "k")
-    ctx, sz, _args, _coeffs = _pb_args_coeffs(args)
+    ctx, sz, _args, _coeffs, args = _pb_args_coeffs(args)
     return BoolRef(Z3_mk_pbeq(ctx.ref(), sz, _args, _coeffs, k), ctx)
 
 
@@ -8466,10 +8963,11 @@ def solve(*args, **keywords):
     >>> solve(a > 0, a < 2)
     [a = 1]
     """
+    show = keywords.pop("show", False)
     s = Solver()
     s.set(**keywords)
     s.add(*args)
-    if keywords.get('show', False):
+    if show:
         print(s)
     r = s.check()
     if r == unsat:
@@ -8483,6 +8981,7 @@ def solve(*args, **keywords):
     else:
         print(s.model())
 
+
 def solve_using(s, *args, **keywords):
     """Solve the constraints `*args` using solver `s`.
 
@@ -8491,11 +8990,12 @@ def solve_using(s, *args, **keywords):
     It configures solver `s` using the options in `keywords`, adds the constraints
     in `args`, and invokes check.
     """
+    show = keywords.pop("show", False)
     if z3_debug():
         _z3_assert(isinstance(s, Solver), "Solver object expected")
     s.set(**keywords)
     s.add(*args)
-    if keywords.get('show', False):
+    if show:
         print("Problem:")
         print(s)
     r = s.check()
@@ -8508,11 +9008,12 @@ def solve_using(s, *args, **keywords):
         except Z3Exception:
             return
     else:
-        if keywords.get('show', False):
+        if show:
             print("Solution:")
         print(s.model())
 
-def prove(claim, **keywords):
+
+def prove(claim, show=False, **keywords):
     """Try to prove the given claim.
 
     This is a simple function for creating demonstrations.  It tries to prove
@@ -8527,7 +9028,7 @@ def prove(claim, **keywords):
     s = Solver()
     s.set(**keywords)
     s.add(Not(claim))
-    if keywords.get('show', False):
+    if show:
         print(s)
     r = s.check()
     if r == unsat:
@@ -8539,12 +9040,14 @@ def prove(claim, **keywords):
         print("counterexample")
         print(s.model())
 
+
 def _solve_html(*args, **keywords):
-    """Version of function `solve` used in RiSE4Fun."""
+    """Version of function `solve` that renders HTML output."""
+    show = keywords.pop("show", False)
     s = Solver()
     s.set(**keywords)
     s.add(*args)
-    if keywords.get('show', False):
+    if show:
         print("<b>Problem:</b>")
         print(s)
     r = s.check()
@@ -8557,17 +9060,19 @@ def _solve_html(*args, **keywords):
         except Z3Exception:
             return
     else:
-        if keywords.get('show', False):
+        if show:
             print("<b>Solution:</b>")
         print(s.model())
 
+
 def _solve_using_html(s, *args, **keywords):
-    """Version of function `solve_using` used in RiSE4Fun."""
+    """Version of function `solve_using` that renders HTML."""
+    show = keywords.pop("show", False)
     if z3_debug():
         _z3_assert(isinstance(s, Solver), "Solver object expected")
     s.set(**keywords)
     s.add(*args)
-    if keywords.get('show', False):
+    if show:
         print("<b>Problem:</b>")
         print(s)
     r = s.check()
@@ -8580,18 +9085,19 @@ def _solve_using_html(s, *args, **keywords):
         except Z3Exception:
             return
     else:
-        if keywords.get('show', False):
+        if show:
             print("<b>Solution:</b>")
         print(s.model())
 
-def _prove_html(claim, **keywords):
-    """Version of function `prove` used in RiSE4Fun."""
+
+def _prove_html(claim, show=False, **keywords):
+    """Version of function `prove` that renders HTML."""
     if z3_debug():
         _z3_assert(is_bool(claim), "Z3 Boolean expression expected")
     s = Solver()
     s.set(**keywords)
     s.add(Not(claim))
-    if keywords.get('show', False):
+    if show:
         print(s)
     r = s.check()
     if r == unsat:
@@ -8603,10 +9109,11 @@ def _prove_html(claim, **keywords):
         print("<b>counterexample</b>")
         print(s.model())
 
+
 def _dict2sarray(sorts, ctx):
     sz = len(sorts)
     _names = (Symbol * sz)()
-    _sorts = (Sort * sz) ()
+    _sorts = (Sort * sz)()
     i = 0
     for k in sorts:
         v = sorts[k]
@@ -8618,10 +9125,11 @@ def _dict2sarray(sorts, ctx):
         i = i + 1
     return sz, _names, _sorts
 
+
 def _dict2darray(decls, ctx):
     sz = len(decls)
     _names = (Symbol * sz)()
-    _decls = (FuncDecl * sz) ()
+    _decls = (FuncDecl * sz)()
     i = 0
     for k in decls:
         v = decls[k]
@@ -8657,6 +9165,7 @@ def parse_smt2_string(s, sorts={}, decls={}, ctx=None):
     dsz, dnames, ddecls = _dict2darray(decls, ctx)
     return AstVector(Z3_parse_smtlib2_string(ctx.ref(), s, ssz, snames, ssorts, dsz, dnames, ddecls), ctx)
 
+
 def parse_smt2_file(f, sorts={}, decls={}, ctx=None):
     """Parse a file in SMT 2.0 format using the given sorts and decls.
 
@@ -8680,6 +9189,7 @@ _dflt_rounding_mode = Z3_OP_FPA_RM_TOWARD_ZERO
 _dflt_fpsort_ebits = 11
 _dflt_fpsort_sbits = 53
 
+
 def get_default_rounding_mode(ctx=None):
     """Retrieves the global default rounding mode."""
     global _dflt_rounding_mode
@@ -8694,21 +9204,28 @@ def get_default_rounding_mode(ctx=None):
     elif _dflt_rounding_mode == Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY:
         return RNA(ctx)
 
+
+_ROUNDING_MODES = frozenset({
+    Z3_OP_FPA_RM_TOWARD_ZERO,
+    Z3_OP_FPA_RM_TOWARD_NEGATIVE,
+    Z3_OP_FPA_RM_TOWARD_POSITIVE,
+    Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN,
+    Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY
+})
+
+
 def set_default_rounding_mode(rm, ctx=None):
     global _dflt_rounding_mode
     if is_fprm_value(rm):
         _dflt_rounding_mode = rm.decl().kind()
     else:
-        _z3_assert(_dflt_rounding_mode == Z3_OP_FPA_RM_TOWARD_ZERO or
-                   _dflt_rounding_mode == Z3_OP_FPA_RM_TOWARD_NEGATIVE or
-                   _dflt_rounding_mode == Z3_OP_FPA_RM_TOWARD_POSITIVE or
-                   _dflt_rounding_mode == Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN or
-                   _dflt_rounding_mode == Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY,
-                   "illegal rounding mode")
+        _z3_assert(_dflt_rounding_mode in _ROUNDING_MODES, "illegal rounding mode")
         _dflt_rounding_mode = rm
+
 
 def get_default_fp_sort(ctx=None):
     return FPSort(_dflt_fpsort_ebits, _dflt_fpsort_sbits, ctx)
+
 
 def set_default_fp_sort(ebits, sbits, ctx=None):
     global _dflt_fpsort_ebits
@@ -8716,11 +9233,14 @@ def set_default_fp_sort(ebits, sbits, ctx=None):
     _dflt_fpsort_ebits = ebits
     _dflt_fpsort_sbits = sbits
 
+
 def _dflt_rm(ctx=None):
     return get_default_rounding_mode(ctx)
 
+
 def _dflt_fps(ctx=None):
     return get_default_fp_sort(ctx)
+
 
 def _coerce_fp_expr_list(alist, ctx):
     first_fp_sort = None
@@ -8729,7 +9249,7 @@ def _coerce_fp_expr_list(alist, ctx):
             if first_fp_sort is None:
                 first_fp_sort = a.sort()
             elif first_fp_sort == a.sort():
-                pass # OK, same as before
+                pass  # OK, same as before
             else:
                 # we saw at least 2 different float sorts; something will
                 # throw a sort mismatch later, for now assume None.
@@ -8739,33 +9259,34 @@ def _coerce_fp_expr_list(alist, ctx):
     r = []
     for i in range(len(alist)):
         a = alist[i]
-        if (isinstance(a, str) and a.contains('2**(') and a.endswith(')')) or _is_int(a) or isinstance(a, float) or isinstance(a, bool):
+        is_repr = isinstance(a, str) and a.contains("2**(") and a.endswith(")")
+        if is_repr or _is_int(a) or isinstance(a, (float, bool)):
             r.append(FPVal(a, None, first_fp_sort, ctx))
         else:
             r.append(a)
     return _coerce_expr_list(r, ctx)
 
 
-### FP Sorts
+# FP Sorts
 
 class FPSortRef(SortRef):
     """Floating-point sort."""
 
     def ebits(self):
-       """Retrieves the number of bits reserved for the exponent in the FloatingPoint sort `self`.
-       >>> b = FPSort(8, 24)
-       >>> b.ebits()
-       8
-       """
-       return int(Z3_fpa_get_ebits(self.ctx_ref(), self.ast))
+        """Retrieves the number of bits reserved for the exponent in the FloatingPoint sort `self`.
+        >>> b = FPSort(8, 24)
+        >>> b.ebits()
+        8
+        """
+        return int(Z3_fpa_get_ebits(self.ctx_ref(), self.ast))
 
     def sbits(self):
-       """Retrieves the number of bits reserved for the significand in the FloatingPoint sort `self`.
-       >>> b = FPSort(8, 24)
-       >>> b.sbits()
-       24
-       """
-       return int(Z3_fpa_get_sbits(self.ctx_ref(), self.ast))
+        """Retrieves the number of bits reserved for the significand in the FloatingPoint sort `self`.
+        >>> b = FPSort(8, 24)
+        >>> b.sbits()
+        24
+        """
+        return int(Z3_fpa_get_sbits(self.ctx_ref(), self.ast))
 
     def cast(self, val):
         """Try to cast `val` as a floating-point expression.
@@ -8788,40 +9309,48 @@ def Float16(ctx=None):
     ctx = _get_ctx(ctx)
     return FPSortRef(Z3_mk_fpa_sort_16(ctx.ref()), ctx)
 
+
 def FloatHalf(ctx=None):
     """Floating-point 16-bit (half) sort."""
     ctx = _get_ctx(ctx)
     return FPSortRef(Z3_mk_fpa_sort_half(ctx.ref()), ctx)
+
 
 def Float32(ctx=None):
     """Floating-point 32-bit (single) sort."""
     ctx = _get_ctx(ctx)
     return FPSortRef(Z3_mk_fpa_sort_32(ctx.ref()), ctx)
 
+
 def FloatSingle(ctx=None):
     """Floating-point 32-bit (single) sort."""
     ctx = _get_ctx(ctx)
     return FPSortRef(Z3_mk_fpa_sort_single(ctx.ref()), ctx)
+
 
 def Float64(ctx=None):
     """Floating-point 64-bit (double) sort."""
     ctx = _get_ctx(ctx)
     return FPSortRef(Z3_mk_fpa_sort_64(ctx.ref()), ctx)
 
+
 def FloatDouble(ctx=None):
     """Floating-point 64-bit (double) sort."""
     ctx = _get_ctx(ctx)
     return FPSortRef(Z3_mk_fpa_sort_double(ctx.ref()), ctx)
+
 
 def Float128(ctx=None):
     """Floating-point 128-bit (quadruple) sort."""
     ctx = _get_ctx(ctx)
     return FPSortRef(Z3_mk_fpa_sort_128(ctx.ref()), ctx)
 
+
 def FloatQuadruple(ctx=None):
     """Floating-point 128-bit (quadruple) sort."""
     ctx = _get_ctx(ctx)
     return FPSortRef(Z3_mk_fpa_sort_quadruple(ctx.ref()), ctx)
+
 
 class FPRMSortRef(SortRef):
     """"Floating-point rounding mode sort."""
@@ -8837,6 +9366,7 @@ def is_fp_sort(s):
     """
     return isinstance(s, FPSortRef)
 
+
 def is_fprm_sort(s):
     """Return True if `s` is a Z3 floating-point rounding mode sort.
 
@@ -8847,7 +9377,8 @@ def is_fprm_sort(s):
     """
     return isinstance(s, FPRMSortRef)
 
-### FP Expressions
+# FP Expressions
+
 
 class FPRef(ExprRef):
     """Floating-point expressions."""
@@ -8864,20 +9395,20 @@ class FPRef(ExprRef):
         return FPSortRef(Z3_get_sort(self.ctx_ref(), self.as_ast()), self.ctx)
 
     def ebits(self):
-       """Retrieves the number of bits reserved for the exponent in the FloatingPoint expression `self`.
-       >>> b = FPSort(8, 24)
-       >>> b.ebits()
-       8
-       """
-       return self.sort().ebits();
+        """Retrieves the number of bits reserved for the exponent in the FloatingPoint expression `self`.
+        >>> b = FPSort(8, 24)
+        >>> b.ebits()
+        8
+        """
+        return self.sort().ebits()
 
     def sbits(self):
-       """Retrieves the number of bits reserved for the exponent in the FloatingPoint expression `self`.
-       >>> b = FPSort(8, 24)
-       >>> b.sbits()
-       24
-       """
-       return self.sort().sbits();
+        """Retrieves the number of bits reserved for the exponent in the FloatingPoint expression `self`.
+        >>> b = FPSort(8, 24)
+        >>> b.sbits()
+        24
+        """
+        return self.sort().sbits()
 
     def as_string(self):
         """Return a Z3 floating point expression as a Python string."""
@@ -9026,6 +9557,7 @@ class FPRef(ExprRef):
         """Create the Z3 expression mod `other % self`."""
         return fpRem(other, self)
 
+
 class FPRMRef(ExprRef):
     """Floating-point rounding mode expressions"""
 
@@ -9038,41 +9570,51 @@ def RoundNearestTiesToEven(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_nearest_ties_to_even(ctx.ref()), ctx)
 
-def RNE (ctx=None):
+
+def RNE(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_nearest_ties_to_even(ctx.ref()), ctx)
+
 
 def RoundNearestTiesToAway(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_nearest_ties_to_away(ctx.ref()), ctx)
 
-def RNA (ctx=None):
+
+def RNA(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_nearest_ties_to_away(ctx.ref()), ctx)
+
 
 def RoundTowardPositive(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_toward_positive(ctx.ref()), ctx)
 
+
 def RTP(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_toward_positive(ctx.ref()), ctx)
+
 
 def RoundTowardNegative(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_toward_negative(ctx.ref()), ctx)
 
+
 def RTN(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_toward_negative(ctx.ref()), ctx)
+
 
 def RoundTowardZero(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_toward_zero(ctx.ref()), ctx)
 
+
 def RTZ(ctx=None):
     ctx = _get_ctx(ctx)
     return FPRMRef(Z3_mk_fpa_round_toward_zero(ctx.ref()), ctx)
+
 
 def is_fprm(a):
     """Return `True` if `a` is a Z3 floating-point rounding mode expression.
@@ -9086,11 +9628,13 @@ def is_fprm(a):
     """
     return isinstance(a, FPRMRef)
 
+
 def is_fprm_value(a):
     """Return `True` if `a` is a Z3 floating-point rounding mode numeral value."""
     return is_fprm(a) and _is_numeral(a.ctx, a.ast)
 
-### FP Numerals
+# FP Numerals
+
 
 class FPNumRef(FPRef):
     """The sign of the numeral.
@@ -9102,16 +9646,19 @@ class FPNumRef(FPRef):
     >>> x.sign()
     True
     """
+
     def sign(self):
-        l = (ctypes.c_int)()
-        if Z3_fpa_get_numeral_sign(self.ctx.ref(), self.as_ast(), byref(l)) == False:
+        num = (ctypes.c_int)()
+        nsign = Z3_fpa_get_numeral_sign(self.ctx.ref(), self.as_ast(), byref(num))
+        if nsign is False:
             raise Z3Exception("error retrieving the sign of a numeral.")
-        return l.value != 0
+        return num.value != 0
 
     """The sign of a floating-point numeral as a bit-vector expression.
 
     Remark: NaN's are invalid arguments.
     """
+
     def sign_as_bv(self):
         return BitVecNumRef(Z3_fpa_get_numeral_sign_bv(self.ctx.ref(), self.as_ast()), self.ctx)
 
@@ -9121,6 +9668,7 @@ class FPNumRef(FPRef):
     >>> x.significand()
     1.25
     """
+
     def significand(self):
         return Z3_fpa_get_numeral_significand_string(self.ctx.ref(), self.as_ast())
 
@@ -9130,6 +9678,7 @@ class FPNumRef(FPRef):
     >>> x.significand_as_long()
     1.25
     """
+
     def significand_as_long(self):
         ptr = (ctypes.c_ulonglong * 1)()
         if not Z3_fpa_get_numeral_significand_uint64(self.ctx.ref(), self.as_ast(), ptr):
@@ -9140,6 +9689,7 @@ class FPNumRef(FPRef):
 
     Remark: NaN are invalid arguments.
     """
+
     def significand_as_bv(self):
         return BitVecNumRef(Z3_fpa_get_numeral_significand_bv(self.ctx.ref(), self.as_ast()), self.ctx)
 
@@ -9149,6 +9699,7 @@ class FPNumRef(FPRef):
     >>> x.exponent()
     1
     """
+
     def exponent(self, biased=True):
         return Z3_fpa_get_numeral_exponent_string(self.ctx.ref(), self.as_ast(), biased)
 
@@ -9158,6 +9709,7 @@ class FPNumRef(FPRef):
     >>> x.exponent_as_long()
     1
     """
+
     def exponent_as_long(self, biased=True):
         ptr = (ctypes.c_longlong * 1)()
         if not Z3_fpa_get_numeral_exponent_int64(self.ctx.ref(), self.as_ast(), ptr, biased):
@@ -9168,34 +9720,42 @@ class FPNumRef(FPRef):
 
     Remark: NaNs are invalid arguments.
     """
+
     def exponent_as_bv(self, biased=True):
         return BitVecNumRef(Z3_fpa_get_numeral_exponent_bv(self.ctx.ref(), self.as_ast(), biased), self.ctx)
 
     """Indicates whether the numeral is a NaN."""
+
     def isNaN(self):
         return Z3_fpa_is_numeral_nan(self.ctx.ref(), self.as_ast())
 
     """Indicates whether the numeral is +oo or -oo."""
+
     def isInf(self):
         return Z3_fpa_is_numeral_inf(self.ctx.ref(), self.as_ast())
 
     """Indicates whether the numeral is +zero or -zero."""
+
     def isZero(self):
         return Z3_fpa_is_numeral_zero(self.ctx.ref(), self.as_ast())
 
     """Indicates whether the numeral is normal."""
+
     def isNormal(self):
         return Z3_fpa_is_numeral_normal(self.ctx.ref(), self.as_ast())
 
     """Indicates whether the numeral is subnormal."""
+
     def isSubnormal(self):
         return Z3_fpa_is_numeral_subnormal(self.ctx.ref(), self.as_ast())
 
     """Indicates whether the numeral is positive."""
+
     def isPositive(self):
         return Z3_fpa_is_numeral_positive(self.ctx.ref(), self.as_ast())
 
     """Indicates whether the numeral is negative."""
+
     def isNegative(self):
         return Z3_fpa_is_numeral_negative(self.ctx.ref(), self.as_ast())
 
@@ -9206,9 +9766,11 @@ class FPNumRef(FPRef):
     >>> x.as_string()
     1.25*(2**4)
     """
+
     def as_string(self):
         s = Z3_get_numeral_string(self.ctx.ref(), self.as_ast())
         return ("FPVal(%s, %s)" % (s, self.sort()))
+
 
 def is_fp(a):
     """Return `True` if `a` is a Z3 floating-point expression.
@@ -9222,6 +9784,7 @@ def is_fp(a):
     False
     """
     return isinstance(a, FPRef)
+
 
 def is_fp_value(a):
     """Return `True` if `a` is a Z3 floating-point numeral value.
@@ -9237,6 +9800,7 @@ def is_fp_value(a):
     """
     return is_fp(a) and _is_numeral(a.ctx, a.ast)
 
+
 def FPSort(ebits, sbits, ctx=None):
     """Return a Z3 floating-point sort of the given sizes. If `ctx=None`, then the global context is used.
 
@@ -9250,6 +9814,7 @@ def FPSort(ebits, sbits, ctx=None):
     """
     ctx = _get_ctx(ctx)
     return FPSortRef(Z3_mk_fpa_sort(ctx.ref(), ebits, sbits), ctx)
+
 
 def _to_float_str(val, exp=0):
     if isinstance(val, float):
@@ -9269,8 +9834,8 @@ def _to_float_str(val, exp=0):
             v = val.as_integer_ratio()
             num = v[0]
             den = v[1]
-            rvs = str(num) + '/' + str(den)
-            res = rvs + 'p' + _to_int_str(exp)
+            rvs = str(num) + "/" + str(den)
+            res = rvs + "p" + _to_int_str(exp)
     elif isinstance(val, bool):
         if val:
             res = "1.0"
@@ -9279,12 +9844,12 @@ def _to_float_str(val, exp=0):
     elif _is_int(val):
         res = str(val)
     elif isinstance(val, str):
-        inx = val.find('*(2**')
+        inx = val.find("*(2**")
         if inx == -1:
             res = val
-        elif val[-1] == ')':
+        elif val[-1] == ")":
             res = val[0:inx]
-            exp = str(int(val[inx+5:-1]) + int(exp))
+            exp = str(int(val[inx + 5:-1]) + int(exp))
         else:
             _z3_assert(False, "String does not have floating-point numeral form.")
     elif z3_debug():
@@ -9292,7 +9857,7 @@ def _to_float_str(val, exp=0):
     if exp == 0:
         return res
     else:
-        return res + 'p' + exp
+        return res + "p" + exp
 
 
 def fpNaN(s):
@@ -9311,6 +9876,7 @@ def fpNaN(s):
     _z3_assert(isinstance(s, FPSortRef), "sort mismatch")
     return FPNumRef(Z3_mk_fpa_nan(s.ctx_ref(), s.ast), s.ctx)
 
+
 def fpPlusInfinity(s):
     """Create a Z3 floating-point +oo term.
 
@@ -9327,10 +9893,12 @@ def fpPlusInfinity(s):
     _z3_assert(isinstance(s, FPSortRef), "sort mismatch")
     return FPNumRef(Z3_mk_fpa_inf(s.ctx_ref(), s.ast, False), s.ctx)
 
+
 def fpMinusInfinity(s):
     """Create a Z3 floating-point -oo term."""
     _z3_assert(isinstance(s, FPSortRef), "sort mismatch")
     return FPNumRef(Z3_mk_fpa_inf(s.ctx_ref(), s.ast, True), s.ctx)
+
 
 def fpInfinity(s, negative):
     """Create a Z3 floating-point +oo or -oo term."""
@@ -9338,15 +9906,18 @@ def fpInfinity(s, negative):
     _z3_assert(isinstance(negative, bool), "expected Boolean flag")
     return FPNumRef(Z3_mk_fpa_inf(s.ctx_ref(), s.ast, negative), s.ctx)
 
+
 def fpPlusZero(s):
     """Create a Z3 floating-point +0.0 term."""
     _z3_assert(isinstance(s, FPSortRef), "sort mismatch")
     return FPNumRef(Z3_mk_fpa_zero(s.ctx_ref(), s.ast, False), s.ctx)
 
+
 def fpMinusZero(s):
     """Create a Z3 floating-point -0.0 term."""
     _z3_assert(isinstance(s, FPSortRef), "sort mismatch")
     return FPNumRef(Z3_mk_fpa_zero(s.ctx_ref(), s.ast, True), s.ctx)
+
 
 def fpZero(s, negative):
     """Create a Z3 floating-point +0.0 or -0.0 term."""
@@ -9354,8 +9925,10 @@ def fpZero(s, negative):
     _z3_assert(isinstance(negative, bool), "expected Boolean flag")
     return FPNumRef(Z3_mk_fpa_zero(s.ctx_ref(), s.ast, negative), s.ctx)
 
+
 def FPVal(sig, exp=None, fps=None, ctx=None):
-    """Return a floating-point value of value `val` and sort `fps`. If `ctx=None`, then the global context is used.
+    """Return a floating-point value of value `val` and sort `fps`.
+    If `ctx=None`, then the global context is used.
 
     >>> v = FPVal(20.0, FPSort(8, 24))
     >>> v
@@ -9398,6 +9971,7 @@ def FPVal(sig, exp=None, fps=None, ctx=None):
     else:
         return FPNumRef(Z3_mk_numeral(ctx.ref(), val, fps.ast), ctx)
 
+
 def FP(name, fpsort, ctx=None):
     """Return a floating-point constant named `name`.
     `fpsort` is the floating-point sort.
@@ -9421,6 +9995,7 @@ def FP(name, fpsort, ctx=None):
         ctx = _get_ctx(ctx)
     return FPRef(Z3_mk_const(ctx.ref(), to_symbol(name, ctx), fpsort.ast), ctx)
 
+
 def FPs(names, fpsort, ctx=None):
     """Return an array of floating-point constants.
 
@@ -9438,6 +10013,7 @@ def FPs(names, fpsort, ctx=None):
     if isinstance(names, str):
         names = names.split(" ")
     return [FP(name, fpsort, ctx) for name in names]
+
 
 def fpAbs(a, ctx=None):
     """Create a Z3 floating-point absolute value expression.
@@ -9461,6 +10037,7 @@ def fpAbs(a, ctx=None):
     [a] = _coerce_fp_expr_list([a], ctx)
     return FPRef(Z3_mk_fpa_abs(ctx.ref(), a.as_ast()), ctx)
 
+
 def fpNeg(a, ctx=None):
     """Create a Z3 floating-point addition expression.
 
@@ -9476,6 +10053,7 @@ def fpNeg(a, ctx=None):
     [a] = _coerce_fp_expr_list([a], ctx)
     return FPRef(Z3_mk_fpa_neg(ctx.ref(), a.as_ast()), ctx)
 
+
 def _mk_fp_unary(f, rm, a, ctx):
     ctx = _get_ctx(ctx)
     [a] = _coerce_fp_expr_list([a], ctx)
@@ -9484,12 +10062,14 @@ def _mk_fp_unary(f, rm, a, ctx):
         _z3_assert(is_fp(a), "Second argument must be a Z3 floating-point expression")
     return FPRef(f(ctx.ref(), rm.as_ast(), a.as_ast()), ctx)
 
+
 def _mk_fp_unary_pred(f, a, ctx):
     ctx = _get_ctx(ctx)
     [a] = _coerce_fp_expr_list([a], ctx)
     if z3_debug():
         _z3_assert(is_fp(a), "First argument must be a Z3 floating-point expression")
     return BoolRef(f(ctx.ref(), a.as_ast()), ctx)
+
 
 def _mk_fp_bin(f, rm, a, b, ctx):
     ctx = _get_ctx(ctx)
@@ -9499,12 +10079,14 @@ def _mk_fp_bin(f, rm, a, b, ctx):
         _z3_assert(is_fp(a) or is_fp(b), "Second or third argument must be a Z3 floating-point expression")
     return FPRef(f(ctx.ref(), rm.as_ast(), a.as_ast(), b.as_ast()), ctx)
 
+
 def _mk_fp_bin_norm(f, a, b, ctx):
     ctx = _get_ctx(ctx)
     [a, b] = _coerce_fp_expr_list([a, b], ctx)
     if z3_debug():
         _z3_assert(is_fp(a) or is_fp(b), "First or second argument must be a Z3 floating-point expression")
     return FPRef(f(ctx.ref(), a.as_ast(), b.as_ast()), ctx)
+
 
 def _mk_fp_bin_pred(f, a, b, ctx):
     ctx = _get_ctx(ctx)
@@ -9513,13 +10095,16 @@ def _mk_fp_bin_pred(f, a, b, ctx):
         _z3_assert(is_fp(a) or is_fp(b), "First or second argument must be a Z3 floating-point expression")
     return BoolRef(f(ctx.ref(), a.as_ast(), b.as_ast()), ctx)
 
+
 def _mk_fp_tern(f, rm, a, b, c, ctx):
     ctx = _get_ctx(ctx)
     [a, b, c] = _coerce_fp_expr_list([a, b, c], ctx)
     if z3_debug():
         _z3_assert(is_fprm(rm), "First argument must be a Z3 floating-point rounding mode expression")
-        _z3_assert(is_fp(a) or is_fp(b) or is_fp(c), "Second, third or fourth argument must be a Z3 floating-point expression")
+        _z3_assert(is_fp(a) or is_fp(b) or is_fp(
+            c), "Second, third or fourth argument must be a Z3 floating-point expression")
     return FPRef(f(ctx.ref(), rm.as_ast(), a.as_ast(), b.as_ast(), c.as_ast()), ctx)
+
 
 def fpAdd(rm, a, b, ctx=None):
     """Create a Z3 floating-point addition expression.
@@ -9537,6 +10122,7 @@ def fpAdd(rm, a, b, ctx=None):
     """
     return _mk_fp_bin(Z3_mk_fpa_add, rm, a, b, ctx)
 
+
 def fpSub(rm, a, b, ctx=None):
     """Create a Z3 floating-point subtraction expression.
 
@@ -9550,6 +10136,7 @@ def fpSub(rm, a, b, ctx=None):
     FPSort(8, 24)
     """
     return _mk_fp_bin(Z3_mk_fpa_sub, rm, a, b, ctx)
+
 
 def fpMul(rm, a, b, ctx=None):
     """Create a Z3 floating-point multiplication expression.
@@ -9565,6 +10152,7 @@ def fpMul(rm, a, b, ctx=None):
     """
     return _mk_fp_bin(Z3_mk_fpa_mul, rm, a, b, ctx)
 
+
 def fpDiv(rm, a, b, ctx=None):
     """Create a Z3 floating-point division expression.
 
@@ -9579,6 +10167,7 @@ def fpDiv(rm, a, b, ctx=None):
     """
     return _mk_fp_bin(Z3_mk_fpa_div, rm, a, b, ctx)
 
+
 def fpRem(a, b, ctx=None):
     """Create a Z3 floating-point remainder expression.
 
@@ -9591,6 +10180,7 @@ def fpRem(a, b, ctx=None):
     FPSort(8, 24)
     """
     return _mk_fp_bin_norm(Z3_mk_fpa_rem, a, b, ctx)
+
 
 def fpMin(a, b, ctx=None):
     """Create a Z3 floating-point minimum expression.
@@ -9606,6 +10196,7 @@ def fpMin(a, b, ctx=None):
     """
     return _mk_fp_bin_norm(Z3_mk_fpa_min, a, b, ctx)
 
+
 def fpMax(a, b, ctx=None):
     """Create a Z3 floating-point maximum expression.
 
@@ -9620,20 +10211,24 @@ def fpMax(a, b, ctx=None):
     """
     return _mk_fp_bin_norm(Z3_mk_fpa_max, a, b, ctx)
 
+
 def fpFMA(rm, a, b, c, ctx=None):
     """Create a Z3 floating-point fused multiply-add expression.
     """
     return _mk_fp_tern(Z3_mk_fpa_fma, rm, a, b, c, ctx)
+
 
 def fpSqrt(rm, a, ctx=None):
     """Create a Z3 floating-point square root expression.
     """
     return _mk_fp_unary(Z3_mk_fpa_sqrt, rm, a, ctx)
 
+
 def fpRoundToIntegral(rm, a, ctx=None):
     """Create a Z3 floating-point roundToIntegral expression.
     """
     return _mk_fp_unary(Z3_mk_fpa_round_to_integral, rm, a, ctx)
+
 
 def fpIsNaN(a, ctx=None):
     """Create a Z3 floating-point isNaN expression.
@@ -9646,6 +10241,7 @@ def fpIsNaN(a, ctx=None):
     """
     return _mk_fp_unary_pred(Z3_mk_fpa_is_nan, a, ctx)
 
+
 def fpIsInf(a, ctx=None):
     """Create a Z3 floating-point isInfinite expression.
 
@@ -9656,34 +10252,41 @@ def fpIsInf(a, ctx=None):
     """
     return _mk_fp_unary_pred(Z3_mk_fpa_is_infinite, a, ctx)
 
+
 def fpIsZero(a, ctx=None):
     """Create a Z3 floating-point isZero expression.
     """
     return _mk_fp_unary_pred(Z3_mk_fpa_is_zero, a, ctx)
+
 
 def fpIsNormal(a, ctx=None):
     """Create a Z3 floating-point isNormal expression.
     """
     return _mk_fp_unary_pred(Z3_mk_fpa_is_normal, a, ctx)
 
+
 def fpIsSubnormal(a, ctx=None):
     """Create a Z3 floating-point isSubnormal expression.
     """
     return _mk_fp_unary_pred(Z3_mk_fpa_is_subnormal, a, ctx)
+
 
 def fpIsNegative(a, ctx=None):
     """Create a Z3 floating-point isNegative expression.
     """
     return _mk_fp_unary_pred(Z3_mk_fpa_is_negative, a, ctx)
 
+
 def fpIsPositive(a, ctx=None):
     """Create a Z3 floating-point isPositive expression.
     """
     return _mk_fp_unary_pred(Z3_mk_fpa_is_positive, a, ctx)
 
+
 def _check_fp_args(a, b):
     if z3_debug():
         _z3_assert(is_fp(a) or is_fp(b), "First or second argument must be a Z3 floating-point expression")
+
 
 def fpLT(a, b, ctx=None):
     """Create the Z3 floating-point expression `other < self`.
@@ -9696,6 +10299,7 @@ def fpLT(a, b, ctx=None):
     """
     return _mk_fp_bin_pred(Z3_mk_fpa_lt, a, b, ctx)
 
+
 def fpLEQ(a, b, ctx=None):
     """Create the Z3 floating-point expression `other <= self`.
 
@@ -9706,6 +10310,7 @@ def fpLEQ(a, b, ctx=None):
     '(fp.leq x y)'
     """
     return _mk_fp_bin_pred(Z3_mk_fpa_leq, a, b, ctx)
+
 
 def fpGT(a, b, ctx=None):
     """Create the Z3 floating-point expression `other > self`.
@@ -9718,6 +10323,7 @@ def fpGT(a, b, ctx=None):
     """
     return _mk_fp_bin_pred(Z3_mk_fpa_gt, a, b, ctx)
 
+
 def fpGEQ(a, b, ctx=None):
     """Create the Z3 floating-point expression `other >= self`.
 
@@ -9728,6 +10334,7 @@ def fpGEQ(a, b, ctx=None):
     '(fp.geq x y)'
     """
     return _mk_fp_bin_pred(Z3_mk_fpa_geq, a, b, ctx)
+
 
 def fpEQ(a, b, ctx=None):
     """Create the Z3 floating-point expression `fpEQ(other, self)`.
@@ -9740,6 +10347,7 @@ def fpEQ(a, b, ctx=None):
     """
     return _mk_fp_bin_pred(Z3_mk_fpa_eq, a, b, ctx)
 
+
 def fpNEQ(a, b, ctx=None):
     """Create the Z3 floating-point expression `Not(fpEQ(other, self))`.
 
@@ -9750,6 +10358,7 @@ def fpNEQ(a, b, ctx=None):
     '(distinct x y)'
     """
     return Not(fpEQ(a, b, ctx))
+
 
 def fpFP(sgn, exp, sig, ctx=None):
     """Create the Z3 floating-point value `fpFP(sgn, sig, exp)` from the three bit-vectors sgn, sig, and exp.
@@ -9778,6 +10387,7 @@ def fpFP(sgn, exp, sig, ctx=None):
     ctx = _get_ctx(ctx)
     _z3_assert(ctx == sgn.ctx == exp.ctx == sig.ctx, "context mismatch")
     return FPRef(Z3_mk_fpa_fp(ctx.ref(), sgn.ast, exp.ast, sig.ast), ctx)
+
 
 def fpToFP(a1, a2=None, a3=None, ctx=None):
     """Create a Z3 floating-point conversion expression from other term sorts
@@ -9817,6 +10427,7 @@ def fpToFP(a1, a2=None, a3=None, ctx=None):
     else:
         raise Z3Exception("Unsupported combination of arguments for conversion to floating-point term.")
 
+
 def fpBVToFP(v, sort, ctx=None):
     """Create a Z3 floating-point conversion expression that represents the
     conversion from a bit-vector term to a floating-point term.
@@ -9832,6 +10443,7 @@ def fpBVToFP(v, sort, ctx=None):
     _z3_assert(is_fp_sort(sort), "Second argument must be a Z3 floating-point sort.")
     ctx = _get_ctx(ctx)
     return FPRef(Z3_mk_fpa_to_fp_bv(ctx.ref(), v.ast, sort.ast), ctx)
+
 
 def fpFPToFP(rm, v, sort, ctx=None):
     """Create a Z3 floating-point conversion expression that represents the
@@ -9852,6 +10464,7 @@ def fpFPToFP(rm, v, sort, ctx=None):
     ctx = _get_ctx(ctx)
     return FPRef(Z3_mk_fpa_to_fp_float(ctx.ref(), rm.ast, v.ast, sort.ast), ctx)
 
+
 def fpRealToFP(rm, v, sort, ctx=None):
     """Create a Z3 floating-point conversion expression that represents the
     conversion from a real term to a floating-point term.
@@ -9868,6 +10481,7 @@ def fpRealToFP(rm, v, sort, ctx=None):
     _z3_assert(is_fp_sort(sort), "Third argument must be a Z3 floating-point sort.")
     ctx = _get_ctx(ctx)
     return FPRef(Z3_mk_fpa_to_fp_real(ctx.ref(), rm.ast, v.ast, sort.ast), ctx)
+
 
 def fpSignedToFP(rm, v, sort, ctx=None):
     """Create a Z3 floating-point conversion expression that represents the
@@ -9886,6 +10500,7 @@ def fpSignedToFP(rm, v, sort, ctx=None):
     ctx = _get_ctx(ctx)
     return FPRef(Z3_mk_fpa_to_fp_signed(ctx.ref(), rm.ast, v.ast, sort.ast), ctx)
 
+
 def fpUnsignedToFP(rm, v, sort, ctx=None):
     """Create a Z3 floating-point conversion expression that represents the
     conversion from an unsigned bit-vector term (encoding an integer) to a floating-point term.
@@ -9903,6 +10518,7 @@ def fpUnsignedToFP(rm, v, sort, ctx=None):
     ctx = _get_ctx(ctx)
     return FPRef(Z3_mk_fpa_to_fp_unsigned(ctx.ref(), rm.ast, v.ast, sort.ast), ctx)
 
+
 def fpToFPUnsigned(rm, x, s, ctx=None):
     """Create a Z3 floating-point conversion expression, from unsigned bit-vector to floating-point expression."""
     if z3_debug():
@@ -9911,6 +10527,7 @@ def fpToFPUnsigned(rm, x, s, ctx=None):
         _z3_assert(is_fp_sort(s), "Third argument must be Z3 floating-point sort")
     ctx = _get_ctx(ctx)
     return FPRef(Z3_mk_fpa_to_fp_unsigned(ctx.ref(), rm.ast, x.ast, s.ast), ctx)
+
 
 def fpToSBV(rm, x, s, ctx=None):
     """Create a Z3 floating-point conversion expression, from floating-point expression to signed bit-vector.
@@ -9933,6 +10550,7 @@ def fpToSBV(rm, x, s, ctx=None):
     ctx = _get_ctx(ctx)
     return BitVecRef(Z3_mk_fpa_to_sbv(ctx.ref(), rm.ast, x.ast, s.size()), ctx)
 
+
 def fpToUBV(rm, x, s, ctx=None):
     """Create a Z3 floating-point conversion expression, from floating-point expression to unsigned bit-vector.
 
@@ -9954,6 +10572,7 @@ def fpToUBV(rm, x, s, ctx=None):
     ctx = _get_ctx(ctx)
     return BitVecRef(Z3_mk_fpa_to_ubv(ctx.ref(), rm.ast, x.ast, s.size()), ctx)
 
+
 def fpToReal(x, ctx=None):
     """Create a Z3 floating-point conversion expression, from floating-point expression to real.
 
@@ -9972,6 +10591,7 @@ def fpToReal(x, ctx=None):
         _z3_assert(is_fp(x), "First argument must be a Z3 floating-point expression")
     ctx = _get_ctx(ctx)
     return ArithRef(Z3_mk_fpa_to_real(ctx.ref(), x.ast), ctx)
+
 
 def fpToIEEEBV(x, ctx=None):
     """\brief Conversion of a floating-point term into a bit-vector term in IEEE 754-2008 format.
@@ -9999,7 +10619,6 @@ def fpToIEEEBV(x, ctx=None):
     return BitVecRef(Z3_mk_fpa_to_ieee_bv(ctx.ref(), x.ast), ctx)
 
 
-
 #########################################
 #
 # Strings, Sequences and Regular expressions
@@ -10023,6 +10642,9 @@ class SeqSortRef(SortRef):
     def basis(self):
         return _to_sort_ref(Z3_get_seq_sort_basis(self.ctx_ref(), self.ast), self.ctx)
 
+class CharSortRef(SortRef):
+    """Character sort."""
+
 
 def StringSort(ctx=None):
     """Create a string sort
@@ -10033,6 +10655,15 @@ def StringSort(ctx=None):
     ctx = _get_ctx(ctx)
     return SeqSortRef(Z3_mk_string_sort(ctx.ref()), ctx)
 
+def CharSort(ctx=None):
+    """Create a character sort
+    >>> ch = CharSort()
+    >>> print(ch)
+    Char
+    """
+    ctx = _get_ctx(ctx)
+    return CharSortRef(Z3_mk_char_sort(ctx.ref()), ctx)
+
 
 def SeqSort(s):
     """Create a sequence sort over elements provided in the argument
@@ -10041,6 +10672,7 @@ def SeqSort(s):
     True
     """
     return SeqSortRef(Z3_mk_seq_sort(s.ctx_ref(), s.ast), s.ctx)
+
 
 class SeqRef(ExprRef):
     """Sequence expression."""
@@ -10070,27 +10702,76 @@ class SeqRef(ExprRef):
     def is_string_value(self):
         return Z3_is_string(self.ctx_ref(), self.as_ast())
 
-
     def as_string(self):
         """Return a string representation of sequence expression."""
         if self.is_string_value():
             string_length = ctypes.c_uint()
             chars = Z3_get_lstring(self.ctx_ref(), self.as_ast(), byref(string_length))
-            return string_at(chars, size=string_length.value).decode('latin-1')
+            return string_at(chars, size=string_length.value).decode("latin-1")
         return Z3_ast_to_string(self.ctx_ref(), self.as_ast())
 
     def __le__(self, other):
-        return SeqRef(Z3_mk_str_le(self.ctx_ref(), self.as_ast(), other.as_ast()), self.ctx)
+        return _to_expr_ref(Z3_mk_str_le(self.ctx_ref(), self.as_ast(), other.as_ast()), self.ctx)
 
     def __lt__(self, other):
-        return SeqRef(Z3_mk_str_lt(self.ctx_ref(), self.as_ast(), other.as_ast()), self.ctx)
+        return _to_expr_ref(Z3_mk_str_lt(self.ctx_ref(), self.as_ast(), other.as_ast()), self.ctx)
 
     def __ge__(self, other):
-        return SeqRef(Z3_mk_str_le(self.ctx_ref(), other.as_ast(), self.as_ast()), self.ctx)
+        return _to_expr_ref(Z3_mk_str_le(self.ctx_ref(), other.as_ast(), self.as_ast()), self.ctx)
 
     def __gt__(self, other):
-        return SeqRef(Z3_mk_str_lt(self.ctx_ref(), other.as_ast(), self.as_ast()), self.ctx)
+        return _to_expr_ref(Z3_mk_str_lt(self.ctx_ref(), other.as_ast(), self.as_ast()), self.ctx)
 
+
+def _coerce_char(ch, ctx=None):
+    if isinstance(ch, str):
+        ctx = _get_ctx(ctx)
+        ch = CharVal(ch, ctx)
+    if not is_expr(ch):
+        raise Z3Exception("Character expression expected")    
+    return ch
+
+class CharRef(ExprRef):
+    """Character expression."""
+
+    def __le__(self, other):
+        other = _coerce_char(other, self.ctx)
+        return _to_expr_ref(Z3_mk_char_le(self.ctx_ref(), self.as_ast(), other.as_ast()), self.ctx)
+
+    def to_int(self):
+        return _to_expr_ref(Z3_mk_char_to_int(self.ctx_ref(), self.as_ast()), self.ctx)
+
+    def to_bv(self):
+        return _to_expr_ref(Z3_mk_char_to_bv(self.ctx_ref(), self.as_ast()), self.ctx)
+
+    def is_digit(self):
+        return _to_expr_ref(Z3_mk_char_is_digit(self.ctx_ref(), self.as_ast()), self.ctx)
+
+
+def CharVal(ch, ctx=None):
+    ctx = _get_ctx(ctx)
+    if isinstance(ch, str):
+        ch = ord(ch)
+    if not isinstance(ch, int):
+        raise Z3Exception("character value should be an ordinal")
+    return _to_expr_ref(Z3_mk_char(ctx.ref(), ch), ctx)
+    
+def CharFromBv(ch, ctx=None):
+    if not is_expr(ch):
+        raise Z3Expression("Bit-vector expression needed")
+    return _to_expr_ref(Z3_mk_char_from_bv(ch.ctx_ref(), ch.as_ast()), ch.ctx)
+
+def CharToBv(ch, ctx=None):
+    ch = _coerce_char(ch, ctx)
+    return ch.to_bv()
+
+def CharToInt(ch, ctx=None):
+    ch = _coerce_char(ch, ctx)
+    return ch.to_int()
+
+def CharIsDigit(ch, ctx=None):
+    ch = _coerce_char(ch, ctx)
+    return ch.is_digit()
 
 def _coerce_seq(s, ctx=None):
     if isinstance(s, str):
@@ -10102,6 +10783,7 @@ def _coerce_seq(s, ctx=None):
         raise Z3Exception("Non-sequence passed as a sequence")
     return s
 
+
 def _get_ctx2(a, b, ctx=None):
     if is_expr(a):
         return a.ctx
@@ -10110,6 +10792,7 @@ def _get_ctx2(a, b, ctx=None):
     if ctx is None:
         ctx = main_ctx()
     return ctx
+
 
 def is_seq(a):
     """Return `True` if `a` is a Z3 sequence expression.
@@ -10120,12 +10803,14 @@ def is_seq(a):
     """
     return isinstance(a, SeqRef)
 
+
 def is_string(a):
     """Return `True` if `a` is a Z3 string expression.
     >>> print (is_string(StringVal("ab")))
     True
     """
     return isinstance(a, SeqRef) and a.is_string()
+
 
 def is_string_value(a):
     """return 'True' if 'a' is a Z3 string constant expression.
@@ -10136,11 +10821,12 @@ def is_string_value(a):
     """
     return isinstance(a, SeqRef) and a.is_string_value()
 
-
 def StringVal(s, ctx=None):
     """create a string expression"""
+    s = "".join(str(ch) if 32 <= ord(ch) and ord(ch) < 127 else "\\u{%x}" % (ord(ch)) for ch in s)
     ctx = _get_ctx(ctx)
-    return SeqRef(Z3_mk_lstring(ctx.ref(), len(s), s), ctx)
+    return SeqRef(Z3_mk_string(ctx.ref(), s), ctx)
+
 
 def String(name, ctx=None):
     """Return a string constant named `name`. If `ctx=None`, then the global context is used.
@@ -10150,20 +10836,6 @@ def String(name, ctx=None):
     ctx = _get_ctx(ctx)
     return SeqRef(Z3_mk_const(ctx.ref(), to_symbol(name, ctx), StringSort(ctx).ast), ctx)
 
-def Strings(names, ctx=None):
-    """Return string constants"""
-    ctx = _get_ctx(ctx)
-    if isinstance(names, str):
-        names = names.split(" ")
-    return [String(name, ctx) for name in names]
-
-def SubString(s, offset, length):
-    """Extract substring or subsequence starting at offset"""
-    return Extract(s, offset, length)
-
-def SubSeq(s, offset, length):
-    """Extract substring or subsequence starting at offset"""
-    return Extract(s, offset, length)
 
 def Strings(names, ctx=None):
     """Return a tuple of String constants. """
@@ -10171,6 +10843,17 @@ def Strings(names, ctx=None):
     if isinstance(names, str):
         names = names.split(" ")
     return [String(name, ctx) for name in names]
+
+
+def SubString(s, offset, length):
+    """Extract substring or subsequence starting at offset"""
+    return Extract(s, offset, length)
+
+
+def SubSeq(s, offset, length):
+    """Extract substring or subsequence starting at offset"""
+    return Extract(s, offset, length)
+
 
 def Empty(s):
     """Create the empty sequence of the given sort
@@ -10186,10 +10869,11 @@ def Empty(s):
     Empty(ReSort(Seq(Int)))
     """
     if isinstance(s, SeqSortRef):
-       return SeqRef(Z3_mk_seq_empty(s.ctx_ref(), s.ast), s.ctx)
+        return SeqRef(Z3_mk_seq_empty(s.ctx_ref(), s.ast), s.ctx)
     if isinstance(s, ReSortRef):
-       return ReRef(Z3_mk_re_empty(s.ctx_ref(), s.ast), s.ctx)
+        return ReRef(Z3_mk_re_empty(s.ctx_ref(), s.ast), s.ctx)
     raise Z3Exception("Non-sequence, non-regular expression sort passed to Empty")
+
 
 def Full(s):
     """Create the regular expression that accepts the universal language
@@ -10201,13 +10885,15 @@ def Full(s):
     Full(ReSort(String))
     """
     if isinstance(s, ReSortRef):
-       return ReRef(Z3_mk_re_full(s.ctx_ref(), s.ast), s.ctx)
+        return ReRef(Z3_mk_re_full(s.ctx_ref(), s.ast), s.ctx)
     raise Z3Exception("Non-sequence, non-regular expression sort passed to Full")
+
 
 
 def Unit(a):
     """Create a singleton sequence"""
     return SeqRef(Z3_mk_seq_unit(a.ctx_ref(), a.as_ast()), a.ctx)
+
 
 def PrefixOf(a, b):
     """Check if 'a' is a prefix of 'b'
@@ -10223,6 +10909,7 @@ def PrefixOf(a, b):
     b = _coerce_seq(b, ctx)
     return BoolRef(Z3_mk_seq_prefix(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
 
+
 def SuffixOf(a, b):
     """Check if 'a' is a suffix of 'b'
     >>> s1 = SuffixOf("ab", "abc")
@@ -10236,6 +10923,7 @@ def SuffixOf(a, b):
     a = _coerce_seq(a, ctx)
     b = _coerce_seq(b, ctx)
     return BoolRef(Z3_mk_seq_suffix(a.ctx_ref(), a.as_ast(), b.as_ast()), a.ctx)
+
 
 def Contains(a, b):
     """Check if 'a' contains 'b'
@@ -10267,19 +10955,19 @@ def Replace(s, src, dst):
         ctx = src.ctx
     src = _coerce_seq(src, ctx)
     dst = _coerce_seq(dst, ctx)
-    s   = _coerce_seq(s, ctx)
+    s = _coerce_seq(s, ctx)
     return SeqRef(Z3_mk_seq_replace(src.ctx_ref(), s.as_ast(), src.as_ast(), dst.as_ast()), s.ctx)
 
-def IndexOf(s, substr):
-    return IndexOf(s, substr, IntVal(0))
 
-def IndexOf(s, substr, offset):
+def IndexOf(s, substr, offset=None):
     """Retrieve the index of substring within a string starting at a specified offset.
     >>> simplify(IndexOf("abcabc", "bc", 0))
     1
     >>> simplify(IndexOf("abcabc", "bc", 2))
     4
     """
+    if offset is None:
+        offset = IntVal(0)
     ctx = None
     if is_expr(offset):
         ctx = offset.ctx
@@ -10289,6 +10977,7 @@ def IndexOf(s, substr, offset):
     if _is_int(offset):
         offset = IntVal(offset, ctx)
     return ArithRef(Z3_mk_seq_index(s.ctx_ref(), s.as_ast(), substr.as_ast(), offset.as_ast()), s.ctx)
+
 
 def LastIndexOf(s, substr):
     """Retrieve the last index of substring within a string"""
@@ -10307,6 +10996,7 @@ def Length(s):
     """
     s = _coerce_seq(s)
     return ArithRef(Z3_mk_seq_length(s.ctx_ref(), s.as_ast()), s.ctx)
+
 
 def StrToInt(s):
     """Convert string expression to integer
@@ -10331,6 +11021,18 @@ def IntToStr(s):
     return SeqRef(Z3_mk_int_to_str(s.ctx_ref(), s.as_ast()), s.ctx)
 
 
+def StrToCode(s):
+    """Convert a unit length string to integer code"""
+    if not is_expr(s):
+        s = _py2expr(s)
+    return ArithRef(Z3_mk_string_to_code(s.ctx_ref(), s.as_ast()), s.ctx)
+
+def StrFromCode(c):
+    """Convert code to a string"""
+    if not is_expr(c):
+        c = _py2expr(c)
+    return SeqRef(Z3_mk_string_from_code(c.ctx_ref(), c.as_ast()), c.ctx)
+    
 def Re(s, ctx=None):
     """The regular expression that accepts sequence 's'
     >>> s1 = Re("ab")
@@ -10341,15 +11043,14 @@ def Re(s, ctx=None):
     return ReRef(Z3_mk_seq_to_re(s.ctx_ref(), s.as_ast()), s.ctx)
 
 
-
-
-## Regular expressions
+# Regular expressions
 
 class ReSortRef(SortRef):
     """Regular expression sort."""
 
     def basis(self):
         return _to_sort_ref(Z3_get_re_sort_basis(self.ctx_ref(), self.ast), self.ctx)
+
 
 def ReSort(s):
     if is_ast(s):
@@ -10365,6 +11066,7 @@ class ReRef(ExprRef):
 
     def __add__(self, other):
         return Union(self, other)
+
 
 def is_re(s):
     return isinstance(s, ReRef)
@@ -10382,6 +11084,7 @@ def InRe(s, re):
     """
     s = _coerce_seq(s, re.ctx)
     return BoolRef(Z3_mk_seq_in_re(s.ctx_ref(), s.as_ast(), re.as_ast()), s.ctx)
+
 
 def Union(*args):
     """Create union of regular expressions.
@@ -10402,6 +11105,7 @@ def Union(*args):
         v[i] = args[i].as_ast()
     return ReRef(Z3_mk_re_union(ctx.ref(), sz, v), ctx)
 
+
 def Intersect(*args):
     """Create intersection of regular expressions.
     >>> re = Intersect(Re("a"), Re("b"), Re("c"))
@@ -10419,6 +11123,7 @@ def Intersect(*args):
         v[i] = args[i].as_ast()
     return ReRef(Z3_mk_re_intersect(ctx.ref(), sz, v), ctx)
 
+
 def Plus(re):
     """Create the regular expression accepting one or more repetitions of argument.
     >>> re = Plus(Re("a"))
@@ -10430,6 +11135,7 @@ def Plus(re):
     False
     """
     return ReRef(Z3_mk_re_plus(re.ctx_ref(), re.as_ast()), re.ctx)
+
 
 def Option(re):
     """Create the regular expression that optionally accepts the argument.
@@ -10443,9 +11149,11 @@ def Option(re):
     """
     return ReRef(Z3_mk_re_option(re.ctx_ref(), re.as_ast()), re.ctx)
 
+
 def Complement(re):
     """Create the complement regular expression."""
     return ReRef(Z3_mk_re_complement(re.ctx_ref(), re.as_ast()), re.ctx)
+
 
 def Star(re):
     """Create the regular expression accepting zero or more repetitions of argument.
@@ -10459,6 +11167,7 @@ def Star(re):
     """
     return ReRef(Z3_mk_re_star(re.ctx_ref(), re.as_ast()), re.ctx)
 
+
 def Loop(re, lo, hi=0):
     """Create the regular expression accepting between a lower and upper bound repetitions
     >>> re = Loop(Re("a"), 1, 3)
@@ -10471,7 +11180,8 @@ def Loop(re, lo, hi=0):
     """
     return ReRef(Z3_mk_re_loop(re.ctx_ref(), re.as_ast(), lo, hi), re.ctx)
 
-def Range(lo, hi, ctx = None):
+
+def Range(lo, hi, ctx=None):
     """Create the range regular expression over two sequences of length 1
     >>> range = Range("a","z")
     >>> print(simplify(InRe("b", range)))
@@ -10483,19 +11193,34 @@ def Range(lo, hi, ctx = None):
     hi = _coerce_seq(hi, ctx)
     return ReRef(Z3_mk_re_range(lo.ctx_ref(), lo.ast, hi.ast), lo.ctx)
 
+def Diff(a, b, ctx=None):
+    """Create the difference regular epression
+    """
+    return ReRef(Z3_mk_re_diff(a.ctx_ref(), a.ast, b.ast), a.ctx)
+
+def AllChar(regex_sort, ctx=None):
+    """Create a regular expression that accepts all single character strings
+    """
+    return ReRef(Z3_mk_re_allchar(regex_sort.ctx_ref(), regex_sort.ast), regex_sort.ctx)
+
 # Special Relations
 
+
 def PartialOrder(a, index):
-    return FuncDeclRef(Z3_mk_partial_order(a.ctx_ref(), a.ast, index), a.ctx);
+    return FuncDeclRef(Z3_mk_partial_order(a.ctx_ref(), a.ast, index), a.ctx)
+
 
 def LinearOrder(a, index):
-    return FuncDeclRef(Z3_mk_linear_order(a.ctx_ref(), a.ast, index), a.ctx);
+    return FuncDeclRef(Z3_mk_linear_order(a.ctx_ref(), a.ast, index), a.ctx)
+
 
 def TreeOrder(a, index):
-    return FuncDeclRef(Z3_mk_tree_order(a.ctx_ref(), a.ast, index), a.ctx);
+    return FuncDeclRef(Z3_mk_tree_order(a.ctx_ref(), a.ast, index), a.ctx)
+
 
 def PiecewiseLinearOrder(a, index):
-    return FuncDeclRef(Z3_mk_piecewise_linear_order(a.ctx_ref(), a.ast, index), a.ctx);
+    return FuncDeclRef(Z3_mk_piecewise_linear_order(a.ctx_ref(), a.ast, index), a.ctx)
+
 
 def TransitiveClosure(f):
     """Given a binary relation R, such that the two arguments have the same sort
@@ -10510,53 +11235,76 @@ class PropClosures:
         self.bases = {}
         self.lock = None
 
-    def set_threaded():
+    def set_threaded(self):
         if self.lock is None:
             import threading
-            self.lock = threading.thread.Lock()
+            self.lock = threading.Lock()
 
     def get(self, ctx):
-        if self.lock: self.lock.acquire()
-        r = self.bases[ctx]
-        if self.lock: self.lock.release()
+        if self.lock:
+            with self.lock:
+                r = self.bases[ctx]
+        else:
+            r = self.bases[ctx]            
         return r
 
     def set(self, ctx, r):
-        if self.lock: self.lock.acquire()
-        self.bases[ctx] = r
-        if self.lock: self.lock.release()
+        if self.lock:
+            with self.lock:
+                self.bases[ctx] = r
+        else:
+            self.bases[ctx] = r
 
     def insert(self, r):
-        if self.lock: self.lock.acquire()
-        id = len(self.bases) + 3
-        self.bases[id] = r
-        if self.lock: self.lock.release()
+        if self.lock:
+            with self.lock:
+                id = len(self.bases) + 3
+                self.bases[id] = r
+        else:
+            id = len(self.bases) + 3
+            self.bases[id] = r
         return id
 
+
 _prop_closures = None
+
 
 def ensure_prop_closures():
     global _prop_closures
     if _prop_closures is None:
         _prop_closures = PropClosures()
 
-def user_prop_push(ctx):
-    _prop_closures.get(ctx).push();
 
-def user_prop_pop(ctx, num_scopes):
-    _prop_closures.get(ctx).pop(num_scopes)
+def user_prop_push(ctx, cb):
+    prop = _prop_closures.get(ctx)
+    prop.cb = cb
+    prop.push()
+
+
+def user_prop_pop(ctx, cb, num_scopes):
+    prop = _prop_closures.get(ctx)
+    prop.cb = cb
+    pop(num_scopes)
+
 
 def user_prop_fresh(id, ctx):
-    prop = _prop_closures.get(id)
     _prop_closures.set_threaded()
-    new_prop = UsePropagateBase(None, ctx)
-    _prop_closures.set(new_prop.id, new_prop.fresh())
+    prop = _prop_closures.get(id)
+    new_prop = prop.fresh()
+    _prop_closures.set(new_prop.id, new_prop)
     return ctypes.c_void_p(new_prop.id)
+
+def to_Ast(ptr,):
+    ast = Ast(ptr)
+    super(ctypes.c_void_p, ast).__init__(ptr)
+    return ast
 
 def user_prop_fixed(ctx, cb, id, value):
     prop = _prop_closures.get(ctx)
     prop.cb = cb
-    prop.fixed(id, _to_expr_ref(ctypes.c_void_p(value), prop.ctx()))
+    id = _to_expr_ref(to_Ast(id), prop.ctx())
+    value = _to_expr_ref(to_Ast(value), prop.ctx())
+    prop.fixed(id, value)
     prop.cb = None
 
 def user_prop_final(ctx, cb):
@@ -10568,22 +11316,28 @@ def user_prop_final(ctx, cb):
 def user_prop_eq(ctx, cb, x, y):
     prop = _prop_closures.get(ctx)
     prop.cb = cb
+    x = _to_expr_ref(to_Ast(x), prop.ctx())
+    y = _to_expr_ref(to_Ast(y), prop.ctx())
     prop.eq(x, y)
     prop.cb = None
 
 def user_prop_diseq(ctx, cb, x, y):
     prop = _prop_closures.get(ctx)
     prop.cb = cb
+    x = _to_expr_ref(to_Ast(x), prop.ctx())
+    y = _to_expr_ref(to_Ast(y), prop.ctx())
     prop.diseq(x, y)
     prop.cb = None
 
-_user_prop_push  = push_eh_type(user_prop_push)
-_user_prop_pop   = pop_eh_type(user_prop_pop)
+
+_user_prop_push = push_eh_type(user_prop_push)
+_user_prop_pop = pop_eh_type(user_prop_pop)
 _user_prop_fresh = fresh_eh_type(user_prop_fresh)
 _user_prop_fixed = fixed_eh_type(user_prop_fixed)
 _user_prop_final = final_eh_type(user_prop_final)
-_user_prop_eq    = eq_eh_type(user_prop_eq)
+_user_prop_eq = eq_eh_type(user_prop_eq)
 _user_prop_diseq = eq_eh_type(user_prop_diseq)
+
 
 class UserPropagateBase:
 
@@ -10593,24 +11347,25 @@ class UserPropagateBase:
     # to "fresh" inherit the context of that is supplied
     # as argument to the callback.
     # This context should not be deleted. It is owned by the solver.
-    # 
-    def __init__(self, s, ctx = None):
+    #
+    def __init__(self, s, ctx=None):
         assert s is None or ctx is None
         ensure_prop_closures()
-        self.solver = s        
+        self.solver = s
         self._ctx = None
         self.cb = None
         self.id = _prop_closures.insert(self)
         self.fixed = None
         self.final = None
-        self.eq    = None
+        self.eq = None
         self.diseq = None
         if ctx:
+            # TBD fresh is broken: ctx is not of the right type when we reach here.
             self._ctx = Context()
-            Z3_del_context(self._ctx.ctx)
-            self._ctx.ctx = ctx
-            self._ctx.eh = Z3_set_error_handler(ctx, z3_error_handler)
-            Z3_set_ast_print_mode(ctx, Z3_PRINT_SMTLIB2_COMPLIANT)
+            #Z3_del_context(self._ctx.ctx)
+            #self._ctx.ctx = ctx
+            #self._ctx.eh = Z3_set_error_handler(ctx, z3_error_handler)
+            #Z3_set_ast_print_mode(ctx, Z3_PRINT_SMTLIB2_COMPLIANT)
         if s:
             Z3_solver_propagate_init(self.ctx_ref(),
                                      s.solver,
@@ -10628,16 +11383,16 @@ class UserPropagateBase:
             return self._ctx
         else:
             return self.solver.ctx
-        
+
     def ctx_ref(self):
         return self.ctx().ref()
-                    
+
     def add_fixed(self, fixed):
         assert not self.fixed
         assert not self._ctx
         Z3_solver_propagate_fixed(self.ctx_ref(), self.solver.solver, _user_prop_fixed)
         self.fixed = fixed
- 
+
     def add_final(self, final):
         assert not self.final
         assert not self._ctx
@@ -10664,27 +11419,22 @@ class UserPropagateBase:
 
     def fresh(self):
         raise Z3Exception("fresh needs to be overwritten")
-        
+
     def add(self, e):
         assert self.solver
         assert not self._ctx
-        return Z3_solver_propagate_register(self.ctx_ref(), self.solver.solver, e.ast)
+        Z3_solver_propagate_register(self.ctx_ref(), self.solver.solver, e.ast)
 
     #
-    # Propagation can only be invoked as during a fixed-callback.
-    # 
-    def propagate(self, e, ids, eqs = []):
-        num_fixed = len(ids)
-        _ids = (ctypes.c_uint * num_fixed)()
-        for i in range(num_fixed):
-            _ids[i] = ids[i]
+    # Propagation can only be invoked as during a fixed or final callback.
+    #
+    def propagate(self, e, ids, eqs=[]):
+        _ids, num_fixed = _to_ast_array(ids)
         num_eqs = len(eqs)
-        _lhs = (ctypes.c_uint * num_eqs)()
-        _rhs = (ctypes.c_uint * num_eqs)()
-        for i in range(num_eqs):
-            _lhs[i] = eqs[i][0]
-            _rhs[i] = eqs[i][1]
-        Z3_solver_propagate_consequence(e.ctx.ref(), ctypes.c_void_p(self.cb), num_fixed, _ids, num_eqs, _lhs, _rhs, e.ast)
+        _lhs, _num_lhs = _to_ast_array([x for x, y in eqs])
+        _rhs, _num_rhs = _to_ast_array([y for x, y in eqs])
+        Z3_solver_propagate_consequence(e.ctx.ref(), ctypes.c_void_p(
+            self.cb), num_fixed, _ids, num_eqs, _lhs, _rhs, e.ast)
 
-    def conflict(self, ids):
-        self.propagate(BoolVal(False, self.ctx()), ids, eqs=[])
+    def conflict(self, deps):
+        self.propagate(BoolVal(False, self.ctx()), deps, eqs=[])
