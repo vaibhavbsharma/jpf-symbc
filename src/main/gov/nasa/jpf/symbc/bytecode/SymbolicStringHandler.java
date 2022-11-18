@@ -2029,7 +2029,7 @@ public class SymbolicStringHandler {
 
     public Instruction handleLongValueOf(JVMInvokeInstruction invInst, ThreadInfo th) {
         StackFrame sf = th.getModifiableTopFrame();
-        IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(0);
+        IntegerExpression sym_v1 = (IntegerExpression) sf.getOperandAttr(1);
 
         if (sym_v1 == null) {
             throw new RuntimeException("ERROR: symbolic string method must have symbolic operand: handleLongValueOf");
