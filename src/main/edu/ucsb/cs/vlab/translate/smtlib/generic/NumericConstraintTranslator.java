@@ -13,6 +13,7 @@ import edu.ucsb.cs.vlab.translate.smtlib.TranslationManager;
 import gov.nasa.jpf.symbc.numeric.*;
 import gov.nasa.jpf.symbc.string.StringExpression;
 import gov.nasa.jpf.symbc.string.SymbolicCharAtInteger;
+import za.ac.sun.cs.green.expr.IntConstant;
 import za.ac.sun.cs.green.expr.IntVariable;
 import za.ac.sun.cs.green.expr.Operation;
 import za.ac.sun.cs.green.expr.RealVariable;
@@ -57,12 +58,29 @@ public abstract class NumericConstraintTranslator extends NormalFormTranslator<C
 			Operation op = (Operation) exp;
 			String opString = getOpString(op.getOperator());
 			String ret =  "(" + opString;
-			for (int i = 0; i < op.getArity(); i++)
-				ret += " " + transformGreenExp(op.getOperand(i));
+			for (int i = 0; i < op.getArity(); i++){
+				if(op.getArity() == 2 && i == 0
+						&& op.getOperand(0) instanceof IntVariable
+						&& ((IntVariable) op.getOperand(0)).getOriginal() instanceof SymbolicCharAtInteger
+						&& op.getOperand(1) instanceof IntConstant){
+					ret += " (str.to_code " + transformGreenExp(op.getOperand(i)) + ")";
+				}
+				else
+					ret += " " + transformGreenExp(op.getOperand(i));
+			}
 			ret += ")" + (opString.contains("(=") ? ")" : "");
 			return ret;
 		} else {
-			if (exp instanceof IntVariable) Results.numericVariables.add(((IntVariable) exp).getName());
+			if (exp instanceof IntVariable){
+				Object orig = ((IntVariable) exp).getOriginal();
+				if(orig instanceof SymbolicCharAtInteger)
+					return manager.numExpr.collect((IntegerExpression) orig);
+				else{
+					Results.numericVariables.add(((IntVariable) exp).getName());
+					return exp.toString();
+				}
+			}
+
 			if (exp instanceof RealVariable) Results.numericVariables.add(((RealVariable) exp).getName());
 			return exp.toString();
 		}
