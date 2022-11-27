@@ -2571,6 +2571,9 @@ public class SymbolicStringHandler {
         sym_v2._append(sym_v1);
         sf.push(s2, true); /* symbolic string Builder element */
       } else { // both operands are symbolic
+        if (invInst.getInvokedMethodName().equals("append(C)Ljava/lang/StringBuffer;"))
+          throw new RuntimeException("ERROR: unsupported StringBuffer operation: append");
+
         sym_v2._append(sym_v1);
         sf.push(s2, true); /* string Builder element can continue */
       }

@@ -44,11 +44,11 @@
 #target=svcomp.Tsp_FunSat01.Main
 #target=svcomp.Tsp_FunUnsat01.Main
 #target=svcomp.Tsp_MemUnsat01.Main
-#target=svcomp.securibench.Sanitizers2.Main
+target=svcomp.securibench.Sanitizers6.Main
 #target=svcomp.securibench.Aliasing1.Main
 #Basic38 is a target to lookup problems in translating string constraints.
 #target=svcomp.securibench.Basic38.Main
-#target=svcomp.StringValueOf08.Main
+#target=svcomp.StringValueOf07.Main
 #target=svcomp.CharSequenceToString.Main
 #target=svcomp.URLDecoder01.Main
 #target=svcomp.bug_test_gen_119.Main
@@ -68,8 +68,9 @@
 #target=svcomp.StringCompare04.Main
 #target=svcomp.StringBuilderConstructors02.Main
 #target=svcomp.UnsatFibonacci01.Main
-target=svcomp.loopCharAt.Main
-target=svcomp.char1.Main
+#target=svcomp.loopCharAt.Main
+#target=svcomp.char1.Main
+#target=svcomp.MergeSortIterative_MemSat01.Main
 
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
@@ -79,7 +80,7 @@ symbolic.max_int=2147483647
 symbolic.min_double=-10000.0
 symbolic.max_double=10000.0
 symbolic.bvlength=64
-search.depth_limit=13
+search.depth_limit=5
 symbolic.strings=true
 symbolic.string_dp=z3str3
 symbolic.lazy=on
