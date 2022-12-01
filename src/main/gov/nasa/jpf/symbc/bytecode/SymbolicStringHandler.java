@@ -801,7 +801,6 @@ public class SymbolicStringHandler {
       }
 
     }
-
   }
 
   public void handledoubleValue(JVMInvokeInstruction invInst, ThreadInfo th) {
