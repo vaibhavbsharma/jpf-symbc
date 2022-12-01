@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  */
 public class PreProcessGraph {
   static Logger logger = LogManager.getLogger("stringsolver");
-	public static final int MAXIMUM_LENGTH = 30;
+	public static int MAXIMUM_LENGTH = 30;
 	private static SymbolicConstraintsGeneral scg;
 	
 	//TODO: Add support for NoCharAt and LastIndexOf

@@ -5,6 +5,7 @@ import com.ibm.wala.util.shrike.gotoTransformation.GoToTransformer;
 import gov.nasa.jpf.JPFException;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.search.Search;
+import gov.nasa.jpf.symbc.string.graph.PreProcessGraph;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
@@ -75,7 +76,8 @@ import static gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.Arr
 public class VeritestingListener extends PropertyListenerAdapter implements PublisherExtension {
 
 
-    // veritestingMode ranges from 1 to 5 which is the same as runMode ranging from VANILLASPF, VERITESTING, HIGHORDER,
+    private static int kValue = 0;
+  // veritestingMode ranges from 1 to 5 which is the same as runMode ranging from VANILLASPF, VERITESTING, HIGHORDER,
     // SPFCASES, EARLYRETURNS
     public static int veritestingMode = 0;
     public static VeritestingMode runMode;
@@ -90,6 +92,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public static int veritestRegionCount = 0;
     private static long staticAnalysisDur;
     public static String key;
+    private static boolean nonindetFound;
     private final long runStartTime = System.nanoTime();
     public static StatisticManager statisticManager = new StatisticManager();
     private static int veritestRegionExpectedCount = -1;
@@ -185,6 +188,19 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
             if (conf.hasValue("search.depth_limit"))
                 System.out.println("search depth = " + conf.getInt("search.depth_limit"));
 
+            if (conf.hasValue("n")) {
+                System.out.println("value of n = " + conf.getInt("n"));
+                PreProcessGraph.MAXIMUM_LENGTH=conf.getInt("n");
+                if (conf.hasValue("k")) {
+                    System.out.println("value of k = " + conf.getInt("k"));
+                    VeritestingListener.kValue=conf.getInt("k");
+                }
+                else
+                    assert false:"must provide a value of k";
+            } else
+                assert false:"must provide a value of n";
+
+
             if (conf.hasValue("performanceMode"))
                 performanceMode = conf.getBoolean("performanceMode");
 
@@ -278,6 +294,13 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
         veritestingSuccessful = false;
 
+        if(!VeritestingListener.nonindetFound && instructionToExecute.toString().equals("invokestatic org.sosy_lab.sv_benchmarks.Verifier.nondetInt()I")){
+            nonindetFound = true;//used to avoid the continous equality comparison when not needed
+          StackFrame frame = ti.getTopFrame();
+            frame.push(kValue);
+            ti.setNextPC(instructionToExecute.getNext());
+            return;
+        }
         if (timeout_mins != -1) {
             long runningTimeNsecs = System.nanoTime() - runStartTime;
             if (TimeUnit.NANOSECONDS.toSeconds(runningTimeNsecs) > ((timeout_mins * 60) - (10 * timeoutReportingCounter))) {

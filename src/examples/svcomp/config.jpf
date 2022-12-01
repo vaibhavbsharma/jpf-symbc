@@ -44,7 +44,7 @@
 #target=svcomp.Tsp_FunSat01.Main
 #target=svcomp.Tsp_FunUnsat01.Main
 #target=svcomp.Tsp_MemUnsat01.Main
-target=svcomp.securibench.Sanitizers6.Main
+#target=svcomp.securibench.Sanitizers6.Main
 #target=svcomp.securibench.Aliasing1.Main
 #Basic38 is a target to lookup problems in translating string constraints.
 #target=svcomp.securibench.Basic38.Main
@@ -68,7 +68,7 @@ target=svcomp.securibench.Sanitizers6.Main
 #target=svcomp.StringCompare04.Main
 #target=svcomp.StringBuilderConstructors02.Main
 #target=svcomp.UnsatFibonacci01.Main
-#target=svcomp.loopCharAt.Main
+target=svcomp.loopCharAt.Main
 #target=svcomp.char1.Main
 #target=svcomp.MergeSortIterative_MemSat01.Main
 
@@ -99,3 +99,5 @@ listener = .symbc.VeritestingListener
 #,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 #symbolic.optimizechoices=false
 symbolic.debug=true
+n=20
+k=5

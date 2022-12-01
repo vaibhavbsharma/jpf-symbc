@@ -1,11 +1,14 @@
 package edu.ucsb.cs.vlab.versions;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 //import java.io.InputStreamReader;
 import java.io.StringReader;
 //import java.nio.file.Files;
 //import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +25,8 @@ import com.microsoft.z3.*;
 
 // TODO: This will not need to implement Processable in final version.
 public class Z3String3Processor {
+
+	private static int QUERY_NUMBER = 1;
 	final Model model = new Model();
 	final StringBuilder currentQuery = new StringBuilder();
 
@@ -81,9 +86,10 @@ public class Z3String3Processor {
 		}
 		queryReader.close();
 
-		if (SymbolicInstructionFactory.debugMode) {
+//		if (SymbolicInstructionFactory.debugMode) {
 			System.out.println("current query... " + finalQuery.toString());
-		}
+//		}
+		dumpQuery(finalQuery.toString());
 
 		// attempt to parse the query, if successful continue with checking satisfiability
 		try {
@@ -150,6 +156,29 @@ public class Z3String3Processor {
 		}
 
 		return new Output(sat, assembleModel());
+	}
+
+	private void dumpQuery(String query) {
+		String dumpedQuery = "(set-option :smt.string_solver z3str3)\n"
+				+ "(set-option :str.aggressive_length_testing false)\n"
+				+ "(set-option :str.aggressive_unroll_testing true)\n"
+				+ "(set-option :str.aggressive_value_testing false)\n"
+				+ "(set-option :str.fast_length_tester_cache true)\n"
+				+ "(set-option :str.fast_value_tester_cache true)\n"
+				+ "(set-option :str.fixed_length_naive_cex true)\n"
+				+ "(set-option :str.fixed_length_refinement false)\n"
+				+ "(set-option :str.string_constant_cache true)\n"
+				+ "(set-option :str.strong_arrangements true)\n"
+				+ query +
+				"\n(check-sat)\n"
+				+ "(get-model)";
+		File dumpDir = new File("../dumpDir");
+		try {
+			Files.write(Paths.get(dumpDir+ "/QUERY_"+QUERY_NUMBER++ +".txt"), dumpedQuery.getBytes());
+		} catch (IOException e) {
+			System.out.println("error creating dumpingDir and writing to it. Failing.");
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void process(String line) {
