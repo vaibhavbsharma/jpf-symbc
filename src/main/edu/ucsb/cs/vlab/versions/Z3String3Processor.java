@@ -159,17 +159,7 @@ public class Z3String3Processor {
 	}
 
 	private void dumpQuery(String query) {
-		String dumpedQuery = "(set-option :smt.string_solver z3str3)\n"
-				+ "(set-option :str.aggressive_length_testing false)\n"
-				+ "(set-option :str.aggressive_unroll_testing true)\n"
-				+ "(set-option :str.aggressive_value_testing false)\n"
-				+ "(set-option :str.fast_length_tester_cache true)\n"
-				+ "(set-option :str.fast_value_tester_cache true)\n"
-				+ "(set-option :str.fixed_length_naive_cex true)\n"
-				+ "(set-option :str.fixed_length_refinement false)\n"
-				+ "(set-option :str.string_constant_cache true)\n"
-				+ "(set-option :str.strong_arrangements true)\n"
-				+ query +
+		String dumpedQuery = query +
 				"\n(check-sat)\n"
 				+ "(get-model)";
 		File dumpDir = new File("../dumpDir");
