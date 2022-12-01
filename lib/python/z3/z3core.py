@@ -57,7 +57,7 @@ if _lib is None:
   print("Could not find libz3.%s; consider adding the directory containing it to" % _ext)
   print("  - your system's PATH environment variable,")
   print("  - the Z3_LIBRARY_PATH environment variable, or ")
-  print("  - to the custom Z3_LIBRARY_DIRS Python-builtin before importing the z3 module, e.g. via")
+  print("  - to the custom Z3_LIB_DIRS Python-builtin before importing the z3 module, e.g. via")
   if sys.version < '3':
     print("    import __builtin__")
     print("    __builtin__.Z3_LIB_DIRS = [ '/path/to/libz3.%s' ] " % _ext)
@@ -66,25 +66,24 @@ if _lib is None:
     print("    builtins.Z3_LIB_DIRS = [ '/path/to/libz3.%s' ] " % _ext)
   raise Z3Exception("libz3.%s not found." % _ext)
 
-def _str_to_bytes(s):
-  if isinstance(s, str):
-    try: 
-      return s.encode('latin-1')
-    except:
-      # kick the bucket down the road.  :-J
-      return s
-  else:
-    return s
 
 if sys.version < '3':
+  def _str_to_bytes(s):
+    return s
   def _to_pystr(s):
      return s
 else:
+  def _str_to_bytes(s):
+    if isinstance(s, str):
+        enc = sys.stdout.encoding
+        return s.encode(enc if enc != None else 'latin-1')
+    else:
+        return s
+
   def _to_pystr(s):
      if s != None:
         enc = sys.stdout.encoding
-        if enc != None: return s.decode(enc)
-        else: return s.decode('latin-1')
+        return s.decode(enc if enc != None else 'latin-1')
      else:
         return ""
 
@@ -93,13 +92,13 @@ _error_handler_type  = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_uint)
 _lib.Z3_set_error_handler.restype  = None
 _lib.Z3_set_error_handler.argtypes = [ContextObj, _error_handler_type]
 
-push_eh_type  = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
-pop_eh_type   = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_uint)
+push_eh_type  = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p)
+pop_eh_type   = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint)
 fresh_eh_type = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)
 
-fixed_eh_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint, ctypes.c_void_p)
+fixed_eh_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)
 final_eh_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p)
-eq_eh_type    = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint, ctypes.c_uint)
+eq_eh_type    = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)
 
 _lib.Z3_solver_propagate_init.restype = None
 _lib.Z3_solver_propagate_init.argtypes = [ContextObj, SolverObj, ctypes.c_void_p, push_eh_type, pop_eh_type, fresh_eh_type]
@@ -116,6 +115,9 @@ _lib.Z3_solver_propagate_eq.argtypes = [ContextObj, SolverObj, eq_eh_type]
 _lib.Z3_solver_propagate_diseq.restype = None
 _lib.Z3_solver_propagate_diseq.argtypes = [ContextObj, SolverObj, eq_eh_type]
 
+on_model_eh_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+_lib.Z3_optimize_register_model_eh.restype = None
+_lib.Z3_optimize_register_model_eh.argtypes = [ContextObj, OptimizeObj, ModelObj, ctypes.c_void_p, on_model_eh_type]
 
 _lib.Z3_global_param_set.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
 _lib.Z3_global_param_reset_all.argtypes = []
@@ -322,6 +324,8 @@ _lib.Z3_mk_zero_ext.restype = Ast
 _lib.Z3_mk_zero_ext.argtypes = [ContextObj, ctypes.c_uint, Ast]
 _lib.Z3_mk_repeat.restype = Ast
 _lib.Z3_mk_repeat.argtypes = [ContextObj, ctypes.c_uint, Ast]
+_lib.Z3_mk_bit2bool.restype = Ast
+_lib.Z3_mk_bit2bool.argtypes = [ContextObj, ctypes.c_uint, Ast]
 _lib.Z3_mk_bvshl.restype = Ast
 _lib.Z3_mk_bvshl.argtypes = [ContextObj, Ast, Ast]
 _lib.Z3_mk_bvlshr.restype = Ast
@@ -426,18 +430,27 @@ _lib.Z3_get_re_sort_basis.restype = Sort
 _lib.Z3_get_re_sort_basis.argtypes = [ContextObj, Sort]
 _lib.Z3_mk_string_sort.restype = Sort
 _lib.Z3_mk_string_sort.argtypes = [ContextObj]
+_lib.Z3_mk_char_sort.restype = Sort
+_lib.Z3_mk_char_sort.argtypes = [ContextObj]
 _lib.Z3_is_string_sort.restype = ctypes.c_bool
 _lib.Z3_is_string_sort.argtypes = [ContextObj, Sort]
+_lib.Z3_is_char_sort.restype = ctypes.c_bool
+_lib.Z3_is_char_sort.argtypes = [ContextObj, Sort]
 _lib.Z3_mk_string.restype = Ast
 _lib.Z3_mk_string.argtypes = [ContextObj, ctypes.c_char_p]
 _lib.Z3_mk_lstring.restype = Ast
 _lib.Z3_mk_lstring.argtypes = [ContextObj, ctypes.c_uint, ctypes.c_char_p]
+_lib.Z3_mk_u32string.restype = Ast
+_lib.Z3_mk_u32string.argtypes = [ContextObj, ctypes.c_uint, ctypes.POINTER(ctypes.c_uint)]
 _lib.Z3_is_string.restype = ctypes.c_bool
 _lib.Z3_is_string.argtypes = [ContextObj, Ast]
 _lib.Z3_get_string.restype = ctypes.c_char_p
 _lib.Z3_get_string.argtypes = [ContextObj, Ast]
 _lib.Z3_get_lstring.restype = ctypes.POINTER(ctypes.c_char)
 _lib.Z3_get_lstring.argtypes = [ContextObj, Ast, ctypes.POINTER(ctypes.c_uint)]
+_lib.Z3_get_string_length.restype = ctypes.c_uint
+_lib.Z3_get_string_length.argtypes = [ContextObj, Ast]
+_lib.Z3_get_string_contents.argtypes = [ContextObj, Ast, ctypes.c_uint, ctypes.POINTER(ctypes.c_uint)]
 _lib.Z3_mk_seq_empty.restype = Ast
 _lib.Z3_mk_seq_empty.argtypes = [ContextObj, Sort]
 _lib.Z3_mk_seq_unit.restype = Ast
@@ -472,6 +485,14 @@ _lib.Z3_mk_str_to_int.restype = Ast
 _lib.Z3_mk_str_to_int.argtypes = [ContextObj, Ast]
 _lib.Z3_mk_int_to_str.restype = Ast
 _lib.Z3_mk_int_to_str.argtypes = [ContextObj, Ast]
+_lib.Z3_mk_string_to_code.restype = Ast
+_lib.Z3_mk_string_to_code.argtypes = [ContextObj, Ast]
+_lib.Z3_mk_string_from_code.restype = Ast
+_lib.Z3_mk_string_from_code.argtypes = [ContextObj, Ast]
+_lib.Z3_mk_ubv_to_str.restype = Ast
+_lib.Z3_mk_ubv_to_str.argtypes = [ContextObj, Ast]
+_lib.Z3_mk_sbv_to_str.restype = Ast
+_lib.Z3_mk_sbv_to_str.argtypes = [ContextObj, Ast]
 _lib.Z3_mk_seq_to_re.restype = Ast
 _lib.Z3_mk_seq_to_re.argtypes = [ContextObj, Ast]
 _lib.Z3_mk_seq_in_re.restype = Ast
@@ -488,16 +509,34 @@ _lib.Z3_mk_re_concat.restype = Ast
 _lib.Z3_mk_re_concat.argtypes = [ContextObj, ctypes.c_uint, ctypes.POINTER(Ast)]
 _lib.Z3_mk_re_range.restype = Ast
 _lib.Z3_mk_re_range.argtypes = [ContextObj, Ast, Ast]
+_lib.Z3_mk_re_allchar.restype = Ast
+_lib.Z3_mk_re_allchar.argtypes = [ContextObj, Sort]
 _lib.Z3_mk_re_loop.restype = Ast
 _lib.Z3_mk_re_loop.argtypes = [ContextObj, Ast, ctypes.c_uint, ctypes.c_uint]
+_lib.Z3_mk_re_power.restype = Ast
+_lib.Z3_mk_re_power.argtypes = [ContextObj, Ast, ctypes.c_uint]
 _lib.Z3_mk_re_intersect.restype = Ast
 _lib.Z3_mk_re_intersect.argtypes = [ContextObj, ctypes.c_uint, ctypes.POINTER(Ast)]
 _lib.Z3_mk_re_complement.restype = Ast
 _lib.Z3_mk_re_complement.argtypes = [ContextObj, Ast]
+_lib.Z3_mk_re_diff.restype = Ast
+_lib.Z3_mk_re_diff.argtypes = [ContextObj, Ast, Ast]
 _lib.Z3_mk_re_empty.restype = Ast
 _lib.Z3_mk_re_empty.argtypes = [ContextObj, Sort]
 _lib.Z3_mk_re_full.restype = Ast
 _lib.Z3_mk_re_full.argtypes = [ContextObj, Sort]
+_lib.Z3_mk_char.restype = Ast
+_lib.Z3_mk_char.argtypes = [ContextObj, ctypes.c_uint]
+_lib.Z3_mk_char_le.restype = Ast
+_lib.Z3_mk_char_le.argtypes = [ContextObj, Ast, Ast]
+_lib.Z3_mk_char_to_int.restype = Ast
+_lib.Z3_mk_char_to_int.argtypes = [ContextObj, Ast]
+_lib.Z3_mk_char_to_bv.restype = Ast
+_lib.Z3_mk_char_to_bv.argtypes = [ContextObj, Ast]
+_lib.Z3_mk_char_from_bv.restype = Ast
+_lib.Z3_mk_char_from_bv.argtypes = [ContextObj, Ast]
+_lib.Z3_mk_char_is_digit.restype = Ast
+_lib.Z3_mk_char_is_digit.argtypes = [ContextObj, Ast]
 _lib.Z3_mk_linear_order.restype = FuncDecl
 _lib.Z3_mk_linear_order.argtypes = [ContextObj, Sort, ctypes.c_uint]
 _lib.Z3_mk_partial_order.restype = FuncDecl
@@ -554,6 +593,8 @@ _lib.Z3_get_finite_domain_sort_size.restype = ctypes.c_bool
 _lib.Z3_get_finite_domain_sort_size.argtypes = [ContextObj, Sort, ctypes.POINTER(ctypes.c_ulonglong)]
 _lib.Z3_get_array_sort_domain.restype = Sort
 _lib.Z3_get_array_sort_domain.argtypes = [ContextObj, Sort]
+_lib.Z3_get_array_sort_domain_n.restype = Sort
+_lib.Z3_get_array_sort_domain_n.argtypes = [ContextObj, Sort, ctypes.c_uint]
 _lib.Z3_get_array_sort_range.restype = Sort
 _lib.Z3_get_array_sort_range.argtypes = [ContextObj, Sort]
 _lib.Z3_get_tuple_sort_mk_decl.restype = FuncDecl
@@ -730,41 +771,41 @@ _lib.Z3_substitute_vars.restype = Ast
 _lib.Z3_substitute_vars.argtypes = [ContextObj, Ast, ctypes.c_uint, ctypes.POINTER(Ast)]
 _lib.Z3_translate.restype = Ast
 _lib.Z3_translate.argtypes = [ContextObj, Ast, ContextObj]
-_lib.Z3_mk_model.restype = Model
+_lib.Z3_mk_model.restype = ModelObj
 _lib.Z3_mk_model.argtypes = [ContextObj]
-_lib.Z3_model_inc_ref.argtypes = [ContextObj, Model]
-_lib.Z3_model_dec_ref.argtypes = [ContextObj, Model]
+_lib.Z3_model_inc_ref.argtypes = [ContextObj, ModelObj]
+_lib.Z3_model_dec_ref.argtypes = [ContextObj, ModelObj]
 _lib.Z3_model_eval.restype = ctypes.c_bool
-_lib.Z3_model_eval.argtypes = [ContextObj, Model, Ast, ctypes.c_bool, ctypes.POINTER(Ast)]
+_lib.Z3_model_eval.argtypes = [ContextObj, ModelObj, Ast, ctypes.c_bool, ctypes.POINTER(Ast)]
 _lib.Z3_model_get_const_interp.restype = Ast
-_lib.Z3_model_get_const_interp.argtypes = [ContextObj, Model, FuncDecl]
+_lib.Z3_model_get_const_interp.argtypes = [ContextObj, ModelObj, FuncDecl]
 _lib.Z3_model_has_interp.restype = ctypes.c_bool
-_lib.Z3_model_has_interp.argtypes = [ContextObj, Model, FuncDecl]
+_lib.Z3_model_has_interp.argtypes = [ContextObj, ModelObj, FuncDecl]
 _lib.Z3_model_get_func_interp.restype = FuncInterpObj
-_lib.Z3_model_get_func_interp.argtypes = [ContextObj, Model, FuncDecl]
+_lib.Z3_model_get_func_interp.argtypes = [ContextObj, ModelObj, FuncDecl]
 _lib.Z3_model_get_num_consts.restype = ctypes.c_uint
-_lib.Z3_model_get_num_consts.argtypes = [ContextObj, Model]
+_lib.Z3_model_get_num_consts.argtypes = [ContextObj, ModelObj]
 _lib.Z3_model_get_const_decl.restype = FuncDecl
-_lib.Z3_model_get_const_decl.argtypes = [ContextObj, Model, ctypes.c_uint]
+_lib.Z3_model_get_const_decl.argtypes = [ContextObj, ModelObj, ctypes.c_uint]
 _lib.Z3_model_get_num_funcs.restype = ctypes.c_uint
-_lib.Z3_model_get_num_funcs.argtypes = [ContextObj, Model]
+_lib.Z3_model_get_num_funcs.argtypes = [ContextObj, ModelObj]
 _lib.Z3_model_get_func_decl.restype = FuncDecl
-_lib.Z3_model_get_func_decl.argtypes = [ContextObj, Model, ctypes.c_uint]
+_lib.Z3_model_get_func_decl.argtypes = [ContextObj, ModelObj, ctypes.c_uint]
 _lib.Z3_model_get_num_sorts.restype = ctypes.c_uint
-_lib.Z3_model_get_num_sorts.argtypes = [ContextObj, Model]
+_lib.Z3_model_get_num_sorts.argtypes = [ContextObj, ModelObj]
 _lib.Z3_model_get_sort.restype = Sort
-_lib.Z3_model_get_sort.argtypes = [ContextObj, Model, ctypes.c_uint]
+_lib.Z3_model_get_sort.argtypes = [ContextObj, ModelObj, ctypes.c_uint]
 _lib.Z3_model_get_sort_universe.restype = AstVectorObj
-_lib.Z3_model_get_sort_universe.argtypes = [ContextObj, Model, Sort]
-_lib.Z3_model_translate.restype = Model
-_lib.Z3_model_translate.argtypes = [ContextObj, Model, ContextObj]
+_lib.Z3_model_get_sort_universe.argtypes = [ContextObj, ModelObj, Sort]
+_lib.Z3_model_translate.restype = ModelObj
+_lib.Z3_model_translate.argtypes = [ContextObj, ModelObj, ContextObj]
 _lib.Z3_is_as_array.restype = ctypes.c_bool
 _lib.Z3_is_as_array.argtypes = [ContextObj, Ast]
 _lib.Z3_get_as_array_func_decl.restype = FuncDecl
 _lib.Z3_get_as_array_func_decl.argtypes = [ContextObj, Ast]
 _lib.Z3_add_func_interp.restype = FuncInterpObj
-_lib.Z3_add_func_interp.argtypes = [ContextObj, Model, FuncDecl, Ast]
-_lib.Z3_add_const_interp.argtypes = [ContextObj, Model, FuncDecl, Ast]
+_lib.Z3_add_func_interp.argtypes = [ContextObj, ModelObj, FuncDecl, Ast]
+_lib.Z3_add_const_interp.argtypes = [ContextObj, ModelObj, FuncDecl, Ast]
 _lib.Z3_func_interp_inc_ref.argtypes = [ContextObj, FuncInterpObj]
 _lib.Z3_func_interp_dec_ref.argtypes = [ContextObj, FuncInterpObj]
 _lib.Z3_func_interp_get_num_entries.restype = ctypes.c_uint
@@ -800,7 +841,7 @@ _lib.Z3_sort_to_string.argtypes = [ContextObj, Sort]
 _lib.Z3_func_decl_to_string.restype = ctypes.c_char_p
 _lib.Z3_func_decl_to_string.argtypes = [ContextObj, FuncDecl]
 _lib.Z3_model_to_string.restype = ctypes.c_char_p
-_lib.Z3_model_to_string.argtypes = [ContextObj, Model]
+_lib.Z3_model_to_string.argtypes = [ContextObj, ModelObj]
 _lib.Z3_benchmark_to_smtlib_string.restype = ctypes.c_char_p
 _lib.Z3_benchmark_to_smtlib_string.argtypes = [ContextObj, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint, ctypes.POINTER(Ast), Ast]
 _lib.Z3_parse_smtlib2_string.restype = AstVectorObj
@@ -845,8 +886,8 @@ _lib.Z3_goal_is_decided_unsat.restype = ctypes.c_bool
 _lib.Z3_goal_is_decided_unsat.argtypes = [ContextObj, GoalObj]
 _lib.Z3_goal_translate.restype = GoalObj
 _lib.Z3_goal_translate.argtypes = [ContextObj, GoalObj, ContextObj]
-_lib.Z3_goal_convert_model.restype = Model
-_lib.Z3_goal_convert_model.argtypes = [ContextObj, GoalObj, Model]
+_lib.Z3_goal_convert_model.restype = ModelObj
+_lib.Z3_goal_convert_model.argtypes = [ContextObj, GoalObj, ModelObj]
 _lib.Z3_goal_to_string.restype = ctypes.c_char_p
 _lib.Z3_goal_to_string.argtypes = [ContextObj, GoalObj]
 _lib.Z3_goal_to_dimacs_string.restype = ctypes.c_char_p
@@ -970,15 +1011,11 @@ _lib.Z3_solver_get_trail.argtypes = [ContextObj, SolverObj]
 _lib.Z3_solver_get_non_units.restype = AstVectorObj
 _lib.Z3_solver_get_non_units.argtypes = [ContextObj, SolverObj]
 _lib.Z3_solver_get_levels.argtypes = [ContextObj, SolverObj, AstVectorObj, ctypes.c_uint, ctypes.POINTER(ctypes.c_uint)]
-_lib.Z3_solver_get_implied_value.restype = Ast
-_lib.Z3_solver_get_implied_value.argtypes = [ContextObj, SolverObj, Ast]
-_lib.Z3_solver_get_implied_lower.restype = Ast
-_lib.Z3_solver_get_implied_lower.argtypes = [ContextObj, SolverObj, Ast]
-_lib.Z3_solver_get_implied_upper.restype = Ast
-_lib.Z3_solver_get_implied_upper.argtypes = [ContextObj, SolverObj, Ast]
-_lib.Z3_solver_propagate_register.restype = ctypes.c_uint
+_lib.Z3_solver_propagate_declare.restype = FuncDecl
+_lib.Z3_solver_propagate_declare.argtypes = [ContextObj, Symbol, ctypes.c_uint, ctypes.POINTER(Sort), Sort]
 _lib.Z3_solver_propagate_register.argtypes = [ContextObj, SolverObj, Ast]
-_lib.Z3_solver_propagate_consequence.argtypes = [ContextObj, SolverCallbackObj, ctypes.c_uint, ctypes.POINTER(ctypes.c_uint), ctypes.c_uint, ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_uint), Ast]
+_lib.Z3_solver_propagate_register_cb.argtypes = [ContextObj, SolverCallbackObj, Ast]
+_lib.Z3_solver_propagate_consequence.argtypes = [ContextObj, SolverCallbackObj, ctypes.c_uint, ctypes.POINTER(Ast), ctypes.c_uint, ctypes.POINTER(Ast), ctypes.POINTER(Ast), Ast]
 _lib.Z3_solver_check.restype = ctypes.c_int
 _lib.Z3_solver_check.argtypes = [ContextObj, SolverObj]
 _lib.Z3_solver_check_assumptions.restype = ctypes.c_int
@@ -989,7 +1026,7 @@ _lib.Z3_solver_get_consequences.restype = ctypes.c_int
 _lib.Z3_solver_get_consequences.argtypes = [ContextObj, SolverObj, AstVectorObj, AstVectorObj, AstVectorObj]
 _lib.Z3_solver_cube.restype = AstVectorObj
 _lib.Z3_solver_cube.argtypes = [ContextObj, SolverObj, AstVectorObj, ctypes.c_uint]
-_lib.Z3_solver_get_model.restype = Model
+_lib.Z3_solver_get_model.restype = ModelObj
 _lib.Z3_solver_get_model.argtypes = [ContextObj, SolverObj]
 _lib.Z3_solver_get_proof.restype = Ast
 _lib.Z3_solver_get_proof.argtypes = [ContextObj, SolverObj]
@@ -1199,7 +1236,7 @@ _lib.Z3_optimize_check.restype = ctypes.c_int
 _lib.Z3_optimize_check.argtypes = [ContextObj, OptimizeObj, ctypes.c_uint, ctypes.POINTER(Ast)]
 _lib.Z3_optimize_get_reason_unknown.restype = ctypes.c_char_p
 _lib.Z3_optimize_get_reason_unknown.argtypes = [ContextObj, OptimizeObj]
-_lib.Z3_optimize_get_model.restype = Model
+_lib.Z3_optimize_get_model.restype = ModelObj
 _lib.Z3_optimize_get_model.argtypes = [ContextObj, OptimizeObj]
 _lib.Z3_optimize_get_unsat_core.restype = AstVectorObj
 _lib.Z3_optimize_get_unsat_core.argtypes = [ContextObj, OptimizeObj]
@@ -1398,11 +1435,11 @@ _lib.Z3_fixedpoint_add_invariant.argtypes = [ContextObj, FixedpointObj, FuncDecl
 _lib.Z3_fixedpoint_get_reachable.restype = Ast
 _lib.Z3_fixedpoint_get_reachable.argtypes = [ContextObj, FixedpointObj, FuncDecl]
 _lib.Z3_qe_model_project.restype = Ast
-_lib.Z3_qe_model_project.argtypes = [ContextObj, Model, ctypes.c_uint, ctypes.POINTER(Ast), Ast]
+_lib.Z3_qe_model_project.argtypes = [ContextObj, ModelObj, ctypes.c_uint, ctypes.POINTER(Ast), Ast]
 _lib.Z3_qe_model_project_skolem.restype = Ast
-_lib.Z3_qe_model_project_skolem.argtypes = [ContextObj, Model, ctypes.c_uint, ctypes.POINTER(Ast), Ast, AstMapObj]
+_lib.Z3_qe_model_project_skolem.argtypes = [ContextObj, ModelObj, ctypes.c_uint, ctypes.POINTER(Ast), Ast, AstMapObj]
 _lib.Z3_model_extrapolate.restype = Ast
-_lib.Z3_model_extrapolate.argtypes = [ContextObj, Model, Ast]
+_lib.Z3_model_extrapolate.argtypes = [ContextObj, ModelObj, Ast]
 _lib.Z3_qe_lite.restype = Ast
 _lib.Z3_qe_lite.argtypes = [ContextObj, AstVectorObj, Ast]
 
@@ -1425,7 +1462,7 @@ def Z3_set_error_handler(ctx, hndlr, _elems=Elementaries(_lib.Z3_set_error_handl
   _elems.Check(ctx)
   return ceh
 
-def Z3_solver_propagate_init(ctx, s, user_ctx, push_eh, pop_eh, fresh_eh, _elems = Elementaries(_lib.Z3_solver_propagate_init)):    
+def Z3_solver_propagate_init(ctx, s, user_ctx, push_eh, pop_eh, fresh_eh, _elems = Elementaries(_lib.Z3_solver_propagate_init)):
     _elems.f(ctx, s, user_ctx, push_eh, pop_eh, fresh_eh)
     _elems.Check(ctx)
 
@@ -1445,6 +1482,9 @@ def Z3_solver_propagate_diseq(ctx, s, diseq_eh, _elems = Elementaries(_lib.Z3_so
     _elems.f(ctx, s, diseq_eh)
     _elems.Check(ctx)
 
+def Z3_optimize_register_model_eh(ctx, o, m, user_ctx, on_model_eh, _elems = Elementaries(_lib.Z3_optimize_register_model_eh)):
+    _elems.f(ctx, o, m, user_ctx, on_model_eh)
+    _elems.Check(ctx)
 
 def Z3_global_param_set(a0, a1, _elems=Elementaries(_lib.Z3_global_param_set)):
   _elems.f(_str_to_bytes(a0), _str_to_bytes(a1))
@@ -1999,6 +2039,11 @@ def Z3_mk_repeat(a0, a1, a2, _elems=Elementaries(_lib.Z3_mk_repeat)):
   _elems.Check(a0)
   return r
 
+def Z3_mk_bit2bool(a0, a1, a2, _elems=Elementaries(_lib.Z3_mk_bit2bool)):
+  r = _elems.f(a0, a1, a2)
+  _elems.Check(a0)
+  return r
+
 def Z3_mk_bvshl(a0, a1, a2, _elems=Elementaries(_lib.Z3_mk_bvshl)):
   r = _elems.f(a0, a1, a2)
   _elems.Check(a0)
@@ -2259,7 +2304,17 @@ def Z3_mk_string_sort(a0, _elems=Elementaries(_lib.Z3_mk_string_sort)):
   _elems.Check(a0)
   return r
 
+def Z3_mk_char_sort(a0, _elems=Elementaries(_lib.Z3_mk_char_sort)):
+  r = _elems.f(a0)
+  _elems.Check(a0)
+  return r
+
 def Z3_is_string_sort(a0, a1, _elems=Elementaries(_lib.Z3_is_string_sort)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_is_char_sort(a0, a1, _elems=Elementaries(_lib.Z3_is_char_sort)):
   r = _elems.f(a0, a1)
   _elems.Check(a0)
   return r
@@ -2271,6 +2326,11 @@ def Z3_mk_string(a0, a1, _elems=Elementaries(_lib.Z3_mk_string)):
 
 def Z3_mk_lstring(a0, a1, a2, _elems=Elementaries(_lib.Z3_mk_lstring)):
   r = _elems.f(a0, a1, _str_to_bytes(a2))
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_u32string(a0, a1, a2, _elems=Elementaries(_lib.Z3_mk_u32string)):
+  r = _elems.f(a0, a1, a2)
   _elems.Check(a0)
   return r
 
@@ -2293,6 +2353,15 @@ def Z3_get_lstring(a0, a1, a2, _elems=Elementaries(_lib.Z3_get_lstring)):
   r = _elems.f(a0, a1, a2)
   _elems.Check(a0)
   return r
+
+def Z3_get_string_length(a0, a1, _elems=Elementaries(_lib.Z3_get_string_length)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_get_string_contents(a0, a1, a2, a3, _elems=Elementaries(_lib.Z3_get_string_contents)):
+  _elems.f(a0, a1, a2, a3)
+  _elems.Check(a0)
 
 def Z3_mk_seq_empty(a0, a1, _elems=Elementaries(_lib.Z3_mk_seq_empty)):
   r = _elems.f(a0, a1)
@@ -2379,6 +2448,26 @@ def Z3_mk_int_to_str(a0, a1, _elems=Elementaries(_lib.Z3_mk_int_to_str)):
   _elems.Check(a0)
   return r
 
+def Z3_mk_string_to_code(a0, a1, _elems=Elementaries(_lib.Z3_mk_string_to_code)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_string_from_code(a0, a1, _elems=Elementaries(_lib.Z3_mk_string_from_code)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_ubv_to_str(a0, a1, _elems=Elementaries(_lib.Z3_mk_ubv_to_str)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_sbv_to_str(a0, a1, _elems=Elementaries(_lib.Z3_mk_sbv_to_str)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
 def Z3_mk_seq_to_re(a0, a1, _elems=Elementaries(_lib.Z3_mk_seq_to_re)):
   r = _elems.f(a0, a1)
   _elems.Check(a0)
@@ -2419,8 +2508,18 @@ def Z3_mk_re_range(a0, a1, a2, _elems=Elementaries(_lib.Z3_mk_re_range)):
   _elems.Check(a0)
   return r
 
+def Z3_mk_re_allchar(a0, a1, _elems=Elementaries(_lib.Z3_mk_re_allchar)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
 def Z3_mk_re_loop(a0, a1, a2, a3, _elems=Elementaries(_lib.Z3_mk_re_loop)):
   r = _elems.f(a0, a1, a2, a3)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_re_power(a0, a1, a2, _elems=Elementaries(_lib.Z3_mk_re_power)):
+  r = _elems.f(a0, a1, a2)
   _elems.Check(a0)
   return r
 
@@ -2434,12 +2533,47 @@ def Z3_mk_re_complement(a0, a1, _elems=Elementaries(_lib.Z3_mk_re_complement)):
   _elems.Check(a0)
   return r
 
+def Z3_mk_re_diff(a0, a1, a2, _elems=Elementaries(_lib.Z3_mk_re_diff)):
+  r = _elems.f(a0, a1, a2)
+  _elems.Check(a0)
+  return r
+
 def Z3_mk_re_empty(a0, a1, _elems=Elementaries(_lib.Z3_mk_re_empty)):
   r = _elems.f(a0, a1)
   _elems.Check(a0)
   return r
 
 def Z3_mk_re_full(a0, a1, _elems=Elementaries(_lib.Z3_mk_re_full)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_char(a0, a1, _elems=Elementaries(_lib.Z3_mk_char)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_char_le(a0, a1, a2, _elems=Elementaries(_lib.Z3_mk_char_le)):
+  r = _elems.f(a0, a1, a2)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_char_to_int(a0, a1, _elems=Elementaries(_lib.Z3_mk_char_to_int)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_char_to_bv(a0, a1, _elems=Elementaries(_lib.Z3_mk_char_to_bv)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_char_from_bv(a0, a1, _elems=Elementaries(_lib.Z3_mk_char_from_bv)):
+  r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_mk_char_is_digit(a0, a1, _elems=Elementaries(_lib.Z3_mk_char_is_digit)):
   r = _elems.f(a0, a1)
   _elems.Check(a0)
   return r
@@ -2586,6 +2720,11 @@ def Z3_get_finite_domain_sort_size(a0, a1, a2, _elems=Elementaries(_lib.Z3_get_f
 
 def Z3_get_array_sort_domain(a0, a1, _elems=Elementaries(_lib.Z3_get_array_sort_domain)):
   r = _elems.f(a0, a1)
+  _elems.Check(a0)
+  return r
+
+def Z3_get_array_sort_domain_n(a0, a1, a2, _elems=Elementaries(_lib.Z3_get_array_sort_domain_n)):
+  r = _elems.f(a0, a1, a2)
   _elems.Check(a0)
   return r
 
@@ -3795,25 +3934,18 @@ def Z3_solver_get_levels(a0, a1, a2, a3, a4, _elems=Elementaries(_lib.Z3_solver_
   _elems.f(a0, a1, a2, a3, a4)
   _elems.Check(a0)
 
-def Z3_solver_get_implied_value(a0, a1, a2, _elems=Elementaries(_lib.Z3_solver_get_implied_value)):
-  r = _elems.f(a0, a1, a2)
-  _elems.Check(a0)
-  return r
-
-def Z3_solver_get_implied_lower(a0, a1, a2, _elems=Elementaries(_lib.Z3_solver_get_implied_lower)):
-  r = _elems.f(a0, a1, a2)
-  _elems.Check(a0)
-  return r
-
-def Z3_solver_get_implied_upper(a0, a1, a2, _elems=Elementaries(_lib.Z3_solver_get_implied_upper)):
-  r = _elems.f(a0, a1, a2)
+def Z3_solver_propagate_declare(a0, a1, a2, a3, a4, _elems=Elementaries(_lib.Z3_solver_propagate_declare)):
+  r = _elems.f(a0, a1, a2, a3, a4)
   _elems.Check(a0)
   return r
 
 def Z3_solver_propagate_register(a0, a1, a2, _elems=Elementaries(_lib.Z3_solver_propagate_register)):
-  r = _elems.f(a0, a1, a2)
+  _elems.f(a0, a1, a2)
   _elems.Check(a0)
-  return r
+
+def Z3_solver_propagate_register_cb(a0, a1, a2, _elems=Elementaries(_lib.Z3_solver_propagate_register_cb)):
+  _elems.f(a0, a1, a2)
+  _elems.Check(a0)
 
 def Z3_solver_propagate_consequence(a0, a1, a2, a3, a4, a5, a6, a7, _elems=Elementaries(_lib.Z3_solver_propagate_consequence)):
   _elems.f(a0, a1, a2, a3, a4, a5, a6, a7)

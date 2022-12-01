@@ -42,7 +42,7 @@ public class Main {
     }
 
     String s = buf.toString();
-    if (s.contains("<bad/>")) {
+    if (s.contains("<")) {
       assert false;
     }
   }

@@ -557,6 +557,11 @@
             A Boolean sort.
             </summary>
         </member>
+        <member name="T:Microsoft.Z3.CharSort">
+            <summary>
+             A Character sort
+            </summary>
+        </member>
         <member name="T:Microsoft.Z3.Constructor">
             <summary>
             Constructors are used for datatype sorts.
@@ -659,6 +664,11 @@
         <member name="P:Microsoft.Z3.Context.RealSort">
             <summary>
             Retrieves the Real sort of the context.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.Context.CharSort">
+            <summary>
+            Retrieves the String sort of the context.
             </summary>
         </member>
         <member name="P:Microsoft.Z3.Context.StringSort">
@@ -1749,6 +1759,16 @@
             Convert an integer expression to a string.
             </summary>
         </member>
+        <member name="M:Microsoft.Z3.Context.UbvToString(Microsoft.Z3.Expr)">
+            <summary>
+            Convert a bit-vector expression, represented as an unsigned number, to a string.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.Context.SbvToString(Microsoft.Z3.Expr)">
+            <summary>
+            Convert a bit-vector expression, represented as an signed number, to a string.
+            </summary>
+        </member>
         <member name="M:Microsoft.Z3.Context.StringToInt(Microsoft.Z3.Expr)">
             <summary>
             Convert an integer expression to a string.
@@ -1786,7 +1806,7 @@
         </member>
         <member name="M:Microsoft.Z3.Context.MkStringLe(Microsoft.Z3.SeqExpr,Microsoft.Z3.SeqExpr)">
             <summary>
-            Check if the string s1 is lexicographically strictly less than s2.
+            Check if the string s1 is lexicographically less or equal to s2.
             </summary>
         </member>
         <member name="M:Microsoft.Z3.Context.MkAt(Microsoft.Z3.SeqExpr,Microsoft.Z3.Expr)">
@@ -1864,6 +1884,11 @@
             Create the intersection of regular languages.
             </summary>
         </member>
+        <member name="M:Microsoft.Z3.Context.MkDiff(Microsoft.Z3.ReExpr,Microsoft.Z3.ReExpr)">
+            <summary>
+            Create a difference regular expression.
+            </summary>
+        </member>
         <member name="M:Microsoft.Z3.Context.MkEmptyRe(Microsoft.Z3.Sort)">
             <summary>
             Create the empty regular expression.
@@ -1879,6 +1904,31 @@
         <member name="M:Microsoft.Z3.Context.MkRange(Microsoft.Z3.SeqExpr,Microsoft.Z3.SeqExpr)">
             <summary>
             Create a range expression.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.Context.MkCharLe(Microsoft.Z3.Expr,Microsoft.Z3.Expr)">
+            <summary>
+            Create less than or equal to between two characters.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.Context.CharToInt(Microsoft.Z3.Expr)">
+            <summary>
+            Create an integer (code point) from character.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.Context.CharToBV(Microsoft.Z3.Expr)">
+            <summary>
+            Create a bit-vector (code point) from character.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.Context.CharFromBV(Microsoft.Z3.BitVecExpr)">
+            <summary>
+            Create a character from a bit-vector (code point).
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.Context.MkIsDigit(Microsoft.Z3.Expr)">
+            <summary>
+            Create a check if the character is a digit.
             </summary>
         </member>
         <member name="M:Microsoft.Z3.Context.MkAtMost(System.Collections.Generic.IEnumerable{Microsoft.Z3.BoolExpr},System.UInt32)">
@@ -5837,6 +5887,1134 @@
             Conversion of models to strings. 
             </summary>
             <returns>A string representation of the model.</returns>
+        </member>
+        <member name="T:Microsoft.Z3.NativeContext">
+            <summary>
+            The main interaction with Z3 happens via the Context.
+            NativeContext allows for efficient wrapper-reduced interaction with Z3
+            expressions.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.#ctor(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Constructor.
+            </summary>
+            <remarks>
+            The following parameters can be set:
+                - proof  (Boolean)           Enable proof generation
+                - debug_ref_count (Boolean)  Enable debug support for Z3_ast reference counting
+                - trace  (Boolean)           Tracing support for VCC
+                - trace_file_name (String)   Trace out file for VCC traces
+                - timeout (unsigned)         default timeout (in milliseconds) used for solvers
+                - well_sorted_check          type checker
+                - auto_config                use heuristics to automatically select solver and configure it
+                - model                      model generation for solvers, this parameter can be overwritten when creating a solver
+                - model_validate             validate models produced by solvers
+                - unsat_core                 unsat-core generation for solvers, this parameter can be overwritten when creating a solver
+            Note that in previous versions of Z3, this constructor was also used to set global and module parameters.
+            For this purpose we should now use <see cref="M:Microsoft.Z3.Global.SetParameter(System.String,System.String)"/>
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkAdd(System.IntPtr[])">
+            <summary>
+            Create an expression representing <c>t[0] + t[1] + ...</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkMul(System.IntPtr[])">
+            <summary>
+            Create an expression representing <c>t[0] * t[1] * ...</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkDiv(System.IntPtr,System.IntPtr)">
+            <summary>
+            Create an expression representing <c>t1 / t2</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkLe(System.IntPtr,System.IntPtr)">
+            <summary>
+            Create an expression representing <c>t1 &lt;= t2</c>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkLt(System.IntPtr,System.IntPtr)">
+            <summary>
+            Create an expression representing <c>t1 &lt; t2</c>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkGe(System.IntPtr,System.IntPtr)">
+            <summary>
+            Create an expression representing <c>t1 &gt;= t2</c>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkGt(System.IntPtr,System.IntPtr)">
+            <summary>
+            Create an expression representing <c>t1 &gt; t2</c>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvUlt(System.IntPtr,System.IntPtr)">
+            <summary>
+            Unsigned less-than
+            </summary>
+            <remarks>
+            The arguments must have the same bit-vector sort.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvUle(System.IntPtr,System.IntPtr)">
+            <summary>
+            Unsigned less-than-equal
+            </summary>
+            <remarks>
+            The arguments must have the same bit-vector sort.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkEq(System.IntPtr,System.IntPtr)">
+            <summary>
+            Creates the equality <paramref name="x"/> = <paramref name="y"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkNot(System.IntPtr)">
+            <summary>
+             Mk an expression representing <c>not(a)</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkAnd(System.IntPtr[])">
+            <summary>
+            Create an expression representing <c>t[0] and t[1] and ...</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkOr(System.IntPtr[])">
+            <summary>
+            Create an expression representing <c>t[0] or t[1] or ...</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkReal(System.String)">
+            <summary>
+            Create a real numeral.
+            </summary>
+            <param name="v">A string representing the Term value in decimal notation.</param>
+            <returns>A Term with value <paramref name="v"/> and sort Real</returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkNumeral(System.Int32,System.IntPtr)">
+            <summary>
+            Create a Term of a given sort. This function can be used to create numerals that fit in a machine integer.
+            </summary>
+            <param name="v">Value of the numeral</param>
+            <param name="sort">Sort of the numeral</param>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkNumeral(System.UInt32,System.IntPtr)">
+            <summary>
+            Create a Term of a given sort. This function can be used to create numerals that fit in a machine integer.
+            </summary>
+            <param name="v">Value of the numeral</param>
+            <param name="sort">Sort of the numeral</param>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkNumeral(System.Int64,System.IntPtr)">
+            <summary>
+            Create a Term of a given sort. This function can be used to create numerals that fit in a machine integer.
+            </summary>
+            <param name="v">Value of the numeral</param>
+            <param name="sort">Sort of the numeral</param>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkIte(System.IntPtr,System.IntPtr,System.IntPtr)">
+            <summary>
+             Create an expression representing an if-then-else: <c>ite(t1, t2, t3)</c>.
+            </summary>
+            <param name="t1">An expression with Boolean sort</param>
+            <param name="t2">An expression </param>
+            <param name="t3">An expression with the same sort as <paramref name="t2"/></param>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkImplies(System.IntPtr,System.IntPtr)">
+            <summary>
+            Create an expression representing <c>t1 -> t2</c>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeContext.IntSort">
+            <summary>
+            Integer Sort
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeContext.BoolSort">
+            <summary>
+            Returns the "singleton" BoolSort for this NativeContext
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeContext.RealSort">
+            <summary>
+            Returns the "singleton" RealSort for this NativeContext
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvSort(System.UInt32)">
+            <summary>
+            Returns the BvSort for size in this NativeContext
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkListSort(System.String,System.IntPtr,System.IntPtr@,System.IntPtr@,System.IntPtr@,System.IntPtr@,System.IntPtr@,System.IntPtr@)">
+            <summary>
+            returns ListSort
+            </summary>
+            <param name="name"></param>
+            <param name="elemSort"></param>
+            <param name="inil"></param>
+            <param name="iisnil"></param>
+            <param name="icons"></param>
+            <param name="iiscons"></param>
+            <param name="ihead"></param>
+            <param name="itail"></param>
+            <returns>The list algebraic datatype</returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkArraySort(System.IntPtr,System.IntPtr)">
+            <summary>
+            Create a new array sort.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkTupleSort(System.IntPtr,System.IntPtr[],System.IntPtr[],System.IntPtr@,System.IntPtr[])">
+            <summary>
+            Create a new tuple sort.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkTrue">
+            <summary>
+            The true Term.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkFalse">
+            <summary>
+            The false Term.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBool(System.Boolean)">
+            <summary>
+            Creates a Boolean value.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkIff(System.IntPtr,System.IntPtr)">
+            <summary>
+            Create an expression representing <c>t1 iff t2</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkConst(System.String,System.IntPtr)">
+            <summary>
+            Creates a new Constant of sort <paramref name="range"/> and named <paramref name="name"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkStringSymbol(System.String)">
+            <summary>
+            Return a ptr to symbol for string
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkApp(System.IntPtr,System.IntPtr[])">
+            <summary>
+            Create a new function application.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBound(System.UInt32,System.IntPtr)">
+            <summary>
+            Creates a new bound variable.
+            </summary>
+            <param name="index">The de-Bruijn index of the variable</param>
+            <param name="sort">The sort of the variable</param>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvAnd(System.IntPtr,System.IntPtr)">
+            <summary>
+            Bitwise conjunction.
+            </summary>
+            <remarks>The arguments must have a bit-vector sort.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvNot(System.IntPtr)">
+            <summary>
+            Bitwise negation.
+            </summary>
+            <remarks>The argument must have a bit-vector sort.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvNeg(System.IntPtr)">
+            <summary>
+            Standard two's complement unary minus.
+            </summary>
+            <remarks>The arguments must have a bit-vector sort.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBVNeg(System.IntPtr)">
+            <summary>
+            Standard two's complement unary minus.
+            </summary>
+            <remarks>The arguments must have a bit-vector sort.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvAdd(System.IntPtr,System.IntPtr)">
+            <summary>
+            Two's complement addition.
+            </summary>
+            <remarks>The arguments must have the same bit-vector sort.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvExtract(System.UInt32,System.UInt32,System.IntPtr)">
+            <summary>
+            Bit-vector extraction.
+            </summary>
+            <remarks>
+            Extract the bits <paramref name="high"/> down to <paramref name="low"/> from a bitvector of
+            size <c>m</c> to yield a new bitvector of size <c>n</c>, where
+            <c>n = high - low + 1</c>.
+            The argument <paramref name="t"/> must have a bit-vector sort.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvSignExt(System.UInt32,System.IntPtr)">
+            <summary>
+            Bit-vector sign extension.
+            </summary>
+            <remarks>
+            Sign-extends the given bit-vector to the (signed) equivalent bitvector of
+            size <c>m+i</c>, where \c m is the size of the given bit-vector.
+            The argument <paramref name="t"/> must have a bit-vector sort.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvZeroExt(System.UInt32,System.IntPtr)">
+            <summary>
+            Bit-vector zero extension.
+            </summary>
+            <remarks>
+            Extend the given bit-vector with zeros to the (unsigned) equivalent
+            bitvector of size <c>m+i</c>, where \c m is the size of the
+            given bit-vector.
+            The argument <paramref name="t"/> must have a bit-vector sort.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvShl(System.IntPtr,System.IntPtr)">
+             <summary>
+             Shift left.
+             </summary>
+             <remarks>
+             It is equivalent to multiplication by <c>2^x</c> where \c x is the value of <paramref name="t2"/>.
+            
+             NB. The semantics of shift operations varies between environments. This
+             definition does not necessarily capture directly the semantics of the
+             programming language or assembly architecture you are modeling.
+            
+             The arguments must have a bit-vector sort.
+             </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvLshr(System.IntPtr,System.IntPtr)">
+             <summary>
+             Logical shift right
+             </summary>
+             <remarks>
+             It is equivalent to unsigned division by <c>2^x</c> where \c x is the value of <paramref name="t2"/>.
+            
+             NB. The semantics of shift operations varies between environments. This
+             definition does not necessarily capture directly the semantics of the
+             programming language or assembly architecture you are modeling.
+            
+             The arguments must have a bit-vector sort.
+             </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvAshr(System.IntPtr,System.IntPtr)">
+             <summary>
+             Arithmetic shift right
+             </summary>
+             <remarks>
+             It is like logical shift right except that the most significant
+             bits of the result always copy the most significant bit of the
+             second argument.
+            
+             NB. The semantics of shift operations varies between environments. This
+             definition does not necessarily capture directly the semantics of the
+             programming language or assembly architecture you are modeling.
+            
+             The arguments must have a bit-vector sort.
+             </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvSlt(System.IntPtr,System.IntPtr)">
+            <summary>
+            Two's complement signed less-than
+            </summary>
+            <remarks>
+            The arguments must have the same bit-vector sort.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvMul(System.IntPtr,System.IntPtr)">
+            <summary>
+            Two's complement multiplication.
+            </summary>
+            <remarks>The arguments must have the same bit-vector sort.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvUdiv(System.IntPtr,System.IntPtr)">
+            <summary>
+            Unsigned division.
+            </summary>
+            <remarks>
+            It is defined as the floor of <c>t1/t2</c> if \c t2 is
+            different from zero. If <c>t2</c> is zero, then the result
+            is undefined.
+            The arguments must have the same bit-vector sort.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvSdiv(System.IntPtr,System.IntPtr)">
+             <summary>
+             Signed division.
+             </summary>
+             <remarks>
+             It is defined in the following way:
+            
+             - The \c floor of <c>t1/t2</c> if \c t2 is different from zero, and <c>t1*t2 >= 0</c>.
+            
+             - The \c ceiling of <c>t1/t2</c> if \c t2 is different from zero, and <c>t1*t2 &lt; 0</c>.
+            
+             If <c>t2</c> is zero, then the result is undefined.
+             The arguments must have the same bit-vector sort.
+             </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvUrem(System.IntPtr,System.IntPtr)">
+            <summary>
+            Unsigned remainder.
+            </summary>
+            <remarks>
+            It is defined as <c>t1 - (t1 /u t2) * t2</c>, where <c>/u</c> represents unsigned division.
+            If <c>t2</c> is zero, then the result is undefined.
+            The arguments must have the same bit-vector sort.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvSrem(System.IntPtr,System.IntPtr)">
+             <summary>
+             Signed remainder.
+             </summary>
+             <remarks>
+             It is defined as <c>t1 - (t1 /s t2) * t2</c>, where <c>/s</c> represents signed division.
+             The most significant bit (sign) of the result is equal to the most significant bit of \c t1.
+            
+             If <c>t2</c> is zero, then the result is undefined.
+             The arguments must have the same bit-vector sort.
+             </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvSub(System.IntPtr,System.IntPtr)">
+            <summary>
+            Two's complement subtraction.
+            </summary>
+            <remarks>The arguments must have the same bit-vector sort.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvOr(System.IntPtr,System.IntPtr)">
+            <summary>
+            Bitwise disjunction.
+            </summary>
+            <remarks>The arguments must have a bit-vector sort.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkBvXor(System.IntPtr,System.IntPtr)">
+            <summary>
+            Bitwise XOR.
+            </summary>
+            <remarks>The arguments must have a bit-vector sort.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkForall(System.IntPtr[],System.IntPtr[],System.IntPtr,System.UInt32,System.IntPtr[],System.IntPtr[],Microsoft.Z3.Symbol,Microsoft.Z3.Symbol)">
+            <summary>
+            Create a universal Quantifier.
+            </summary>
+            <remarks>
+            Creates a forall formula, where <paramref name="weight"/> is the weight,
+            <paramref name="patterns"/> is an array of patterns, <paramref name="sorts"/> is an array
+            with the sorts of the bound variables, <paramref name="names"/> is an array with the
+            'names' of the bound variables, and <paramref name="body"/> is the body of the
+            quantifier. Quantifiers are associated with weights indicating the importance of
+            using the quantifier during instantiation.
+            Note that the bound variables are de-Bruijn indices created using <see cref="M:Microsoft.Z3.NativeContext.MkBound(System.UInt32,System.IntPtr)"/>.
+            Z3 applies the convention that the last element in <paramref name="names"/> and
+            <paramref name="sorts"/> refers to the variable with index 0, the second to last element
+            of <paramref name="names"/> and <paramref name="sorts"/> refers to the variable
+            with index 1, etc.
+            </remarks>
+            <param name="sorts">the sorts of the bound variables.</param>
+            <param name="names">names of the bound variables</param>
+            <param name="body">the body of the quantifier.</param>
+            <param name="weight">quantifiers are associated with weights indicating the importance of using the quantifier during instantiation. By default, pass the weight 0.</param>
+            <param name="patterns">array containing the patterns created using <c>MkPattern</c>.</param>
+            <param name="noPatterns">array containing the anti-patterns created using <c>MkPattern</c>.</param>
+            <param name="quantifierID">optional symbol to track quantifier.</param>
+            <param name="skolemID">optional symbol to track skolem constants.</param>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkExists(System.IntPtr[],System.IntPtr[],System.IntPtr,System.UInt32,System.IntPtr[],System.IntPtr[],Microsoft.Z3.Symbol,Microsoft.Z3.Symbol)">
+            <summary>
+            Same as MkForAll but defaults to "forall" = false
+            Create an existential Quantifier.
+            </summary>
+            <param name="sorts"></param>
+            <param name="names"></param>
+            <param name="body"></param>
+            <param name="weight"></param>
+            <param name="patterns"></param>
+            <param name="noPatterns"></param>
+            <param name="quantifierID"></param>
+            <param name="skolemID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkQuantifier(System.Boolean,System.IntPtr[],System.IntPtr[],System.IntPtr,System.UInt32,System.IntPtr[],System.IntPtr[],Microsoft.Z3.Symbol,Microsoft.Z3.Symbol)">
+            <summary>
+            Create a quantified expression either forall or exists
+            </summary>
+            <param name="is_forall"></param>
+            <param name="sorts"></param>
+            <param name="names"></param>
+            <param name="body"></param>
+            <param name="weight"></param>
+            <param name="patterns"></param>
+            <param name="noPatterns"></param>
+            <param name="quantifierID"></param>
+            <param name="skolemID"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Microsoft.Z3.NativeContext.PrintMode">
+            <summary>
+            Selects the format used for pretty-printing expressions.
+            </summary>
+            <remarks>
+            The default mode for pretty printing expressions is to produce
+            SMT-LIB style output where common subexpressions are printed
+            at each occurrence. The mode is called Z3_PRINT_SMTLIB_FULL.
+            To print shared common subexpressions only once,
+            use the Z3_PRINT_LOW_LEVEL mode.
+            To print in way that conforms to SMT-LIB standards and uses let
+            expressions to share common sub-expressions use Z3_PRINT_SMTLIB_COMPLIANT.
+            </remarks>
+            <seealso cref="M:Microsoft.Z3.AST.ToString"/>
+            <seealso cref="M:Microsoft.Z3.Pattern.ToString"/>
+            <seealso cref="M:Microsoft.Z3.FuncDecl.ToString"/>
+            <seealso cref="M:Microsoft.Z3.Sort.ToString"/>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkConstArray(System.IntPtr,System.IntPtr)">
+            <summary>
+            Create a constant array.
+            </summary>
+            <remarks>
+            The resulting term is an array, such that a <c>select</c>on an arbitrary index
+            produces the value <c>v</c>.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkStore(System.IntPtr,System.IntPtr,System.IntPtr)">
+            <summary>
+            Array update.
+            </summary>
+            <remarks>
+            The node <c>a</c> must have an array sort <c>[domain -> range]</c>,
+            <c>i</c> must have sort <c>domain</c>,
+            <c>v</c> must have sort range. The sort of the result is <c>[domain -> range]</c>.
+            The semantics of this function is given by the theory of arrays described in the SMT-LIB
+            standard. See http://smtlib.org for more details.
+            The result of this function is an array that is equal to <c>a</c>
+            (with respect to <c>select</c>)
+            on all indices except for <c>i</c>, where it maps to <c>v</c>
+            (and the <c>select</c> of <c>a</c> with
+            respect to <c>i</c> may be a different value).
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkSelect(System.IntPtr,System.IntPtr)">
+             <summary>
+             Array read.
+             </summary>
+             <remarks>
+             The argument <c>array</c> is the array and <c>index</c> is the index
+             of the array that gets read.
+            
+             The node <c>array</c> must have an array sort <c>[domain -> range]</c>,
+             and <c>index</c> must have the sort <c>domain</c>.
+             The sort of the result is <c>range</c>.
+             </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkDefault(System.IntPtr)">
+            <summary>
+            Access the array default value.
+            </summary>
+            <remarks>
+            Produces the default range value, for arrays that can be represented as
+            finite maps with a default range value.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkFuncDecl(System.String,System.IntPtr[],System.IntPtr)">
+            <summary>
+            Creates a new function declaration.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkFuncDecl(System.String,System.IntPtr,System.IntPtr)">
+            <summary>
+            Creates a new function declaration.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkFreshFuncDecl(System.String,System.IntPtr[],System.IntPtr)">
+            <summary>
+            Creates a fresh function declaration with a name prefixed with <paramref name="prefix"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkConstDecl(System.String,System.IntPtr)">
+            <summary>
+            Creates a new constant function declaration.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetDomain(System.IntPtr)">
+            <summary>
+            Get domain for a funcdecl
+            </summary>
+            <param name="fdecl"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetRange(System.IntPtr)">
+            <summary>
+            Get range for a funcdecl
+            </summary>
+            <param name="fdecl"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkPattern(System.IntPtr[])">
+            <summary>
+            Create a quantifier pattern.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.MkSimpleSolver">
+            <summary>
+            Creates a new (incremental) solver.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetSortKind(System.IntPtr)">
+            <summary>
+            Get the sort kind from IntPtr
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetAstKind(System.IntPtr)">
+            <summary>
+            Get the AST kind from IntPtr
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetDeclKind(System.IntPtr)">
+            <summary>
+            Get the Decl kind from IntPtr
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetSort(System.IntPtr)">
+            <summary>
+            Get Sort for AST
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetAppArgs(System.IntPtr)">
+            <summary>
+            Get the arguments for app
+            </summary>
+            <param name="app"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetNumArgs(System.IntPtr)">
+            <summary>
+            Return number of arguments for app
+            </summary>
+            <param name="app"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetAppDecl(System.IntPtr)">
+            <summary>
+            Get App Decl from IntPtr
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetDeclName(System.IntPtr)">
+            <summary>
+            Get string name for Decl
+            </summary>
+            <param name="decl"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetBvSortSize(System.IntPtr)">
+            <summary>
+            Get size of BitVector Sort
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetArraySortDomain(System.IntPtr)">
+            <summary>
+            Get the domain IntPtr for Sort
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetArraySortRange(System.IntPtr)">
+            <summary>
+            Get the range IntPtr for Sort
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.TryGetNumeralInt(System.IntPtr,System.Int32@)">
+            <summary>
+            Try to get integer from AST
+            </summary>
+            <param name="v"></param>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.TryGetNumeralUInt(System.IntPtr,System.UInt32@)">
+            <summary>
+            Try to get uint from AST
+            </summary>
+            <param name="v"></param>
+            <param name="u"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.TryGetNumeralInt64(System.IntPtr,System.Int64@)">
+            <summary>
+            Try to get long from AST
+            </summary>
+            <param name="v"></param>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.TryGetNumeralUInt64(System.IntPtr,System.UInt64@)">
+            <summary>
+            Try get ulong from AST
+            </summary>
+            <param name="v"></param>
+            <param name="u"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetNumeralString(System.IntPtr)">
+            <summary>
+            Get string for numeral ast
+            </summary>
+            <param name="v"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.ToString(System.IntPtr)">
+            <summary>
+            Get printable string representing Z3_ast
+            </summary>
+            <param name="ast"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.ToggleWarningMessages(System.Boolean)">
+            <summary>
+            Enable or disable warning messages
+            </summary>
+            <param name="turnOn"></param>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.TraceToFile(System.String)">
+            <summary>
+            Enable tracint to file
+            </summary>
+            <param name="file"></param>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.Dispose">
+            <summary>
+            Disposes of the context.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.ToArray(System.IntPtr)">
+            <summary>
+            Utility to convert a vector object of ast to a .Net array
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeContext.GetStatistics(System.IntPtr)">
+            <summary>
+            Retrieve statistics as an array of entries
+            </summary>
+            <param name="stats"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Z3.NativeFuncInterp">
+            <summary>
+             A function interpretation is represented as a finite map and an 'else' value.
+             Each entry in the finite map represents the value of a function given a set of arguments.  
+            </summary>
+        </member>
+        <member name="T:Microsoft.Z3.NativeFuncInterp.Entry">
+            <summary>
+            Evaluation entry of a function
+            </summary>
+        </member>
+        <member name="F:Microsoft.Z3.NativeFuncInterp.Entry.Arguments">
+            <summary>
+            Argument values that define entry
+            </summary>
+        </member>
+        <member name="F:Microsoft.Z3.NativeFuncInterp.Entry.Result">
+            <summary>
+            Result of applying function to Arguments in the interpretation
+            </summary>
+        </member>
+        <member name="F:Microsoft.Z3.NativeFuncInterp.Declaration">
+            <summary>
+            Function that is interpreted
+            </summary>
+        </member>
+        <member name="F:Microsoft.Z3.NativeFuncInterp.Entries">
+            <summary>
+            Set of non-default entries defining the function graph
+            </summary>
+        </member>
+        <member name="F:Microsoft.Z3.NativeFuncInterp.Else">
+            <summary>
+            Default cause of the function interpretation
+            </summary>
+        </member>
+        <member name="T:Microsoft.Z3.NativeModel">
+            <summary>
+            A Model contains interpretations (assignments) of constants and functions. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.ConstInterp(System.IntPtr)">
+            <summary>
+            Retrieves the interpretation (the assignment) of <paramref name="a"/> in the model. 
+            </summary>
+            <param name="a">A Constant</param>
+            <returns>An expression if the constant has an interpretation in the model, null otherwise.</returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.ConstFuncInterp(System.IntPtr)">
+            <summary>
+            Retrieves the interpretation (the assignment) of <paramref name="f"/> in the model. 
+            </summary>
+            <param name="f">A function declaration of zero arity</param>
+            <returns>An expression if the function has an interpretation in the model, null otherwise.</returns>    
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.FuncInterp(System.IntPtr)">
+            <summary>
+            Retrieves the interpretation (the assignment) of a non-constant <paramref name="f"/> in the model. 
+            </summary>
+            <param name="f">A function declaration of non-zero arity</param>
+            <returns>A FunctionInterpretation if the function has an interpretation in the model, null otherwise.</returns> 
+        </member>
+        <member name="P:Microsoft.Z3.NativeModel.NumConsts">
+            <summary>
+            The number of constants that have an interpretation in the model.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeModel.ConstDecls">
+            <summary>
+            The function declarations of the constants in the model.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeModel.Consts">
+            <summary>
+            Enumerate constants in model.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeModel.NumFuncs">
+            <summary>
+            The number of function interpretations in the model.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeModel.FuncDecls">
+            <summary>
+            The function declarations of the function interpretations in the model.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeModel.Decls">
+            <summary>
+            All symbols that have an interpretation in the model.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Z3.NativeModel.ModelEvaluationFailedException">
+            <summary>
+            A ModelEvaluationFailedException is thrown when an expression cannot be evaluated by the model.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.ModelEvaluationFailedException.#ctor">
+            <summary>
+            An exception that is thrown when model evaluation fails.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.Eval(System.IntPtr,System.Boolean)">
+            <summary>
+            Evaluates the expression <paramref name="t"/> in the current model.
+            </summary>
+            <remarks>
+            This function may fail if <paramref name="t"/> contains quantifiers, 
+            is partial (MODEL_PARTIAL enabled), or if <paramref name="t"/> is not well-sorted.
+            In this case a <c>ModelEvaluationFailedException</c> is thrown.
+            </remarks>
+            <param name="t">An expression</param>
+            <param name="completion">
+            When this flag is enabled, a model value will be assigned to any constant 
+            or function that does not have an interpretation in the model.
+            </param>
+            <returns>The evaluation of <paramref name="t"/> in the model.</returns>        
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.Evaluate(System.IntPtr,System.Boolean)">
+            <summary>
+            Alias for <c>Eval</c>.
+            </summary>        
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.Double(System.IntPtr)">
+            <summary>
+            Evaluate expression to a double, assuming it is a numeral already.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Z3.NativeModel.ArrayValue">
+            <summary>
+            An array value obtained by untangling a model assignment.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Z3.NativeModel.ArrayValue.Updates">
+            <summary>
+            One dimensional array of indices where the array is updated
+            </summary>
+        </member>
+        <member name="F:Microsoft.Z3.NativeModel.ArrayValue.Else">
+            <summary>
+            default Else case
+            </summary>
+        </member>
+        <member name="F:Microsoft.Z3.NativeModel.ArrayValue.Domain">
+            <summary>
+            Domain for array
+            Updates.Keys
+            </summary>
+        </member>
+        <member name="F:Microsoft.Z3.NativeModel.ArrayValue.Range">
+            <summary>
+            Range for array
+            Updates.Values
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.TryGetArrayValue(System.IntPtr,Microsoft.Z3.NativeModel.ArrayValue@)">
+            <summary>
+            Convert the interpretation of t into a sequence of array updates
+            </summary>
+            <param name="t"></param>
+            <param name="result"></param>
+            <returns>null if the argument does evaluate to a sequence of stores to an array</returns>
+        </member>
+        <member name="P:Microsoft.Z3.NativeModel.NumSorts">
+            <summary>
+            The number of uninterpreted sorts that the model has an interpretation for.
+            </summary>    
+        </member>
+        <member name="P:Microsoft.Z3.NativeModel.Sorts">
+            <summary>
+            The uninterpreted sorts that the model has an interpretation for. 
+            </summary>
+            <remarks>
+            Z3 also provides an interpretation for uninterpreted sorts used in a formula.
+            The interpretation for a sort is a finite set of distinct values. We say this finite set is
+            the "universe" of the sort.
+            </remarks>
+            <seealso cref="P:Microsoft.Z3.NativeModel.NumSorts"/>
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.ToString">
+            <summary>
+            Conversion of models to strings. 
+            </summary>
+            <returns>A string representation of the model.</returns>
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.Finalize">
+            <summary>
+            Finalizer.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeModel.Dispose">
+            <summary>
+            Disposes of the underlying native Z3 object.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Z3.NativeSolver">
+            <summary>
+            Solvers.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.Help">
+            <summary>
+            A string that describes all available solver parameters.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Set(System.String,System.Boolean)">
+            <summary>
+            Sets parameter on the solver
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Set(System.String,System.UInt32)">
+            <summary>
+            Sets parameter on the solver
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Set(System.String,System.Double)">
+            <summary>
+            Sets parameter on the solver
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Set(System.String,System.String)">
+            <summary>
+            Sets parameter on the solver
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.NumScopes">
+            <summary>
+            The current number of backtracking points (scopes).
+            </summary>
+            <seealso cref="M:Microsoft.Z3.NativeSolver.Pop(System.UInt32)"/>
+            <seealso cref="M:Microsoft.Z3.NativeSolver.Push"/>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Push">
+            <summary>
+            Creates a backtracking point.
+            </summary>
+            <seealso cref="M:Microsoft.Z3.NativeSolver.Pop(System.UInt32)"/>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Pop(System.UInt32)">
+            <summary>
+            Backtracks <paramref name="n"/> backtracking points.
+            </summary>
+            <remarks>Note that an exception is thrown if <paramref name="n"/> is not smaller than <c>NumScopes</c></remarks>
+            <seealso cref="M:Microsoft.Z3.NativeSolver.Push"/>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Reset">
+            <summary>
+            Resets the Solver.
+            </summary>
+            <remarks>This removes all assertions from the solver.</remarks>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Assert(System.IntPtr[])">
+            <summary>
+            Assert a constraint (or multiple) into the solver.
+            </summary>        
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Add(System.IntPtr[])">
+            <summary>
+            Alias for Assert.
+            </summary>        
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Add(System.Collections.Generic.IEnumerable{System.IntPtr})">
+            <summary>
+            Alias for Assert.
+            </summary>        
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.AssertInjective(System.IntPtr)">
+            <summary>
+            Add constraints to ensure the function f can only be injective.
+            Example:
+            for function f : D1 x D2 -> R
+            assert axioms
+              forall (x1 : D1, x2 : D2) x1 = inv1(f(x1,x2))
+              forall (x1 : D1, x2 : D2) x2 = inv2(f(x1,x2))
+            </summary>
+            <param name="f"></param>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.AssertAndTrack(System.IntPtr[],System.IntPtr[])">
+            <summary>
+            Assert multiple constraints into the solver, and track them (in the unsat) core 
+            using the Boolean constants in ps. 
+            </summary>
+            <remarks>
+            This API is an alternative to <see cref="M:Microsoft.Z3.NativeSolver.Check(System.IntPtr[])"/> with assumptions for extracting unsat cores.
+            Both APIs can be used in the same solver. The unsat core will contain a combination
+            of the Boolean variables provided using <see cref="M:Microsoft.Z3.NativeSolver.AssertAndTrack(System.IntPtr[],System.IntPtr[])"/> 
+            and the Boolean literals
+            provided using <see cref="M:Microsoft.Z3.NativeSolver.Check(System.IntPtr[])"/> with assumptions.
+            </remarks>        
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.AssertAndTrack(System.IntPtr,System.IntPtr)">
+            <summary>
+            Assert a constraint into the solver, and track it (in the unsat) core 
+            using the Boolean constant p. 
+            </summary>
+            <remarks>
+            This API is an alternative to <see cref="M:Microsoft.Z3.NativeSolver.Check(System.IntPtr[])"/> with assumptions for extracting unsat cores.
+            Both APIs can be used in the same solver. The unsat core will contain a combination
+            of the Boolean variables provided using <see cref="M:Microsoft.Z3.NativeSolver.AssertAndTrack(System.IntPtr[],System.IntPtr[])"/> 
+            and the Boolean literals
+            provided using <see cref="M:Microsoft.Z3.NativeSolver.Check(System.IntPtr[])"/> with assumptions.
+            </remarks>        
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.FromFile(System.String)">
+            <summary>
+            Load solver assertions from a file.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.FromString(System.String)">
+            <summary>
+            Load solver assertions from a string.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.NumAssertions">
+            <summary>
+            The number of assertions in the solver.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.Assertions">
+            <summary>
+            The set of asserted formulas.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.Units">
+            <summary>
+            Currently inferred units.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Check(System.IntPtr[])">
+            <summary>
+            Checks whether the assertions in the solver are consistent or not.
+            </summary>
+            <remarks>
+            <seealso cref="P:Microsoft.Z3.NativeSolver.Model"/>
+            <seealso cref="P:Microsoft.Z3.NativeSolver.UnsatCore"/>
+            <seealso cref="P:Microsoft.Z3.NativeSolver.Proof"/>    
+            </remarks>    
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Check(System.Collections.Generic.IEnumerable{System.IntPtr})">
+            <summary>
+            Checks whether the assertions in the solver are consistent or not.
+            </summary>
+            <remarks>
+            <seealso cref="P:Microsoft.Z3.NativeSolver.Model"/>
+            <seealso cref="P:Microsoft.Z3.NativeSolver.UnsatCore"/>
+            <seealso cref="P:Microsoft.Z3.NativeSolver.Proof"/>    
+            </remarks>    
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.Model">
+            <summary>
+            The model of the last <c>Check(params Expr[] assumptions)</c>.
+            </summary>
+            <remarks>
+            The result is <c>null</c> if <c>Check(params Expr[] assumptions)</c> was not invoked before,
+            if its results was not <c>SATISFIABLE</c>, or if model production is not enabled.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.Proof">
+            <summary>
+            The proof of the last <c>Check(params Expr[] assumptions)</c>.
+            </summary>
+            <remarks>    
+            The result is <c>null</c> if <c>Check(params Expr[] assumptions)</c> was not invoked before,
+            if its results was not <c>UNSATISFIABLE</c>, or if proof production is disabled.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.UnsatCore">
+            <summary>
+            The unsat core of the last <c>Check</c>.
+            </summary>
+            <remarks>
+            The unsat core is a subset of <c>Assertions</c>
+            The result is empty if <c>Check</c> was not invoked before,
+            if its results was not <c>UNSATISFIABLE</c>, or if core production is disabled.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.ReasonUnknown">
+            <summary>
+            A brief justification of why the last call to <c>Check</c> returned <c>UNKNOWN</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Translate(Microsoft.Z3.NativeContext)">
+            <summary>
+            Create a clone of the current solver with respect to <c>ctx</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.ImportModelConverter(Microsoft.Z3.NativeSolver)">
+            <summary>
+            Import model converter from other solver. 
+            </summary>
+        </member>
+        <member name="P:Microsoft.Z3.NativeSolver.Statistics">
+            <summary>
+            Solver statistics.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.ToString">
+            <summary>
+            A string representation of the solver.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Finalize">
+            <summary>
+            Finalizer.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Z3.NativeSolver.Dispose">
+            <summary>
+            Disposes of the underlying native Z3 object.
+            </summary>
         </member>
         <member name="T:Microsoft.Z3.Optimize">
             <summary>
