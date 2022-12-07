@@ -13,18 +13,28 @@ public class TCG_PaperExample {
     public static int getSetBits(int i) {
         int numOfSetBits = 0;
         while (i != 0) {
-            if ((i & 1) == 0) {
-                int numOfZeros = getTrailingZeros(i);
-                i = (i >> numOfZeros);
-            } else {
-                i = (i >>> 1);
-                numOfSetBits++;
-            }
+            numOfSetBits += count4_setBits(i);
+            i = (i >>> 4);
         }
         return numOfSetBits;
     }
 
-    public static int getTrailingZeros(int i) {
+    public static int count4_setBits(int i) {
+        int count = 0;
+        if ((i & 1) == 1)
+            count++;
+        if ((i & 2) == 2)
+            count++;
+        if ((i & 4) == 4)
+            count++;
+        if ((i & 8) == 8)
+            count++;
+
+        return count;
+    }
+
+
+    public static int getTrailingZeros1(int i) {
         i = i << 28;
         int numOfZeros = 3;
         int temp = (i << 2);
@@ -67,7 +77,7 @@ public class TCG_PaperExample {
         if (i == 0)
             return 2;
 
-        if ( i << 1 != 0) {
+        if (i << 1 != 0) {
             return 0;
         }
         return 1;
