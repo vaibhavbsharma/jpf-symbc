@@ -253,7 +253,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         bw.write("\n(get-model)");
         bw.close();
         try {
-            final Process process = Runtime.getRuntime().exec("/media/soha/DATA/git/jrTCG/lib/z3 -smt2 " + tempFile.getAbsoluteFile());
+            final Process process = Runtime.getRuntime().exec("./z3 -smt2 " + tempFile.getAbsoluteFile());
 
             final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;

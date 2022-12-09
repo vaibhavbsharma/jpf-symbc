@@ -5,7 +5,7 @@ vm.storage.class=nil
 symbolic.debug=false
 
 
-symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.separateBits_8(sym)
+symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.getSetBits(sym)
 
 
 #listener = .symbc.SymbolicListener
@@ -20,7 +20,7 @@ symbolic.dp=z3bitvector
 
 #jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
 
-listener =.symbc.VeritestingListener,.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
+listener =.symbc.SymbolicListener,.symbc.BranchListener,gov.nasa.jpf.symbc.sequences.ThreadSymbolicSequenceListener
 
 symbolic.optimizechoices=false
 

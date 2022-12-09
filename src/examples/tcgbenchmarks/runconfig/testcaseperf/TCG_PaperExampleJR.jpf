@@ -5,7 +5,7 @@ vm.storage.class=nil
 symbolic.debug=false
 
 
-symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.separateBits_8(sym)
+symbolic.method=tcgbenchmarks.testcaseperf.TCG_PaperExample.getSetBits(sym)
 
 
 #listener = .symbc.SymbolicListener
@@ -38,3 +38,4 @@ evaluationMode=true
 
 tcgON=true
 tcgOnTheGo=true
+verboseVeritesting=true
