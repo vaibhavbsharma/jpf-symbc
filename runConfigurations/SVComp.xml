@@ -1,12 +1,17 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="SVComp" type="JarApplication" singleton="false">
     <output_file path="$PROJECT_DIR$/logs/VeritestingPerf.log" is_save="true" />
-    <option name="JAR_PATH" value="$USER_HOME$/git/jpf-core/build/RunJPF.jar" />
+    <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+      <option name="credential" />
+      <option name="region" />
+      <option name="useCurrentConnection" value="false" />
+    </extension>
+    <option name="JAR_PATH" value="$PROJECT_DIR$/../jpf-core/build/RunJPF.jar" />
     <option name="VM_PARAMETERS" value="-Djava.library.path=&quot;$PROJECT_DIR$/lib/&quot; -Xmx14000m -ea" />
     <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/src/examples/svcomp/config.jpf" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/lib" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <option name="ALTERNATIVE_JRE_PATH" value="1.8 (1)" />
+    <option name="ALTERNATIVE_JRE_PATH" value="/usr/lib/jvm/java-8-openjdk-amd64/jre" />
     <envs>
       <env name="TARGET_CLASSPATH_WALA" value="../build/examples/" />
       <env name="LD_LIBRARY_PATH" value="../lib/" />
