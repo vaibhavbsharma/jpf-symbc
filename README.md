@@ -34,8 +34,14 @@ SPF requires: **Java 8** and **Gradle 6.9**.
 
 ### 1. Get the latest SPF version
 ```{bash}
-git clone --recurse-submodules git@github.com:SymbolicPathFinder/jpf-symbc.git
+git clone --recurse-submodules git@github.com:SymbolicPathFinder/jpf-symbc.git SPF
 ```
+
+If cloning from the `gradle-build` branch then specify that branch in the clone command
+```{bash}
+git clone -b gradle-build --recurse-submodules git@github.com:SymbolicPathFinder/jpf-symbc.git SPF
+```
+
 <details>
 <summary>Console Output</summary>
 
@@ -65,6 +71,11 @@ Submodule path 'jpf-core': checked out '45a4450cd0bd1193df5419f7c9d9b89807d00db6
 ```{bash}
 cd SPF
 gradle :jpf-core:buildJars
+```
+If using a gradle version > 6.9, you can point gradle to the Java 8 home on your machine. You need to specify that for all gradle commands blow. For example:
+
+```{bash}
+gradle :jpf-core:buildJars -Dorg.gradle.java.home=/usr/lib/jvm/java-8-openjdk-amd64
 ```
 <details>
 <summary>Console Output</summary>
