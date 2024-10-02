@@ -152,9 +152,14 @@ public class StringPathCondition {
 	  }
 
 	  public String toString() {
-	    return "SPC # = " + count + ((header == null) ? "" : "\n" + header.toString()) +"\n"
-	    		+ "NPC "+npc.toString();
+			return "SPC # = " + count + ((header == null) ? "" : "\n" + header.toString()) +"\n"
+					+ "NPC "+npc.toString();
 	  }
+
+
+	public String stringSPC() {
+		return header.stringPC();
+	}
 
 	public PathCondition getNpc() {
 		return npc;

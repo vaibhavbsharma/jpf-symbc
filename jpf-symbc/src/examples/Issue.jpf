@@ -1,0 +1,16 @@
+target=examples.IssueTest
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+
+symbolic.strings=true
+symbolic.string_dp=z3
+symbolic.string_dp_timeout_ms=3000
+symbolic.debug=true
+
+symbolic.method= IssueTest.hello(sym)
+search.depth_limit = 10
+search.multiple_errors=true
+listener = gov.nasa.jpf.symbc.SymbolicListener
+#listener = sidechannel.TimingChannelListener
+vm.storage.class=nil
+symbolic.regression_output=true

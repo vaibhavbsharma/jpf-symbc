@@ -1,0 +1,40 @@
+target=TestCasePerfSPF
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+vm.storage.class=nil
+symbolic.debug=false
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerfSPF.singleBranchCov2(sym#sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerfSPF.singleBranchCov(sym#sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerfSPF.doubleBranchCov(sym#sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerfSPF.complexBranchCov(sym#sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerfSPF.unoptimalDFS(sym#sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerfSPF.doubleLoopUnoptimalDFS(sym#sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerfSPF.doubleLoop(sym#sym)
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerfSPF.doubleLoop(sym#sym)
+symbolic.method=TestCasePerfSPF.testOnTheGo(sym)
+
+
+
+#symbolic.method=tcgbenchmarks.testcaseperf.TestCasePerfSPF.mixOfRegions(sym#sym)
+listener =gov.nasa.jpf.symbc.SymbolicListener
+
+#listener = .symbc.SymbolicListener,,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+#listener = gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
+#listener = .symbc.BranchListener
+
+#jvm.insn_factory.class=gov.nasa.jpf.symbc.BranchSymInstructionFactory
+
+#symbolic.dp=z3
+
+#symbolic.dp=z3inc
+symbolic.dp=z3bitvector
+
+symbolic.optimizechoices=false
