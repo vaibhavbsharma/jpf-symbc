@@ -1,0 +1,29 @@
+target=ISSTAExample
+classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
+sourcepath=${jpf-symbc}/src/examples
+vm.storage.class=nil
+symbolic.debug=false
+
+
+######## paper Example ######
+symbolic.method=ISSTAExample.paperExampleNum(sym#sym#sym#sym#sym#sym)
+
+symbolic.dp=z3bitvector
+
+#symbolic.min_int=-1
+#symbolic.max_int=2
+
+#symbolic.min_int=-15
+#symbolic.max_int=16
+
+symbolic.min_int=-2147483648
+symbolic.max_int=2147483647
+listener = .symbc.VeritestingListener
+#listener = .symbc.SymbolicListener
+veritestingMode = 5
+symbolic.lazy = true
+veritestRegionExpectedCount=-1
+performanceMode=true
+simplify=true
+exclusionsFile=${jpf-symbc}/UtilExclusions.txt
+SPFCasesHeuristics=true

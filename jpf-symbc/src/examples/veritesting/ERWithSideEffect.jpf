@@ -1,0 +1,21 @@
+target=veritesting.ERWithSideEffect
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+vm.storage.class=nil
+symbolic.debug=false
+
+
+symbolic.method=veritesting.ERWithSideEffect.testERInline(sym#sym)
+
+listener =.symbc.VeritestingListener,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+
+
+veritestingMode = 4
+performanceMode = false
+symbolic.lazy = true
+
+symbolic.dp=z3bitvectorinc
+#listener =.symbc.SymbolicListener,,gov.nasa.jpf.symbc.numeric.solvers.IncrementalListener
+symbolic.optimizechoices=false
+
+jitAnalysis = true

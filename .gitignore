@@ -1,14 +1,14 @@
-.hg
-.hgignore
-.idea
-.run
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
 local.properties
 .version
-nbproject/private/*
-build/*
-dist/*
-tmp/*
-classes/*
+build.properties
+
+####### General #######
+*.swo
 trace
 *.class
 *.orig
@@ -20,3 +20,64 @@ out/
 !.idea/*
 *.log
 src/examples/strings/CRIME_secret.txt.enc
+
+####### Ant #######
+build/
+
+####### Gradle #######
+.gradle/
+reports/
+
+####### Covers NetBeans IDE #######
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+####### Covers Eclipse IDE #######
+.idea/
+.metadata
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+.settings/
+.loadpath
+.recommenders
+.classpath
+.project
+
+####### Covers JetBrains IDE: IntelliJ #######
+*.iml
+*.ipr
+
+# User-specific stuff:
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/dictionaries
+.idea/ant.xml
+
+# Sensitive or high-churn files:
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+
+# Gradle:
+.idea/**/gradle.xml
+.idea/**/libraries
+
+## File-based project format:
+*.iws
+
+## Plugin-specific files:
+
+# IntelliJ
+out/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
