@@ -4,6 +4,8 @@ package gov.nasa.jpf.symbc;
 import com.ibm.wala.util.shrike.gotoTransformation.GoToTransformer;
 import gov.nasa.jpf.JPFException;
 import gov.nasa.jpf.jvm.bytecode.IfInstruction;
+import gov.nasa.jpf.jvm.bytecode.JVMInvokeInstruction;
+import gov.nasa.jpf.jvm.bytecode.JVMReturnInstruction;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
@@ -71,6 +73,11 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.maybeParseC
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.StatisticManager.*;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases.SpfCasesInstruction.*;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.doArrayStore;
+import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.collectSymNativeReturn;
+import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.createEmptyWitness;
+import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.maintainWitnessInterceptionState;
+import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.oneTimeFillAssumptionScope;
+import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.populateWitnessGraph;
 
 public class VeritestingListener extends PropertyListenerAdapter implements PublisherExtension {
 
@@ -407,6 +414,25 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         }
     }
 
+    @Override
+    public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction,
+      Instruction executedInstruction) {
+      if (!vm.getSystemState().isIgnored()) {
+        Instruction insn = executedInstruction;
+        // SystemState ss = vm.getSystemState();
+        ThreadInfo ti = currentThread;
+        Config conf = vm.getConfig();
+
+        // fill the assumption scope if not filled already
+        oneTimeFillAssumptionScope(ti);
+        if (insn instanceof JVMInvokeInstruction) {
+          maintainWitnessInterceptionState(executedInstruction);
+        }else if (insn instanceof JVMReturnInstruction) {
+          //collect the state of symbolic variables from native return statements, if any
+          collectSymNativeReturn(insn, ti);
+        }
+      }
+  }
     /**
      * skipping a region is only allowed if it has been identified as not beneficial and if we are not hitting this region because the choice generator is trying to execute on of it spfcases choices,
      * because if it is trying to execute a choice of spf case we should not ignore the region at that point, we should however delegate the execute to the if-bytecode in java ranger.
@@ -681,6 +707,22 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
 
     public void propertyViolated(Search search) {
         System.out.println("the depth of violation is" + search.getDepth());
+
+        // serialize an empty witness
+        createEmptyWitness();
+        VM vm = search.getVM();
+        ChoiceGenerator<?> cg = vm.getChoiceGenerator();
+        if (!(cg instanceof PCChoiceGenerator)) {
+            ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGenerator();
+            while (!((prev_cg == null) || (prev_cg instanceof PCChoiceGenerator))) {
+                prev_cg = prev_cg.getPreviousChoiceGenerator();
+            }
+            cg = prev_cg;
+        }
+        if ((cg instanceof PCChoiceGenerator) && ((PCChoiceGenerator) cg).getCurrentPC() != null) {
+            PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
+            populateWitnessGraph(pc);
+        }
     }
 
     private DynamicRegion runVeritesting(ThreadInfo ti, Instruction instructionToExecute, StaticRegion staticRegion,
