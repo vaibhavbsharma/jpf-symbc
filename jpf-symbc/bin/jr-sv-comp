@@ -14,10 +14,10 @@ itr=0
 
 # create site.properties -
 # when running benchexec this needs to be commented out, and site.properties file needs to be created by hand.
-SITE_PROPERTIES=site.properties
-echo "jpf-core = `pwd`/jpf-core" > $SITE_PROPERTIES
-echo "jpf-symbc = `pwd`/java-ranger" >> $SITE_PROPERTIES
-echo "extensions=\${jpf-core},\${jpf-symbc}" >> $SITE_PROPERTIES
+#SITE_PROPERTIES=site.properties
+#echo "jpf-core = `pwd`/jpf-core" > $SITE_PROPERTIES
+#echo "jpf-symbc = `pwd`/java-ranger" >> $SITE_PROPERTIES
+#echo "extensions=\${jpf-core},\${jpf-symbc}" >> $SITE_PROPERTIES
 
 # parse arguments
 declare -a BM
@@ -33,7 +33,7 @@ case "$1" in
   --32|--64) BIT_WIDTH="${1##--}" ; shift 1 ;;
   --propertyfile) PROP_FILE="$2" ; shift 2 ;;
   --graphml-witness) WITNESS_FILE="$2" ; shift 2 ;;
-  --version) echo 2022.4; exit 0 ;;
+  --version) echo 2024; exit 0 ;;
   *) SRC=(`eval "find $1 $FIND_OPTIONS"`) ; BM=("${BM[@]}" "${SRC[@]}") ; shift 1 ;;
 esac
 done
