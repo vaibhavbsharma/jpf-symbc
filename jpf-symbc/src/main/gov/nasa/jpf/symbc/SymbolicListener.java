@@ -18,10 +18,11 @@
 
 package gov.nasa.jpf.symbc;
 
+import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.*;
+
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
-import gov.nasa.jpf.vm.ApplicationContext;
 import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.ClassInfo;
 import gov.nasa.jpf.vm.Instruction;
@@ -46,13 +47,8 @@ import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.symbc.bytecode.BytecodeUtils;
 import gov.nasa.jpf.symbc.bytecode.INVOKESTATIC;
 import gov.nasa.jpf.symbc.concolic.PCAnalyzer;
-import gov.nasa.jpf.symbc.witness.SymbolicVariableInfo;
-import gov.nasa.jpf.symbc.witness.Node;
-import gov.nasa.jpf.symbc.witness.Edge;
-import gov.nasa.jpf.symbc.witness.GraphML;
-import gov.nasa.jpf.symbc.witness.PathConditionParser;
 
-import gov.nasa.jpf.symbc.numeric.Comparator;
+
 import gov.nasa.jpf.symbc.numeric.Expression;
 import gov.nasa.jpf.symbc.numeric.IntegerConstant;
 import gov.nasa.jpf.symbc.numeric.IntegerExpression;
@@ -64,17 +60,13 @@ import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
 import gov.nasa.jpf.symbc.numeric.SymbolicReal;
 
 import gov.nasa.jpf.symbc.numeric.SymbolicConstraintsGeneral;
-//import gov.nasa.jpf.symbc.numeric.SymbolicInteger;
 
 import gov.nasa.jpf.util.Pair;
 
-import java.io.IOException;
-import java.io.InputStream;
+
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -134,31 +126,11 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
         super.threadTerminated(vm, terminatedThread);
     }
 
-
-
-    // A list to save line number and return type
-    public List<SymbolicVariableInfo> symbolicVariableInfoList = new ArrayList<>();
-
-    boolean allowMethodInvocation = false;
-    // A flag to check whether the information of symbolic variable is already parsed or not.
-    boolean interceptSymbolic = false;
-    boolean witnessAssumptionScopeIsFilled = false;
-    String fileName = "";
-    String assumptionScope = "";
-
-
     @Override
     public void propertyViolated(Search search) {
 
         VM vm = search.getVM();
         System.out.println("the depth of violation is" + search.getDepth());
-        // Path to the witness template
-        // Assume working directory is SPF
-
-        String resourcePath = "witness_template/witness_template_minimal.txt";
-
-        // Path to output directory, now it is current directory
-        String outputFilePath = "witness.graphml";
 
         ChoiceGenerator<?> cg = vm.getChoiceGenerator();
         if (!(cg instanceof PCChoiceGenerator)) {
@@ -169,18 +141,8 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
             cg = prev_cg;
         }
 
-        Node nodeForEmptyWitness = new Node(1, 0, true);
-        String strNode = nodeForEmptyWitness.serializeNode();
-        try(InputStream inputStream = SymbolicListener.class.getClassLoader().getResourceAsStream(resourcePath)){
-            if(inputStream == null){
-                throw new IllegalArgumentException("Resource not found : " + resourcePath);
-            }
-            GraphML emptyWitness = new GraphML(inputStream, outputFilePath);
-            String headerForEmptyWitness = emptyWitness.constructHeader();
-            emptyWitness.serializeEmptyWitness(strNode, headerForEmptyWitness);
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+        // serialize an empty witness
+        createEmptyWitness();
 
         if ((cg instanceof PCChoiceGenerator) && ((PCChoiceGenerator) cg).getCurrentPC() != null) {
             PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
@@ -209,67 +171,16 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
             methodSummary.addPathCondition(pcPair);
             allSummaries.put(currentMethodName, methodSummary);
 
-            String strPathCondition = pc.toString();
-
             System.out.println("Property Violated: PC is " + pc.toString());
             System.out.println("Property Violated: result is  " + error);
             System.out.println("****************************");
 
+            populateWitnessGraph(pc);
 
-
-            List<Node> nodeList = new ArrayList<>();
-            List<Edge> edgeList = new ArrayList<>();
-            PathConditionParser parser = new PathConditionParser();
-            parser.parseSymVar(strPathCondition, symbolicVariableInfoList);
-            for(int i=0; i<symbolicVariableInfoList.size(); i++){
-                Node node = new Node(symbolicVariableInfoList.size(), i, false);
-                nodeList.add(node);
-                Edge edge = new Edge(i, fileName, symbolicVariableInfoList, allowMethodInvocation, assumptionScope);
-                edgeList.add(edge);
-            }
-            // Add last node that contains violation key
-            nodeList.add(new Node(symbolicVariableInfoList.size(), symbolicVariableInfoList.size(), false));
-            try(InputStream inputStream = SymbolicListener.class.getClassLoader().getResourceAsStream(resourcePath)){
-                if(inputStream == null){
-                    throw new IllegalArgumentException("Resource not found : " + resourcePath);
-                }
-                GraphML graphML = new GraphML(inputStream, outputFilePath);
-                String header = graphML.constructHeader();
-                graphML.serializeWitness(edgeList, nodeList, header);
-            }catch (IOException e){
-                e.printStackTrace();
-            }
         }
         // }
     }
 
-    /**
-     * It parses classname and filename to fill the value of assumption.scope at violation witness
-     * Both classname and filename are needed to construct the edge of the witness
-     * assumptionScope is a value of assumption.scope attribute of violation witness
-     * fileName is a value of originfile attribute of violation witness
-     */
-    public void parseAssumptionScope(ThreadInfo ti){
-        ApplicationContext app = ti.getApplicationContext();
-        String className = app.getMainClassName();
-        String[] parts = className.split("\\.");
-        fileName = parts[parts.length - 1];
-        assumptionScope = String.join(".", parts);
-    }
-
-
-
-    // Temporary object to save the information of symbolic variable
-    SymbolicVariableInfo symbolicVariableInfo = new SymbolicVariableInfo();
-
-    /**
-     * Method that extracts line number and type of symbolic variables
-     * @param md JVMInvokeInstruction object
-     */
-    public void extractSymbolicVariableInfo(JVMInvokeInstruction md){
-        symbolicVariableInfo.lineNumber = md.getLineNumber();
-        symbolicVariableInfo.returnType = md.getReturnTypeName();
-    }
     @Override
     public void instructionExecuted(VM vm, ThreadInfo currentThread, Instruction nextInstruction,
             Instruction executedInstruction) {
@@ -279,13 +190,10 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
             // SystemState ss = vm.getSystemState();
             ThreadInfo ti = currentThread;
             Config conf = vm.getConfig();
-            String strInsn = executedInstruction.toString();
 
+            // fill the assumption scope if not filled already
+            oneTimeFillAssumptionScope(ti);
 
-            if(!witnessAssumptionScopeIsFilled){
-                parseAssumptionScope(ti);
-                witnessAssumptionScopeIsFilled = true;
-            }
             if (insn instanceof JVMInvokeInstruction) {
                 JVMInvokeInstruction md = (JVMInvokeInstruction) insn;
                 String methodName = md.getInvokedMethodName();
@@ -295,9 +203,10 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
                 ClassInfo ci = mi.getClassInfo();
                 String className = ci.getName();
 
-                if(strInsn.contains("invokestatic") && strInsn.contains("Verifier.nondet")){
-                    interceptSymbolic = true;
-                }
+                //maintain the state of whether we are still trying to intercept creation of symbolic variables
+//                catch the invokestatic.Verifier.nondet~~
+                // and store the line number and type
+                maintainWitnessInterceptionState(executedInstruction);
 
                 StackFrame sf = ti.getTopFrame();
                 String shortName = methodName;
@@ -309,9 +218,8 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
                     return;
                 // catch the invokestatic.Verifier.nondet~~
                 // and store the line number and type
-                if(className.contains("Verifier") && methodName.contains("nondet")){
-                    extractSymbolicVariableInfo(md);
-                }
+//                collectVerifierCalls(className, methodName, md);
+
                 if ((BytecodeUtils.isClassSymbolic(conf, className, mi, methodName))
                         || BytecodeUtils.isMethodSymbolic(conf, mi.getFullName(), numberOfArgs, null)) {
 
@@ -384,16 +292,8 @@ public class SymbolicListener extends PropertyListenerAdapter implements Publish
                     String longName = mi.getLongName();
                     int numberOfArgs = mi.getNumberOfArguments();
 
-                    StackFrame sf = ti.getTopFrame();
-                    Object symbolicVar = sf.getOperandAttr();
-
-                    if(interceptSymbolic && strInsn.contains("nativereturn") && strInsn.contains("makeSymbolic")){
-                        symbolicVariableInfo.varName = symbolicVar.toString();
-                        symbolicVariableInfoList.add(symbolicVariableInfo);
-
-                        // Resetting interceptSymbolic
-                        interceptSymbolic = false;
-                    }
+                    //collect the state of symbolic variables from native return statements, if any
+                    collectSymNativeReturn(insn, ti);
 
                     if (((BytecodeUtils.isClassSymbolic(conf, className, mi, methodName))
                             || BytecodeUtils.isMethodSymbolic(conf, mi.getFullName(), numberOfArgs, null))) {

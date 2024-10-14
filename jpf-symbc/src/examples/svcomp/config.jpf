@@ -44,7 +44,7 @@
 #target=svcomp.Tsp_FunSat01.Main
 #target=svcomp.Tsp_FunUnsat01.Main
 #target=svcomp.Tsp_MemUnsat01.Main
-target=svcomp.securibench.Sanitizers6.Main
+#target=svcomp.securibench.Sanitizers6.Main
 #target=svcomp.securibench.Aliasing1.Main
 #Basic38 is a target to lookup problems in translating string constraints.
 #target=svcomp.securibench.Basic38.Main
@@ -71,6 +71,7 @@ target=svcomp.securibench.Sanitizers6.Main
 #target=svcomp.loopCharAt.Main
 #target=svcomp.char1.Main
 #target=svcomp.MergeSortIterative_MemSat01.Main
+target=svcomp.assert2.Main
 
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
@@ -88,8 +89,8 @@ symbolic.jrarrays=true
 veritestingMode = 5
 recursiveDepth= 200
 singlePathOptimization=true
-listener = .symbc.VeritestingListener
-#listener = .symbc.SymbolicListener
+#listener = .symbc.VeritestingListener
+listener = .symbc.SymbolicListener
 #,.symbc.SymbolicListener
 
 #symbolic.string_dp_timeout_ms=3000
