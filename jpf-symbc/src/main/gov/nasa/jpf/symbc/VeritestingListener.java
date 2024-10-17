@@ -7,6 +7,8 @@ import gov.nasa.jpf.jvm.bytecode.IfInstruction;
 import gov.nasa.jpf.jvm.bytecode.JVMInvokeInstruction;
 import gov.nasa.jpf.jvm.bytecode.JVMReturnInstruction;
 import gov.nasa.jpf.search.Search;
+import gov.nasa.jpf.symbc.SymbolicListener.MethodSummary;
+import gov.nasa.jpf.symbc.concolic.PCAnalyzer;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.HeuristicManager;
 import gov.nasa.jpf.symbc.veritesting.Heuristics.PathStatus;
 import gov.nasa.jpf.symbc.veritesting.StaticRegionException;
@@ -47,6 +49,7 @@ import gov.nasa.jpf.symbc.veritesting.branchcoverage.CoverageCriteria;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.CollectObligationsVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.IsolateObligationsVisitor;
 import gov.nasa.jpf.symbc.veritesting.branchcoverage.obligation.VeriObligationMgr;
+import gov.nasa.jpf.util.Pair;
 import gov.nasa.jpf.vm.*;
 import gov.nasa.jpf.vm.Instruction;
 import za.ac.sun.cs.green.expr.*;
@@ -721,6 +724,22 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
         }
         if ((cg instanceof PCChoiceGenerator) && ((PCChoiceGenerator) cg).getCurrentPC() != null) {
             PathCondition pc = ((PCChoiceGenerator) cg).getCurrentPC();
+            String error = search.getLastError().getDetails();
+            error = "\"" + error.substring(0, error.indexOf("\n")) + "...\"";
+            // C: not clear where result was used here -- to review
+            // PathCondition result = new PathCondition();
+            // IntegerExpression sym_err = new SymbolicInteger("ERROR");
+            // IntegerExpression sym_value = new SymbolicInteger(error);
+            // result._addDet(Comparator.EQ, sym_err, sym_value);
+            // solve the path condition, then print it
+            // pc.solve();
+            if (SymbolicInstructionFactory.concolicMode) { // TODO: cleaner
+                SymbolicConstraintsGeneral solver = new SymbolicConstraintsGeneral();
+                PCAnalyzer pa = new PCAnalyzer();
+                pa.solve(pc, solver);
+            } else
+                pc.solve();
+
             populateWitnessGraph(pc);
         }
     }
