@@ -76,6 +76,7 @@ import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.SpfUtil.maybeParseC
 import static gov.nasa.jpf.symbc.veritesting.VeritestingUtil.StatisticManager.*;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.SPFCases.SpfCasesInstruction.*;
 import static gov.nasa.jpf.symbc.veritesting.ast.transformations.arrayaccess.ArrayUtil.doArrayStore;
+import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.collectPgmNameForSymVar;
 import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.collectSymNativeReturn;
 import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.createEmptyWitness;
 import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.maintainWitnessInterceptionState;
@@ -288,7 +289,7 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
      */
     public void executeInstruction(VM vm, ThreadInfo ti, Instruction instructionToExecute) {
         veritestingSuccessful = false;
-
+        collectPgmNameForSymVar(instructionToExecute);
         if (timeout_mins != -1) {
             long runningTimeNsecs = System.nanoTime() - runStartTime;
             if (TimeUnit.NANOSECONDS.toSeconds(runningTimeNsecs) > ((timeout_mins * 60) - (10 * timeoutReportingCounter))) {
@@ -712,9 +713,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public void propertyViolated(Search search) {
         System.out.println("the depth of violation is" + search.getDepth());
 
-//        check if there are any string type witness input, we can just produce no witness at all.
-        if(witnessHasStringVar())
-            return;
+////        check if there are any string type witness input, we can just produce no witness at all.
+//        if(witnessHasStringVar())
+//            return;
         // serialize an empty witness
         createEmptyWitness();
         VM vm = search.getVM();
