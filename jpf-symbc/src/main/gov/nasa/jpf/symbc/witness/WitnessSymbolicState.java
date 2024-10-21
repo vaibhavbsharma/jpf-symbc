@@ -151,7 +151,13 @@ public class WitnessSymbolicState {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
+  }
+  public static boolean witnessHasStringVar(){
+    for(SymbolicVariableInfo symInfo: symVarInfoList){
+      if(symInfo.returnType.contains("String"))
+        return true;
+    }
+    return false;
   }
 
 }

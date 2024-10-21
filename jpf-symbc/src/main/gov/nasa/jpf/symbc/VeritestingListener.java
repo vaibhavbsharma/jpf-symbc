@@ -81,6 +81,7 @@ import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.createEmptyWitness
 import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.maintainWitnessInterceptionState;
 import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.oneTimeFillAssumptionScope;
 import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.populateWitnessGraph;
+import static gov.nasa.jpf.symbc.witness.WitnessSymbolicState.witnessHasStringVar;
 
 public class VeritestingListener extends PropertyListenerAdapter implements PublisherExtension {
 
@@ -711,6 +712,9 @@ public class VeritestingListener extends PropertyListenerAdapter implements Publ
     public void propertyViolated(Search search) {
         System.out.println("the depth of violation is" + search.getDepth());
 
+//        check if there are any string type witness input, we can just produce no witness at all.
+        if(witnessHasStringVar())
+            return;
         // serialize an empty witness
         createEmptyWitness();
         VM vm = search.getVM();
