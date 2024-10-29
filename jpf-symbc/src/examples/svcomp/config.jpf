@@ -23,7 +23,7 @@
 #target=svcomp.Tsp_FunSat01.Main
 #target=svcomp.VeritestingPerf.Main
 #target=svcomp.MergeSortIterative_FunUnsat01.Main
-#target=svcomp.boundcheck30.Main
+#target=svcomp.boundcheck100.Main
 #target=svcomp.Addition.Main
 #target=svcomp.addition01.Main
 #target=svcomp.ExSymExeLongBytecodes_true.Main
@@ -45,6 +45,7 @@
 #target=svcomp.Tsp_FunUnsat01.Main
 #target=svcomp.Tsp_MemUnsat01.Main
 #target=svcomp.securibench.Sanitizers6.Main
+#target=svcomp.securibench.Inter6.Main
 #target=svcomp.securibench.Aliasing1.Main
 #Basic38 is a target to lookup problems in translating string constraints.
 #target=svcomp.securibench.Basic38.Main
@@ -68,20 +69,26 @@
 #target=svcomp.StringCompare04.Main
 #target=svcomp.StringBuilderConstructors02.Main
 #target=svcomp.UnsatFibonacci01.Main
-#target=svcomp.loopCharAt.Main
+target=svcomp.loopCharAt.Main
 #target=svcomp.char1.Main
 #target=svcomp.MergeSortIterative_MemSat01.Main
-target=svcomp.assert2.Main
+#target=svcomp.java_append_char.Main
+#target=svcomp.assert2.Main
+#target=svcomp.StringValueOf04.Main
+#target=svcomp.return2.Main
+#target=svcomp.ExSymExe28_false.Main
+#target=svcomp.ExSymExe7_false.Main
 
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
+#symbolic.dp=z3
 symbolic.dp=z3bitvector
 symbolic.min_int=-2147483648
 symbolic.max_int=2147483647
 symbolic.min_double=-10000.0
 symbolic.max_double=10000.0
 symbolic.bvlength=64
-search.depth_limit=5
+search.depth_limit=156
 symbolic.strings=true
 symbolic.string_dp=z3str3
 symbolic.lazy=on
@@ -89,8 +96,8 @@ symbolic.jrarrays=true
 veritestingMode = 5
 recursiveDepth= 200
 singlePathOptimization=true
-#listener = .symbc.VeritestingListener
-listener = .symbc.SymbolicListener
+listener = .symbc.VeritestingListener
+#listener = .symbc.SymbolicListener
 #,.symbc.SymbolicListener
 
 #symbolic.string_dp_timeout_ms=3000
@@ -98,5 +105,5 @@ listener = .symbc.SymbolicListener
 #symbolic.dp=z3bitvectorinc
 #symbolic.arrays=true
 #,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
-#symbolic.optimizechoices=false
+symbolic.optimizechoices=true
 symbolic.debug=true
