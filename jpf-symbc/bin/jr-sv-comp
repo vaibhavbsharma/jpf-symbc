@@ -33,7 +33,7 @@ case "$1" in
   --32|--64) BIT_WIDTH="${1##--}" ; shift 1 ;;
   --propertyfile) PROP_FILE="$2" ; shift 2 ;;
   --graphml-witness) WITNESS_FILE="$2" ; shift 2 ;;
-  --version) echo 2024; exit 0 ;;
+  --version) echo 2025; exit 0 ;;
   *) SRC=(`eval "find $1 $FIND_OPTIONS"`) ; BM=("${BM[@]}" "${SRC[@]}") ; shift 1 ;;
 esac
 done
@@ -62,7 +62,7 @@ trap "rm -rf $DIR" EXIT
 mkdir -p $DIR/target/classes
 
 # build src files from benchmark
-/usr/lib/jvm/java-8-openjdk-amd64/bin/javac -g -cp `pwd`/java-ranger/build/classes:$DIR/target/classes:`pwd`/java-ranger/lib/JSAP-2.1.jar:`pwd`/java-ranger/lib/foundry-1.0.jar -d $DIR/target/classes "${BM[@]}"
+javac -target 1.8 -g -cp `pwd`/java-ranger/build/classes:$DIR/target/classes:`pwd`/java-ranger/lib/JSAP-2.1.jar:`pwd`/java-ranger/lib/foundry-1.0.jar -d $DIR/target/classes "${BM[@]}"
 
 while [ $DURATION -gt 0 ] && [ $itr -lt 3 ]
 do
