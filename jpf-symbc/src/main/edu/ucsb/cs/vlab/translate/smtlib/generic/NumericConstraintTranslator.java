@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import edu.ucsb.cs.vlab.translate.NormalFormTranslator;
@@ -65,8 +67,25 @@ public abstract class NumericConstraintTranslator extends NormalFormTranslator<C
 						&& op.getOperand(1) instanceof IntConstant){
 					ret += " (str.to_code " + transformGreenExp(op.getOperand(i)) + ")";
 				}
-				else
-					ret += " " + transformGreenExp(op.getOperand(i));
+				else{
+					String transformedExp = transformGreenExp(op.getOperand(i));
+					Pattern pattern = Pattern.compile("CharAt\\((\\w+)\\)_\\w+_==(\\d+)");
+					Matcher matcher = pattern.matcher(exp.toString());
+					if( matcher.matches()){
+						System.out.println("Group 2: " + matcher.group(2));
+						String strValue = matcher.group(2);
+						try{
+							int intValue = Integer.parseInt(strValue);
+							char charValue = (char) intValue;
+							transformedExp="\""+transformedExp.replaceAll(strValue, String.valueOf(charValue)) +"\"";
+							ret=ret.replaceAll("\\(str.to_code","");
+							ret=ret.substring(0,ret.length()-1);
+						}catch (NumberFormatException e){
+							assert false: "this should not happen, as it is based on the RE definition this group should be a number";
+						}
+				}
+					ret += " " + transformedExp;
+				}
 			}
 			ret += ")" + (opString.contains("(=") ? ")" : "");
 			return ret;
