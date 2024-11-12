@@ -17,13 +17,13 @@ public class ArrayRefVarExpr extends CloneableVariable {
     public int uniqueNum = -1;
 
     public ArrayRefVarExpr(ArrayRef arrayRef, SubscriptPair subscript) {
-        super("@r"+arrayRef.ref + "[" + arrayRef.index + "]." + subscript);
+        super("@r"+arrayRef.ref + "_" + arrayRef.index + "_." + subscript);
         this.arrayRef = arrayRef.clone();
         this.subscript = subscript.clone();
     }
 
     public ArrayRefVarExpr(ArrayRef arrayRef, SubscriptPair subscript, int uniqueNum) {
-        super("@r"+arrayRef.ref + "[" + arrayRef.index + "]." + subscript);
+        super("@r"+arrayRef.ref + "_" + arrayRef.index + "_." + subscript);
         this.arrayRef = arrayRef.clone();
         this.subscript = subscript.clone();
         this.uniqueNum = uniqueNum;
@@ -79,7 +79,7 @@ public class ArrayRefVarExpr extends CloneableVariable {
     }
 
     public String getSymName() {
-        String ret = "r" + arrayRef.ref + "[" + arrayRef.index + "]." + subscript.getSymName();
+        String ret = "r" + arrayRef.ref + "_" + arrayRef.index + "_." + subscript.getSymName();
         if (uniqueNum != -1) ret = ret +  "." + uniqueNum;
         return ret;
     }

@@ -44,15 +44,26 @@ public class MULTIANEWARRAY extends gov.nasa.jpf.jvm.bytecode.MULTIANEWARRAY {
         if (allOperandsConcrete(sf))
             return super.execute(ti);
 
+        ChoiceGenerator<?> cg = null;
+        if (!ti.isFirstStepInsn()) {
+            cg = new PCChoiceGenerator(2);
+            ti.getVM().setNextChoiceGenerator(cg);
+            return this;
+        } else {
+            cg = ti.getVM().getSystemState().getChoiceGenerator();
+            assert (cg instanceof PCChoiceGenerator) : "expected PCChoiceGenerator, got:" + cg;
+        }
+
+        ChoiceGenerator<?> prev_cg = cg.getPreviousChoiceGeneratorOfType(PCChoiceGenerator.class);
+
+        if(prev_cg == null)
+            pc = new PathCondition();
+        else
+            pc = ((PCChoiceGenerator)prev_cg).getCurrentPC();
+        assert pc != null;
+
         //one or more operand is symbolic, then we want to fill out arrayLengths by trying to guess what they could be
         HashMap<Integer, SymbolicInteger> guessedDimensions = new HashMap<>();
-        ChoiceGenerator<?> cg = ti.getVM().getSystemState().getChoiceGenerator();
-        if (cg instanceof PCChoiceGenerator) {
-            pc = ((PCChoiceGenerator) (ti.getVM().getSystemState().getChoiceGenerator())).getCurrentPC();
-        } else {
-            pc = new PathCondition();
-            pc._addDet(Comparator.EQ, new IntegerConstant(0), new IntegerConstant(0));
-        }
         assert pc != null;
         PathCondition newPC = pc.make_copy();
 

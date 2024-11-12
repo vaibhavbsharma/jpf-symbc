@@ -160,10 +160,26 @@ public abstract class NumericConstraintTranslator extends NormalFormTranslator<C
 			if(CHARS.contains(l.getClass()) || CHARS.contains(r.getClass())) {
 				if (l instanceof SymbolicCharAtInteger
 						&& r instanceof IntegerConstant
-						&& (cmp.toString().equals(" >= ") || cmp.toString().equals(" <= ")) ){
+						&& (cmp.toString().equals(" >= ") || cmp.toString().equals(" <= ") || cmp.toString().equals(" != ")) ){
 					try {
 						a = "(str.to_code " + a + ")";
 					} catch(NumberFormatException e) {}
+				} else if(CHARS.contains(l.getClass()) && l instanceof SymbolicCharAtInteger){
+					a = "(str.to_code " + a + ")";
+					Pattern regex = Pattern.compile("(\\(str.at \\w+ \\d+\\))");
+					Matcher matcher = regex.matcher(b);
+					if(matcher.find()){
+						String matchedStr = matcher.group(0);
+						b = b.replaceAll(matchedStr, "str.to_code "+ matchedStr);
+					}
+				} else if(CHARS.contains(r.getClass()) && r instanceof SymbolicCharAtInteger){
+					b = "(str.to_code " + b + ")";
+					Pattern regex = Pattern.compile("(\\(str.at \\w+ \\d+\\))");
+					Matcher matcher = regex.matcher(a);
+					if(matcher.find()){
+						String matchedStr = matcher.group(0);
+						a = a.replaceAll(matchedStr, "str.to_code "+ matchedStr);
+					}
 				}
 				else {
 					try {
