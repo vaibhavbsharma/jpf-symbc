@@ -391,8 +391,10 @@ public class PathCondition implements Comparable<PathCondition> {
         solver.cleanup();
         PathCondition.flagSolved = true;
 
-        // modification for string path condition
-        boolean result2 = spc.solve(); // TODO: to review
+        boolean result2 = true;
+        if(!spc.toString().contains("double")) //only evaluate if no floating theory exists in the string pathCondition
+            // modification for string path condition
+            result2 = spc.solve(); // TODO: to review
         return result1 && result2;
     }
 
@@ -424,7 +426,7 @@ public class PathCondition implements Comparable<PathCondition> {
         if (!result1)
             return false;
         //trying to optimize, i.e., skip solving of string constraints
-        if (spc.toString().contains("string") || spc.toString().contains("CONST_")) {
+        if (spc.toString().contains("string") || spc.toString().contains("CONST_") && (!spc.toString().contains("double"))) {
             boolean result2 = spc.simplify(); // TODO to review: used for strings
             return result1 && result2;
         } else return result1;

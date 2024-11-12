@@ -677,7 +677,9 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 return ctx.mkAdd((IntExpr) exp1, (IntExpr) exp2);
             } else if (exp1 instanceof RealExpr && exp2 instanceof RealExpr) { 
                 return ctx.mkAdd((RealExpr) exp1, (RealExpr) exp2);
-            } else {
+            } else if (exp1 instanceof FPExpr && exp2 instanceof FPExpr) {
+                return ctx.mkFPAdd(ctx.mkFPRoundNearestTiesToEven(), (FPExpr) exp1, (FPExpr) exp2);
+            }else {
                 throw new RuntimeException();
             }
         } catch (Exception e) {
@@ -780,7 +782,9 @@ public class ProblemZ3BitVector extends ProblemGeneral {
                 return ctx.mkBVMul((BitVecExpr) exp1, (BitVecExpr) exp2);
             } else if (exp1 instanceof IntExpr && exp2 instanceof IntExpr) {
                 return ctx.mkMul((IntExpr) exp1, (IntExpr) exp2);
-            } else {
+            } else if (exp1 instanceof FPExpr && exp2 instanceof FPExpr) {
+                return ctx.mkFPMul(ctx.mkFPRoundNearestTiesToEven(), (FPExpr) exp1, (FPExpr) exp2);}
+                else{
                 throw new RuntimeException();
             }
         } catch (Exception e) {
@@ -1596,11 +1600,27 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         if (pieces.length < 2) {
             throw new RuntimeException("Error extracting value of FPExpr!");
         }
-
-        double sig = Double.parseDouble(pieces[0]);
-        int exp = Integer.parseInt(pieces[1]);
-
-        return sig * Math.pow(2.0, (double) exp);
+        double sig;
+        int exp;
+        long denaminator;
+        long numerator;
+        if(pieces[0].startsWith("(/")){ // Z3 represents the float as a fraction
+            for(int i=0; i<pieces.length; i++) {
+                pieces[i] = pieces[i].replaceAll("\\(", "");
+                pieces[i] = pieces[i].replaceAll("\\)", "");
+            }
+          numerator = pieces.length==4? Long.parseLong(pieces[2]): Long.parseLong(pieces[1]);
+          try {
+              denaminator = pieces.length == 4 ? Long.parseLong(pieces[3]) : Long.parseLong(pieces[2]);
+          }catch (NumberFormatException e){
+              denaminator=Long.MAX_VALUE;
+          }
+          return (double)numerator/denaminator;
+        }else {
+            sig = Double.parseDouble(pieces[0]);
+            exp = Integer.parseInt(pieces[1]);
+            return sig * Math.pow(2.0, (double) exp);
+        }
     }
 
     @Override
