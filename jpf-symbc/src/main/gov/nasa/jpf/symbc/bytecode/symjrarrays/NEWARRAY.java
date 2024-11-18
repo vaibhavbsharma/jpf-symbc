@@ -38,7 +38,7 @@ import static gov.nasa.jpf.symbc.veritesting.AdapterSynth.SPFAdapterSynth.getVal
 
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
-    private static final int[] smallValues = {2, 3, 4, 5, 10, 100000};
+    private static final int[] smallValues = {2, 3, 4, 5, 10, 1000};
 
     ArrayList<Long> values;
 
@@ -93,11 +93,13 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
                 for (int i = 0; i < smallValues.length; i++) {
                     PathCondition newPC = pc.make_copy();
-                    newPC._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(smallValues[i]));
+                    newPC._addDet(Comparator.LT, (IntegerExpression) attr, new IntegerConstant(smallValues[i]));
+                    if(i>0)
+                        newPC._addDet(Comparator.GT, (IntegerExpression) attr, new IntegerConstant(smallValues[i-1]));
                     Map<String, Object> map = newPC.solveWithValuation((SymbolicInteger) attr, null);
                     Long lastValue = getVal(map, name);
                     if (map == null || map.size() == 0 || lastValue == null) continue;
-                    else if (lastValue == smallValues[i]) values.add(lastValue);
+                    else values.add(lastValue);
                 }
                 if (values.size() == 0)
                     return ti.createAndThrowException("unsupported symbolic size of array length.");
@@ -139,8 +141,11 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
-                arrayLength = Math.toIntExact(values.get((Integer) cg.getNextChoice() - 1));
-                pc._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(arrayLength));
+                int nextCgVal = (Integer) cg.getNextChoice() - 1;
+                arrayLength = Math.toIntExact(values.get(nextCgVal));
+                pc._addDet(Comparator.LE, (IntegerExpression) attr, new IntegerConstant(arrayLength));
+                if(nextCgVal>0)
+                    pc._addDet(Comparator.GT, (IntegerExpression) attr, new IntegerConstant(Math.toIntExact(values.get(nextCgVal-1))));
             }
 
         } else {

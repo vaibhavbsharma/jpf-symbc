@@ -1555,7 +1555,7 @@ public class ProblemZ3BitVector extends ProblemGeneral {
             fpExpr = (exp1 instanceof FPExpr ? ((FPExpr) exp1) : ((FPExpr) exp2));
 
             FPSort sort = this.bitVectorLength == 32 ? ctx.mkFPSort32() : ctx.mkFPSort64();
-            converted = ctx.mkFPToFP(bvExpr, sort);
+            converted = ctx.mkFPToFP(ctx.mkFPRoundTowardZero(), bvExpr, sort,true);
 
             return ctx.mkFPEq(fpExpr, converted);
         } else {
@@ -1597,8 +1597,13 @@ public class ProblemZ3BitVector extends ProblemGeneral {
         String rawValue = model.getConstInterp(fpExpr.getFuncDecl()).toString();
         String[] pieces = rawValue.split(" ");
 
-        if (pieces.length < 2) {
+        if (pieces.length < 1) {
             throw new RuntimeException("Error extracting value of FPExpr!");
+        } else if (pieces.length==1){
+            //probably the getConstInterp was able to parse the float directly due to zero mantissa, which means the fractional part is zeros
+            // recall that z3 uses IEEE 754 representation of floats where Value=(−1)^sign × 1.mantissa × 2^exponent, where both
+            //the 1 in the mantissa is implicit, i.e., not represented, as it allways exists.
+            return Double.valueOf(pieces[0]);
         }
         double sig;
         int exp;

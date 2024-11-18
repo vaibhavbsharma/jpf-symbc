@@ -426,7 +426,7 @@ public class PathCondition implements Comparable<PathCondition> {
         if (!result1)
             return false;
         //trying to optimize, i.e., skip solving of string constraints
-        if (spc.toString().contains("string") || spc.toString().contains("CONST_") && (!spc.toString().contains("double"))) {
+        if (spc.toString().contains("string") && (!spc.toString().contains("double"))) {
             boolean result2 = spc.simplify(); // TODO to review: used for strings
             return result1 && result2;
         } else return result1;

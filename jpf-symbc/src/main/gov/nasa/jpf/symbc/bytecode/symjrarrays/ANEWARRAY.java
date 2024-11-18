@@ -37,7 +37,7 @@ import static gov.nasa.jpf.symbc.veritesting.AdapterSynth.SPFAdapterSynth.getVal
 
 
 public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
-    private static final int[] smallValues = {1, 2, 3, 4, 5, 10};
+    private static final int[] smallValues = {1, 2, 3, 4, 5, 1000};
     ArrayList<Long> values;
 
     public ANEWARRAY(String typeDescriptor) {
@@ -90,11 +90,13 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
 
                 for (int i = 0; i < smallValues.length; i++) {
                     PathCondition newPC = pc.make_copy();
-                    newPC._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(smallValues[i]));
+                    newPC._addDet(Comparator.LT, (IntegerExpression) attr, new IntegerConstant(smallValues[i]));
+                    if(i>0)
+                        newPC._addDet(Comparator.GT, (IntegerExpression) attr, new IntegerConstant(smallValues[i-1]));
                     Map<String, Object> map = newPC.solveWithValuation((SymbolicInteger) attr, null);
                     Long lastValue = getVal(map, name);
                     if (map == null || map.size() == 0 || lastValue == null) continue;
-                    else if (lastValue == smallValues[i]) values.add(lastValue);
+                    else values.add(lastValue);
                 }
                 if (values.size() == 0)
                     return ti.createAndThrowException("unsupported symbolic size of array length.");
