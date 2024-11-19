@@ -425,8 +425,9 @@ public class PathCondition implements Comparable<PathCondition> {
         VeritestingListener.totalSolverTime += (endTime - startTime);
         if (!result1)
             return false;
+        String spsStr = spc.toString().toLowerCase();
         //trying to optimize, i.e., skip solving of string constraints
-        if (spc.toString().contains("string") && (!spc.toString().contains("double"))) {
+        if ((spsStr.contains("string") || spsStr.contains("valueof") || (spsStr.contains("charat")))&& (!spc.toString().contains("double"))) {
             boolean result2 = spc.simplify(); // TODO to review: used for strings
             return result1 && result2;
         } else return result1;
