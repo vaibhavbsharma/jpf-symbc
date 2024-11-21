@@ -7,17 +7,9 @@ DEPTH_LIMIT[2]=156
 
 export RESULT="initial"
 
-#CURRENT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 itr=0
 
-# derived from the jpf-sv-comp script used by SPF in SV-COMP 2019
-
-# create site.properties -
-# when running benchexec this needs to be commented out, and site.properties file needs to be created by hand.
-#SITE_PROPERTIES=site.properties
-#echo "jpf-core = `pwd`/jpf-core" > $SITE_PROPERTIES
-#echo "jpf-symbc = `pwd`/java-ranger" >> $SITE_PROPERTIES
-#echo "extensions=\${jpf-core},\${jpf-symbc}" >> $SITE_PROPERTIES
 
 # parse arguments
 declare -a BM
@@ -60,9 +52,12 @@ trap "rm -rf $DIR" EXIT
 
 # create target directory
 mkdir -p $DIR/target/classes
+PWD=`pwd`
 
 # build src files from benchmark
-javac -target 1.8 -g -cp `pwd`/java-ranger/build/classes:$DIR/target/classes:`pwd`/java-ranger/lib/JSAP-2.1.jar:`pwd`/java-ranger/lib/foundry-1.0.jar -d $DIR/target/classes "${BM[@]}"
+javac --release 8 -g -cp $PWD/java-ranger/build/classes:$DIR/target/classes:$PWD/java-ranger/lib/JSAP-2.1.jar:$PWD/java-ranger/lib/foundry-1.0.jar -d $DIR/target/classes "${BM[@]}"
+
+echo "after javac"
 
 while [ $DURATION -gt 0 ] && [ $itr -lt 3 ]
 do
@@ -74,9 +69,9 @@ do
 
   # create configuration file
   echo "target=Main" > $DIR/config.jpf
-  echo "classpath=`pwd`/java-ranger/build/classes,$DIR/target/classes" >> $DIR/config.jpf
-  #echo "symbolic.dp=z3bitvector" >> $DIR/config.jpf
+  echo "classpath=$PWD/java-ranger/build/classes,$DIR/target/classes" >> $DIR/config.jpf
   echo "symbolic.dp=z3bitvector" >> $DIR/config.jpf
+  #echo "symbolic.dp=z3" >> $DIR/config.jpf
   echo "symbolic.min_int=-2147483648" >> $DIR/config.jpf
   echo "symbolic.max_int=2147483647" >> $DIR/config.jpf
   echo "symbolic.min_double=-10000.0" >> $DIR/config.jpf
@@ -95,14 +90,14 @@ do
   echo "symbolic.jrarrays=true" >> $DIR/config.jpf
   echo "veritestingMode = 5" >> $DIR/config.jpf
   echo "recursiveDepth= 200" >> $DIR/config.jpf
-  echo "listener = .symbc.VeritestingListener" >> $DIR/config.jpf
+  echo "listener=.symbc.VeritestingListener" >> $DIR/config.jpf
   echo "singlePathOptimization=true" >> $DIR/config.jpf
   #echo "symbolic.optimizechoices=false" >> $DIR/config.jpf
-  #echo "symbolic.fp = true" >> $DIR/config.jpf
+  echo "symbolic.fp = true" >> $DIR/config.jpf
 
 
   # run Java Ranger
-  export LD_LIBRARY_PATH=`pwd`/java-ranger/lib:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH=$PWD/java-ranger/lib:$LD_LIBRARY_PATH
   echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
   export TARGET_CLASSPATH_WALA=$DIR/target/classes/
   echo $TARGET_CLASSPATH_WALA
@@ -111,7 +106,7 @@ do
     JVM_FLAGS="-Xmx1024m -ea"
   fi
 
-  ulimit -t $DURATION ;  /usr/lib/jvm/java-8-openjdk-amd64/bin/java $JVM_FLAGS -Djava.library.path=/usr/local/lib -jar `pwd`/jpf-core/build/RunJPF.jar $DIR/config.jpf > $LOG
+  ulimit -t $DURATION ; /usr/lib/jvm/java-8-openjdk-amd64/bin/java  $JVM_FLAGS -Djava.library.path=/usr/local/lib -jar $PWD/jpf-core/build/RunJPF.jar $DIR/config.jpf >$LOG
 
   TIMEOUT_EXIT_CODE=$?
   echo "time out code = $TIMEOUT_EXIT_CODE"

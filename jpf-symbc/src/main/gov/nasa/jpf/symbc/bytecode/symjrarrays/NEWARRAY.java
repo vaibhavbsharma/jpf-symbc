@@ -38,7 +38,7 @@ import static gov.nasa.jpf.symbc.veritesting.AdapterSynth.SPFAdapterSynth.getVal
 
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
-    private static final int[] smallValues = {2, 3, 4, 5, 10, 1000, 10000};
+    private static final int[] smallValues = {2, 3, 4, 5, 10, 1000};
 
     ArrayList<Long> values;
 
