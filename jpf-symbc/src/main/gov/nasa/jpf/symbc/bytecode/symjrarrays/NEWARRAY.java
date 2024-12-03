@@ -38,7 +38,7 @@ import static gov.nasa.jpf.symbc.veritesting.AdapterSynth.SPFAdapterSynth.getVal
 
 public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
 
-    private static final int[] smallValues = {2, 3, 4, 5, 10, 1000};
+    private static final int[] smallValues = {2, 3, 4, 5, 10, 1000, 10_000, 1_000_000_000};
 
     ArrayList<Long> values;
 
@@ -64,14 +64,19 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
             arrayLength = (int) l;
             sf.pop();
         } else if (attr instanceof IntegerExpression) {
-            ChoiceGenerator<?> cg = null;
+            ChoiceGenerator<?> cg = ti.getVM().getSystemState().getChoiceGenerator();
             if (!ti.isFirstStepInsn()) {
-                if (ti.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
-                    pc = ((PCChoiceGenerator) (ti.getVM().getSystemState().getChoiceGenerator())).getCurrentPC();
-                } else {
+                while (!((cg == null) || (cg instanceof PCChoiceGenerator))) {
+                    cg = cg.getPreviousChoiceGenerator();
+                }
+
+                if (cg == null){
                     pc = new PathCondition();
                     pc._addDet(Comparator.EQ, new IntegerConstant(0), new IntegerConstant(0));
                 }
+                else
+                    pc = ((PCChoiceGenerator) cg).getCurrentPC();
+
                 assert pc != null;
 
                 String name = attr instanceof SymbolicInteger ? ((SymbolicInteger) attr).getName() : null;
@@ -120,8 +125,8 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
             else
                 pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
             assert pc != null;
-
-            if ((Integer) cg.getNextChoice() == 0) {
+            Integer cgChoice = (Integer) cg.getNextChoice();
+            if (cgChoice == 0) {
                 pc._addDet(Comparator.LT, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -133,14 +138,14 @@ public class NEWARRAY extends gov.nasa.jpf.jvm.bytecode.NEWARRAY {
             } else { // exploring smallValues choices.
                 pc._addDet(Comparator.GE, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
-                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
                     arrayLength = sf.pop();
                 } else {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
-                arrayLength = Math.toIntExact(values.get((Integer) cg.getNextChoice() - 1));
+                arrayLength = Math.toIntExact(values.get(cgChoice - 1));
                 pc._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(arrayLength));
+                ((PCChoiceGenerator) cg).setCurrentPC(pc);
             }
 
         } else {

@@ -37,7 +37,8 @@ import static gov.nasa.jpf.symbc.veritesting.AdapterSynth.SPFAdapterSynth.getVal
 
 
 public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
-    private static final int[] smallValues = {2, 3, 4, 5, 10, 1000};
+    private static final int[] smallValues = {2, 3, 4, 5, 10, 1000, 10_000};
+
     ArrayList<Long> values;
 
     public ANEWARRAY(String typeDescriptor) {
@@ -46,9 +47,10 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
 
     @Override
     public Instruction execute(ThreadInfo ti) {
+
         StackFrame sf = ti.getModifiableTopFrame();
         Object attr = sf.getOperandAttr();
-        PathCondition pc;
+        PathCondition pc = null;
 
 
         if (attr == null)
@@ -61,19 +63,24 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
             arrayLength = (int) l;
             sf.pop();
         } else if (attr instanceof IntegerExpression) {
-            ChoiceGenerator<?> cg = null;
+            ChoiceGenerator<?> cg = ti.getVM().getSystemState().getChoiceGenerator();
             if (!ti.isFirstStepInsn()) {
-                if (ti.getVM().getSystemState().getChoiceGenerator() instanceof PCChoiceGenerator) {
-                    pc = ((PCChoiceGenerator) (ti.getVM().getSystemState().getChoiceGenerator())).getCurrentPC();
-                } else {
+                while (!((cg == null) || (cg instanceof PCChoiceGenerator))) {
+                    cg = cg.getPreviousChoiceGenerator();
+                }
+
+                if (cg == null){
                     pc = new PathCondition();
                     pc._addDet(Comparator.EQ, new IntegerConstant(0), new IntegerConstant(0));
                 }
+                else
+                    pc = ((PCChoiceGenerator) cg).getCurrentPC();
+
                 assert pc != null;
 
                 String name = attr instanceof SymbolicInteger ? ((SymbolicInteger) attr).getName() : null;
                 if (attr instanceof BinaryNonLinearIntegerExpression) {
-                    // if attr is BNLIE with same operands, concretize the operand to avoid reasoning over the non-linear arithmetic
+                    // if attr is BNLIE with same operands, concretize the operand
                     BinaryNonLinearIntegerExpression attrBNLIE = (BinaryNonLinearIntegerExpression) attr;
                     if (attrBNLIE.left instanceof SymbolicInteger && attrBNLIE.right instanceof SymbolicInteger
                         && attrBNLIE.left.equals(attrBNLIE.right)) {
@@ -102,6 +109,7 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
                 // First choice is to explore negative array length
                 // All the choices in the middle explore small array lengths
                 cg = new PCChoiceGenerator(values.size() + 1);
+
                 ti.getVM().setNextChoiceGenerator(cg);
                 return this;
             }
@@ -116,8 +124,8 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
             else
                 pc = ((PCChoiceGenerator) prev_cg).getCurrentPC();
             assert pc != null;
-
-            if ((Integer) cg.getNextChoice() == 0) {
+            Integer cgChoice = (Integer) cg.getNextChoice();
+            if (cgChoice == 0) {
                 pc._addDet(Comparator.LT, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
                     ((PCChoiceGenerator) cg).setCurrentPC(pc);
@@ -129,14 +137,14 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
             } else { // exploring smallValues choices.
                 pc._addDet(Comparator.GE, (IntegerExpression) attr, new IntegerConstant(0));
                 if (pc.simplify()) {
-                    ((PCChoiceGenerator) cg).setCurrentPC(pc);
                     arrayLength = sf.pop();
                 } else {
                     ti.getVM().getSystemState().setIgnored(true);
                     return getNext(ti);
                 }
-                arrayLength = Math.toIntExact(values.get((Integer) cg.getNextChoice() - 1));
+                arrayLength = Math.toIntExact(values.get(cgChoice - 1));
                 pc._addDet(Comparator.EQ, (IntegerExpression) attr, new IntegerConstant(arrayLength));
+                ((PCChoiceGenerator) cg).setCurrentPC(pc);
             }
 
         } else {
@@ -176,5 +184,6 @@ public class ANEWARRAY extends gov.nasa.jpf.jvm.bytecode.ANEWARRAY {
         ti.getVM().getSystemState().checkGC(); // has to happen after we push the new object ref
 
         return getNext(ti);
+
     }
 }

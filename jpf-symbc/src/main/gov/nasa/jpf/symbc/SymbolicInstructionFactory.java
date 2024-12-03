@@ -18,6 +18,8 @@
 
 package gov.nasa.jpf.symbc;
 
+import gov.nasa.jpf.symbc.bytecode.symjrarrays.ANEWARRAY;
+import gov.nasa.jpf.symbc.bytecode.symjrarrays.NEWARRAY;
 import za.ac.sun.cs.green.Green;
 import za.ac.sun.cs.green.util.Configuration;
 import gov.nasa.jpf.Config;
@@ -527,11 +529,11 @@ public class SymbolicInstructionFactory extends gov.nasa.jpf.jvm.bytecode.Instru
 		  }
 
 	  public Instruction newarray(int typeCode) {
-		  return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.NEWARRAY(typeCode) : (symJrArrays? new gov.nasa.jpf.symbc.bytecode.symjrarrays.NEWARRAY(typeCode) : new NEWARRAY(typeCode)) : super.newarray(typeCode));
+		  return (filter.isPassing(ci) ? (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.NEWARRAY(typeCode) : (symJrArrays? new NEWARRAY(typeCode) : new gov.nasa.jpf.symbc.bytecode.NEWARRAY(typeCode)) : super.newarray(typeCode));
 	      }
 
 	  public Instruction anewarray(String typeDescriptor) {
-		  return (filter.isPassing(ci) && (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.ANEWARRAY(typeDescriptor) :(symJrArrays? new gov.nasa.jpf.symbc.bytecode.symjrarrays.ANEWARRAY(typeDescriptor) : super.anewarray(typeDescriptor)));
+		  return (filter.isPassing(ci) && (symArrays) ? new gov.nasa.jpf.symbc.bytecode.symarrays.ANEWARRAY(typeDescriptor) :(symJrArrays? new ANEWARRAY(typeDescriptor) : super.anewarray(typeDescriptor)));
 	      }
 
 	  public Instruction multianewarray(String clsName, int dimensions){
