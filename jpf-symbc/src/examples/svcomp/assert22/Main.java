@@ -10,10 +10,7 @@ import org.sosy_lab.sv_benchmarks.Verifier;
 
 class Main {
   public static void main(String[] args) {
-    float f = Verifier.nondetFloat();
-
-//    if (i >= 0.1f) assert i > 1000 : "i is greater 1000"; // should fail
-//    if (s.equals("hi")) assert false;
-     if (i >= 0.1f) assert false;
+    String s = Verifier.nondetString();
+    if (s.equals("hi")) assert false;
   }
 }

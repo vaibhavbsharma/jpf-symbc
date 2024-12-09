@@ -208,7 +208,6 @@ public class Main {
 
         TspSolver tspSolver = new TspSolver(N, D);
         int sln = tspSolver.solve();
-        if (sln < 0)
-            assert false;
+        assert (sln >= 0);
     }
 }

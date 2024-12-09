@@ -1,5 +1,5 @@
 #target=svcomp.CWE369_Divide_by_Zero__float_connect_tcp_divide_01_good.Main
-#target=svcomp.StringContains02.Main
+#target=svcomp.StringContains01.Main
 #target=svcomp.BellmanFord_FunUnsat01.Main
 #target=svcomp.CWE369_Divide_by_Zero__float_console_readLine_divide_54_bad.Main
 #target=svcomp.CWE369_Divide_by_Zero__float_console_readLine_divide_54_bad_version2.Main
@@ -7,7 +7,7 @@
 #target=svcomp.replace5_eqchk.MainProp1
 #target=svcomp.replace5_eqchkInt.MainProp1
 #target=svcomp.replace5_eqchkChar.MainProp1
-#target=svcomp.nanoxml_eqchk.MainProp3
+#target=svcomp.nanoxml_eqchk.MainProp2
 #target=svcomp.SatFibonacci01.Main
 #target=svcomp.VeritestingPerf.Main
 #target=svcomp.array1.Main
@@ -48,7 +48,7 @@
 #target=svcomp.securibench.Inter6.Main
 #target=svcomp.securibench.Aliasing1.Main
 #Basic38 is a target to lookup problems in translating string constraints.
-#target=svcomp.securibench.Basic38.Main
+#target=svcomp.securibench.Basic37.Main
 #target=svcomp.StringValueOf07.Main
 #target=svcomp.CharSequenceToString.Main
 #target=svcomp.URLDecoder01.Main
@@ -69,16 +69,28 @@
 #target=svcomp.StringCompare04.Main
 #target=svcomp.StringBuilderConstructors02.Main
 #target=svcomp.UnsatFibonacci01.Main
-target=svcomp.loopCharAt.Main
+#target=svcomp.loopCharAt.Main
 #target=svcomp.char1.Main
 #target=svcomp.MergeSortIterative_MemSat01.Main
 #target=svcomp.java_append_char.Main
 #target=svcomp.assert2.Main
-#target=svcomp.StringValueOf04.Main
+target=svcomp.StringValueOf02.Main
 #target=svcomp.return2.Main
 #target=svcomp.ExSymExe28_false.Main
 #target=svcomp.ExSymExe7_false.Main
-
+#target=svcomp.StringMiscellaneous03.Main
+#target=svcomp.ExSymExe29_false.Main
+#target=svcomp.ArrayIndexOutOfBoundsException3.Main
+#target=svcomp.StaticCharMethods02.Main
+#target=svcomp.BellmanFordFunUnsat02.Main
+#target=svcomp.array1.Main
+#target=svcomp.coral48.Main
+#target=svcomp.ExSymExeD2L_false.Main
+#target=svcomp.arraylength1.Main
+#target=svcomp.array1.Main
+#target=svcomp.StringBuilderConstructors01.Main
+#target=svcomp.assert22.Main
+#target=svcomp.MergeSortIterative_MemSat01.Main
 
 classpath=${jpf-symbc}/build/examples,${jpf-symbc}/lib/com.ibm.wala.util-1.4.4-SNAPSHOT.jar
 #symbolic.dp=z3
@@ -88,7 +100,7 @@ symbolic.max_int=2147483647
 symbolic.min_double=-10000.0
 symbolic.max_double=10000.0
 symbolic.bvlength=64
-search.depth_limit=156
+search.depth_limit=13
 symbolic.strings=true
 symbolic.string_dp=z3str3
 symbolic.lazy=on
@@ -97,6 +109,7 @@ veritestingMode = 5
 recursiveDepth= 200
 singlePathOptimization=true
 listener = .symbc.VeritestingListener
+#search.multiple_errors = true
 #listener = .symbc.SymbolicListener
 #,.symbc.SymbolicListener
 
@@ -107,3 +120,5 @@ listener = .symbc.VeritestingListener
 #,gov.nasa.jpf.symbc.sequences.SymbolicSequenceListener
 symbolic.optimizechoices=true
 symbolic.debug=true
+symbolic.jrarrays=true
+symbolic.fp = true
