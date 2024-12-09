@@ -44,6 +44,7 @@ echo "Empty benchmark or property file"
 exit 1
 fi
 
+echo "PROP_FILE=$PROP_FILE"
   ASSERTION_MODE="FALSE"
   RUNTIME_EXCEPTION_MODE="FALSE"
   grep "assert" $PROP_FILE
@@ -51,10 +52,13 @@ fi
     ASSERTION_MODE="TRUE"
   fi
 
-  grep "exception" $PROP_FILE
+  grep "Exception" $PROP_FILE
   if [ $? -eq 0 ]; then
     RUNTIME_EXCEPTION_MODE="TRUE"
   fi
+
+echo "ASSERTION_MODE=$ASSERTION_MODE"
+echo "RUNTIME_EXCEPTION_MODE=$RUNTIME_EXCEPTION_MODE"
 
 LOG=`mktemp -t jpf-log.XXXXXX`
 DIR=`mktemp -d -t jpf-benchmark.XXXXXX`
@@ -107,7 +111,7 @@ do
   if [ $RUNTIME_EXCEPTION_MODE = "TRUE" ] ; then
     echo "search.multiple_errors = true" >> $DIR/config.jpf
   fi
-
+  cat $DIR/config.jpf
 
   # run Java Ranger
   export LD_LIBRARY_PATH=$PWD/java-ranger/lib:$LD_LIBRARY_PATH
@@ -119,7 +123,7 @@ do
     JVM_FLAGS="-Xmx1024m -ea"
   fi
 
-  ulimit -t $DURATION ; /usr/lib/jvm/java-8-openjdk-amd64/bin/java  $JVM_FLAGS -Djava.library.path=/usr/local/lib -jar $PWD/jpf-core/build/RunJPF.jar $DIR/config.jpf >$LOG
+  ulimit -t $DURATION ; /usr/lib/jvm/java-8-openjdk-amd64/bin/java  $JVM_FLAGS -Djava.library.path=/usr/local/lib -jar $PWD/jpf-core/build/RunJPF.jar $DIR/config.jpf > $LOG
 
   TIMEOUT_EXIT_CODE=$?
   echo "time out code = $TIMEOUT_EXIT_CODE"
@@ -137,6 +141,7 @@ do
     fi
   else
     if [ $ASSERTION_MODE = "TRUE" ]; then
+      echo "inside assertion_mode=true"
       grep "^error.*NoUncaughtExceptionsProperty.*AssertionError" $LOG > /dev/null
       if [ $? -eq 0 ]; then
         echo " state3 = UNSAFE"
@@ -146,6 +151,7 @@ do
         RESULT="UNKNOWN"
       fi
     elif [ $RUNTIME_EXCEPTION_MODE = "TRUE" ]; then
+      echo "inside runtime=true"
       grep "java.lang.*Exception" $LOG > /dev/null
       if [ $? -eq 0 ]; then
         echo " state3 = UNSAFE"
